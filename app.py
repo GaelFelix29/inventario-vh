@@ -1,9 +1,21 @@
 from flask import Flask, render_template
 import pandas as pd
+import os
 
 app = Flask(__name__)
 
-ARCHIVO_EXCEL = "data/INVENTARIO-MAQUINAS_GAEL Conteo.xlsx"
+# ==========================================
+# RUTA DEL EXCEL (Compatible con Render)
+# ==========================================
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+ARCHIVO_EXCEL = os.path.join(
+    BASE_DIR,
+    "data",
+    "INVENTARIO-MAQUINAS_GAEL Conteo.xlsx"
+)
+
 
 @app.route("/")
 def inicio():
@@ -21,121 +33,81 @@ def inicio():
 @app.route("/<codigo>")
 def maquina(codigo):
 
-    # =============================
+    # ==========================================
     # LEER EXCEL
-    # =============================
+    # ==========================================
 
-    df = pd.read_excel(
-        ARCHIVO_EXCEL,
-        sheet_name="MAQUINARIAS",
-        header=6
-    )
-
-    # =============================
-    # LIMPIAR NOMBRES DE COLUMNAS
-    # =============================
-
-    df.columns = (
-        df.columns.astype(str)
-        .str.strip()
-        .str.replace(" ", "_", regex=False)
-    )
-
-    # =============================
-    # BUSCAR COLUMNA ID
-    # =============================
-
-    columna_id = None
-
-    for col in df.columns:
-
-        nombre = col.upper()
-
-        if "ID" in nombre and "ACT" in nombre:
-
-            columna_id = col
-
-            break
-
-    if columna_id is None:
-
+    try:
+        df = pd.read_excel(ARCHIVO_EXCEL)
+    except Exception as e:
         return f"""
-        <h2>No encontré la columna del ID.</h2>
+        <h2>Error al abrir el archivo Excel</h2>
 
-        <br>
+        <pre>{e}</pre>
 
-        {df.columns.tolist()}
+        <hr>
+
+        <b>Ruta utilizada:</b>
+
+        <pre>{ARCHIVO_EXCEL}</pre>
         """
 
-    # =============================
-    # LIMPIAR DATOS
-    # =============================
-
-    df[columna_id] = (
-        df[columna_id]
-        .astype(str)
-        .str.strip()
-    )
-
-    # =============================
+    # ==========================================
     # BUSCAR ACTIVO
-    # =============================
+    # ==========================================
 
-    fila = df[
-        df[columna_id].str.upper() == codigo.upper()
-    ]
+    columna = "ID_ACTIVO"
+
+    if columna not in df.columns:
+        return f"""
+        <h2>No existe la columna:</h2>
+
+        <pre>{columna}</pre>
+
+        <h3>Columnas encontradas:</h3>
+
+        <pre>{list(df.columns)}</pre>
+        """
+
+    fila = df[df[columna].astype(str).str.upper() == codigo.upper()]
 
     if fila.empty:
+        return f"""
+        <h2>Activo no encontrado</h2>
 
-        return f"<h2>El activo {codigo} no existe.</h2>"
+        <p>{codigo}</p>
+        """
 
     datos = fila.iloc[0].to_dict()
 
-    # =============================
+    # ==========================================
     # FORMATO DE DATOS
-    # =============================
+    # ==========================================
 
     for campo, valor in datos.items():
 
-        # Vacíos
         if pd.isna(valor):
-
             datos[campo] = "Sin información"
-
             continue
 
-        # Fechas
         if "Fecha" in campo:
-
             try:
-
-                datos[campo] = pd.to_datetime(
-                    valor
-                ).strftime("%d/%m/%Y")
-
+                datos[campo] = pd.to_datetime(valor).strftime("%d/%m/%Y")
             except:
-
                 pass
 
-        # Dinero USD
-        if campo == "Precio_Unitario_US":
+        if campo == "Valor_MX":
+            datos[campo] = "${:,.2f} MXN".format(float(valor))
 
-            datos[campo] = "${:,.2f} USD".format(
-                float(valor)
-            )
+        if campo == "Precio_Unitario_US":
+            datos[campo] = "${:,.2f} USD".format(float(valor))
 
         if campo == "Total_US":
+            datos[campo] = "${:,.2f} USD".format(float(valor))
 
-            datos[campo] = "${:,.2f} USD".format(
-                float(valor)
-            )
-
-        # Dinero MXN
-        if campo == "Valor_MX":
-
-            datos[campo] = "${:,.2f} MXN".format(
-                float(valor)
-            )
+    # ==========================================
+    # ENVIAR AL HTML
+    # ==========================================
 
     return render_template(
         "maquina.html",
@@ -144,7 +116,4 @@ def maquina(codigo):
 
 
 if __name__ == "__main__":
-
-    app.run(
-        debug=True
-    )
+    app.run(debug=True)
