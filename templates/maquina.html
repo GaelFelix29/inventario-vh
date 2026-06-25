@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>{{ datos["ID_ACTIVO"] }}</title>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='estilos.css') }}">
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>VITAL HEALTH</h1>
+
+<h2>{{ datos["ID_ACTIVO"] }}</h2>
+
+{% if datos["Estado"]=="ACTIVO" %}
+
+<div class="estado activo">
+🟢 ACTIVO
+</div>
+
+{% else %}
+
+<div class="estado baja">
+🔴 BAJA
+</div>
+
+{% endif %}
+
+<table>
+
+{% for campo, valor in datos.items() %}
+
+{% if valor!="Sin información" %}
+
+<tr>
+
+<th>{{ campo.replace("_"," ") }}</th>
+
+<td>{{ valor }}</td>
+
+</tr>
+
+{% endif %}
+
+{% endfor %}
+
+</table>
+
+</div>
+
+</body>
+
+</html>

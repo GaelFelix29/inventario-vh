@@ -1,0 +1,119 @@
+body{
+
+    background:#ececec;
+
+    font-family:Segoe UI;
+
+}
+
+.card{
+
+    width:900px;
+
+    margin:auto;
+
+    background:white;
+
+    margin-top:30px;
+
+    border-radius:15px;
+
+    padding:30px;
+
+    box-shadow:0px 0px 20px rgba(0,0,0,.2);
+
+}
+
+h1{
+
+    color:#1f8f42;
+
+    margin-bottom:5px;
+
+}
+
+h2{
+
+    margin-top:0;
+
+}
+
+.estado{
+
+    display:inline-block;
+
+    padding:10px 20px;
+
+    border-radius:25px;
+
+    color:white;
+
+    margin-bottom:25px;
+
+}
+
+.activo{
+
+    background:#1f8f42;
+
+}
+
+.baja{
+
+    background:#c62828;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+th{
+
+    width:260px;
+
+    background:#1f8f42;
+
+    color:white;
+
+    padding:12px;
+
+    text-align:left;
+
+}
+
+td{
+
+    padding:12px;
+
+    border-bottom:1px solid #ddd;
+
+}
+
+@media(max-width:900px){
+
+.card{
+
+    width:95%;
+
+    padding:15px;
+
+}
+
+table{
+
+    font-size:14px;
+
+}
+
+th{
+
+    width:180px;
+
+}
+
+}
