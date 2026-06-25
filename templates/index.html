@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+Inventario Vital Health
+{% endblock %}
+
+{% block contenido %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-7">
+
+        <div class="card shadow-lg border-0 p-5">
+
+            <div class="text-center">
+
+                <h1 class="display-5 fw-bold text-success">
+
+                    <i class="bi bi-box-seam-fill"></i>
+
+                    VITAL HEALTH
+
+                </h1>
+
+                <p class="text-muted fs-5">
+
+                    Sistema de Inventario de Activos
+
+                </p>
+
+            </div>
+
+            <div class="mt-5">
+
+                <input
+                    id="codigo"
+                    class="form-control form-control-lg"
+                    placeholder="Ejemplo: ACT-0001">
+
+            </div>
+
+            <div class="d-grid mt-4">
+
+                <button
+                    class="btn btn-success btn-lg"
+                    onclick="buscar()">
+
+                    <i class="bi bi-search"></i>
+
+                    Buscar Activo
+
+                </button>
+
+            </div>
+
+            <hr class="my-5">
+
+            <div class="text-center text-secondary">
+
+                También puedes escanear el código QR colocado en la máquina.
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

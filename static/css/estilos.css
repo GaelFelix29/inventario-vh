@@ -1,0 +1,164 @@
+/* body{
+
+    background:#f4f6f9;
+
+    font-family:'Poppins',sans-serif;
+
+}
+
+.card{
+
+    border-radius:20px;
+
+}
+
+.table td{
+
+    vertical-align:middle;
+
+}
+
+.estado{
+
+    display:inline-block;
+
+    padding:10px 20px;
+
+    border-radius:30px;
+
+    color:white;
+
+    font-weight:600;
+
+}
+
+.activo{
+
+    background:#198754;
+
+}
+
+.baja{
+
+    background:#dc3545;
+
+}
+
+.table th{
+
+    width:260px;
+
+    background:#198754;
+
+    color:white;
+
+}
+
+.table td{
+
+    background:white;
+
+}
+
+.navbar{
+
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
+
+}
+
+@media(max-width:768px){
+
+.table th{
+
+    width:150px;
+
+}
+
+} */
+ body{
+
+    background:#eef2f5;
+
+    font-family:'Segoe UI',sans-serif;
+
+}
+
+.card{
+
+    max-width:1100px;
+
+    margin:auto;
+
+    border-radius:20px;
+
+}
+
+table{
+
+    margin-top:20px;
+
+}
+
+th{
+
+    width:280px;
+
+    background:#1f8f42 !important;
+
+    color:white !important;
+
+    font-weight:600;
+
+    padding:15px !important;
+
+}
+
+td{
+
+    padding:15px !important;
+
+    background:white;
+
+}
+
+tr:hover td{
+
+    background:#f5f5f5;
+
+}
+
+.badge{
+
+    font-size:16px;
+
+}
+
+.btn{
+
+    border-radius:30px;
+
+    padding:10px 25px;
+
+}
+
+@media(max-width:768px){
+
+th{
+
+    width:180px;
+
+}
+
+.card-body{
+
+    padding:20px !important;
+
+}
+
+h1{
+
+    font-size:30px;
+
+}
+
+}

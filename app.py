@@ -4,6 +4,10 @@ import os
 
 app = Flask(__name__)
 
+# ==========================================
+# RUTA DEL EXCEL
+# ==========================================
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ARCHIVO_EXCEL = os.path.join(
@@ -12,23 +16,23 @@ ARCHIVO_EXCEL = os.path.join(
     "INVENTARIO-MAQUINAS_GAEL Conteo.xlsx"
 )
 
+# ==========================================
+# PAGINA PRINCIPAL
+# ==========================================
 
 @app.route("/")
 def inicio():
-    return """
-    <h1>Inventario Vital Health</h1>
+    return render_template("index.html")
 
-    <p>Escribe el código del activo después de la diagonal.</p>
 
-    <a href="/ACT-0001">ACT-0001</a>
-    """
-
+# ==========================================
+# FICHA DE MAQUINA
+# ==========================================
 
 @app.route("/<codigo>")
 def maquina(codigo):
 
     try:
-
         df = pd.read_excel(
             ARCHIVO_EXCEL,
             sheet_name="MAQUINARIAS",
@@ -36,71 +40,55 @@ def maquina(codigo):
             engine="openpyxl"
         )
 
+        # Quitar espacios de los nombres de columnas
         df.columns = df.columns.str.strip()
 
     except Exception as e:
-
         return f"""
         <h2>Error al abrir el Excel</h2>
-
         <pre>{e}</pre>
-
+        <hr>
         <pre>{ARCHIVO_EXCEL}</pre>
         """
 
-    columna = "ID ACTIVO"
-
-    fila = df[
-        df[columna]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-        == codigo.strip().upper()
-    ]
+    # Buscar el activo
+    fila = df[df["ID ACTIVO"].astype(str).str.upper() == codigo.upper()]
 
     if fila.empty:
-
         return f"""
         <h2>Activo no encontrado</h2>
-
         <p>{codigo}</p>
         """
 
     datos = fila.iloc[0].to_dict()
 
+    # Reemplazar valores vacíos
     for campo, valor in datos.items():
 
         if pd.isna(valor):
-            datos[campo] = "Sin información"
+            datos[campo] = ""
             continue
 
+        # Formato de fechas
         if "Fecha" in campo:
             try:
                 datos[campo] = pd.to_datetime(valor).strftime("%d/%m/%Y")
             except:
                 pass
 
-        if campo == "Valor MX":
-            try:
-                datos[campo] = "${:,.2f} MXN".format(float(valor))
-            except:
-                pass
-
+        # Formato monetario
         if campo == "Precio Unitario US":
-            try:
-                datos[campo] = "${:,.2f} USD".format(float(valor))
-            except:
-                pass
+            datos[campo] = "${:,.2f} USD".format(float(valor))
 
         if campo == "Total US":
-            try:
-                datos[campo] = "${:,.2f} USD".format(float(valor))
-            except:
-                pass
+            datos[campo] = "${:,.2f} USD".format(float(valor))
+
+        if campo == "Valor MX":
+            datos[campo] = "${:,.2f} MXN".format(float(valor))
 
     return render_template(
         "maquina.html",
-        datos=datos
+        maquina=datos
     )
 
 
