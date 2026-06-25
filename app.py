@@ -4,10 +4,6 @@ import os
 
 app = Flask(__name__)
 
-# ==========================================
-# RUTA DEL EXCEL (Compatible con Render)
-# ==========================================
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ARCHIVO_EXCEL = os.path.join(
@@ -24,8 +20,6 @@ def inicio():
 
     <p>Escribe el código del activo después de la diagonal.</p>
 
-    <p>Ejemplo:</p>
-
     <a href="/ACT-0001">ACT-0001</a>
     """
 
@@ -33,45 +27,39 @@ def inicio():
 @app.route("/<codigo>")
 def maquina(codigo):
 
-    # ==========================================
-    # LEER EXCEL
-    # ==========================================
-
     try:
-        df = pd.read_excel(ARCHIVO_EXCEL)
+
+        df = pd.read_excel(
+            ARCHIVO_EXCEL,
+            sheet_name="MAQUINARIAS",
+            header=6,
+            engine="openpyxl"
+        )
+
+        df.columns = df.columns.str.strip()
+
     except Exception as e:
+
         return f"""
-        <h2>Error al abrir el archivo Excel</h2>
+        <h2>Error al abrir el Excel</h2>
 
         <pre>{e}</pre>
-
-        <hr>
-
-        <b>Ruta utilizada:</b>
 
         <pre>{ARCHIVO_EXCEL}</pre>
         """
 
-    # ==========================================
-    # BUSCAR ACTIVO
-    # ==========================================
+    columna = "ID ACTIVO"
 
-    columna = "ID_ACTIVO"
-
-    if columna not in df.columns:
-        return f"""
-        <h2>No existe la columna:</h2>
-
-        <pre>{columna}</pre>
-
-        <h3>Columnas encontradas:</h3>
-
-        <pre>{list(df.columns)}</pre>
-        """
-
-    fila = df[df[columna].astype(str).str.upper() == codigo.upper()]
+    fila = df[
+        df[columna]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        == codigo.strip().upper()
+    ]
 
     if fila.empty:
+
         return f"""
         <h2>Activo no encontrado</h2>
 
@@ -79,10 +67,6 @@ def maquina(codigo):
         """
 
     datos = fila.iloc[0].to_dict()
-
-    # ==========================================
-    # FORMATO DE DATOS
-    # ==========================================
 
     for campo, valor in datos.items():
 
@@ -96,18 +80,23 @@ def maquina(codigo):
             except:
                 pass
 
-        if campo == "Valor_MX":
-            datos[campo] = "${:,.2f} MXN".format(float(valor))
+        if campo == "Valor MX":
+            try:
+                datos[campo] = "${:,.2f} MXN".format(float(valor))
+            except:
+                pass
 
-        if campo == "Precio_Unitario_US":
-            datos[campo] = "${:,.2f} USD".format(float(valor))
+        if campo == "Precio Unitario US":
+            try:
+                datos[campo] = "${:,.2f} USD".format(float(valor))
+            except:
+                pass
 
-        if campo == "Total_US":
-            datos[campo] = "${:,.2f} USD".format(float(valor))
-
-    # ==========================================
-    # ENVIAR AL HTML
-    # ==========================================
+        if campo == "Total US":
+            try:
+                datos[campo] = "${:,.2f} USD".format(float(valor))
+            except:
+                pass
 
     return render_template(
         "maquina.html",
