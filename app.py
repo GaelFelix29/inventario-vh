@@ -314,27 +314,62 @@ def dashboard_datos():
     # ===========================
 
     maq = maq.fillna("")
+    maq["ID ACTIVO"] = (
+    maq["ID ACTIVO"]
+    .astype(str)
+    .str.strip()
+)
+
+    # Eliminar filas sin ID
+    maq = maq[
+    maq["ID ACTIVO"] != ""
+]
+
+    # Eliminar IDs repetidos
+    maq = maq.drop_duplicates(subset="ID ACTIVO")
     aduana = aduana.fillna("")
     bajas = bajas.fillna("")
 
-        # ==========================================
-    # TOTALES
-    # ==========================================
+# ==========================================
+# TOTALES
+# ==========================================
 
-    total_activos = len(maq)
+# Eliminar filas vacías
+    maq = maq[
+    maq["ID ACTIVO"]
+    .notna()
+]
 
-    activos = len(
-        maq[
-            maq["Estado"]
-            .astype(str)
-            .str.upper()
-            .str.strip()
-            == "ACTIVO"
-        ]
-    )
+    maq = maq[
+    maq["ID ACTIVO"]
+    .astype(str)
+    .str.strip() != ""
+]
 
-    total_bajas = len(bajas)
+    # Total de máquinas (únicas)
+    total_activos = maq["ID ACTIVO"].nunique()
 
+    # Máquinas activas
+    activos = (
+    maq[
+        maq["Estado"]
+        .astype(str)
+        .str.upper()
+        .str.strip() == "ACTIVO"
+    ]["ID ACTIVO"]
+    .nunique()
+)
+
+# Máquinas dadas de baja
+    total_bajas = (
+    maq[
+        maq["Estado"]
+        .astype(str)
+        .str.upper()
+        .str.strip() == "BAJA"
+    ]["ID ACTIVO"]
+    .nunique()
+)
     # ==========================================
     # VALOR TOTAL MX
     # ==========================================
