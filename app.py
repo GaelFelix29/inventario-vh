@@ -3,6 +3,8 @@ import pandas as pd
 import os
 import qrcode
 import base64
+from flask import jsonify
+import numpy as np
 from io import BytesIO
 
 app = Flask(__name__)
@@ -257,6 +259,246 @@ def generar_qr(texto):
     return base64.b64encode(
         buffer.getvalue()
     ).decode("utf-8")
+
+from flask import jsonify
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
+
+@app.route("/dashboard/datos")
+def dashboard_datos():
+
+    # ===========================
+    # LEER MAQUINARIAS
+    # ===========================
+
+    maq = pd.read_excel(
+        ARCHIVO_EXCEL,
+        sheet_name="MAQUINARIAS",
+        header=6,
+        engine="openpyxl"
+    )
+
+    maq.columns = maq.columns.str.strip()
+
+    # ===========================
+    # LEER ADUANA
+    # ===========================
+
+    aduana = pd.read_excel(
+        ARCHIVO_EXCEL,
+        sheet_name="ADUANA",
+        header=6,
+        engine="openpyxl"
+    )
+
+    aduana.columns = aduana.columns.str.strip()
+
+    # ===========================
+    # LEER BAJAS
+    # ===========================
+
+    bajas = pd.read_excel(
+        ARCHIVO_EXCEL,
+        sheet_name="BAJAS",
+        header=6,
+        engine="openpyxl"
+    )
+
+    bajas.columns = bajas.columns.str.strip()
+
+    # ===========================
+    # LIMPIAR DATOS
+    # ===========================
+
+    maq = maq.fillna("")
+    aduana = aduana.fillna("")
+    bajas = bajas.fillna("")
+
+        # ==========================================
+    # TOTALES
+    # ==========================================
+
+    total_activos = len(maq)
+
+    activos = len(
+        maq[
+            maq["Estado"]
+            .astype(str)
+            .str.upper()
+            .str.strip()
+            == "ACTIVO"
+        ]
+    )
+
+    total_bajas = len(bajas)
+
+    # ==========================================
+    # VALOR TOTAL MX
+    # ==========================================
+
+    maq["Valor MX"] = (
+        maq["Valor MX"]
+        .astype(str)
+        .str.replace(",", "", regex=False)
+        .str.replace("$", "", regex=False)
+    )
+
+    maq["Valor MX"] = pd.to_numeric(
+        maq["Valor MX"],
+        errors="coerce"
+    ).fillna(0)
+
+    valor_total = round(
+        maq["Valor MX"].sum(),
+        2
+    )
+
+    # ==========================================
+    # ORIGEN MAQUINARIA
+    # ==========================================
+
+    origen = (
+        aduana["Origen"]
+        .astype(str)
+        .str.upper()
+        .str.strip()
+        .value_counts()
+    )
+
+    origen_labels = origen.index.tolist()
+    origen_values = origen.values.tolist()
+
+    # ==========================================
+    # DOCUMENTACIÓN
+    # ==========================================
+
+    documentacion = (
+        aduana["Documentación Completa"]
+        .astype(str)
+        .str.upper()
+        .str.strip()
+        .replace({
+            "SI": "COMPLETA",
+            "NO": "PENDIENTE"
+        })
+        .value_counts()
+    )
+
+    doc_labels = documentacion.index.tolist()
+    doc_values = documentacion.values.tolist()
+
+    # ==========================================
+    # TOP 10 MAQUINARIAS
+    # ==========================================
+
+    top = (
+        maq["Categoría"]
+        .astype(str)
+        .str.upper()
+        .str.strip()
+        .value_counts()
+        .head(10)
+    )
+
+    top_labels = top.index.tolist()
+    top_values = top.values.tolist()
+
+        # ==========================================
+    # VALOR POR ORIGEN
+    # ==========================================
+
+    origen_maquinas = aduana[["ID Activo", "Origen"]].copy()
+
+    origen_maquinas["ID Activo"] = (
+        origen_maquinas["ID Activo"]
+        .astype(str)
+        .str.upper()
+        .str.strip()
+    )
+
+    maq["ID ACTIVO"] = (
+        maq["ID ACTIVO"]
+        .astype(str)
+        .str.upper()
+        .str.strip()
+    )
+
+    valor_origen = maq.merge(
+        origen_maquinas,
+        left_on="ID ACTIVO",
+        right_on="ID Activo",
+        how="left"
+    )
+
+    valor_por_origen = (
+        valor_origen
+        .groupby("Origen")["Valor MX"]
+        .sum()
+        .sort_values(ascending=False)
+    )
+
+    valor_origen_labels = valor_por_origen.index.fillna("SIN DATO").tolist()
+
+    valor_origen_values = (
+        valor_por_origen
+        .round(2)
+        .tolist()
+    )
+
+    # ==========================================
+    # RESPUESTA JSON
+    # ==========================================
+
+    return jsonify({
+
+        "kpi":{
+
+            "total": total_activos,
+
+            "activos": activos,
+
+            "bajas": total_bajas,
+
+            "valor": valor_total
+
+        },
+
+        "origen":{
+
+            "labels": origen_labels,
+
+            "values": origen_values
+
+        },
+
+        "documentacion":{
+
+            "labels": doc_labels,
+
+            "values": doc_values
+
+        },
+
+        "top":{
+
+            "labels": top_labels,
+
+            "values": top_values
+
+        },
+
+        "valorOrigen":{
+
+            "labels": valor_origen_labels,
+
+            "values": valor_origen_values
+
+        }
+
+    })
 
 
 # ==========================================================

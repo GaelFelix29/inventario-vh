@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>Dashboard | Vital Health</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet"
+href="{{ url_for('static',filename='css/dashboard.css') }}">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark bg-success shadow">
+
+<div class="container">
+
+<a class="navbar-brand fw-bold" href="/">
+
+🏥 VITAL HEALTH
+
+</a>
+
+<div>
+
+<a href="/imprimir"
+class="btn btn-light">
+
+Imprimir QR
+
+</a>
+
+</div>
+
+</div>
+
+</nav>
+
+<div class="container-fluid mt-4">
+
+<div class="row mb-4">
+
+<div class="col-md-3">
+
+<div class="card card-kpi shadow">
+
+<div class="card-body text-center">
+
+<h6>Total Activos</h6>
+
+<h2 id="totalActivos">0</h2>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card card-kpi shadow">
+
+<div class="card-body text-center">
+
+<h6>Activos</h6>
+
+<h2 id="activos">0</h2>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card card-kpi shadow">
+
+<div class="card-body text-center">
+
+<h6>Bajas</h6>
+
+<h2 id="bajas">0</h2>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card card-kpi shadow">
+
+<div class="card-body text-center">
+
+<h6>Valor Total MXN</h6>
+
+<h2 id="valor">$0</h2>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<hr>
+
+<div class="row">
+
+<div class="col-lg-6 mb-4">
+
+<div class="card shadow">
+
+<div class="card-header">
+
+<b>Origen de la maquinaria</b>
+
+</div>
+
+<div class="card-body">
+
+<canvas id="graficaOrigen"></canvas>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-lg-6 mb-4">
+
+<div class="card shadow">
+
+<div class="card-header">
+
+<b>Documentación</b>
+
+</div>
+
+<div class="card-body">
+
+<canvas id="graficaEstado"></canvas>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="row">
+
+    <div class="col-lg-6 mb-4">
+
+        <div class="card shadow">
+
+            <div class="card-header">
+
+                <b>Top 10 Maquinarias</b>
+
+            </div>
+
+            <div class="card-body">
+
+                <canvas id="graficaTop"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-6 mb-4">
+
+        <div class="card shadow">
+
+            <div class="card-header">
+
+                <b>Valor por Origen</b>
+
+            </div>
+
+            <div class="card-body">
+
+                <canvas id="graficaValorOrigen"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="row">
+
+    <div class="col-12">
+
+        <div class="card shadow">
+
+            <div class="card-header d-flex justify-content-between align-items-center">
+
+                <b>Resumen del Inventario</b>
+
+                <button
+                    class="btn btn-success"
+                    onclick="window.print()">
+
+                    🖨 Imprimir Dashboard
+
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-striped table-hover">
+
+                        <thead class="table-success">
+
+                            <tr>
+
+                                <th>Indicador</th>
+
+                                <th>Valor</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>Total Activos</td>
+
+                                <td id="tblTotal">0</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Activos</td>
+
+                                <td id="tblActivos">0</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Bajas</td>
+
+                                <td id="tblBajas">0</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Valor Total MXN</td>
+
+                                <td id="tblValor">$0</td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+</body>
+
+</html>
