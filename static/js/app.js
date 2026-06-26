@@ -1,3 +1,18 @@
+function buscar() {
+
+    const codigo = document.getElementById("codigo").value.trim();
+
+    if(codigo===""){
+        alert("Ingrese un código.");
+        return;
+    }
+
+    window.location.href="/" + codigo;
+
+}
+
+
+
 //======================================================
 // IMPRESIÓN DE ETIQUETAS QR
 //======================================================
