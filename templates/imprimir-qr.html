@@ -153,38 +153,46 @@ id="chkSeleccionarTodo">
 
 <tr class="filaQR">
 
-<td>
+    <td>
 
-<input
-type="checkbox"
-class="seleccion"
-value="{{ maquina['ID ACTIVO'] }}">
+        <input
+            type="checkbox"
+            class="seleccion"
+            value="{{ maquina['id_activo'] }}">
 
-</td>
+    </td>
 
-<td>
+    <td>
 
-{{ maquina["ID ACTIVO"] }}
+        {{ maquina["id_activo"] }}
 
-</td>
+    </td>
 
-<td>
+    <td>
 
-{{ maquina["Categoría"] }}
+        {{ maquina["categoria"] }}
 
-</td>
+    </td>
 
-<td>
+    <td>
 
-{{ maquina["Estado"] }}
+        {% if maquina["fecha_baja"] %}
 
-</td>
+            BAJA
 
-<td>
+        {% else %}
 
-{{ maquina["Ubicación Final"] }}
+            ACTIVO
 
-</td>
+        {% endif %}
+
+    </td>
+
+    <td>
+
+        {{ maquina["ubicacion"] }}
+
+    </td>
 
 </tr>
 

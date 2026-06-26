@@ -1,25 +1,20 @@
-from flask import Flask, render_template, request
+from flask import Flask
+from flask import render_template
+from flask import jsonify
+from flask import request
 import pandas as pd
-import os
+
+from database.maquinarias import obtener_maquinarias
+from database.maquinarias import obtener_maquinaria
+
+from database.aduanas import obtener_aduanas
+
 import qrcode
 import base64
-from flask import jsonify
-import numpy as np
+
 from io import BytesIO
 
 app = Flask(__name__)
-
-# ==========================================================
-# RUTA DEL EXCEL
-# ==========================================================
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-ARCHIVO_EXCEL = os.path.join(
-    BASE_DIR,
-    "data",
-    "INVENTARIO-MAQUINAS_GAEL Conteo.xlsx"
-)
 
 # ==========================================================
 # INICIO
@@ -30,113 +25,165 @@ def inicio():
 
     return render_template("index.html")
 
+# ==========================================================
+# DASHBOARD
+# ==========================================================
+
+@app.route("/dashboard")
+def dashboard():
+
+    return render_template("dashboard.html")
+
 
 # ==========================================================
-# DETALLE DE UN ACTIVO
+# DATOS DASHBOARD
 # ==========================================================
+
+@app.route("/dashboard/datos")
+def dashboard_datos():
+
+    maq = obtener_maquinarias()
+    aduana = obtener_aduanas()
+
+    # ==========================
+    # KPIs
+    # ==========================
+
+    total = len(maq)
+
+    bajas = maq["fecha_baja"].notna().sum()
+
+    activos = total - bajas
+
+    valor = maq["valor_mx"].fillna(0).sum()
+
+    # ==========================
+    # ORIGEN
+    # ==========================
+
+    origen = (
+        aduana["origen"]
+        .fillna("SIN DATO")
+        .value_counts()
+    )
+
+    # ==========================
+    # DOCUMENTACION
+    # ==========================
+
+    documentacion = (
+        aduana["documentacion_completa"]
+        .fillna("NO")
+        .value_counts()
+    )
+
+    # ==========================
+    # TOP MAQUINARIAS
+    # ==========================
+
+    top = (
+        maq["categoria"]
+        .fillna("SIN DATO")
+        .value_counts()
+        .head(10)
+    )
+
+    # ==========================
+    # VALOR POR ORIGEN
+    # ==========================
+
+    valor_origen = (
+        aduana
+        .merge(
+            maq[["id_activo","valor_mx"]],
+            on="id_activo",
+            how="left"
+        )
+        .groupby("origen")["valor_mx"]
+        .sum()
+    )
+
+    return jsonify({
+
+        "kpi":{
+
+            "total": int(total),
+
+            "activos": int(activos),
+
+            "bajas": int(bajas),
+
+            "valor": float(valor)
+
+        },
+
+        "origen":{
+
+            "labels": origen.index.tolist(),
+
+            "values": origen.values.tolist()
+
+        },
+
+        "documentacion":{
+
+            "labels": documentacion.index.tolist(),
+
+            "values": documentacion.values.tolist()
+
+        },
+
+        "top":{
+
+            "labels": top.index.tolist(),
+
+            "values": top.values.tolist()
+
+        },
+
+        "valorOrigen":{
+
+            "labels": valor_origen.index.tolist(),
+
+            "values": valor_origen.values.tolist()
+
+        }
+
+    })
 
 @app.route("/<codigo>")
 def maquina(codigo):
 
-    try:
+    df = obtener_maquinaria(codigo)
 
-        df = pd.read_excel(
-            ARCHIVO_EXCEL,
-            sheet_name="MAQUINARIAS",
-            header=6,
-            engine="openpyxl"
-        )
+    if df.empty:
+        return "Activo no encontrado", 404
 
-        df.columns = df.columns.str.strip()
-
-    except Exception as e:
-
-        return f"""
-        <h2>Error al abrir el Excel</h2>
-        <pre>{e}</pre>
-        <hr>
-        <pre>{ARCHIVO_EXCEL}</pre>
-        """
-
-    df["ID ACTIVO"] = (
-        df["ID ACTIVO"]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-    )
-
-    codigo = codigo.strip().upper()
-
-    fila = df[df["ID ACTIVO"] == codigo]
-
-    if fila.empty:
-
-        return f"""
-        <h2>Activo no encontrado</h2>
-        <p>{codigo}</p>
-        """
-
-    datos = fila.iloc[0].to_dict()
-
-    for campo, valor in datos.items():
-
-        if pd.isna(valor):
-
-            datos[campo] = ""
-            continue
-
-        if "Fecha" in campo:
-
-            try:
-
-                datos[campo] = pd.to_datetime(valor).strftime("%d/%m/%Y")
-
-            except:
-
-                pass
-
-        if campo == "Precio Unitario US":
-
-            datos[campo] = "${:,.2f} USD".format(float(valor))
-
-        if campo == "Total US":
-
-            datos[campo] = "${:,.2f} USD".format(float(valor))
-
-        if campo == "Valor MX":
-
-            datos[campo] = "${:,.2f} MXN".format(float(valor))
+    maquina = df.iloc[0].to_dict()
 
     return render_template(
         "maquina.html",
-        maquina=datos
+        maquina=maquina
     )
 
 
 # ==========================================================
-# PÁGINA PARA IMPRIMIR QR
+# IMPRIMIR QR
 # ==========================================================
 
 @app.route("/imprimir")
-def imprimir():
+def imprimir_qr():
 
-    df = pd.read_excel(
-        ARCHIVO_EXCEL,
-        sheet_name="MAQUINARIAS",
-        header=6,
-        engine="openpyxl"
-    )
-
-    df.columns = df.columns.str.strip()
-
-    maquinas = df.to_dict(orient="records")
+    maquinas = obtener_maquinarias()
 
     return render_template(
         "imprimir-qr.html",
-        maquinas=maquinas
+        maquinas=maquinas.to_dict("records")
     )
+
+
 # ==========================================================
-# GENERAR ETIQUETAS QR
+# GENERAR ETIQUETAS
 # ==========================================================
 
 @app.route("/etiquetas", methods=["POST"])
@@ -144,400 +191,53 @@ def etiquetas():
 
     datos = request.get_json()
 
-    if not datos:
-        return "No se recibieron datos.", 400
+    codigos = datos["codigos"]
 
-    codigos = datos.get("codigos", [])
-    copias = int(datos.get("copias", 1))
-    tamano = datos.get("tamano", "3")
+    maquinas = obtener_maquinarias()
 
-    if len(codigos) == 0:
-        return "No se seleccionó ningún activo.", 400
-
-    try:
-
-        df = pd.read_excel(
-            ARCHIVO_EXCEL,
-            sheet_name="MAQUINARIAS",
-            header=6,
-            engine="openpyxl"
-        )
-
-    except Exception as e:
-
-        return f"Error al abrir el Excel: {e}", 500
-
-    df.columns = df.columns.str.strip()
-
-    df["ID ACTIVO"] = (
-        df["ID ACTIVO"]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-    )
+    maquinas = maquinas[
+        maquinas["id_activo"].isin(codigos)
+    ]
 
     etiquetas = []
 
-    print("\n=========== CÓDIGOS RECIBIDOS ===========")
-    print(codigos)
+    for _, fila in maquinas.iterrows():
 
-    for codigo in codigos:
+        url = request.host_url + fila["id_activo"]
 
-        codigo = str(codigo).strip().upper()
+        qr = qrcode.make(url)
 
-        print(f"Buscando activo: {codigo}")
+        buffer = BytesIO()
 
-        resultado = df[df["ID ACTIVO"] == codigo]
+        qr.save(buffer, format="PNG")
 
-        if resultado.empty:
+        qr64 = base64.b64encode(
+            buffer.getvalue()
+        ).decode()
 
-            print(f"No encontrado: {codigo}")
-            continue
+        etiquetas.append({
 
-        fila = resultado.iloc[0]
+            "codigo": fila["id_activo"],
 
-        url = request.host_url.rstrip("/") + "/" + codigo
+            "nombre": fila["descripcion"],
 
-        qr = generar_qr(url)
+            "estado":
+                "BAJA"
+                if pd.notna(fila["fecha_baja"])
+                else "ACTIVO",
 
-        for _ in range(copias):
+            "url": url,
 
-            etiquetas.append({
+            "qr": qr64
 
-                "codigo": codigo,
-
-                "nombre": str(fila.get("Categoría", "")),
-
-                "estado": str(fila.get("Estado", "")),
-
-                "ubicacion": str(fila.get("Ubicación Final", "")),
-
-                "tamano": tamano,
-
-                "qr": qr,
-
-                "url": url
-
-            })
-
-    print("\n=========== ETIQUETAS GENERADAS ===========")
-    print(f"TOTAL: {len(etiquetas)}")
+        })
 
     return render_template(
         "etiquetas.html",
-        etiquetas=etiquetas,
-        tamano=tamano,
-        copias=copias
+        etiquetas=etiquetas
     )
-
-
 # ==========================================================
-# GENERAR IMAGEN QR
-# ==========================================================
-
-def generar_qr(texto):
-
-    qr = qrcode.QRCode(
-        version=2,
-        error_correction=qrcode.constants.ERROR_CORRECT_M,
-        box_size=8,
-        border=2
-    )
-
-    qr.add_data(texto)
-    qr.make(fit=True)
-
-    img = qr.make_image(
-        fill_color="black",
-        back_color="white"
-    )
-
-    buffer = BytesIO()
-
-    img.save(buffer, format="PNG")
-
-    return base64.b64encode(
-        buffer.getvalue()
-    ).decode("utf-8")
-
-from flask import jsonify
-
-@app.route("/dashboard")
-def dashboard():
-    return render_template("dashboard.html")
-
-
-@app.route("/dashboard/datos")
-def dashboard_datos():
-
-    # ===========================
-    # LEER MAQUINARIAS
-    # ===========================
-
-    maq = pd.read_excel(
-        ARCHIVO_EXCEL,
-        sheet_name="MAQUINARIAS",
-        header=6,
-        engine="openpyxl"
-    )
-
-    maq.columns = maq.columns.str.strip()
-
-    # ===========================
-    # LEER ADUANA
-    # ===========================
-
-    aduana = pd.read_excel(
-        ARCHIVO_EXCEL,
-        sheet_name="ADUANA",
-        header=6,
-        engine="openpyxl"
-    )
-
-    aduana.columns = aduana.columns.str.strip()
-
-    # ===========================
-    # LEER BAJAS
-    # ===========================
-
-    bajas = pd.read_excel(
-        ARCHIVO_EXCEL,
-        sheet_name="BAJAS",
-        header=6,
-        engine="openpyxl"
-    )
-
-    bajas.columns = bajas.columns.str.strip()
-
-    # ===========================
-    # LIMPIAR DATOS
-    # ===========================
-
-    maq = maq.fillna("")
-    maq["ID ACTIVO"] = (
-    maq["ID ACTIVO"]
-    .astype(str)
-    .str.strip()
-)
-
-    # Eliminar filas sin ID
-    maq = maq[
-    maq["ID ACTIVO"] != ""
-]
-
-    # Eliminar IDs repetidos
-    maq = maq.drop_duplicates(subset="ID ACTIVO")
-    aduana = aduana.fillna("")
-    bajas = bajas.fillna("")
-
-# ==========================================
-# TOTALES
-# ==========================================
-
-# Eliminar filas vacías
-    maq = maq[
-    maq["ID ACTIVO"]
-    .notna()
-]
-
-    maq = maq[
-    maq["ID ACTIVO"]
-    .astype(str)
-    .str.strip() != ""
-]
-
-    # Total de máquinas (únicas)
-    total_activos = maq["ID ACTIVO"].nunique()
-
-    # Máquinas activas
-    activos = (
-    maq[
-        maq["Estado"]
-        .astype(str)
-        .str.upper()
-        .str.strip() == "ACTIVO"
-    ]["ID ACTIVO"]
-    .nunique()
-)
-
-# Máquinas dadas de baja
-    total_bajas = (
-    maq[
-        maq["Estado"]
-        .astype(str)
-        .str.upper()
-        .str.strip() == "BAJA"
-    ]["ID ACTIVO"]
-    .nunique()
-)
-    # ==========================================
-    # VALOR TOTAL MX
-    # ==========================================
-
-    maq["Valor MX"] = (
-        maq["Valor MX"]
-        .astype(str)
-        .str.replace(",", "", regex=False)
-        .str.replace("$", "", regex=False)
-    )
-
-    maq["Valor MX"] = pd.to_numeric(
-        maq["Valor MX"],
-        errors="coerce"
-    ).fillna(0)
-
-    valor_total = round(
-        maq["Valor MX"].sum(),
-        2
-    )
-
-    # ==========================================
-    # ORIGEN MAQUINARIA
-    # ==========================================
-
-    origen = (
-        aduana["Origen"]
-        .astype(str)
-        .str.upper()
-        .str.strip()
-        .value_counts()
-    )
-
-    origen_labels = origen.index.tolist()
-    origen_values = origen.values.tolist()
-
-    # ==========================================
-    # DOCUMENTACIÓN
-    # ==========================================
-
-    documentacion = (
-        aduana["Documentación Completa"]
-        .astype(str)
-        .str.upper()
-        .str.strip()
-        .replace({
-            "SI": "COMPLETA",
-            "NO": "PENDIENTE"
-        })
-        .value_counts()
-    )
-
-    doc_labels = documentacion.index.tolist()
-    doc_values = documentacion.values.tolist()
-
-    # ==========================================
-    # TOP 10 MAQUINARIAS
-    # ==========================================
-
-    top = (
-        maq["Categoría"]
-        .astype(str)
-        .str.upper()
-        .str.strip()
-        .value_counts()
-        .head(10)
-    )
-
-    top_labels = top.index.tolist()
-    top_values = top.values.tolist()
-
-        # ==========================================
-    # VALOR POR ORIGEN
-    # ==========================================
-
-    origen_maquinas = aduana[["ID Activo", "Origen"]].copy()
-
-    origen_maquinas["ID Activo"] = (
-        origen_maquinas["ID Activo"]
-        .astype(str)
-        .str.upper()
-        .str.strip()
-    )
-
-    maq["ID ACTIVO"] = (
-        maq["ID ACTIVO"]
-        .astype(str)
-        .str.upper()
-        .str.strip()
-    )
-
-    valor_origen = maq.merge(
-        origen_maquinas,
-        left_on="ID ACTIVO",
-        right_on="ID Activo",
-        how="left"
-    )
-
-    valor_por_origen = (
-        valor_origen
-        .groupby("Origen")["Valor MX"]
-        .sum()
-        .sort_values(ascending=False)
-    )
-
-    valor_origen_labels = valor_por_origen.index.fillna("SIN DATO").tolist()
-
-    valor_origen_values = (
-        valor_por_origen
-        .round(2)
-        .tolist()
-    )
-
-    # ==========================================
-    # RESPUESTA JSON
-    # ==========================================
-
-    return jsonify({
-
-        "kpi":{
-
-            "total": total_activos,
-
-            "activos": activos,
-
-            "bajas": total_bajas,
-
-            "valor": valor_total
-
-        },
-
-        "origen":{
-
-            "labels": origen_labels,
-
-            "values": origen_values
-
-        },
-
-        "documentacion":{
-
-            "labels": doc_labels,
-
-            "values": doc_values
-
-        },
-
-        "top":{
-
-            "labels": top_labels,
-
-            "values": top_values
-
-        },
-
-        "valorOrigen":{
-
-            "labels": valor_origen_labels,
-
-            "values": valor_origen_values
-
-        }
-
-    })
-
-
-# ==========================================================
-# INICIAR SERVIDOR
+# SERVIDOR
 # ==========================================================
 
 if __name__ == "__main__":

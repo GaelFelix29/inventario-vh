@@ -229,4 +229,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     );
 
+    // ==============================
+// TABLA RESUMEN
+// ==============================
+
+document.getElementById("tblTotal").textContent =
+    datos.kpi.total.toLocaleString();
+
+document.getElementById("tblActivos").textContent =
+    datos.kpi.activos.toLocaleString();
+
+document.getElementById("tblBajas").textContent =
+    datos.kpi.bajas.toLocaleString();
+
+document.getElementById("tblValor").textContent =
+    "$ " + datos.kpi.valor.toLocaleString();
+
 });
