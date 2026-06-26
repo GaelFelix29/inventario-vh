@@ -162,3 +162,69 @@ h1{
 }
 
 }
+
+/* =======================================
+   IMPRESIÓN QR
+======================================= */
+
+.filaQR:hover{
+
+    background:#ecfff1;
+
+}
+
+.form-check-input{
+
+    width:20px;
+
+    height:20px;
+
+    cursor:pointer;
+
+}
+
+#buscar{
+
+    border-radius:30px;
+
+    padding:12px 20px;
+
+}
+
+.table-success{
+
+    background:#198754 !important;
+
+}
+
+.table-success th{
+
+    background:#198754 !important;
+
+    color:white;
+
+}
+
+#seleccionarTodo{
+
+    border-radius:30px;
+
+}
+
+#imprimirQR{
+
+    border-radius:30px;
+
+}
+
+.contador{
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    color:#198754;
+
+}
+
+

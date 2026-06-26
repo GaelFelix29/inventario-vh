@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block titulo %}Imprimir Etiquetas QR{% endblock %}
+
+{% block contenido %}
+
+<div class="container py-4">
+
+<div class="card shadow border-0 rounded-4">
+
+<div class="card-body">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<div>
+
+<h2 class="text-success fw-bold">
+
+<i class="bi bi-qr-code"></i>
+
+Impresión de Etiquetas QR
+
+</h2>
+
+<p class="text-muted">
+
+Selecciona los activos que deseas imprimir.
+
+</p>
+
+</div>
+
+<a href="/" class="btn btn-outline-success">
+
+<i class="bi bi-house"></i>
+
+Inicio
+
+</a>
+
+</div>
+
+<hr>
+
+<div class="row g-3 mb-4">
+
+<div class="col-md-5">
+
+<input
+id="buscar"
+type="text"
+class="form-control"
+placeholder="Buscar por código, categoría o ubicación">
+
+</div>
+
+<div class="col-md-3">
+
+<select
+id="filtroEstado"
+class="form-select">
+
+<option value="Todos">Todos</option>
+
+<option value="ACTIVO">ACTIVO</option>
+
+<option value="BAJA">BAJA</option>
+
+</select>
+
+</div>
+
+<div class="col-md-2">
+
+<button
+id="btnSeleccionarVisibles"
+class="btn btn-success w-100">
+
+Seleccionar visibles
+
+</button>
+
+</div>
+
+<div class="col-md-2">
+
+<button
+id="btnDeseleccionar"
+class="btn btn-outline-danger w-100">
+
+Deseleccionar
+
+</button>
+
+</div>
+
+</div>
+
+<div class="row mb-3">
+
+<div class="col">
+
+<strong>
+
+Seleccionados:
+
+<span
+id="cantidadSeleccionados">
+
+0
+
+</span>
+
+</strong>
+
+</div>
+
+</div>
+
+<div class="table-responsive">
+
+<table
+id="tablaQR"
+class="table table-hover table-bordered align-middle">
+
+<thead class="table-success">
+
+<tr>
+
+<th width="50">
+
+<input
+type="checkbox"
+id="chkSeleccionarTodo">
+
+</th>
+
+<th>ID</th>
+
+<th>Categoría</th>
+
+<th>Estado</th>
+
+<th>Ubicación</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for maquina in maquinas %}
+
+<tr class="filaQR">
+
+<td>
+
+<input
+type="checkbox"
+class="seleccion"
+value="{{ maquina['ID ACTIVO'] }}">
+
+</td>
+
+<td>
+
+{{ maquina["ID ACTIVO"] }}
+
+</td>
+
+<td>
+
+{{ maquina["Categoría"] }}
+
+</td>
+
+<td>
+
+{{ maquina["Estado"] }}
+
+</td>
+
+<td>
+
+{{ maquina["Ubicación Final"] }}
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+<hr>
+
+<div class="row">
+
+<div class="col-md-3">
+
+<label class="form-label">
+
+Copias
+
+</label>
+
+<select
+id="copias"
+class="form-select">
+
+<option value="1">1</option>
+
+<option value="2">2</option>
+
+<option value="3">3</option>
+
+<option value="5">5</option>
+
+<option value="10">10</option>
+
+</select>
+
+</div>
+
+<div class="col-md-3">
+
+<label class="form-label">
+
+Tamaño
+
+</label>
+
+<select
+id="tamano"
+class="form-select">
+
+<option value="3">3 x 3 cm</option>
+
+<option value="4">4 x 4 cm</option>
+
+<option value="5">5 x 5 cm</option>
+
+</select>
+
+</div>
+<div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
+
+<button
+id="vistaPrevia"
+class="btn btn-outline-success">
+
+<i class="bi bi-eye"></i>
+
+Vista previa
+
+</button>
+
+<button
+id="imprimirQR"
+class="btn btn-success">
+
+<i class="bi bi-printer"></i>
+
+Imprimir
+
+</button>
+
+<button
+id="generarPDF"
+class="btn btn-primary">
+
+<i class="bi bi-file-earmark-pdf"></i>
+
+Generar PDF
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

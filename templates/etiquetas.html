@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<title>Etiquetas QR</title>
+
+<style>
+
+@page{
+    size:76mm 130mm;
+    margin:0;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,
+body{
+    width:76mm;
+    background:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+/* UNA ETIQUETA */
+.etiqueta{
+
+    width:76mm;
+    height:130mm;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    align-items:center;
+
+    page-break-after:always;
+    overflow:hidden;
+
+    padding:6mm;
+
+}
+
+/* LOGO */
+
+.logo{
+
+    font-size:11pt;
+    font-weight:bold;
+    color:#118847;
+    margin-bottom:5mm;
+
+}
+
+/* QR */
+
+.qr{
+
+    width:46mm;
+    height:46mm;
+    object-fit:contain;
+
+}
+
+/* CODIGO */
+
+.codigo{
+
+    margin-top:5mm;
+
+    font-size:18pt;
+
+    font-weight:bold;
+
+}
+
+/* NOMBRE */
+
+.nombre{
+
+    margin-top:3mm;
+
+    width:100%;
+
+    text-align:center;
+
+    font-size:12pt;
+
+    font-weight:bold;
+
+    word-break:break-word;
+
+}
+
+/* URL */
+
+.url{
+
+    margin-top:3mm;
+
+    font-size:8pt;
+
+    text-align:center;
+
+    word-break:break-all;
+
+}
+
+/* ESTADO */
+
+.estado{
+
+    margin-top:5mm;
+
+    padding:3mm 8mm;
+
+    border-radius:20px;
+
+    color:white;
+
+    font-size:11pt;
+
+    font-weight:bold;
+
+}
+
+.activo{
+
+    background:#198754;
+
+}
+
+.baja{
+
+    background:#dc3545;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+{% for e in etiquetas %}
+
+<div class="etiqueta">
+
+    <div class="logo">
+        VITAL HEALTH
+    </div>
+
+    <img
+        class="qr"
+        src="data:image/png;base64,{{ e.qr }}"
+    >
+
+    <div class="codigo">
+        {{ e.codigo }}
+    </div>
+
+    <div class="nombre">
+        {{ e.nombre|upper }}
+    </div>
+
+    <div class="url">
+        {{ e.url }}
+    </div>
+
+    <div class="estado {% if e.estado=='ACTIVO' %}activo{% else %}baja{% endif %}">
+        {{ e.estado }}
+    </div>
+
+</div>
+
+{% endfor %}
+
+<script>
+
+window.onload=function(){
+
+    setTimeout(function(){
+
+        window.print();
+
+    },300);
+
+}
+
+</script>
+
+</body>
+
+</html>
