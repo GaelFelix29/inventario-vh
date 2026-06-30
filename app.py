@@ -663,15 +663,29 @@ def qr_maquinaria(id_activo):
     maquina = obtener_maquinaria_detalle(id_activo)
 
     if not maquina:
-        flash(
-            "El activo no existe.",
-            "danger"
-        )
+        flash("El activo no existe.", "danger")
         return redirect(url_for("lista_maquinarias"))
+
+    # URL que abrirá el QR
+    url = url_for(
+        "expediente_maquinaria",
+        id_activo=id_activo,
+        _external=True
+    )
+
+    # Generar QR
+    img = qrcode.make(url)
+
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    qr = base64.b64encode(buffer.getvalue()).decode("utf-8")
 
     return render_template(
         "qr_maquinaria.html",
-        maquina=maquina
+        maquina=maquina,
+        qr=qr
     )
 
 @app.route("/maquinarias/<id_activo>/editar", methods=["GET", "POST"])
