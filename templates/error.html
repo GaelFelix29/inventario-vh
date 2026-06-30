@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Error 500</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-family:'Segoe UI',sans-serif;
+
+    background:linear-gradient(135deg,#dff6e7,#edf9f1);
+
+}
+
+.card-error{
+
+    width:1100px;
+    max-width:95%;
+
+    background:white;
+
+    border-radius:25px;
+
+    overflow:hidden;
+
+    display:flex;
+
+    box-shadow:0 20px 45px rgba(0,0,0,.15);
+
+}
+
+.izquierda{
+
+    width:50%;
+    background:#198754;
+
+    position:relative;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+
+    color:white;
+
+}
+
+.derecha{
+
+    width:50%;
+
+    padding:60px;
+
+    display:flex;
+
+    justify-content:center;
+
+    flex-direction:column;
+
+}
+
+.codigo{
+
+    font-size:100px;
+    font-weight:bold;
+    color:#198754;
+
+}
+
+h2{
+
+    font-weight:700;
+    margin-bottom:15px;
+
+}
+
+p{
+
+    color:#666;
+    font-size:18px;
+    line-height:1.8;
+
+}
+
+/* Tolva */
+
+.tolva{
+
+width:150px;
+height:80px;
+
+background:#d8d8d8;
+
+clip-path:polygon(0 0,100% 0,80% 100%,20% 100%);
+
+position:absolute;
+
+top:70px;
+
+}
+
+/* Polvo */
+
+.polvo{
+
+position:absolute;
+
+top:145px;
+
+width:6px;
+height:6px;
+
+background:#f4e7b0;
+
+border-radius:50%;
+
+animation:caer 2s linear infinite;
+
+}
+
+.p1{left:49%;animation-delay:0s;}
+.p2{left:51%;animation-delay:.5s;}
+.p3{left:50%;animation-delay:1s;}
+.p4{left:48%;animation-delay:1.5s;}
+
+@keyframes caer{
+
+0%{
+
+transform:translateY(0);
+opacity:1;
+
+}
+
+100%{
+
+transform:translateY(100px);
+
+opacity:0;
+
+}
+
+}
+
+/* Máquina */
+
+.maquina{
+
+margin-top:120px;
+
+width:220px;
+
+height:170px;
+
+background:#f8f9fa;
+
+border-radius:15px;
+
+border:6px solid #dcdcdc;
+
+position:relative;
+
+}
+
+/* Luz */
+
+.luz{
+
+position:absolute;
+
+width:20px;
+height:20px;
+
+background:red;
+
+border-radius:50%;
+
+top:-15px;
+
+left:15px;
+
+animation:alarma 1s infinite;
+
+}
+
+@keyframes alarma{
+
+50%{
+
+opacity:.2;
+
+}
+
+}
+
+/* Engrane */
+
+.engrane{
+
+position:absolute;
+
+bottom:-35px;
+left:-35px;
+
+font-size:55px;
+
+animation:girar 5s linear infinite;
+
+}
+
+@keyframes girar{
+
+100%{
+
+transform:rotate(360deg);
+
+}
+
+}
+
+/* Banda */
+
+.banda{
+
+width:280px;
+
+height:20px;
+
+background:#3b3b3b;
+
+margin-top:40px;
+
+border-radius:30px;
+
+position:relative;
+
+overflow:hidden;
+
+}
+
+/* Cápsulas */
+
+.capsula{
+
+width:30px;
+height:14px;
+
+background:white;
+
+border-radius:30px;
+
+position:absolute;
+
+top:3px;
+
+animation:mover 6s linear infinite;
+
+}
+
+.capsula:before{
+
+content:"";
+
+width:15px;
+height:14px;
+
+background:#198754;
+
+position:absolute;
+
+border-radius:30px 0 0 30px;
+
+}
+
+.c1{left:-40px;}
+.c2{left:-120px;animation-delay:2s;}
+.c3{left:-200px;animation-delay:4s;}
+
+@keyframes mover{
+
+from{
+
+left:-40px;
+
+}
+
+to{
+
+left:300px;
+
+}
+
+}
+
+.btn-success{
+
+padding:13px;
+
+border-radius:30px;
+
+font-weight:600;
+
+}
+
+.btn-outline-success{
+
+padding:13px;
+
+border-radius:30px;
+
+font-weight:600;
+
+margin-top:15px;
+
+}
+
+.texto{
+
+position:absolute;
+
+top:25px;
+
+font-size:22px;
+
+font-weight:600;
+
+}
+
+@media(max-width:900px){
+
+.card-error{
+
+flex-direction:column;
+
+}
+
+.izquierda,
+.derecha{
+
+width:100%;
+
+}
+
+.izquierda{
+
+height:420px;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card-error">
+
+<div class="izquierda">
+
+<div class="texto">
+Línea de Producción
+</div>
+
+<div class="tolva"></div>
+
+<div class="polvo p1"></div>
+<div class="polvo p2"></div>
+<div class="polvo p3"></div>
+<div class="polvo p4"></div>
+
+<div class="maquina">
+
+<div class="luz"></div>
+
+</div>
+
+<div class="engrane">
+
+⚙️
+
+</div>
+
+<div class="banda">
+
+<div class="capsula c1"></div>
+<div class="capsula c2"></div>
+<div class="capsula c3"></div>
+
+</div>
+
+</div>
+
+<div class="derecha">
+
+<div class="codigo">
+
+500
+
+</div>
+
+<h2>
+
+La producción se ha detenido
+
+</h2>
+
+<p>
+
+Se produjo un error inesperado en el sistema de inventario.
+La línea de producción de cápsulas no puede continuar hasta resolver el problema.
+
+</p>
+
+<a href="/" class="btn btn-success">
+
+<i class="fa-solid fa-house"></i>
+
+&nbsp; Volver al Inicio
+
+</a>
+
+<button onclick="location.reload()" class="btn btn-outline-success">
+
+<i class="fa-solid fa-rotate-right"></i>
+
+&nbsp; Reintentar
+
+</button>
+
+</div>
+
+</div>
+
+</body>
+</html>

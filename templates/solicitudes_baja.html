@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Solicitudes de Baja
+{% endblock %}
+
+{% block contenido %}
+
+<div class="container-fluid py-4">
+
+<div class="card shadow border-0 rounded-4">
+
+<div class="card-body">
+
+<h2 class="text-danger">
+
+<i class="bi bi-clipboard-check"></i>
+
+Solicitudes de Baja
+
+</h2>
+
+<hr>
+
+<table class="table table-hover align-middle">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>ID</th>
+
+<th>Activo</th>
+
+<th>Solicitante</th>
+
+<th>Fecha</th>
+
+<th>Prioridad</th>
+
+<th>Estado</th>
+
+<th></th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for s in solicitudes %}
+
+<tr>
+
+<td>{{ s.id }}</td>
+
+<td>
+
+<strong>{{ s.id_activo }}</strong>
+
+</td>
+
+<td>{{ s.solicitante }}</td>
+
+<td>{{ s.fecha }}</td>
+
+<td>
+
+{% if s.prioridad=="Alta" %}
+
+<span class="badge bg-danger">
+
+Alta
+
+</span>
+
+{% elif s.prioridad=="Media" %}
+
+<span class="badge bg-warning text-dark">
+
+Media
+
+</span>
+
+{% else %}
+
+<span class="badge bg-success">
+
+Baja
+
+</span>
+
+{% endif %}
+
+</td>
+
+<td>
+
+{% if s.estado=="Pendiente" %}
+
+<span class="badge bg-warning text-dark">
+
+Pendiente
+
+</span>
+
+{% elif s.estado=="Aprobada" %}
+
+<span class="badge bg-success">
+
+Aprobada
+
+</span>
+
+{% else %}
+
+<span class="badge bg-danger">
+
+Rechazada
+
+</span>
+
+{% endif %}
+
+</td>
+
+<td>
+
+<button
+    class="btn btn-primary btn-sm"
+    data-id="{{ s.id }}"
+    onclick="verSolicitud(this.dataset.id)">
+
+    <i class="bi bi-eye"></i>
+
+    Ver
+
+</button>
+
+</td>
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="modal fade"
+     id="modalSolicitud"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+
+                <h5 class="modal-title">
+
+                    Solicitud de Baja
+
+                </h5>
+
+                <button
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="fw-bold">
+
+                            Activo
+
+                        </label>
+
+                        <input
+                            id="m_activo"
+                            class="form-control"
+                            readonly>
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="fw-bold">
+
+                            Solicitante
+
+                        </label>
+
+                        <input
+                            id="m_solicitante"
+                            class="form-control"
+                            readonly>
+
+                    </div>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="fw-bold">
+
+                        Motivo
+
+                    </label>
+
+                    <textarea
+                        id="m_motivo"
+                        class="form-control"
+                        rows="3"
+                        readonly></textarea>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="fw-bold">
+
+                        Observaciones
+
+                    </label>
+
+                    <textarea
+                        id="m_observaciones"
+                        class="form-control"
+                        rows="3"
+                        readonly></textarea>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="fw-bold">
+
+                        Comentario del Administrador
+
+                    </label>
+
+                    <textarea
+                        id="comentario"
+                        class="form-control"
+                        rows="3"></textarea>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-success"
+                    id="btnAprobar">
+
+                    Aprobar
+
+                </button>
+
+                <button
+                    class="btn btn-danger"
+                    id="btnRechazar">
+
+                    Rechazar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% block scripts %}
+
+<script>
+
+function verSolicitud(id){
+
+    fetch("/solicitudes-baja/" + id)
+
+    .then(r => r.json())
+
+    .then(data => {
+
+        document.getElementById("m_activo").value = data.id_activo;
+        document.getElementById("m_solicitante").value = data.solicitante;
+        document.getElementById("m_motivo").value = data.motivo;
+        document.getElementById("m_observaciones").value = data.observaciones;
+
+        document.getElementById("btnAprobar").onclick = function(){
+
+            aprobarSolicitud(id);
+
+        };
+
+        document.getElementById("btnRechazar").onclick = function(){
+
+            rechazarSolicitud(id);
+
+        };
+
+        new bootstrap.Modal(
+            document.getElementById("modalSolicitud")
+        ).show();
+
+    });
+
+}
+
+
+// 👇 AQUÍ, inmediatamente después de verSolicitud()
+
+function aprobarSolicitud(id){
+
+    fetch("/solicitudes-baja/"+id+"/aprobar",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+            comentario:
+            document.getElementById("comentario").value
+
+        })
+
+    })
+
+    .then(r=>r.json())
+
+    .then(data=>{
+
+        if(data.ok){
+
+            location.reload();
+
+        }
+
+    });
+
+}
+
+function rechazarSolicitud(id){
+
+    fetch("/solicitudes-baja/" + id + "/rechazar",{
+
+        method:"POST",
+
+        headers:{
+
+            "Content-Type":"application/json"
+
+        },
+
+        body:JSON.stringify({
+
+            comentario:
+            document.getElementById("comentario").value
+
+        })
+
+    })
+
+    .then(r=>r.json())
+
+    .then(data=>{
+
+        if(data.ok){
+
+            location.reload();
+
+        }
+
+    });
+
+}
+
+</script>
+
+{% endblock %}
+
+{% endblock %}

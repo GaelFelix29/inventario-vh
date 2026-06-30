@@ -184,3 +184,40 @@ def actualizar_maquinaria(datos):
     with engine.begin() as conn:
 
         conn.execute(sql, datos)
+
+    
+    # ======================================================
+# DAR DE BAJA DESDE SOLICITUD
+# ======================================================
+
+def baja_desde_solicitud(id_activo, motivo, responsable):
+
+    sql = text("""
+
+        UPDATE maquinarias
+
+        SET
+
+            estado='BAJA',
+
+            fecha_baja=CURDATE(),
+
+            motivo_baja=:motivo,
+
+            responsable_baja=:responsable
+
+        WHERE id_activo=:id
+
+    """)
+
+    with engine.begin() as conn:
+
+        conn.execute(sql, {
+
+            "id": id_activo,
+
+            "motivo": motivo,
+
+            "responsable": responsable
+
+        })

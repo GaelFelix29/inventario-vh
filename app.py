@@ -8,11 +8,23 @@ from flask import (
     session,
     flash
 )
+from sqlalchemy import text
+from database.conexion import engine
+
 from models.auditoria_model import registrar_movimiento
 from functools import wraps
-from database.maquinarias import obtener_todas_maquinas, insertar_maquinaria, siguiente_id_activo, actualizar_maquinaria
+from datetime import date
 from database.aduanas import crear_registro_aduana_vacio
 
+from database.solicitudes_baja import (
+    guardar_solicitud,
+    obtener_solicitudes,
+    obtener_solicitud,
+    obtener_pendientes,
+    aprobar_solicitud,
+    rechazar_solicitud,
+    existe_solicitud_pendiente
+)
 
 import pandas as pd
 import qrcode
@@ -37,8 +49,13 @@ from database.usuarios import (
 )
 
 from database.maquinarias import (
+    obtener_todas_maquinas,
+    insertar_maquinaria,
+    siguiente_id_activo,
+    actualizar_maquinaria,
     obtener_maquinarias,
-    obtener_maquinaria
+    obtener_maquinaria,
+    baja_desde_solicitud
 )
 
 from database.aduanas import (
@@ -622,15 +639,48 @@ def expediente_maquinaria(id_activo):
         maquina=maquina
     )
 
+@app.route("/maquinarias/<id_activo>/imprimir")
+@login_required
+def imprimir_maquinaria(id_activo):
+
+    maquina = obtener_maquinaria(id_activo)
+
+    if not maquina:
+        flash("El activo no existe.", "danger")
+        return redirect(url_for("lista_maquinarias"))
+
+    return render_template(
+        "imprimir-qr.html",
+        maquina=maquina
+    )
+
 @app.route("/maquinarias/<id_activo>/qr")
 @login_required
 def qr_maquinaria(id_activo):
 
     maquina = obtener_maquinaria(id_activo)
 
+    if not maquina:
+        flash("El activo no existe.", "danger")
+        return redirect(url_for("lista_maquinarias"))
+
+    # URL que abrirá el QR
+    url = request.host_url + "maquinarias/" + id_activo
+
+    # Generar QR
+    qr = qrcode.make(url)
+
+    buffer = BytesIO()
+    qr.save(buffer, format="PNG")
+
+    qr64 = base64.b64encode(
+        buffer.getvalue()
+    ).decode()
+
     return render_template(
         "qr_maquinaria.html",
-        maquina=maquina
+        maquina=maquina,
+        qr=qr64
     )
 
 @app.route("/maquinarias/<id_activo>/editar", methods=["GET", "POST"])
@@ -716,6 +766,255 @@ def editar_maquinaria(id_activo):
         editar=True
 
     )
+
+
+
+@app.route("/maquinarias/<id_activo>/solicitud-baja", methods=["POST"])
+@login_required
+def solicitud_baja(id_activo):
+
+    # Solo Administrador y Mantenimiento
+    if session.get("rol") not in ["Administrador", "Mantenimiento"]:
+
+        flash(
+            "No tiene permisos para realizar esta acción.",
+            "danger"
+        )
+
+        return redirect(url_for(
+            "expediente_maquinaria",
+            id_activo=id_activo
+        ))
+
+    maquina = obtener_maquinaria(id_activo)
+
+    if not maquina:
+
+        flash(
+            "El activo no existe.",
+            "danger"
+        )
+
+        return redirect(url_for("lista_maquinarias"))
+
+    # ==================================================
+    # VALIDACIÓN 1
+    # El activo ya está dado de baja
+    # ==================================================
+
+    if maquina["estado"] == "BAJA":
+
+        flash(
+            "Este activo ya fue dado de baja y no puede generar otra solicitud.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "expediente_maquinaria",
+                id_activo=id_activo
+            )
+        )
+
+    # ==================================================
+    # VALIDACIÓN 2
+    # Ya existe una solicitud pendiente
+    # ==================================================
+
+    if existe_solicitud_pendiente(id_activo):
+
+        flash(
+            "Este activo ya cuenta con una solicitud de baja pendiente.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "expediente_maquinaria",
+                id_activo=id_activo
+            )
+        )
+
+    datos = {
+
+        "id_activo": id_activo,
+
+        "solicitante": session["nombre"],
+
+        "motivo": request.form["motivo"],
+
+        "observaciones": request.form["observaciones"],
+
+        "prioridad": request.form["prioridad"]
+
+    }
+
+    guardar_solicitud(datos)
+
+    registrar_movimiento(
+
+        usuario=session["nombre"],
+
+        accion="Solicitó baja del activo",
+
+        modulo="Maquinaria",
+
+        referencia=id_activo
+
+    )
+
+    flash(
+        "La solicitud fue enviada correctamente y está pendiente de aprobación.",
+        "success"
+    )
+
+    return redirect(
+        url_for(
+            "expediente_maquinaria",
+            id_activo=id_activo
+        )
+    )
+
+@app.route("/solicitudes-baja")
+@login_required
+def lista_solicitudes_baja():
+
+    if session.get("rol") != "Administrador":
+
+        flash(
+            "No tiene permisos.",
+            "danger"
+        )
+
+        return redirect(url_for("dashboard"))
+
+    solicitudes = obtener_solicitudes()
+
+    return render_template(
+    "solicitudes_baja.html",
+    solicitudes=solicitudes.to_dict("records")
+)
+
+@app.route("/solicitudes-baja/<int:id>")
+@login_required
+def ver_solicitud(id):
+
+    if session.get("rol") != "Administrador":
+
+        flash(
+            "No tiene permisos.",
+            "danger"
+        )
+
+        return redirect(url_for("dashboard"))
+
+    solicitud = obtener_solicitud(id)
+
+    return jsonify(solicitud.to_dict())
+
+@app.route("/solicitudes-baja/<int:id>/aprobar", methods=["POST"])
+@login_required
+def aprobar_solicitud_route(id):
+
+    if session.get("rol") != "Administrador":
+
+        return jsonify({
+            "ok": False
+        }),403
+
+    comentario=request.json.get("comentario","")
+
+    aprobar_solicitud(
+
+        id,
+
+        session["nombre"],
+
+        comentario
+
+    )
+
+    return jsonify({
+
+        "ok":True
+
+    })
+
+
+def baja_desde_solicitud(id_activo, motivo, responsable):
+
+    sql = text("""
+
+        UPDATE maquinarias
+
+        SET
+
+            estado='BAJA',
+
+            fecha_baja=:fecha,
+
+            motivo_baja=:motivo,
+
+            responsable_baja=:responsable
+
+        WHERE id_activo=:id
+
+    """)
+
+    with engine.begin() as conn:
+
+            conn.execute(sql, {
+
+            "fecha": date.today(),
+
+            "motivo": motivo,
+
+            "responsable": responsable,
+
+            "id": id_activo
+
+        })
+
+@app.route("/solicitudes-baja/<int:id>/rechazar", methods=["POST"])
+@login_required
+def rechazar_solicitud_route(id):
+
+    if session.get("rol") != "Administrador":
+
+        return jsonify({
+            "ok": False
+        }), 403
+
+    comentario = request.json.get("comentario", "")
+
+    rechazar_solicitud(
+
+        id,
+
+        session["nombre"],
+
+        comentario
+
+    )
+
+    return jsonify({
+
+        "ok": True
+
+    })
+# @app.errorhandler(404)
+# def pagina_no_encontrada(error):
+#     return render_template("error.html"), 404
+
+
+# @app.errorhandler(500)
+# def error_servidor(error):
+#     return render_template("error.html"), 500
+
+
+# @app.errorhandler(Exception)
+# def error_general(error):
+#     return render_template("error.html"), 500
 
 
 # ==========================================================
