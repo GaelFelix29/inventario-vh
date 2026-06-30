@@ -6,156 +6,222 @@
 
 <div class="container-fluid py-4">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <div>
+        <div>
 
-        <h2 class="fw-bold text-success">
+            <h2 class="fw-bold text-success">
 
-            <i class="bi bi-pc-display"></i>
+                <i class="bi bi-pc-display"></i>
 
-            Gestión de Maquinaria
+                Gestión de Maquinaria
 
-        </h2>
+            </h2>
 
-        <small class="text-muted">
+            <small class="text-muted">
 
-            Administración de todos los activos registrados.
+                Administración de todos los activos registrados.
 
-        </small>
+            </small>
+
+        </div>
+
+        {% if session["rol"]=="Administrador" %}
+
+        <a href="/maquinarias/nuevo" class="btn btn-success">
+
+            <i class="bi bi-plus-circle"></i>
+
+            Nuevo Activo
+
+        </a>
+
+        {% endif %}
 
     </div>
 
-    {% if session["rol"]=="Administrador" %}
+    <div class="card shadow border-0 rounded-4">
 
-    <a href="/maquinarias/nuevo" class="btn btn-success">
+        <div class="card-body">
 
-        <i class="bi bi-plus-circle"></i>
+            <div class="row mb-4">
 
-        Nuevo Activo
+                <div class="col-md-8">
 
-    </a>
+                    <div class="input-group">
 
-    {% endif %}
+                        <span class="input-group-text bg-white">
+
+                            <i class="bi bi-search"></i>
+
+                        </span>
+
+                        <input type="text" id="buscarMaquina" class="form-control"
+                            placeholder="Buscar por ID, Marca, Modelo, Categoría...">
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-4 text-end">
+
+                    <small class="text-muted">
+
+                        Total de activos:
+                        <strong id="totalRegistros">
+
+                            {{ maquinas|length }}
+
+                        </strong>
+
+                    </small>
+
+                </div>
+
+            </div>
+
+            <div class="table-responsive">
+
+                <table id="tablaMaquinas" class="table table-hover table-striped align-middle">
+
+                    <thead class="table-success">
+
+                        <tr>
+
+                            <th>ID</th>
+
+                            <th>Categoría</th>
+
+                            <th>Marca</th>
+
+                            <th>Modelo</th>
+
+                            <th>Ubicación</th>
+
+                            <th>Estado</th>
+
+                            <th width="220">Acciones</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tablaMaquinas">
+
+                        {% for maquina in maquinas %}
+
+                        <tr class="fila-maquina">
+
+                            <td>
+
+                                <b>{{ maquina.id_activo }}</b>
+
+                            </td>
+
+                            <td>{{ maquina.categoria }}</td>
+
+                            <td>{{ maquina.marca }}</td>
+
+                            <td>{{ maquina.modelo }}</td>
+
+                            <td>{{ maquina.ubicacion }}</td>
+
+                            <td>
+
+                                {% if maquina.fecha_baja %}
+
+                                <span class="badge bg-danger">
+
+                                    BAJA
+
+                                </span>
+
+                                {% else %}
+
+                                <span class="badge bg-success">
+
+                                    ACTIVO
+
+                                </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                <a href="{{ url_for('expediente_maquinaria', id_activo=maquina.id_activo) }}"
+                                    class="btn btn-sm btn-outline-primary">
+
+                                    <i class="bi bi-eye"></i>
+
+                                </a>
+
+                                <a href="{{ url_for('editar_maquinaria', id_activo=maquina.id_activo) }}"
+                                    class="btn btn-sm btn-outline-warning">
+
+                                    <i class="bi bi-pencil"></i>
+
+                                </a>
+
+                            </td>
+
+                        </tr class="fila-maquina">
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
-<div class="card shadow border-0 rounded-4">
+<script>
 
-<div class="card-body">
+document.addEventListener("DOMContentLoaded", () => {
 
-<div class="table-responsive">
+    const buscador = document.getElementById("buscarMaquina");
 
-<table id="tablaMaquinas" class="table table-hover table-striped align-middle">
+    const filas = document.querySelectorAll(".fila-maquina");
 
-<thead class="table-success">
+    const contador = document.getElementById("totalRegistros");
 
-<tr>
+    buscador.addEventListener("keyup", function () {
 
-<th>ID</th>
+        const texto = this.value.toLowerCase();
 
-<th>Categoría</th>
+        let visibles = 0;
 
-<th>Marca</th>
+        filas.forEach(fila => {
 
-<th>Modelo</th>
+            const contenido = fila.innerText.toLowerCase();
 
-<th>Ubicación</th>
+            if (contenido.includes(texto)) {
 
-<th>Estado</th>
+                fila.style.display = "";
 
-<th width="220">Acciones</th>
+                visibles++;
 
-</tr>
+            } else {
 
-</thead>
+                fila.style.display = "none";
 
-<tbody>
+            }
 
-{% for maquina in maquinas %}
+        });
 
-<tr>
+        contador.textContent = visibles;
 
-<td>
+    });
 
-<b>{{ maquina.id_activo }}</b>
+});
 
-</td>
-
-<td>{{ maquina.categoria }}</td>
-
-<td>{{ maquina.marca }}</td>
-
-<td>{{ maquina.modelo }}</td>
-
-<td>{{ maquina.ubicacion }}</td>
-
-<td>
-
-{% if maquina.fecha_baja %}
-
-<span class="badge bg-danger">
-
-BAJA
-
-</span>
-
-{% else %}
-
-<span class="badge bg-success">
-
-ACTIVO
-
-</span>
-
-{% endif %}
-
-</td>
-
-<td>
-
-<a href="{{ url_for('expediente_maquinaria', id_activo=maquina.id_activo) }}"
-   class="btn btn-sm btn-outline-primary">
-
-    <i class="bi bi-eye"></i>
-
-</a>
-
-<a href="{{ url_for('editar_maquinaria', id_activo=maquina.id_activo) }}"
-   class="btn btn-sm btn-outline-warning">
-
-    <i class="bi bi-pencil"></i>
-
-</a>
-
-<button class="btn btn-sm btn-outline-info">
-
-<i class="bi bi-file-earmark-text"></i>
-
-</button>
-
-<button class="btn btn-sm btn-outline-success">
-
-<i class="bi bi-globe-americas"></i>
-
-</button>
-
-</td>
-
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
+</script>
 
 {% endblock %}

@@ -13,8 +13,7 @@ function buscar() {
         return;
     }
 
-    window.location.href = "/maquina/" + codigo.value.trim();
-
+    window.location.href = "/maquinarias/" + codigo.value.trim();
 }
 
 //======================================================

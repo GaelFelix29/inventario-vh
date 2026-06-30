@@ -55,11 +55,19 @@ from database.maquinarias import (
     actualizar_maquinaria,
     obtener_maquinarias,
     obtener_maquinaria,
-    baja_desde_solicitud
+    baja_desde_solicitud,
+    obtener_maquinarias_select,
+    obtener_maquinaria_detalle
 )
 
 from database.aduanas import (
-    obtener_aduanas
+    obtener_aduanas,
+    obtener_aduana,
+    crear_registro_aduana_vacio,
+    guardar_aduana,
+    obtener_aduana,
+    actualizar_aduana,
+    estado_expediente_aduanal
 )
 
 # ==========================================
@@ -457,29 +465,7 @@ def dashboard_datos():
 
         }
 
-    })
-
-
-# ==========================================================
-# MAQUINARIA
-# ==========================================================
-
-@app.route("/maquina/<codigo>")
-@login_required
-def maquina(codigo):
-
-    df = obtener_maquinaria(codigo)
-
-    if df.empty:
-        return "Activo no encontrado", 404
-
-    maquina = df.iloc[0].to_dict()
-
-    return render_template(
-        "maquina.html",
-        maquina=maquina
-    )
-
+    })  
 
 # ==========================================================
 # IMPRIMIR QR
@@ -623,7 +609,7 @@ def nueva_maquinaria():
 @login_required
 def expediente_maquinaria(id_activo):
 
-    maquina = obtener_maquinaria(id_activo)
+    maquina = obtener_maquinaria_detalle(id_activo)
 
     if not maquina:
 
@@ -632,21 +618,37 @@ def expediente_maquinaria(id_activo):
             "danger"
         )
 
-        return redirect(url_for("lista_maquinarias"))
+        return redirect(
+            url_for("lista_maquinarias")
+        )
+
+    aduana = obtener_aduana(id_activo)
+
+    estado_aduana = estado_expediente_aduanal(aduana)
 
     return render_template(
+
         "expediente_maquinaria.html",
-        maquina=maquina
+
+        maquina=maquina,
+
+        aduana=aduana,
+
+        estado_aduana=estado_aduana
+
     )
 
 @app.route("/maquinarias/<id_activo>/imprimir")
 @login_required
 def imprimir_maquinaria(id_activo):
 
-    maquina = obtener_maquinaria(id_activo)
+    maquina = obtener_maquinaria_detalle(id_activo)
 
     if not maquina:
-        flash("El activo no existe.", "danger")
+        flash(
+            "El activo no existe.",
+            "danger"
+        )
         return redirect(url_for("lista_maquinarias"))
 
     return render_template(
@@ -658,29 +660,18 @@ def imprimir_maquinaria(id_activo):
 @login_required
 def qr_maquinaria(id_activo):
 
-    maquina = obtener_maquinaria(id_activo)
+    maquina = obtener_maquinaria_detalle(id_activo)
 
     if not maquina:
-        flash("El activo no existe.", "danger")
+        flash(
+            "El activo no existe.",
+            "danger"
+        )
         return redirect(url_for("lista_maquinarias"))
-
-    # URL que abrirá el QR
-    url = request.host_url + "maquinarias/" + id_activo
-
-    # Generar QR
-    qr = qrcode.make(url)
-
-    buffer = BytesIO()
-    qr.save(buffer, format="PNG")
-
-    qr64 = base64.b64encode(
-        buffer.getvalue()
-    ).decode()
 
     return render_template(
         "qr_maquinaria.html",
-        maquina=maquina,
-        qr=qr64
+        maquina=maquina
     )
 
 @app.route("/maquinarias/<id_activo>/editar", methods=["GET", "POST"])
@@ -1002,15 +993,151 @@ def rechazar_solicitud_route(id):
         "ok": True
 
     })
-# @app.errorhandler(404)
+
+
+@app.route("/aduanas")
+@login_required
+def lista_aduanas():
+
+    aduanas = obtener_aduanas()
+
+    print(aduanas.head())
+    print(aduanas.shape)
+
+    return render_template(
+        "aduanas.html",
+        aduanas=aduanas.to_dict("records")
+    )
+
+@app.route("/aduanas/nuevo", methods=["GET", "POST"])
+@login_required
+def nueva_aduana():
+
+    maquinarias = obtener_maquinarias_select()
+
+    if request.method == "POST":
+
+        guardar_aduana(
+
+            request.form["id_activo"],
+
+            request.form["factura"],
+
+            request.form["pedimento"],
+
+            request.form["entrada_mtz"],
+
+            request.form["id_imp"],
+
+            request.form["inbond"],
+
+            request.form["origen"],
+
+            request.form["fecha_importacion"]
+
+        )
+
+        flash(
+
+            "Expediente aduanal actualizado correctamente.",
+
+            "success"
+
+        )
+
+        return redirect(
+
+            url_for("lista_aduanas")
+
+        )
+
+    return render_template(
+
+        "nueva_aduana.html",
+
+        maquinarias=maquinarias.to_dict("records")
+
+    )
+
+@app.route("/aduanas/<id_activo>/editar", methods=["GET", "POST"])
+@login_required
+def editar_aduana(id_activo):
+
+    maquinarias = obtener_maquinarias_select()
+
+    aduana = obtener_aduana(id_activo)
+
+    if not aduana:
+
+        flash(
+            "No existe información aduanal para este activo.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("nueva_aduana")
+        )
+
+    if request.method == "POST":
+
+        actualizar_aduana(
+
+            id_activo,
+
+            request.form["factura"],
+            request.form["pedimento"],
+            request.form["entrada_mtz"],
+            request.form["id_imp"],
+            request.form["inbond"],
+            request.form["origen"],
+            request.form["fecha_importacion"]
+
+        )
+
+        flash(
+            "Expediente actualizado correctamente.",
+            "success"
+        )
+
+        return redirect(
+            url_for("expediente_maquinaria", id_activo=id_activo)
+        )
+
+    return render_template(
+
+        "nueva_aduana.html",
+
+        maquinarias=maquinarias.to_dict("records"),
+
+        aduana=aduana,
+
+        editar=True
+
+    )
+
+@app.route("/aduanas/datos/<id_activo>")
+@login_required
+def datos_aduana(id_activo):
+
+    aduana = obtener_aduana(id_activo)
+
+    if aduana.empty:
+        return jsonify({})
+
+    datos = aduana.iloc[0].to_dict()
+
+    if datos.get("fecha_importacion"):
+        datos["fecha_importacion"] = str(datos["fecha_importacion"])[:10]
+
+    return jsonify(datos)
+
+# app.errorhandler(404)
 # def pagina_no_encontrada(error):
 #     return render_template("error.html"), 404
-
 
 # @app.errorhandler(500)
 # def error_servidor(error):
 #     return render_template("error.html"), 500
-
 
 # @app.errorhandler(Exception)
 # def error_general(error):

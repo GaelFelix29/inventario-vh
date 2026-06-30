@@ -134,7 +134,7 @@ def siguiente_id_activo():
 
     return f"ACT-{numero:04d}"
 
-def obtener_maquinaria(id_activo):
+def obtener_maquinaria_detalle(id_activo):
 
     sql = text("""
 
@@ -221,3 +221,18 @@ def baja_desde_solicitud(id_activo, motivo, responsable):
             "responsable": responsable
 
         })
+
+
+def obtener_maquinarias_select():
+
+    sql = """
+
+        SELECT
+            id_activo,
+            descripcion
+        FROM maquinarias
+        ORDER BY id_activo
+
+    """
+
+    return pd.read_sql(sql, engine)

@@ -76,10 +76,10 @@
 
 {% endif %}
 
-        <a href="#">
-            <i class="bi bi-truck"></i>
-            Aduanas
-        </a>
+<a href="{{ url_for('lista_aduanas') }}">
+    <i class="bi bi-truck"></i>
+    Aduanas
+</a>
 
         {% if session.get("rol")=="Administrador" %}
 

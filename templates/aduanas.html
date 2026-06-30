@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Aduanas
+{% endblock %}
+
+{% block contenido %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold mb-1">
+
+                <i class="bi bi-truck"></i>
+
+                Gestión de Aduanas
+
+            </h2>
+
+            <p class="text-muted mb-0">
+
+                Administración de información de importaciones.
+
+            </p>
+
+        </div>
+
+            <a href="{{ url_for('nueva_aduana') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i>
+
+            Actualizar Expediente
+
+        </a>
+
+    </div>
+
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body">
+
+            <table
+                id="tablaAduanas"
+                class="table table-hover align-middle">
+
+                <thead class="table-success">
+
+                    <tr>
+
+                        <th>Activo</th>
+
+                        <th>Factura</th>
+
+                        <th>Pedimento</th>
+
+                        <th>Origen</th>
+
+                        <th>Fecha</th>
+
+                        <th>Documento</th>
+
+                        <th width="140">
+                            Acciones
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for a in aduanas %}
+
+                    <tr>
+
+                        <td>
+
+                            <strong>{{ a.id_activo }}</strong>
+
+                        </td>
+
+                        <td>
+
+                            {{ a.factura }}
+
+                        </td>
+
+                        <td>
+
+                            {{ a.pedimento }}
+
+                        </td>
+
+                        <td>
+
+                            {{ a.origen }}
+
+                        </td>
+
+                        <td>
+
+                            {{ a.fecha_importacion }}
+
+                        </td>
+
+                        <td>
+
+                            {% if a.documento %}
+
+                            <a
+                                href="#"
+                                class="btn btn-sm btn-outline-secondary">
+
+                                <i class="bi bi-file-earmark-pdf"></i>
+
+                            </a>
+
+                            {% else %}
+
+                            <span class="text-muted">
+
+                                Sin documento
+
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <button
+                                class="btn btn-sm btn-primary">
+
+                                <i class="bi bi-eye"></i>
+
+                            </button>
+
+                            <button
+                                class="btn btn-sm btn-warning">
+
+                                <i class="bi bi-pencil"></i>
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+
+$(document).ready(function(){
+
+    $("#tablaAduanas").DataTable({
+
+        language:{
+
+            url:"https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json"
+
+        },
+
+        pageLength:10,
+
+        responsive:true
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Información Aduanal
+{% endblock %}
+
+{% block contenido %}
+
+<div class="container-fluid">
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-success text-white">
+
+            <h4 class="mb-0">
+
+                <i class="bi bi-truck"></i>
+
+                Información Aduanal
+
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST">
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+
+                            Activo
+
+                        </label>
+
+<select
+    id="id_activo"
+    class="form-select"
+    name="id_activo"
+    required
+    {% if editar %}disabled{% endif %}>
+
+    <option value="">Seleccione una maquinaria</option>
+
+    {% for m in maquinarias %}
+
+    <option
+        value="{{ m.id_activo }}"
+        {% if editar and aduana.id_activo == m.id_activo %}selected{% endif %}>
+
+        {{ m.id_activo }} - {{ m.descripcion }}
+
+    </option>
+
+    {% endfor %}
+
+</select>
+
+{% if editar %}
+<input
+    type="hidden"
+    name="id_activo"
+    value="{{ aduana.id_activo }}">
+{% endif %}
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+
+                            Factura
+
+                        </label>
+
+                        <input
+                        type="text"
+                        id="factura"
+                        name="factura"
+                        class="form-control"
+value="{{ aduana.pedimento if editar else '' }}">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+
+                            Pedimento
+
+                        </label>
+
+                        <input
+                            id="pedimento"
+                            type="text"
+                            class="form-control"
+                            value="{{ aduana.pedimento if editar else '' }}">
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+
+                            Entrada MTZ
+
+                        </label>
+
+                        <input
+                            id="entrada_mtz"
+                            type="text"
+                            class="form-control"
+                            value="{{ aduana.entrada_mtz if editar else '' }}">
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+
+                            ID IMP
+
+                        </label>
+
+                        <input
+                            id="id_imp"
+                            type="text"
+                            class="form-control"
+                            value="{{ aduana.id_imp if editar else '' }}">
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+
+                            Inbond
+
+                        </label>
+
+                        <input
+                            id="inbond"
+                            type="text"
+                            class="form-control"
+                            value="{{ aduana.inbond if editar else '' }}">
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+
+                            Origen
+
+                        </label>
+
+                        <input
+                            id="origen"
+                            type="text"
+                            class="form-control"
+                            value="{{ aduana.origen if editar else '' }}">
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+
+                            Fecha Importación
+
+                        </label>
+
+                        <input
+                            id="fecha_importacion"
+                            type="date"
+                            class="form-control"
+                            name="fecha_importacion"
+                            value="{{ aduana.fecha_importacion if editar else '' }}">
+
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <button
+                    type="submit"
+                    class="btn btn-success">
+
+                    <i class="bi bi-save"></i>
+
+                    Actualizar Expediente
+
+                </button>
+
+                <a
+                    href="{{ url_for('lista_aduanas') }}"
+                    class="btn btn-secondary">
+
+                    Cancelar
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+
+$("#id_activo").change(function(){
+
+    let id = $(this).val();
+
+    if(id==""){
+
+        $("#factura").val("");
+        $("#pedimento").val("");
+        $("#entrada_mtz").val("");
+        $("#id_imp").val("");
+        $("#inbond").val("");
+        $("#origen").val("");
+        $("#fecha_importacion").val("");
+        return;
+
+    }
+
+    $.get("/aduanas/datos/"+id,function(r){
+
+        $("#factura").val(r.factura || "");
+
+        $("#pedimento").val(r.pedimento || "");
+
+        $("#entrada_mtz").val(r.entrada_mtz || "");
+
+        $("#id_imp").val(r.id_imp || "");
+
+        $("#inbond").val(r.inbond || "");
+
+        $("#origen").val(r.origen || "");
+
+        $("#fecha_importacion").val(r.fecha_importacion || "");
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

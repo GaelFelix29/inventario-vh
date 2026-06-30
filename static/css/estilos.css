@@ -292,3 +292,313 @@ body{
     box-shadow:0 5px 15px rgba(0,0,0,.08);
 
 }
+
+/* ===== Tarjetas Modernas ===== */
+
+.modern-card{
+    border:none;
+    border-radius:22px;
+    overflow:hidden;
+    background:#fff;
+    box-shadow:0 15px 45px rgba(0,0,0,.08);
+    transition:.3s;
+}
+
+.modern-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 20px 55px rgba(0,0,0,.12);
+}
+
+.modern-header{
+    padding:22px 28px;
+    color:#fff;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.header-green{
+    background:linear-gradient(135deg,#1fa64d,#188942);
+}
+
+.header-blue{
+    background:linear-gradient(135deg,#2d7dff,#1565d8);
+}
+
+.header-icon{
+    width:52px;
+    height:52px;
+    border-radius:14px;
+    background:rgba(255,255,255,.18);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.header-title{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.header-title h4{
+    margin:0;
+    font-size:24px;
+    font-weight:700;
+}
+
+.card-body-modern{
+    padding:25px;
+}
+
+/*==============================
+    INFORMACIÓN MODERNA
+==============================*/
+
+.info-item{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+    padding:16px 0;
+
+    border-bottom:1px solid #ececec;
+
+    transition:.25s;
+
+}
+
+.info-item:hover{
+
+    padding-left:8px;
+
+}
+
+.info-icon{
+
+    width:48px;
+
+    height:48px;
+
+    border-radius:14px;
+
+    background:#eef4ff;
+
+    color:#2d7dff;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:22px;
+
+    flex-shrink:0;
+
+}
+
+.info-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.info-content small{
+
+    color:#8c98a4;
+
+    font-size:13px;
+
+    margin-bottom:3px;
+
+}
+
+.info-content strong{
+
+    color:#2d3436;
+
+    font-size:16px;
+
+    font-weight:600;
+
+}
+
+.modern-card{
+
+    border:none;
+
+    border-radius:22px;
+
+    overflow:hidden;
+
+    background:#fff;
+
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+
+    transition:.30s;
+
+}
+
+.modern-card:hover{
+
+    transform:translateY(-6px);
+
+    box-shadow:0 20px 55px rgba(0,0,0,.12);
+
+}
+
+.modern-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:22px 28px;
+
+    color:white;
+
+}
+
+.header-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+}
+
+.header-title h4{
+
+    margin:0;
+
+    font-size:25px;
+
+    font-weight:700;
+
+}
+
+.header-green{
+
+    background:linear-gradient(135deg,#16a34a,#15803d);
+
+}
+
+.header-blue{
+
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+
+}
+
+.header-icon{
+
+    width:55px;
+
+    height:55px;
+
+    border-radius:16px;
+
+    background:rgba(255,255,255,.18);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:24px;
+
+}
+
+.card-body-modern{
+
+    padding:25px;
+
+}
+
+/*==============================
+    TARJETAS ECONÓMICAS
+==============================*/
+
+.money-card{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    border-radius:18px;
+
+    padding:22px;
+
+    margin-bottom:18px;
+
+    color:white;
+
+    transition:.3s;
+
+}
+
+.money-card:hover{
+
+    transform:translateY(-4px);
+
+}
+
+.money-card small{
+
+    opacity:.9;
+
+    font-size:14px;
+
+}
+
+.money-card h2{
+
+    margin:5px 0 0;
+
+    font-size:30px;
+
+    font-weight:700;
+
+}
+
+.money-card i{
+
+    font-size:42px;
+
+    opacity:.85;
+
+}
+
+.money-green{
+
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+
+}
+
+.money-blue{
+
+    background:linear-gradient(135deg,#3b82f6,#2563eb);
+
+}
+
+.money-orange{
+
+    background:linear-gradient(135deg,#f59e0b,#ea580c);
+
+}
+
+.progreso-aduana{
+    width: var(--progreso);
+}
