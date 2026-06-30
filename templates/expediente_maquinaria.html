@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block titulo %}Expediente del Activo{% endblock %}
+
+{% block contenido %}
+
+<div class="container-fluid py-4">
+
+<div class="card shadow-lg border-0 rounded-4 mb-4">
+<div class="card-body">
+
+<div class="d-flex justify-content-between align-items-center flex-wrap">
+<div>
+<h2 class="fw-bold text-success mb-0">{{ maquina.id_activo }}</h2>
+<h5 class="text-muted">{{ maquina.categoria }}</h5>
+</div>
+
+<div class="d-flex gap-2">
+<a href="/maquinarias" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Regresar</a>
+<a href="#" class="btn btn-warning"><i class="bi bi-pencil"></i> Editar</a>
+<a href="{{ url_for('qr_maquinaria', id_activo=maquina.id_activo) }}"
+   class="btn btn-success"><i class="bi bi-qr-code"></i>QR</a>
+<a href="#" class="btn btn-primary"><i class="bi bi-printer"></i> Imprimir</a>
+</div>
+</div>
+
+<hr>
+
+<div class="row text-center">
+<div class="col-md-3"><small class="text-muted">Marca</small><h5>{{ maquina.marca or "Sin registrar" }}</h5></div>
+<div class="col-md-3"><small class="text-muted">Modelo</small><h5>{{ maquina.modelo or "Sin registrar" }}</h5></div>
+<div class="col-md-3"><small class="text-muted">Serie</small><h5>{{ maquina.numero_serie or "Sin registrar" }}</h5></div>
+<div class="col-md-3"><small class="text-muted">Ubicación</small><h5>{{ maquina.ubicacion or "Sin registrar" }}</h5></div>
+</div>
+
+</div>
+</div>
+
+<div class="row">
+
+<div class="col-lg-6 mb-4">
+<div class="card shadow border-0 rounded-4 h-100">
+<div class="card-header bg-success text-white"><h5><i class="bi bi-info-circle"></i> Información General</h5></div>
+<div class="card-body">
+<table class="table table-borderless">
+<tr><th>Descripción</th><td>{{ maquina.descripcion or "-" }}</td></tr>
+<tr><th>Categoría</th><td>{{ maquina.categoria }}</td></tr>
+<tr><th>Serie Interna</th><td>{{ maquina.serie_interna or "-" }}</td></tr>
+<tr><th>Proveedor</th><td>{{ maquina.proveedor or "-" }}</td></tr>
+<tr><th>Fecha Alta</th><td>{{ maquina.fecha_alta or "-" }}</td></tr>
+<tr><th>Observaciones</th><td>{{ maquina.observaciones or "-" }}</td></tr>
+</table>
+</div>
+</div>
+</div>
+
+<div class="col-lg-6 mb-4">
+<div class="card shadow border-0 rounded-4 h-100">
+<div class="card-header bg-primary text-white"><h5><i class="bi bi-cash-stack"></i> Información Económica</h5></div>
+<div class="card-body">
+<table class="table table-borderless">
+<tr><th>Precio Unitario</th><td>${{ maquina.precio_unitario_us or 0 }}</td></tr>
+<tr><th>Total USD</th><td>${{ maquina.total_us or 0 }}</td></tr>
+<tr><th>Valor MXN</th><td>${{ maquina.valor_mx or 0 }}</td></tr>
+</table>
+</div>
+</div>
+</div>
+
+<div class="col-lg-6 mb-4">
+<div class="card shadow border-0 rounded-4 h-100">
+<div class="card-header bg-warning"><h5><i class="bi bi-globe-americas"></i> Información Aduanal</h5></div>
+<div class="card-body text-center">
+<h1>🟡</h1>
+<h5>Documentación pendiente</h5>
+<p>Este activo aún no cuenta con documentación aduanal.</p>
+<a href="#" class="btn btn-warning">Agregar información aduanal</a>
+</div>
+</div>
+</div>
+
+<div class="col-lg-6 mb-4">
+<div class="card shadow border-0 rounded-4 h-100">
+<div class="card-header bg-dark text-white"><h5><i class="bi bi-clock-history"></i> Historial</h5></div>
+<div class="card-body">
+<div class="alert alert-secondary">✔ Activo registrado.</div>
+<div class="alert alert-secondary">✔ Expediente creado.</div>
+<div class="alert alert-secondary">✔ Pendiente registrar documentación aduanal.</div>
+</div>
+</div>
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

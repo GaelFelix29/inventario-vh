@@ -2,8 +2,12 @@
 <html lang="es">
 
 <head>
+
 <meta charset="UTF-8">
-<title>Etiquetas QR</title>
+
+<title>Etiquetas QR - Vital Health</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 
@@ -20,107 +24,219 @@
 
 html,
 body{
+
     width:76mm;
-    background:#fff;
-    font-family:Arial,Helvetica,sans-serif;
+    background:#eceff3;
+    font-family:'Segoe UI',Arial,sans-serif;
+
 }
 
-/* UNA ETIQUETA */
+/*=========================================
+=            ETIQUETA COMPLETA            =
+=========================================*/
+
 .etiqueta{
 
     width:76mm;
     height:130mm;
 
+    background:white;
+
     display:flex;
     flex-direction:column;
-    justify-content:flex-start;
-    align-items:center;
 
-    page-break-after:always;
     overflow:hidden;
 
-    padding:6mm;
+    page-break-after:always;
+
+    border:2px solid #17864b;
+    border-radius:10px;
 
 }
 
-/* LOGO */
+/*=========================================
+=                HEADER                   =
+=========================================*/
 
-.logo{
+.header{
 
-    font-size:11pt;
-    font-weight:bold;
-    color:#118847;
-    margin-bottom:5mm;
-
-}
-
-/* QR */
-
-.qr{
-
-    width:46mm;
-    height:46mm;
-    object-fit:contain;
-
-}
-
-/* CODIGO */
-
-.codigo{
-
-    margin-top:5mm;
-
-    font-size:18pt;
-
-    font-weight:bold;
-
-}
-
-/* NOMBRE */
-
-.nombre{
-
-    margin-top:3mm;
-
-    width:100%;
-
-    text-align:center;
-
-    font-size:12pt;
-
-    font-weight:bold;
-
-    word-break:break-word;
-
-}
-
-/* URL */
-
-.url{
-
-    margin-top:3mm;
-
-    font-size:8pt;
-
-    text-align:center;
-
-    word-break:break-all;
-
-}
-
-/* ESTADO */
-
-.estado{
-
-    margin-top:5mm;
-
-    padding:3mm 8mm;
-
-    border-radius:20px;
+    background:linear-gradient(135deg,#17864b,#0f6b3b);
 
     color:white;
 
-    font-size:11pt;
+    text-align:center;
+
+    padding:10px 8px;
+
+}
+
+.logo{
+
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:.5px;
+
+}
+
+.subtitulo{
+
+    margin-top:3px;
+
+    font-size:9px;
+
+    opacity:.95;
+
+}
+
+/*=========================================
+=            CODIGO ACTIVO                =
+=========================================*/
+
+.codigo{
+
+    text-align:center;
+
+    margin-top:8px;
+
+    font-size:22px;
+
+    font-weight:800;
+
+    color:#17864b;
+
+}
+
+/*=========================================
+=             NOMBRE EQUIPO               =
+=========================================*/
+
+.nombre{
+
+    text-align:center;
+
+    margin:5px 8px;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    color:#333;
+
+    min-height:34px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+/*=========================================
+=                 QR                      =
+=========================================*/
+
+.qr-container{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    margin-top:6px;
+
+}
+
+.qr{
+
+    width:170px;
+
+    height:170px;
+
+    border:4px solid #17864b;
+
+    border-radius:12px;
+
+    padding:6px;
+
+    background:white;
+
+}
+
+/*=========================================
+=            TARJETAS INFO                =
+=========================================*/
+
+.info{
+
+    margin:10px;
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:8px;
+
+}
+
+.card{
+
+    background:#f6f8fa;
+
+    border-radius:8px;
+
+    padding:6px;
+
+    border-left:4px solid #17864b;
+
+}
+
+.card small{
+
+    display:block;
+
+    color:#666;
+
+    font-size:8px;
+
+    margin-bottom:2px;
+
+}
+
+.card strong{
+
+    font-size:10px;
+
+    color:#222;
+
+}
+
+/*=========================================
+=            ESTADO                       =
+=========================================*/
+
+.estado{
+
+    margin:0 10px;
+
+    text-align:center;
+
+}
+
+.badge{
+
+    display:inline-block;
+
+    padding:7px 18px;
+
+    border-radius:30px;
+
+    color:white;
+
+    font-size:11px;
 
     font-weight:bold;
 
@@ -138,6 +254,60 @@ body{
 
 }
 
+/*=========================================
+=               URL                       =
+=========================================*/
+
+.url{
+
+    margin:10px;
+
+    padding:8px;
+
+    background:#eef4f1;
+
+    border-radius:8px;
+
+    text-align:center;
+
+    font-size:8px;
+
+    color:#555;
+
+    word-break:break-all;
+
+}
+
+/*=========================================
+=               FOOTER                    =
+=========================================*/
+
+.footer{
+
+    margin-top:auto;
+
+    background:#17864b;
+
+    color:white;
+
+    text-align:center;
+
+    padding:8px;
+
+    font-size:8px;
+
+}
+
+.footer strong{
+
+    display:block;
+
+    font-size:10px;
+
+    margin-bottom:2px;
+
+}
+
 </style>
 
 </head>
@@ -148,44 +318,53 @@ body{
 
 <div class="etiqueta">
 
-    <div class="logo">
-        VITAL HEALTH
+    <div class="header">
+
+        <div class="logo">
+            ❤️ VITAL HEALTH
+        </div>
+
+        <div class="subtitulo">
+            Sistema Inteligente de Gestión de Activos
+        </div>
+
     </div>
 
-    <img
-        class="qr"
-        src="data:image/png;base64,{{ e.qr }}"
-    >
-
     <div class="codigo">
+
         {{ e.codigo }}
+
     </div>
 
     <div class="nombre">
+
         {{ e.nombre|upper }}
+
     </div>
 
-    <div class="url">
-        {{ e.url }}
+    <div class="qr-container">
+
+        <img
+            class="qr"
+            src="data:image/png;base64,{{ e.qr }}"
+        >
+
     </div>
 
-    <div class="estado {% if e.estado=='ACTIVO' %}activo{% else %}baja{% endif %}">
-        {{ e.estado }}
-    </div>
-
+</div>
 </div>
 
 {% endfor %}
 
 <script>
 
-window.onload=function(){
+window.onload = function(){
 
     setTimeout(function(){
 
         window.print();
 
-    },300);
+    },400);
 
 }
 

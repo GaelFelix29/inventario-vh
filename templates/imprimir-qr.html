@@ -1,127 +1,232 @@
 {% extends "base.html" %}
 
-{% block titulo %}Imprimir Etiquetas QR{% endblock %}
+{% block titulo %}Centro de Impresión QR{% endblock %}
 
 {% block contenido %}
 
-<div class="container py-4">
+<div class="container-fluid py-4">
 
-<div class="card shadow border-0 rounded-4">
+<div class="card shadow-lg border-0 rounded-4">
 
 <div class="card-body">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<!-- ========================================= -->
+<!-- ENCABEZADO -->
+<!-- ========================================= -->
 
-<div>
+<div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
 
-<h2 class="text-success fw-bold">
+    <div>
 
-<i class="bi bi-qr-code"></i>
+        <h2 class="fw-bold text-success mb-1">
 
-Impresión de Etiquetas QR
+            <i class="bi bi-printer-fill"></i>
 
-</h2>
+            Centro de Impresión de Etiquetas
 
-<p class="text-muted">
+        </h2>
 
-Selecciona los activos que deseas imprimir.
+        <p class="text-muted mb-0">
 
-</p>
+            Selecciona uno o varios activos para imprimir sus etiquetas QR.
 
-</div>
+        </p>
 
-<a href="/" class="btn btn-outline-success">
+    </div>
 
-<i class="bi bi-house"></i>
+    <div class="d-flex gap-2">
 
-Inicio
+        <a href="/" class="btn btn-outline-secondary">
 
-</a>
+            <i class="bi bi-house"></i>
+
+            Inicio
+
+        </a>
+
+        <button
+            id="vistaPrevia"
+            class="btn btn-outline-success">
+
+            <i class="bi bi-eye"></i>
+
+            Vista previa
+
+        </button>
+
+        <button
+            id="imprimirQR"
+            class="btn btn-success">
+
+            <i class="bi bi-printer"></i>
+
+            Imprimir
+
+        </button>
+
+        <button
+            id="generarPDF"
+            class="btn btn-danger">
+
+            <i class="bi bi-file-earmark-pdf"></i>
+
+            PDF
+
+        </button>
+
+    </div>
 
 </div>
 
 <hr>
 
+<!-- ========================================= -->
+<!-- TARJETAS -->
+<!-- ========================================= -->
+
 <div class="row g-3 mb-4">
 
-<div class="col-md-5">
+<div class="col-lg-3 col-md-6">
 
-<input
-id="buscar"
-type="text"
-class="form-control"
-placeholder="Buscar por código, categoría o ubicación">
+<div class="card border-0 shadow-sm h-100">
+
+<div class="card-body text-center">
+
+<i class="bi bi-pc-display fs-1 text-success"></i>
+
+<h3 class="fw-bold mt-2">
+
+{{ maquinas|length }}
+
+</h3>
+
+<p class="text-muted mb-0">
+
+Total de activos
+
+</p>
 
 </div>
 
-<div class="col-md-3">
+</div>
+
+</div>
+
+<div class="col-lg-3 col-md-6">
+
+<div class="card border-0 shadow-sm h-100">
+
+<div class="card-body text-center">
+
+<i class="bi bi-check2-square fs-1 text-primary"></i>
+
+<h3
+id="cantidadSeleccionados"
+class="fw-bold mt-2">
+
+0
+
+</h3>
+
+<p class="text-muted mb-0">
+
+Seleccionados
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-lg-3 col-md-6">
+
+<div class="card border-0 shadow-sm h-100">
+
+<div class="card-body">
+
+<label class="form-label fw-semibold">
+
+Copias
+
+</label>
 
 <select
-id="filtroEstado"
+id="copias"
 class="form-select">
 
-<option value="Todos">Todos</option>
+<option value="1">1 copia</option>
 
-<option value="ACTIVO">ACTIVO</option>
+<option value="2">2 copias</option>
 
-<option value="BAJA">BAJA</option>
+<option value="3">3 copias</option>
+
+<option value="5">5 copias</option>
+
+<option value="10">10 copias</option>
 
 </select>
 
 </div>
 
-<div class="col-md-2">
-
-<button
-id="btnSeleccionarVisibles"
-class="btn btn-success w-100">
-
-Seleccionar visibles
-
-</button>
-
-</div>
-
-<div class="col-md-2">
-
-<button
-id="btnDeseleccionar"
-class="btn btn-outline-danger w-100">
-
-Deseleccionar
-
-</button>
-
 </div>
 
 </div>
 
-<div class="row mb-3">
+<div class="col-lg-3 col-md-6">
 
-<div class="col">
+<div class="card border-0 shadow-sm h-100">
 
-<strong>
+<div class="card-body">
 
-Seleccionados:
+<label class="form-label fw-semibold">
 
-<span
-id="cantidadSeleccionados">
+Tamaño
 
-0
+</label>
 
-</span>
+<select
+id="tamano"
+class="form-select">
 
-</strong>
+<option value="3">
+
+3 x 3 cm
+
+</option>
+
+<option value="4">
+
+4 x 4 cm
+
+</option>
+
+<option value="5">
+
+5 x 5 cm
+
+</option>
+
+</select>
 
 </div>
 
 </div>
+
+</div>
+
+</div>
+
+<!-- ========================================= -->
+<!-- TABLA -->
+<!-- ========================================= -->
 
 <div class="table-responsive">
 
 <table
 id="tablaQR"
-class="table table-hover table-bordered align-middle">
+class="table table-hover align-middle table-striped">
 
 <thead class="table-success">
 
@@ -135,7 +240,7 @@ id="chkSeleccionarTodo">
 
 </th>
 
-<th>ID</th>
+<th>ID Activo</th>
 
 <th>Categoría</th>
 
@@ -151,48 +256,60 @@ id="chkSeleccionarTodo">
 
 {% for maquina in maquinas %}
 
-<tr class="filaQR">
+<tr>
 
-    <td>
+<td>
 
-        <input
-            type="checkbox"
-            class="seleccion"
-            value="{{ maquina['id_activo'] }}">
+<input
+type="checkbox"
+class="seleccion"
+value="{{ maquina['id_activo'] }}">
 
-    </td>
+</td>
 
-    <td>
+<td>
 
-        {{ maquina["id_activo"] }}
+<strong>
 
-    </td>
+{{ maquina["id_activo"] }}
 
-    <td>
+</strong>
 
-        {{ maquina["categoria"] }}
+</td>
 
-    </td>
+<td>
 
-    <td>
+{{ maquina["categoria"] }}
 
-        {% if maquina["fecha_baja"] %}
+</td>
 
-            BAJA
+<td>
 
-        {% else %}
+{% if maquina["fecha_baja"] %}
 
-            ACTIVO
+<span class="badge bg-danger">
 
-        {% endif %}
+BAJA
 
-    </td>
+</span>
 
-    <td>
+{% else %}
 
-        {{ maquina["ubicacion"] }}
+<span class="badge bg-success">
 
-    </td>
+ACTIVO
+
+</span>
+
+{% endif %}
+
+</td>
+
+<td>
+
+{{ maquina["ubicacion"] }}
+
+</td>
 
 </tr>
 
@@ -204,97 +321,143 @@ id="chkSeleccionarTodo">
 
 </div>
 
-<hr>
+<!-- ========================================= -->
+<!-- PANEL INFERIOR -->
+<!-- ========================================= -->
 
-<div class="row">
+<div class="row mt-4">
 
-<div class="col-md-3">
+    <div class="col-lg-8">
 
-<label class="form-label">
+        <div class="card border-0 shadow-sm">
 
-Copias
+            <div class="card-header bg-light">
 
-</label>
+                <h5 class="mb-0">
 
-<select
-id="copias"
-class="form-select">
+                    <i class="bi bi-info-circle-fill text-success"></i>
 
-<option value="1">1</option>
+                    Información
 
-<option value="2">2</option>
+                </h5>
 
-<option value="3">3</option>
+            </div>
 
-<option value="5">5</option>
+            <div class="card-body">
 
-<option value="10">10</option>
+                <div class="row">
 
-</select>
+                    <div class="col-md-6">
+
+                        <ul class="list-group list-group-flush">
+
+                            <li class="list-group-item">
+
+                                ✔ Selecciona uno o varios activos.
+
+                            </li>
+
+                            <li class="list-group-item">
+
+                                ✔ Puedes imprimir múltiples etiquetas.
+
+                            </li>
+
+                            <li class="list-group-item">
+
+                                ✔ La vista previa no imprime automáticamente.
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <ul class="list-group list-group-flush">
+
+                            <li class="list-group-item">
+
+                                ✔ El PDF usa el mismo diseño.
+
+                            </li>
+
+                            <li class="list-group-item">
+
+                                ✔ Compatible con códigos QR Vital Health.
+
+                            </li>
+
+                            <li class="list-group-item">
+
+                                ✔ Compatible con impresión masiva.
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="card border-success shadow-sm">
+
+            <div class="card-body text-center">
+
+                <i class="bi bi-printer-fill text-success display-3"></i>
+
+                <h4 class="mt-3">
+
+                    Centro de Impresión
+
+                </h4>
+
+                <p class="text-muted">
+
+                    Utiliza los botones superiores para generar la vista previa,
+                    imprimir etiquetas o exportarlas a PDF.
+
+                </p>
+
+                <hr>
+
+                
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
-<div class="col-md-3">
-
-<label class="form-label">
-
-Tamaño
-
-</label>
-
-<select
-id="tamano"
-class="form-select">
-
-<option value="3">3 x 3 cm</option>
-
-<option value="4">4 x 4 cm</option>
-
-<option value="5">5 x 5 cm</option>
-
-</select>
-
-</div>
-<div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
-
-<button
-id="vistaPrevia"
-class="btn btn-outline-success">
-
-<i class="bi bi-eye"></i>
-
-Vista previa
-
-</button>
-
-<button
-id="imprimirQR"
-class="btn btn-success">
-
-<i class="bi bi-printer"></i>
-
-Imprimir
-
-</button>
-
-<button
-id="generarPDF"
-class="btn btn-primary">
-
-<i class="bi bi-file-earmark-pdf"></i>
-
-Generar PDF
-
-</button>
-
 </div>
 
 </div>
 
 </div>
 
-</div>
+<script>
 
-</div>
+
+
+</script>
+
+{% block scripts %}
+
+<script src="{{ url_for('static', filename='js/imprimir.js') }}"></script>
+
+{% endblock %}
 
 {% endblock %}

@@ -1,5 +1,8 @@
 from sqlalchemy import create_engine
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 USUARIO = os.getenv("MYSQLUSER")
 PASSWORD = os.getenv("MYSQLPASSWORD")

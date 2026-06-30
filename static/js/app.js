@@ -1,25 +1,69 @@
+//--------------------------------------------------
+// BUSCAR MAQUINA
+//--------------------------------------------------
+
 function buscar() {
 
-    const codigo = document.getElementById("codigo").value.trim();
+    const codigo = document.getElementById("codigo");
 
-    if(codigo===""){
+    if (!codigo) return;
+
+    if (codigo.value.trim() === "") {
         alert("Ingrese un código.");
         return;
     }
 
-    window.location.href="/" + codigo;
+    window.location.href = "/maquina/" + codigo.value.trim();
 
 }
 
-
-
 //======================================================
-// IMPRESIÓN DE ETIQUETAS QR
+// CUANDO CARGA LA PÁGINA
 //======================================================
 
 document.addEventListener("DOMContentLoaded", () => {
 
+    //--------------------------------------------------
+    // BOTÓN VER CONTRASEÑA
+    //--------------------------------------------------
+
+    window.mostrarPassword = function () {
+
+        const input = document.getElementById("password");
+        const icono = document.getElementById("iconoPassword");
+
+        if (!input || !icono) return;
+
+        if (input.type === "password") {
+
+            input.type = "text";
+
+            icono.classList.remove("bi-eye");
+            icono.classList.add("bi-eye-slash");
+
+        } else {
+
+            input.type = "password";
+
+            icono.classList.remove("bi-eye-slash");
+            icono.classList.add("bi-eye");
+
+        }
+
+    }
+
+    //--------------------------------------------------
+    // SI NO ESTAMOS EN ETIQUETAS SALIR
+    //--------------------------------------------------
+
     const buscador = document.getElementById("buscar");
+
+    if (!buscador) return;
+
+    //--------------------------------------------------
+    // VARIABLES
+    //--------------------------------------------------
+
     const filtroEstado = document.getElementById("filtroEstado");
     const contador = document.getElementById("cantidadSeleccionados");
 
@@ -36,65 +80,54 @@ document.addEventListener("DOMContentLoaded", () => {
     // CONTADOR
     //--------------------------------------------------
 
-    function actualizarContador(){
+    function actualizarContador() {
 
-        let total=document.querySelectorAll("tbody .seleccion:checked").length;
+        if (!contador) return;
 
-        contador.textContent=total;
+        contador.textContent =
+            document.querySelectorAll("tbody .seleccion:checked").length;
 
     }
 
     //--------------------------------------------------
-    // FILTRAR
+    // FILTRO
     //--------------------------------------------------
 
-    function filtrarTabla(){
+    function filtrarTabla() {
 
-        let texto=buscador.value.toLowerCase();
+        const texto = buscador.value.toLowerCase();
+        const estado = filtroEstado.value;
 
-        let estado=filtroEstado.value;
+        document.querySelectorAll(".filaQR").forEach(fila => {
 
-        document.querySelectorAll(".filaQR").forEach(fila=>{
+            const contenido = fila.innerText.toLowerCase();
+            const estadoFila = fila.cells[3].innerText.trim();
 
-            let contenido=fila.innerText.toLowerCase();
+            let mostrar = true;
 
-            let estadoFila=fila.cells[3].innerText.trim();
+            if (texto !== "" && !contenido.includes(texto))
+                mostrar = false;
 
-            let mostrar=true;
+            if (estado !== "Todos" && estadoFila !== estado)
+                mostrar = false;
 
-            if(texto!="" && !contenido.includes(texto)){
-
-                mostrar=false;
-
-            }
-
-            if(estado!="Todos" && estadoFila!=estado){
-
-                mostrar=false;
-
-            }
-
-            fila.style.display=mostrar ? "" : "none";
+            fila.style.display = mostrar ? "" : "none";
 
         });
 
     }
 
-    buscador.addEventListener("keyup",filtrarTabla);
+    buscador.addEventListener("keyup", filtrarTabla);
 
-    filtroEstado.addEventListener("change",filtrarTabla);
+    filtroEstado.addEventListener("change", filtrarTabla);
 
     //--------------------------------------------------
-    // CHECKBOXS
+    // CHECKBOXES
     //--------------------------------------------------
 
-    document.querySelectorAll(".seleccion").forEach(chk=>{
+    document.querySelectorAll(".seleccion").forEach(chk => {
 
-        chk.addEventListener("change",()=>{
-
-            actualizarContador();
-
-        });
+        chk.addEventListener("change", actualizarContador);
 
     });
 
@@ -102,11 +135,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // SELECCIONAR TODOS
     //--------------------------------------------------
 
-    chkTodos.addEventListener("change",()=>{
+    chkTodos.addEventListener("change", () => {
 
-        document.querySelectorAll(".seleccion").forEach(chk=>{
+        document.querySelectorAll(".seleccion").forEach(chk => {
 
-            chk.checked=chkTodos.checked;
+            chk.checked = chkTodos.checked;
 
         });
 
@@ -118,13 +151,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // SELECCIONAR VISIBLES
     //--------------------------------------------------
 
-    btnSeleccionarVisibles.addEventListener("click",()=>{
+    btnSeleccionarVisibles.addEventListener("click", () => {
 
-        document.querySelectorAll(".filaQR").forEach(fila=>{
+        document.querySelectorAll(".filaQR").forEach(fila => {
 
-            if(fila.style.display!="none"){
+            if (fila.style.display !== "none") {
 
-                fila.querySelector(".seleccion").checked=true;
+                fila.querySelector(".seleccion").checked = true;
 
             }
 
@@ -135,16 +168,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     //--------------------------------------------------
-    // DESELECCIONAR TODOS
+    // DESELECCIONAR
     //--------------------------------------------------
 
-    btnDeseleccionar.addEventListener("click",()=>{
+    btnDeseleccionar.addEventListener("click", () => {
 
-        chkTodos.checked=false;
+        chkTodos.checked = false;
 
-        document.querySelectorAll(".seleccion").forEach(chk=>{
+        document.querySelectorAll(".seleccion").forEach(chk => {
 
-            chk.checked=false;
+            chk.checked = false;
 
         });
 
@@ -156,11 +189,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // OBTENER CÓDIGOS
     //--------------------------------------------------
 
-    function obtenerSeleccionados(){
+    function obtenerSeleccionados() {
 
-        let lista=[];
+        let lista = [];
 
-        document.querySelectorAll("tbody .seleccion:checked").forEach(chk=>{
+        document.querySelectorAll("tbody .seleccion:checked").forEach(chk => {
 
             lista.push(chk.value);
 
@@ -170,46 +203,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-
-        //--------------------------------------------------
-    // VISTA PREVIA
+    //--------------------------------------------------
+    // BOTONES
     //--------------------------------------------------
 
-    btnVista.addEventListener("click", () => {
+    btnVista.addEventListener("click", () => enviarEtiquetas(false));
 
-        enviarEtiquetas(false);
+    btnImprimir.addEventListener("click", () => enviarEtiquetas(true));
 
-    });
-
-    //--------------------------------------------------
-    // IMPRIMIR
-    //--------------------------------------------------
-
-    btnImprimir.addEventListener("click", () => {
-
-        enviarEtiquetas(true);
-
-    });
+    btnPDF.addEventListener("click", () => enviarEtiquetas(true));
 
     //--------------------------------------------------
-    // PDF
+    // ENVIAR
     //--------------------------------------------------
 
-    btnPDF.addEventListener("click", () => {
-
-        enviarEtiquetas(true);
-
-    });
-
-    //--------------------------------------------------
-    // ENVIAR AL SERVIDOR
-    //--------------------------------------------------
-
-    async function enviarEtiquetas(imprimir = true){
+    async function enviarEtiquetas() {
 
         const codigos = obtenerSeleccionados();
 
-        if(codigos.length===0){
+        if (codigos.length === 0) {
 
             alert("Selecciona al menos un activo.");
 
@@ -219,7 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const datos = {
 
-            codigos: codigos,
+            codigos,
 
             copias: document.getElementById("copias").value,
 
@@ -227,51 +239,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
         };
 
-        try{
+        try {
 
-            const respuesta = await fetch("/etiquetas",{
+            const respuesta = await fetch("/etiquetas", {
 
-                method:"POST",
+                method: "POST",
 
-                headers:{
+                headers: {
 
-                    "Content-Type":"application/json"
+                    "Content-Type": "application/json"
 
                 },
 
-                body:JSON.stringify(datos)
+                body: JSON.stringify(datos)
 
             });
 
-            if(!respuesta.ok){
-
-                throw new Error(await respuesta.text());
-
-            }
-
             const html = await respuesta.text();
 
-            const ventana = window.open("","_blank");
-
-            if(!ventana){
-
-                alert("El navegador bloqueó la ventana.");
-
-                return;
-
-            }
-
-            ventana.document.open();
+            const ventana = window.open("", "_blank");
 
             ventana.document.write(html);
 
             ventana.document.close();
 
-        }
-
-        catch(error){
-
-            console.error(error);
+        } catch (error) {
 
             alert(error.message);
 
@@ -280,12 +272,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     //--------------------------------------------------
-    // ENTER EN BUSCADOR
+    // ENTER
     //--------------------------------------------------
 
-    buscador.addEventListener("keydown",(e)=>{
+    buscador.addEventListener("keydown", e => {
 
-        if(e.key==="Enter"){
+        if (e.key === "Enter") {
 
             e.preventDefault();
 
@@ -294,10 +286,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
     });
-
-    //--------------------------------------------------
-    // CONTADOR INICIAL
-    //--------------------------------------------------
 
     actualizarContador();
 

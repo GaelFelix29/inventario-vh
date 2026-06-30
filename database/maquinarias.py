@@ -2,6 +2,10 @@ import pandas as pd
 
 from database.conexion import engine
 
+from sqlalchemy import text
+from database.conexion import engine
+
+
 
 def obtener_maquinarias():
 
@@ -35,3 +39,148 @@ def obtener_maquinaria(codigo):
     )
 
     return df
+
+def obtener_todas_maquinas():
+
+    sql = text("""
+
+        SELECT *
+
+        FROM maquinarias
+
+        ORDER BY id_activo
+
+    """)
+
+    with engine.connect() as conn:
+
+        return conn.execute(sql).mappings().all()
+    
+from sqlalchemy import text
+
+
+def insertar_maquinaria(datos):
+
+    sql = text("""
+        INSERT INTO maquinarias(
+
+            id_activo,
+            categoria,
+            descripcion,
+            cantidad,
+            marca,
+            modelo,
+            numero_serie,
+            serie_interna,
+            proveedor,
+            ubicacion,
+            precio_unitario_us,
+            total_us,
+            valor_mx,
+            observaciones
+
+        )
+
+        VALUES(
+
+            :id_activo,
+            :categoria,
+            :descripcion,
+            :cantidad,
+            :marca,
+            :modelo,
+            :numero_serie,
+            :serie_interna,
+            :proveedor,
+            :ubicacion,
+            :precio_unitario_us,
+            :total_us,
+            :valor_mx,
+            :observaciones
+
+        )
+    """)
+
+    with engine.begin() as conn:
+        conn.execute(sql, datos)
+    
+    
+
+def siguiente_id_activo():
+
+    sql = text("""
+
+        SELECT id_activo
+
+        FROM maquinarias
+
+        ORDER BY id_activo DESC
+
+        LIMIT 1
+
+    """)
+
+    with engine.connect() as conn:
+
+        ultimo = conn.execute(sql).scalar()
+
+    if not ultimo:
+
+        return "ACT-0001"
+
+    numero = int(ultimo.replace("ACT-", ""))
+
+    numero += 1
+
+    return f"ACT-{numero:04d}"
+
+def obtener_maquinaria(id_activo):
+
+    sql = text("""
+
+        SELECT *
+
+        FROM maquinarias
+
+        WHERE id_activo=:id
+
+    """)
+
+    with engine.begin() as conn:
+
+        fila = conn.execute(sql, {
+
+            "id": id_activo
+
+        }).mappings().first()
+
+    return fila
+
+def actualizar_maquinaria(datos):
+
+    sql = text("""
+
+    UPDATE maquinarias
+    SET
+
+        categoria = :categoria,
+        descripcion = :descripcion,
+        cantidad = :cantidad,
+        marca = :marca,
+        modelo = :modelo,
+        numero_serie = :numero_serie,
+        serie_interna = :serie_interna,
+        proveedor = :proveedor,
+        ubicacion = :ubicacion,
+        precio_unitario_us = :precio_unitario_us,
+        total_us = :total_us,
+        valor_mx = :valor_mx,
+        observaciones = :observaciones
+
+    WHERE id_activo = :id_activo
+
+    """)
+
+    with engine.begin() as conn:
+
+        conn.execute(sql, datos)

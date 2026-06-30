@@ -1,0 +1,13 @@
+# Variables de entorno
+.env
+
+# Certificados
+ca.pem
+
+# Caché de Python
+__pycache__/
+*/__pycache__/
+*.pyc
+
+# VS Code
+.vscode/

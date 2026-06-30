@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+<div class="container mt-5">
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <h3>Mi Perfil</h3>
+
+        </div>
+
+        <div class="card-body">
+
+            <p><b>Nombre:</b> {{ usuario.nombre }}</p>
+
+            <p><b>Usuario:</b> {{ usuario.usuario }}</p>
+
+            <p><b>Rol:</b> {{ usuario.rol }}</p>
+
+            <a
+                href="/perfil/editar"
+                class="btn btn-success">
+
+                Editar perfil
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

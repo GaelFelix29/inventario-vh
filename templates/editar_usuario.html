@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Editar Usuario
+{% endblock %}
+
+{% block contenido %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-8">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-success text-white">
+
+                <h3 class="mb-0">
+                    Editar Usuario
+                </h3>
+
+            </div>
+
+            <div class="card-body">
+
+                <form method="POST">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Nombre
+
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="nombre"
+                            value="{{ usuario.nombre }}"
+                            required>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Usuario
+
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="usuario"
+                            value="{{ usuario.usuario }}"
+                            required>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Correo
+
+                        </label>
+
+                        <input
+                            type="email"
+                            class="form-control"
+                            name="correo"
+                            value="{{ usuario.correo }}"
+                            required>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Rol
+
+                        </label>
+
+                        <select
+                            name="rol"
+                            class="form-select">
+
+                            <option
+                                value="Administrador"
+                                {% if usuario.rol=="Administrador" %}selected{% endif %}>
+
+                                Administrador
+
+                            </option>
+
+                            <option
+                                value="Visualizador"
+                                {% if usuario.rol=="Visualizador" %}selected{% endif %}>
+
+                                Visualizador
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+
+                            Estado
+
+                        </label>
+
+                        <select
+                            name="activo"
+                            class="form-select">
+
+                            <option
+                                value="1"
+                                {% if usuario.activo %}selected{% endif %}>
+
+                                Activo
+
+                            </option>
+
+                            <option
+                                value="0"
+                                {% if not usuario.activo %}selected{% endif %}>
+
+                                Inactivo
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <hr>
+
+<h5 class="mb-3">
+    Cambiar contraseña
+</h5>
+
+<div class="mb-3">
+
+    <label class="form-label">
+        Nueva contraseña
+    </label>
+
+    <div class="input-group">
+
+        <input
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
+            placeholder="Dejar vacío para no cambiar">
+
+        <button
+            class="btn btn-outline-secondary"
+            type="button"
+            onclick="mostrarPassword()">
+
+            <i
+                class="bi bi-eye"
+                id="iconoPassword">
+            </i>
+
+        </button>
+
+    </div>
+
+</div>
+
+                    <div class="d-flex justify-content-between">
+
+                        <a href="/usuarios/desactivar/{{ usuario.id }}"
+   class="btn btn-danger btn-sm"
+   onclick="return confirm('¿Deseas desactivar este usuario?')">
+
+    <i class="bi bi-trash"></i>
+
+</a>
+                
+
+                        <button
+                            class="btn btn-success">
+                            Guardar Cambios
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+
+function mostrarPassword(){
+
+    let input = document.getElementById("password");
+    let icono = document.getElementById("iconoPassword");
+
+    if(input.type==="password"){
+
+        input.type="text";
+
+        icono.classList.remove("bi-eye");
+        icono.classList.add("bi-eye-slash");
+
+    }else{
+
+        input.type="password";
+
+        icono.classList.remove("bi-eye-slash");
+        icono.classList.add("bi-eye");
+
+    }
+
+}
+
+</script>
+
+{% endblock %}
