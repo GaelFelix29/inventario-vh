@@ -1146,17 +1146,17 @@ def datos_aduana(id_activo):
 
     return jsonify(datos)
 
-# app.errorhandler(404)
-# def pagina_no_encontrada(error):
-#     return render_template("error.html"), 404
+app.errorhandler(404)
+def pagina_no_encontrada(error):
+    return render_template("error.html"), 404
 
-# @app.errorhandler(500)
-# def error_servidor(error):
-#     return render_template("error.html"), 500
+@app.errorhandler(500)
+def error_servidor(error):
+    return render_template("error.html"), 500
 
-# @app.errorhandler(Exception)
-# def error_general(error):
-#     return render_template("error.html"), 500
+@app.errorhandler(Exception)
+def error_general(error):
+    return render_template("error.html"), 500
 
 
 # ==========================================================
