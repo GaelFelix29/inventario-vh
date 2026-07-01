@@ -152,21 +152,51 @@ Información Aduanal
 
                 </div>
 
-                <hr>
+<hr>
 
-                {% if editar %}
-                <a href="{{ url_for('expediente_maquinaria', id_activo=aduana.id_activo) }}" class="btn btn-secondary">
-                    Regresar
-                </a>
-                {% else %}
-                <a href="{{ url_for('lista_aduanas') }}" class="btn btn-secondary">
-                    Cancelar
-                </a>
-                {% endif %}
+<div class="d-flex justify-content-end gap-2">
 
-            </form>
+    {% if editar %}
 
-        </div>
+    <a href="{{ url_for('expediente_maquinaria', id_activo=aduana.id_activo) }}"
+        class="btn btn-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+
+        Regresar
+
+    </a>
+
+    <button type="submit" class="btn btn-success">
+
+        <i class="bi bi-save"></i>
+
+        Actualizar Expediente
+
+    </button>
+
+    {% else %}
+
+    <a href="{{ url_for('lista_aduanas') }}"
+        class="btn btn-secondary">
+
+        <i class="bi bi-x-circle"></i>
+
+        Cancelar
+
+    </a>
+
+    <button type="submit" class="btn btn-success">
+
+        <i class="bi bi-save"></i>
+
+        Guardar Expediente
+
+    </button>
+
+    {% endif %}
+
+</div>
 
     </div>
 
