@@ -602,3 +602,204 @@ body{
 .progreso-aduana{
     width: var(--progreso);
 }
+
+/*=========================
+  DATATABLES MODERNO
+==========================*/
+
+.dataTables_filter label{
+    font-weight:600;
+    color:#495057;
+}
+
+.dataTables_filter input{
+
+    width:320px !important;
+
+    border-radius:12px !important;
+
+    border:1px solid #ced4da !important;
+
+    padding:10px 16px !important;
+
+    transition:.3s;
+
+}
+
+.dataTables_filter input:focus{
+
+    border-color:#198754 !important;
+
+    box-shadow:0 0 0 .2rem rgba(25,135,84,.15) !important;
+
+    outline:none;
+
+}
+
+.dataTables_length select{
+
+    border-radius:10px !important;
+
+}
+
+.dataTables_filter{
+
+    text-align:right !important;
+
+}
+
+/*=========================================
+=        BUSCADOR MODERNO ADUANAS         =
+=========================================*/
+
+.dataTables_filter{
+
+    position:relative;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+}
+
+.dataTables_filter label{
+
+    width:100%;
+
+    max-width:360px;
+
+    position:relative;
+
+    margin:0;
+
+}
+
+.dataTables_filter input{
+
+    width:100% !important;
+
+    height:48px;
+
+    padding-left:48px !important;
+
+    padding-right:18px !important;
+
+    border-radius:14px !important;
+
+    border:1px solid #dfe5ec !important;
+
+    background:#fff;
+
+    font-size:15px;
+
+    transition:.25s;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.04);
+
+}
+
+.dataTables_filter input:focus{
+
+    border-color:#198754 !important;
+
+    box-shadow:0 0 0 .20rem rgba(25,135,84,.15) !important;
+
+    outline:none;
+
+}
+
+.buscador-icono{
+
+    position:absolute;
+
+    left:16px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    color:#6c757d;
+
+    font-size:17px;
+
+    z-index:20;
+
+    pointer-events:none;
+
+}
+
+.dataTables_filter input::placeholder{
+
+    color:#adb5bd;
+
+}
+
+/*==========================
+  CONTENEDOR DEL BUSCADOR
+===========================*/
+
+.buscador-wrapper{
+
+    position:relative;
+
+    width:100%;
+
+    max-width:360px;
+
+    margin-left:auto;
+
+}
+
+.buscador-wrapper input{
+
+    width:100% !important;
+
+}
+
+.buscador-wrapper .buscador-icono{
+
+    position:absolute;
+
+    left:16px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    color:#9aa4af;
+
+    font-size:16px;
+
+    z-index:100;
+
+}
+
+.dataTables_filter{
+
+    margin:0 !important;
+
+}
+
+.dataTables_filter label{
+
+    width:100%;
+
+    margin:0;
+
+}
+
+/*=========================================
+FOOTER SIDEBAR
+=========================================*/
+
+.sidebar-footer{
+
+    margin-top:auto;
+
+    padding-top:20px;
+
+    border-top:1px solid rgba(255,255,255,.2);
+
+}

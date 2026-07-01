@@ -52,55 +52,88 @@ def guardar_aduana(
     origen,
     fecha_importacion
 ):
-    
+
     if fecha_importacion == "":
         fecha_importacion = None
 
-    sql = text("""
-
-        UPDATE aduanas
-
-        SET
-
-            factura=:factura,
-
-            pedimento=:pedimento,
-
-            entrada_mtz=:entrada_mtz,
-
-            id_imp=:id_imp,
-
-            inbond=:inbond,
-
-            origen=:origen,
-
-            fecha_importacion=:fecha_importacion
-
-        WHERE id_activo=:id_activo
-
-    """)
-
     with engine.begin() as conn:
 
-        conn.execute(sql, {
+        existe = conn.execute(
+            text("""
+                SELECT COUNT(*)
+                FROM aduanas
+                WHERE id_activo=:id
+            """),
+            {"id": id_activo}
+        ).scalar()
 
-            "id_activo": id_activo,
+        if existe:
 
-            "factura": factura,
+            conn.execute(text("""
 
-            "pedimento": pedimento,
+                UPDATE aduanas
+                SET
+                    factura=:factura,
+                    pedimento=:pedimento,
+                    entrada_mtz=:entrada_mtz,
+                    id_imp=:id_imp,
+                    inbond=:inbond,
+                    origen=:origen,
+                    fecha_importacion=:fecha_importacion
+                WHERE id_activo=:id_activo
 
-            "entrada_mtz": entrada_mtz,
+            """),{
 
-            "id_imp": id_imp,
+                "id_activo":id_activo,
+                "factura":factura,
+                "pedimento":pedimento,
+                "entrada_mtz":entrada_mtz,
+                "id_imp":id_imp,
+                "inbond":inbond,
+                "origen":origen,
+                "fecha_importacion":fecha_importacion
 
-            "inbond": inbond,
+            })
 
-            "origen": origen,
+        else:
 
-            "fecha_importacion": fecha_importacion
+            conn.execute(text("""
 
-        })
+                INSERT INTO aduanas
+                (
+                    id_activo,
+                    factura,
+                    pedimento,
+                    entrada_mtz,
+                    id_imp,
+                    inbond,
+                    origen,
+                    fecha_importacion
+                )
+                VALUES
+                (
+                    :id_activo,
+                    :factura,
+                    :pedimento,
+                    :entrada_mtz,
+                    :id_imp,
+                    :inbond,
+                    :origen,
+                    :fecha_importacion
+                )
+
+            """),{
+
+                "id_activo":id_activo,
+                "factura":factura,
+                "pedimento":pedimento,
+                "entrada_mtz":entrada_mtz,
+                "id_imp":id_imp,
+                "inbond":inbond,
+                "origen":origen,
+                "fecha_importacion":fecha_importacion
+
+            })
 
 def obtener_aduana(id_activo):
 

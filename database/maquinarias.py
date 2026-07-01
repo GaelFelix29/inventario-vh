@@ -22,8 +22,6 @@ def obtener_maquinarias():
     return pd.read_sql(sql, engine)
 
 
-from sqlalchemy import text
-
 def obtener_maquinaria(codigo):
 
     sql = text("""
@@ -38,7 +36,10 @@ def obtener_maquinaria(codigo):
         params={"codigo": codigo}
     )
 
-    return df
+    if df.empty:
+        return None
+
+    return df.iloc[0].to_dict()
 
 def obtener_todas_maquinas():
 
@@ -56,8 +57,6 @@ def obtener_todas_maquinas():
 
         return conn.execute(sql).mappings().all()
     
-from sqlalchemy import text
-
 
 def insertar_maquinaria(datos):
 

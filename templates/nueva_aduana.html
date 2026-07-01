@@ -36,35 +36,27 @@ Información Aduanal
 
                         </label>
 
-<select
-    id="id_activo"
-    class="form-select"
-    name="id_activo"
-    required
-    {% if editar %}disabled{% endif %}>
+                        <select id="id_activo" class="form-select" name="id_activo" required {% if editar %}disabled{%
+                            endif %}>
 
-    <option value="">Seleccione una maquinaria</option>
+                            <option value="">Seleccione una maquinaria</option>
 
-    {% for m in maquinarias %}
+                            {% for m in maquinarias %}
 
-    <option
-        value="{{ m.id_activo }}"
-        {% if editar and aduana.id_activo == m.id_activo %}selected{% endif %}>
+                            <option value="{{ m.id_activo }}" {% if editar and aduana.id_activo==m.id_activo
+                                %}selected{% endif %}>
 
-        {{ m.id_activo }} - {{ m.descripcion }}
+                                {{ m.id_activo }} - {{ m.descripcion }}
 
-    </option>
+                            </option>
 
-    {% endfor %}
+                            {% endfor %}
 
-</select>
+                        </select>
 
-{% if editar %}
-<input
-    type="hidden"
-    name="id_activo"
-    value="{{ aduana.id_activo }}">
-{% endif %}
+                        {% if editar %}
+                        <input type="hidden" name="id_activo" value="{{ aduana.id_activo }}">
+                        {% endif %}
 
                     </div>
 
@@ -76,12 +68,8 @@ Información Aduanal
 
                         </label>
 
-                        <input
-                        type="text"
-                        id="factura"
-                        name="factura"
-                        class="form-control"
-value="{{ aduana.pedimento if editar else '' }}">
+                        <input type="text" id="factura" name="factura" class="form-control"
+                            value="{{ aduana.factura if editar else '' }}">
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -92,10 +80,7 @@ value="{{ aduana.pedimento if editar else '' }}">
 
                         </label>
 
-                        <input
-                            id="pedimento"
-                            type="text"
-                            class="form-control"
+                        <input id="pedimento" name="pedimento" type="text" class="form-control"
                             value="{{ aduana.pedimento if editar else '' }}">
 
                     </div>
@@ -108,10 +93,7 @@ value="{{ aduana.pedimento if editar else '' }}">
 
                         </label>
 
-                        <input
-                            id="entrada_mtz"
-                            type="text"
-                            class="form-control"
+                        <input id="entrada_mtz" name="entrada_mtz" type="text" class="form-control"
                             value="{{ aduana.entrada_mtz if editar else '' }}">
 
                     </div>
@@ -124,10 +106,7 @@ value="{{ aduana.pedimento if editar else '' }}">
 
                         </label>
 
-                        <input
-                            id="id_imp"
-                            type="text"
-                            class="form-control"
+                        <input id="id_imp" name="id_imp" type="text" class="form-control"
                             value="{{ aduana.id_imp if editar else '' }}">
 
                     </div>
@@ -140,10 +119,7 @@ value="{{ aduana.pedimento if editar else '' }}">
 
                         </label>
 
-                        <input
-                            id="inbond"
-                            type="text"
-                            class="form-control"
+                        <input id="inbond" name="inbond" type="text" class="form-control"
                             value="{{ aduana.inbond if editar else '' }}">
 
                     </div>
@@ -156,10 +132,7 @@ value="{{ aduana.pedimento if editar else '' }}">
 
                         </label>
 
-                        <input
-                            id="origen"
-                            type="text"
-                            class="form-control"
+                        <input id="origen" name="origen" type="text" class="form-control"
                             value="{{ aduana.origen if editar else '' }}">
 
                     </div>
@@ -172,11 +145,7 @@ value="{{ aduana.pedimento if editar else '' }}">
 
                         </label>
 
-                        <input
-                            id="fecha_importacion"
-                            type="date"
-                            class="form-control"
-                            name="fecha_importacion"
+                        <input id="fecha_importacion" type="date" class="form-control" name="fecha_importacion"
                             value="{{ aduana.fecha_importacion if editar else '' }}">
 
                     </div>
@@ -185,23 +154,15 @@ value="{{ aduana.pedimento if editar else '' }}">
 
                 <hr>
 
-                <button
-                    type="submit"
-                    class="btn btn-success">
-
-                    <i class="bi bi-save"></i>
-
-                    Actualizar Expediente
-
-                </button>
-
-                <a
-                    href="{{ url_for('lista_aduanas') }}"
-                    class="btn btn-secondary">
-
-                    Cancelar
-
+                {% if editar %}
+                <a href="{{ url_for('expediente_maquinaria', id_activo=aduana.id_activo) }}" class="btn btn-secondary">
+                    Regresar
                 </a>
+                {% else %}
+                <a href="{{ url_for('lista_aduanas') }}" class="btn btn-secondary">
+                    Cancelar
+                </a>
+                {% endif %}
 
             </form>
 
@@ -217,42 +178,42 @@ value="{{ aduana.pedimento if editar else '' }}">
 
 <script>
 
-$("#id_activo").change(function(){
+    $("#id_activo").change(function () {
 
-    let id = $(this).val();
+        let id = $(this).val();
 
-    if(id==""){
+        if (id == "") {
 
-        $("#factura").val("");
-        $("#pedimento").val("");
-        $("#entrada_mtz").val("");
-        $("#id_imp").val("");
-        $("#inbond").val("");
-        $("#origen").val("");
-        $("#fecha_importacion").val("");
-        return;
+            $("#factura").val("");
+            $("#pedimento").val("");
+            $("#entrada_mtz").val("");
+            $("#id_imp").val("");
+            $("#inbond").val("");
+            $("#origen").val("");
+            $("#fecha_importacion").val("");
+            return;
 
-    }
+        }
 
-    $.get("/aduanas/datos/"+id,function(r){
+        $.get("/aduanas/datos/" + id, function (r) {
 
-        $("#factura").val(r.factura || "");
+            $("#factura").val(r.factura || "");
 
-        $("#pedimento").val(r.pedimento || "");
+            $("#pedimento").val(r.pedimento || "");
 
-        $("#entrada_mtz").val(r.entrada_mtz || "");
+            $("#entrada_mtz").val(r.entrada_mtz || "");
 
-        $("#id_imp").val(r.id_imp || "");
+            $("#id_imp").val(r.id_imp || "");
 
-        $("#inbond").val(r.inbond || "");
+            $("#inbond").val(r.inbond || "");
 
-        $("#origen").val(r.origen || "");
+            $("#origen").val(r.origen || "");
 
-        $("#fecha_importacion").val(r.fecha_importacion || "");
+            $("#fecha_importacion").val(r.fecha_importacion || "");
+
+        });
 
     });
-
-});
 
 </script>
 

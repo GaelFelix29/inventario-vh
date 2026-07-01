@@ -4,8 +4,6 @@
 
 {% block contenido %}
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-
 <div class="container-fluid py-4">
 
     <div class="card shadow-lg border-0 rounded-4 mb-4">
@@ -446,6 +444,8 @@
 
                             <div class="col-lg-3">
 
+                                {% if aduana %}
+
                                 <h6 class="fw-bold text-center mb-3">
 
                                     Progreso del Expediente
@@ -453,6 +453,7 @@
                                 </h6>
 
                                 <div class="progress rounded-pill mb-4" style="height:16px;">
+
                                     <div class="progress-bar progreso-aduana"
                                         style="--progreso: {{ estado_aduana.porcentaje }}%">
                                     </div>
@@ -466,16 +467,10 @@
                                         <div class="border rounded-4 p-2 shadow-sm">
 
                                             <h3 class="text-success fw-bold mb-0">
-
                                                 {{ estado_aduana.completos }}
-
                                             </h3>
 
-                                            <small>
-
-                                                OK
-
-                                            </small>
+                                            <small>OK</small>
 
                                         </div>
 
@@ -486,16 +481,10 @@
                                         <div class="border rounded-4 p-2 shadow-sm">
 
                                             <h3 class="text-warning fw-bold mb-0">
-
                                                 {{ estado_aduana.pendientes }}
-
                                             </h3>
 
-                                            <small>
-
-                                                Pend.
-
-                                            </small>
+                                            <small>Pend.</small>
 
                                         </div>
 
@@ -506,22 +495,18 @@
                                         <div class="border rounded-4 p-2 shadow-sm">
 
                                             <h3 class="text-primary fw-bold mb-0">
-
                                                 {{ estado_aduana.total }}
-
                                             </h3>
 
-                                            <small>
-
-                                                Total
-
-                                            </small>
+                                            <small>Total</small>
 
                                         </div>
 
                                     </div>
 
                                 </div>
+
+                                {% endif %}
 
                             </div>
 
@@ -806,18 +791,16 @@
                                     class="btn btn-warning btn-lg rounded-pill px-5">
 
                                     <i class="bi bi-pencil-square"></i>
-
                                     Editar Expediente
 
                                 </a>
 
                                 {% else %}
 
-                                <a href="/aduanas/nuevo?id={{ maquina.id_activo }}"
+                                <a href="{{ url_for('nueva_aduana', id=maquina.id_activo) }}"
                                     class="btn btn-success btn-lg rounded-pill px-5">
 
                                     <i class="bi bi-plus-circle"></i>
-
                                     Crear Expediente
 
                                 </a>
@@ -840,6 +823,122 @@
 
 </div>
 
+<!-- Modal Solicitud de Baja -->
+<div class="modal fade" id="modalSolicitudBaja" tabindex="-1" aria-hidden="true">
 
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content border-0 shadow-lg rounded-4">
+
+            <form method="POST" action="{{ url_for('solicitud_baja', id_activo=maquina.id_activo) }}">
+
+                <div class="modal-header bg-danger text-white">
+
+                    <h5 class="modal-title">
+
+                        <i class="bi bi-trash3-fill"></i>
+
+                        Solicitud de Baja
+
+                    </h5>
+
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="alert alert-warning">
+
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+
+                        Se enviará una solicitud para dar de baja el activo:
+
+                        <strong>{{ maquina.id_activo }}</strong>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-bold">
+
+                            Motivo de la baja
+
+                        </label>
+
+                        <textarea class="form-control" name="motivo" rows="4" required></textarea>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-bold">
+
+                            Observaciones
+
+                        </label>
+
+                        <textarea class="form-control" name="observaciones" rows="3"></textarea>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-bold">
+
+                            Prioridad
+
+                        </label>
+
+                        <select name="prioridad" class="form-select" required>
+
+                            <option value="Baja">
+                                Baja
+                            </option>
+
+                            <option value="Media" selected>
+                                Media
+                            </option>
+
+                            <option value="Alta">
+                                Alta
+                            </option>
+
+                            <option value="Urgente">
+                                Urgente
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+
+                        Cancelar
+
+                    </button>
+
+                    <button type="submit" class="btn btn-danger">
+
+                        <i class="bi bi-send-fill"></i>
+
+                        Enviar Solicitud
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
 
 {% endblock %}

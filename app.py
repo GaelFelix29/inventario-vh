@@ -1023,55 +1023,6 @@ def lista_aduanas():
         aduanas=aduanas.to_dict("records")
     )
 
-@app.route("/aduanas/nuevo", methods=["GET", "POST"])
-@login_required
-def nueva_aduana():
-
-    maquinarias = obtener_maquinarias_select()
-
-    if request.method == "POST":
-
-        guardar_aduana(
-
-            request.form["id_activo"],
-
-            request.form["factura"],
-
-            request.form["pedimento"],
-
-            request.form["entrada_mtz"],
-
-            request.form["id_imp"],
-
-            request.form["inbond"],
-
-            request.form["origen"],
-
-            request.form["fecha_importacion"]
-
-        )
-
-        flash(
-
-            "Expediente aduanal actualizado correctamente.",
-
-            "success"
-
-        )
-
-        return redirect(
-
-            url_for("lista_aduanas")
-
-        )
-
-    return render_template(
-
-        "nueva_aduana.html",
-
-        maquinarias=maquinarias.to_dict("records")
-
-    )
 
 @app.route("/aduanas/<id_activo>/editar", methods=["GET", "POST"])
 @login_required
@@ -1081,20 +1032,11 @@ def editar_aduana(id_activo):
 
     aduana = obtener_aduana(id_activo)
 
-    if not aduana:
-
-        flash(
-            "No existe información aduanal para este activo.",
-            "warning"
-        )
-
-        return redirect(
-            url_for("nueva_aduana")
-        )
+    editar = aduana is not None
 
     if request.method == "POST":
 
-        actualizar_aduana(
+        guardar_aduana(
 
             id_activo,
 
@@ -1109,13 +1051,26 @@ def editar_aduana(id_activo):
         )
 
         flash(
-            "Expediente actualizado correctamente.",
+            "Expediente guardado correctamente.",
             "success"
         )
 
         return redirect(
             url_for("expediente_maquinaria", id_activo=id_activo)
         )
+
+    if not editar:
+
+        aduana = {
+            "id_activo": id_activo,
+            "factura": "",
+            "pedimento": "",
+            "entrada_mtz": "",
+            "id_imp": "",
+            "inbond": "",
+            "origen": "",
+            "fecha_importacion": ""
+        }
 
     return render_template(
 
@@ -1125,8 +1080,54 @@ def editar_aduana(id_activo):
 
         aduana=aduana,
 
-        editar=True
+        editar=editar
 
+    )
+
+@app.route("/aduanas/nuevo", methods=["GET", "POST"])
+@login_required
+def nueva_aduana():
+
+    id_activo = request.args.get("id")
+
+    maquinarias = obtener_maquinarias_select()
+
+    if request.method == "POST":
+
+        guardar_aduana(
+            request.form["id_activo"],
+            request.form["factura"],
+            request.form["pedimento"],
+            request.form["entrada_mtz"],
+            request.form["id_imp"],
+            request.form["inbond"],
+            request.form["origen"],
+            request.form["fecha_importacion"]
+        )
+
+        flash(
+            "Expediente aduanal actualizado correctamente.",
+            "success"
+        )
+
+        return redirect(url_for("lista_aduanas"))
+
+    aduana = {
+        "id_activo": id_activo,
+        "factura": "",
+        "pedimento": "",
+        "entrada_mtz": "",
+        "id_imp": "",
+        "inbond": "",
+        "origen": "",
+        "fecha_importacion": ""
+    }
+
+    return render_template(
+        "nueva_aduana.html",
+        maquinarias=maquinarias.to_dict("records"),
+        aduana=aduana,
+        editar=False
     )
 
 @app.route("/aduanas/datos/<id_activo>")

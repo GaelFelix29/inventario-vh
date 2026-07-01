@@ -46,12 +46,17 @@ Registrar Nuevo Activo
 
 </h3>
 
-<a href="/maquinarias" class="btn btn-light">
-
-<i class="bi bi-arrow-left"></i>
-
-Volver
-
+{% if editar %}
+<a href="{{ url_for('expediente_maquinaria', id_activo=maquina.id_activo) }}"
+   class="btn btn-light rounded-pill">
+    <i class="bi bi-arrow-left"></i> Volver
+</a>
+{% else %}
+<a href="{{ url_for('lista_maquinarias') }}"
+   class="btn btn-light rounded-pill">
+    <i class="bi bi-arrow-left"></i> Volver
+</a>
+{% endif %}
 </a>
 
 </div>

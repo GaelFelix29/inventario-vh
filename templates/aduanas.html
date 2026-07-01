@@ -28,12 +28,13 @@ Aduanas
 
         </div>
 
-            <a href="{{ url_for('nueva_aduana') }}" class="btn btn-success">
+        <button class="btn btn-success rounded-pill px-4" onclick="seleccionarActivo()">
+
             <i class="bi bi-plus-circle"></i>
 
             Actualizar Expediente
 
-        </a>
+        </button>
 
     </div>
 
@@ -42,9 +43,7 @@ Aduanas
 
         <div class="card-body">
 
-            <table
-                id="tablaAduanas"
-                class="table table-hover align-middle">
+            <table id="tablaAduanas" class="table table-hover align-middle">
 
                 <thead class="table-success">
 
@@ -110,9 +109,7 @@ Aduanas
 
                             {% if a.documento %}
 
-                            <a
-                                href="#"
-                                class="btn btn-sm btn-outline-secondary">
+                            <a href="#" class="btn btn-sm btn-outline-secondary">
 
                                 <i class="bi bi-file-earmark-pdf"></i>
 
@@ -132,19 +129,19 @@ Aduanas
 
                         <td>
 
-                            <button
-                                class="btn btn-sm btn-primary">
+                            <a href="{{ url_for('expediente_maquinaria', id_activo=a.id_activo) }}"
+                                class="btn btn-primary rounded-pill px-3">
 
                                 <i class="bi bi-eye"></i>
 
-                            </button>
+                            </a>
 
-                            <button
-                                class="btn btn-sm btn-warning">
+                            <a href="{{ url_for('editar_aduana', id_activo=a.id_activo) }}"
+                                class="btn btn-warning rounded-pill px-3">
 
                                 <i class="bi bi-pencil"></i>
 
-                            </button>
+                            </a>
 
                         </td>
 
@@ -167,24 +164,70 @@ Aduanas
 {% block scripts %}
 
 <script>
+    $(document).ready(function () {
 
-$(document).ready(function(){
+        $("#tablaAduanas").DataTable({
 
-    $("#tablaAduanas").DataTable({
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json"
+            },
 
-        language:{
+            pageLength: 10,
 
-            url:"https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json"
+            responsive: true,
 
-        },
+            dom:
+                "<'row align-items-center mb-4'<'col-md-6'l><'col-md-6'f>>" +
+                "rt" +
+                "<'row mt-3'<'col-md-5'i><'col-md-7'p>>",
 
-        pageLength:10,
+            initComplete: function () {
 
-        responsive:true
+                const filtro = $(".dataTables_filter");
+
+                filtro.find("label").contents().filter(function () {
+                    return this.nodeType === 3;
+                }).remove();
+
+                filtro.find("label").addClass("w-100");
+
+                filtro.find("input")
+                    .attr("placeholder", "Buscar por Activo, Factura, Pedimento, Origen...")
+                    .addClass("buscador-aduanas");
+
+                filtro.prepend(`
+        <div class="buscador-wrapper">
+            <i class="bi bi-search buscador-icono"></i>
+        </div>
+    `);
+
+                filtro.find("input").appendTo(".buscador-wrapper");
+
+            }
+
+        });
 
     });
 
-});
+    
+</script>
+
+<script>
+
+function seleccionarActivo(){
+
+    let activo = prompt("Ingrese el ID del activo.\n\nEjemplo: ACT-0001");
+
+    if(!activo){
+        return;
+    }
+
+    activo = activo.trim().toUpperCase();
+
+    window.location =
+        "/aduanas/" + activo + "/editar";
+
+}
 
 </script>
 
