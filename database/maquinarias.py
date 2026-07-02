@@ -185,11 +185,7 @@ def actualizar_maquinaria(datos):
         conn.execute(sql, datos)
 
     
-    # ======================================================
-# DAR DE BAJA DESDE SOLICITUD
-# ======================================================
-
-def baja_desde_solicitud(id_activo, motivo, responsable):
+def baja_desde_solicitud(conn, id_activo, motivo, responsable):
 
     sql = text("""
 
@@ -203,24 +199,23 @@ def baja_desde_solicitud(id_activo, motivo, responsable):
 
             motivo_baja=:motivo,
 
-            responsable_baja=:responsable
+            responsable_baja=:responsable,
+
+            ultima_actualizacion=NOW()
 
         WHERE id_activo=:id
 
     """)
 
-    with engine.begin() as conn:
+    conn.execute(sql, {
 
-        conn.execute(sql, {
+        "id": id_activo,
 
-            "id": id_activo,
+        "motivo": motivo,
 
-            "motivo": motivo,
+        "responsable": responsable
 
-            "responsable": responsable
-
-        })
-
+    })
 
 def obtener_maquinarias_select():
 

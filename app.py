@@ -15,6 +15,7 @@ from models.auditoria_model import registrar_movimiento
 from functools import wraps
 from datetime import date
 from database.aduanas import crear_registro_aduana_vacio
+from models.auditoria_model import obtener_historial_activo
 
 from database.solicitudes_baja import (
     guardar_solicitud,
@@ -626,6 +627,8 @@ def expediente_maquinaria(id_activo):
 
     estado_aduana = estado_expediente_aduanal(aduana)
 
+    historial = obtener_historial_activo(id_activo)
+
     return render_template(
 
         "expediente_maquinaria.html",
@@ -634,7 +637,9 @@ def expediente_maquinaria(id_activo):
 
         aduana=aduana,
 
-        estado_aduana=estado_aduana
+        estado_aduana=estado_aduana,
+
+        historial=historial
 
     )
 
@@ -924,61 +929,47 @@ def aprobar_solicitud_route(id):
     if session.get("rol") != "Administrador":
 
         return jsonify({
-            "ok": False
-        }),403
+            "ok": False,
+            "error": "No tiene permisos."
+        }), 403
 
-    comentario=request.json.get("comentario","")
+    try:
 
-    aprobar_solicitud(
+        data = request.get_json()
 
-        id,
+        comentario = data.get("comentario", "")
 
-        session["nombre"],
+        aprobar_solicitud(
 
-        comentario
+            id,
 
-    )
+            session["nombre"],
 
-    return jsonify({
+            comentario
 
-        "ok":True
+        )
 
-    })
+        return jsonify({
 
-
-def baja_desde_solicitud(id_activo, motivo, responsable):
-
-    sql = text("""
-
-        UPDATE maquinarias
-
-        SET
-
-            estado='BAJA',
-
-            fecha_baja=:fecha,
-
-            motivo_baja=:motivo,
-
-            responsable_baja=:responsable
-
-        WHERE id_activo=:id
-
-    """)
-
-    with engine.begin() as conn:
-
-            conn.execute(sql, {
-
-            "fecha": date.today(),
-
-            "motivo": motivo,
-
-            "responsable": responsable,
-
-            "id": id_activo
+            "ok": True
 
         })
+
+    except Exception as e:
+
+        import traceback
+
+        traceback.print_exc()
+
+        return jsonify({
+
+            "ok": False,
+
+            "error": str(e)
+
+        }), 500
+
+
 
 @app.route("/solicitudes-baja/<int:id>/rechazar", methods=["POST"])
 @login_required
@@ -987,26 +978,45 @@ def rechazar_solicitud_route(id):
     if session.get("rol") != "Administrador":
 
         return jsonify({
-            "ok": False
+            "ok": False,
+            "error": "No tiene permisos."
         }), 403
 
-    comentario = request.json.get("comentario", "")
+    try:
 
-    rechazar_solicitud(
+        data = request.get_json()
 
-        id,
+        comentario = data.get("comentario", "")
 
-        session["nombre"],
+        rechazar_solicitud(
 
-        comentario
+            id,
 
-    )
+            session["nombre"],
 
-    return jsonify({
+            comentario
 
-        "ok": True
+        )
 
-    })
+        return jsonify({
+
+            "ok": True
+
+        })
+
+    except Exception as e:
+
+        import traceback
+
+        traceback.print_exc()
+
+        return jsonify({
+
+            "ok": False,
+
+            "error": str(e)
+
+        }), 500
 
 
 @app.route("/aduanas")
@@ -1146,19 +1156,50 @@ def datos_aduana(id_activo):
 
     return jsonify(datos)
 
-app.errorhandler(404)
-def pagina_no_encontrada(error):
-    return render_template("error.html"), 404
+# app.errorhandler(404)
+# def pagina_no_encontrada(error):
+#     return render_template("error.html"), 404
 
-@app.errorhandler(500)
-def error_servidor(error):
-    return render_template("error.html"), 500
+# @app.errorhandler(500)
+# def error_servidor(error):
+#     return render_template("error.html"), 500
 
-@app.errorhandler(Exception)
-def error_general(error):
-    return render_template("error.html"), 500
+# @app.errorhandler(Exception)
+# def error_general(error):
+#     return render_template("error.html"), 500
 
+# ==========================================
+# HISTORIAL DE UN ACTIVO
+# ==========================================
 
+def obtener_historial_activo(id_activo):
+
+    sql = text("""
+
+        SELECT
+
+            fecha,
+            usuario,
+            accion,
+            modulo
+
+        FROM auditoria
+
+        WHERE referencia = :id
+
+        ORDER BY fecha DESC
+
+    """)
+
+    with engine.connect() as conn:
+
+        return conn.execute(
+
+            sql,
+
+            {"id": id_activo}
+
+        ).mappings().all()
 # ==========================================================
 # SERVIDOR
 # ==========================================================

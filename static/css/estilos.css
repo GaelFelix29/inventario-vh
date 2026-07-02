@@ -348,7 +348,7 @@ body{
 }
 
 .card-body-modern{
-    padding:25px;
+    padding:24px;
 }
 
 /*==============================
@@ -802,4 +802,202 @@ FOOTER SIDEBAR
 
     border-top:1px solid rgba(255,255,255,.2);
 
+}
+
+/*=========================================
+  TARJETAS DEL EXPEDIENTE
+=========================================*/
+
+.card-expediente{
+
+    min-height:650px;
+
+}
+
+/*=============================
+TIMELINE
+==============================*/
+
+.timeline{
+
+    position:relative;
+
+    padding-left:30px;
+
+}
+
+.timeline::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:8px;
+
+    top:0;
+
+    bottom:0;
+
+    width:3px;
+
+    background:#198754;
+
+    border-radius:10px;
+
+}
+
+.timeline-item{
+
+    position:relative;
+
+    padding-left:20px;
+
+}
+
+.timeline-item::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:-29px;
+
+    top:6px;
+
+    width:16px;
+
+    height:16px;
+
+    background:#198754;
+
+    border-radius:50%;
+
+    border:3px solid white;
+
+    box-shadow:0 0 5px rgba(0,0,0,.2);
+
+}
+/*==================================================
+TIMELINE DEL HISTORIAL
+==================================================*/
+
+.timeline{
+
+    position: relative;
+
+    padding-left: 30px;
+
+}
+
+.timeline::before{
+
+    content: "";
+
+    position: absolute;
+
+    left: 8px;
+
+    top: 0;
+
+    bottom: 0;
+
+    width: 3px;
+
+    background: #198754;
+
+    border-radius: 20px;
+
+}
+
+.timeline-item{
+
+    position: relative;
+
+    padding-left: 25px;
+
+    margin-bottom: 35px;
+
+}
+
+.timeline-item:last-child{
+
+    margin-bottom: 0;
+
+}
+
+.timeline-item::before{
+
+    content: "";
+
+    position: absolute;
+
+    left: -29px;
+
+    top: 6px;
+
+    width: 18px;
+
+    height: 18px;
+
+    background: #198754;
+
+    border: 4px solid #fff;
+
+    border-radius: 50%;
+
+    box-shadow: 0 2px 10px rgba(0,0,0,.20);
+
+}
+
+.timeline-item h6{
+
+    margin-bottom: 4px;
+
+    font-weight: 700;
+
+}
+
+.timeline-item small{
+
+    color: #6c757d;
+
+}
+
+.timeline-item .badge{
+
+    border-radius: 30px;
+
+    padding: 6px 14px;
+
+    font-size: .75rem;
+
+}
+
+/*=========================================
+HEADER NEGRO DEL HISTORIAL
+=========================================*/
+
+.header-dark{
+
+    background:linear-gradient(135deg,#343a40,#212529);
+
+    color:white;
+
+}
+
+.historial-scroll{
+    max-height:560px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding-right:8px;
+}
+
+.historial-scroll{
+    position:relative;
+}
+
+.header-dark{
+    position:sticky;
+    top:0;
+    z-index:20;
 }

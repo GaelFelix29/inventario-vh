@@ -2,6 +2,7 @@ import pandas as pd
 
 from sqlalchemy import text
 from database.maquinarias import baja_desde_solicitud
+from models.auditoria_model import registrar_movimiento
 
 from database.conexion import engine
 
@@ -85,11 +86,45 @@ def obtener_pendientes():
 # APROBAR
 # ======================================================
 
+
 def aprobar_solicitud(id, administrador, comentario):
 
     with engine.begin() as conn:
 
-        # 1. Aprobar la solicitud
+        # ==========================================
+        # 1. OBTENER LA SOLICITUD
+        # ==========================================
+
+        sql = text("""
+
+            SELECT *
+
+            FROM solicitudes_baja
+
+            WHERE id = :id
+
+        """)
+
+        solicitud = conn.execute(
+
+            sql,
+
+            {"id": id}
+
+        ).mappings().first()
+
+        if not solicitud:
+
+            raise Exception("La solicitud no existe.")
+
+        if solicitud["estado"] != "Pendiente":
+
+            raise Exception("La solicitud ya fue procesada.")
+
+        # ==========================================
+        # 2. APROBAR LA SOLICITUD
+        # ==========================================
+
         sql_update = text("""
 
             UPDATE solicitudes_baja
@@ -118,7 +153,10 @@ def aprobar_solicitud(id, administrador, comentario):
 
         })
 
-        # 2. Obtener los datos de la solicitud
+        # ==========================================
+        # 3. OBTENER DATOS PARA DAR DE BAJA
+        # ==========================================
+
         sql_select = text("""
 
             SELECT
@@ -141,10 +179,15 @@ def aprobar_solicitud(id, administrador, comentario):
 
         ).fetchone()
 
-        # 3. Dar de baja el activo
+        # ==========================================
+        # 4. DAR DE BAJA EL ACTIVO
+        # ==========================================
+
         if fila:
 
             baja_desde_solicitud(
+
+                conn,
 
                 fila.id_activo,
 
@@ -154,6 +197,19 @@ def aprobar_solicitud(id, administrador, comentario):
 
             )
 
+            registrar_movimiento(
+
+                usuario=administrador,
+
+                accion="Aprobó solicitud de baja",
+
+                modulo="Solicitudes",
+
+                referencia=fila.id_activo,
+
+                conn=conn
+
+            )
 
 # ======================================================
 # RECHAZAR
@@ -192,16 +248,6 @@ def rechazar_solicitud(id, administrador, comentario):
         })
 
 
-def obtener_solicitudes():
-
-    sql = text("""
-        SELECT *
-        FROM solicitudes_baja
-        ORDER BY fecha DESC
-    """)
-
-    return pd.read_sql(sql, engine)
-
 def obtener_solicitud(id):
 
     sql = text("""
@@ -220,42 +266,11 @@ def obtener_solicitud(id):
         params={"id": id}
     ).iloc[0]
 
-def rechazar_solicitud(id, administrador, comentario):
-
-    sql = text("""
-
-        UPDATE solicitudes_baja
-
-        SET
-
-            estado='Rechazada',
-
-            aprobado_por=:admin,
-
-            comentario_admin=:comentario,
-
-            fecha_aprobacion=NOW()
-
-        WHERE id=:id
-
-    """)
-
-    with engine.begin() as conn:
-
-        conn.execute(sql, {
-
-            "admin": administrador,
-
-            "comentario": comentario,
-
-            "id": id
-
-        })
 def existe_solicitud_pendiente(id_activo):
 
     sql = text("""
 
-    SELECT COUNT(*) AS total
+        SELECT COUNT(*) AS total
 
         FROM solicitudes_baja
 
@@ -268,11 +283,8 @@ def existe_solicitud_pendiente(id_activo):
     with engine.begin() as conn:
 
         total = conn.execute(
-
-                sql,
-
-                    {"id": id_activo}
-
+            sql,
+            {"id": id_activo}
         ).scalar()
 
     return total > 0

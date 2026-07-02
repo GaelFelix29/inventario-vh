@@ -128,11 +128,11 @@
 
     </div>
 
-    <div class="row">
+    <div class="row g-4 mb-4">
 
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-4 d-flex">
 
-            <div class="modern-card h-100">
+            <div class="modern-card h-100 w-100">
 
                 <div class="modern-header header-green">
 
@@ -156,8 +156,7 @@
 
                 </div>
 
-                <div class="card-body-modern">
-
+                <div class="card-body-modern d-flex flex-column">
                     <div class="info-item">
 
                         <div class="info-icon">
@@ -271,543 +270,648 @@
             </div>
 
         </div>
-        <tr>
 
-            <div class="col-lg-6 mb-4">
 
-                <div class="modern-card h-100">
+        <div class="col-lg-4 d-flex">
 
-                    <div class="modern-header header-blue">
+            <div class="modern-card h-100 w-100">
 
-                        <div class="header-title">
+                <div class="modern-header header-blue">
 
-                            <div class="header-icon">
+                    <div class="header-title">
 
-                                <i class="bi bi-cash-stack"></i>
+                        <div class="header-icon">
 
-                            </div>
-
-                            <h4>
-
-                                Información Económica
-
-                            </h4>
+                            <i class="bi bi-cash-stack"></i>
 
                         </div>
 
-                        <i class="bi bi-graph-up-arrow fs-3"></i>
+                        <h4>
+
+                            Información Económica
+
+                        </h4>
 
                     </div>
 
-                    <div class="card-body-modern">
+                    <i class="bi bi-graph-up-arrow fs-3"></i>
 
-                        <div class="money-card money-green">
+                </div>
 
-                            <div>
+                <div class="card-body-modern">
 
-                                <small>Precio Unitario</small>
+                    <div class="money-card money-green">
 
-                                <h2>
+                        <div>
 
-                                    ${{ "{:,.2f}".format(maquina.precio_unitario_us or 0) }}
+                            <small>Precio Unitario</small>
 
-                                </h2>
+                            <h2>
 
-                            </div>
+                                ${{ "{:,.2f}".format(maquina.precio_unitario_us or 0) }}
 
-                            <i class="bi bi-currency-dollar"></i>
-
-                        </div>
-
-                        <div class="money-card money-blue">
-
-                            <div>
-
-                                <small>Total USD</small>
-
-                                <h2>
-
-                                    ${{ "{:,.2f}".format(maquina.total_us or 0) }}
-
-                                </h2>
-
-                            </div>
-
-                            <i class="bi bi-wallet2"></i>
+                            </h2>
 
                         </div>
 
-                        <div class="money-card money-orange">
+                        <i class="bi bi-currency-dollar"></i>
 
-                            <div>
+                    </div>
 
-                                <small>Valor MXN</small>
+                    <div class="money-card money-blue">
 
-                                <h2>
+                        <div>
 
-                                    ${{ "{:,.2f}".format(maquina.valor_mx or 0) }}
+                            <small>Total USD</small>
 
-                                </h2>
+                            <h2>
 
-                            </div>
+                                ${{ "{:,.2f}".format(maquina.total_us or 0) }}
 
-                            <i class="bi bi-bank"></i>
+                            </h2>
 
                         </div>
+
+                        <i class="bi bi-wallet2"></i>
+
+                    </div>
+
+                    <div class="money-card money-orange">
+
+                        <div>
+
+                            <small>Valor MXN</small>
+
+                            <h2>
+
+                                ${{ "{:,.2f}".format(maquina.valor_mx or 0) }}
+
+                            </h2>
+
+                        </div>
+
+                        <i class="bi bi-bank"></i>
 
                     </div>
 
                 </div>
 
             </div>
-            <!-- ======================= INFORMACIÓN ADUANAL ======================= -->
 
-            <div class="col-12 mb-4">
+        </div>
 
-                <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+        <!-- ================= HISTORIAL ================= -->
 
-                    <div class="card-header bg-warning py-3">
+        <div class="col-lg-4 d-flex">
 
-                        <div class="d-flex justify-content-between align-items-center">
+            <div class="modern-card h-100 w-100 historial-scroll">
 
-                            <div>
+                <div class="modern-header header-dark">
 
-                                <h4 class="fw-bold mb-0">
+                    <div class="header-title">
 
-                                    <i class="bi bi-globe-americas me-2"></i>
+                        <div class="header-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
 
-                                    Información Aduanal
+                        <h4>Historial del Activo</h4>
 
-                                </h4>
+                    </div>
 
-                                <small class="text-dark">
+                    <i class="bi bi-activity fs-3"></i>
 
-                                    Estado del expediente de importación
+                </div>
 
+                <div class="card-body-modern d-flex flex-column justify-content-center h-100">
+
+                    {% if historial %}
+
+                    {% for movimiento in historial %}
+
+                    <div class="card border-0 shadow-sm rounded-4 mb-3">
+
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <div>
+
+                                    <h6 class="fw-bold mb-1">
+                                        {{ movimiento.accion }}
+                                    </h6>
+
+                                    <small class="text-muted">
+                                        <i class="bi bi-person-circle"></i>
+                                        {{ movimiento.usuario }}
+                                    </small>
+
+                                </div>
+
+                                <small class="text-secondary">
+                                    <i class="bi bi-calendar-event"></i>
+                                    {{ movimiento.fecha }}
                                 </small>
 
                             </div>
 
-                            <span class="badge bg-dark rounded-pill px-4 py-2 fs-6">
+                            <div class="mt-3">
 
-                                {{ estado_aduana.porcentaje }}%
+                                {% set color = "bg-secondary" %}
 
-                            </span>
+                                {% if "Aprobó" in movimiento.accion %}
+                                {% set color = "bg-success" %}
+                                {% elif "Solicitó" in movimiento.accion %}
+                                {% set color = "bg-warning text-dark" %}
+                                {% elif "Rechazó" in movimiento.accion %}
+                                {% set color = "bg-danger" %}
+                                {% elif "Editó" in movimiento.accion %}
+                                {% set color = "bg-primary" %}
+                                {% elif "Registró" in movimiento.accion %}
+                                {% set color = "bg-info text-dark" %}
+                                {% endif %}
+
+                                <span class="badge {{ color }} rounded-pill">
+                                    {{ movimiento.modulo }}
+                                </span>
+
+                            </div>
 
                         </div>
 
                     </div>
 
-                    <div class="card-body p-4">
+                    {% endfor %}
 
-                        <div class="row align-items-center">
+                    {% else %}
 
-                            <!-- Estado -->
+                    <div class="text-center m-auto">
 
-                            <div class="col-lg-3 text-center">
+                        <i class="bi bi-clock-history text-secondary" style="font-size:70px;"></i>
 
-                                {% if estado_aduana.estado=="Completo" %}
+                        <h5 class="mt-3">
+                            Sin movimientos registrados
+                        </h5>
 
-                                <i class="bi bi-patch-check-fill text-success" style="font-size:90px;"></i>
+                        <p class="text-muted mb-0">
+                            El historial aparecerá automáticamente conforme se utilice el sistema.
+                        </p>
 
-                                <h3 class="fw-bold text-success mt-3">
+                    </div>
 
-                                    Expediente Completo
+                    {% endif %}
 
-                                </h3>
+                </div>
 
-                                {% elif estado_aduana.estado=="Incompleto" %}
+            </div>
 
-                                <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size:90px;"></i>
+        </div>
 
-                                <h3 class="fw-bold text-warning mt-3">
+        <!-- ======================= INFORMACIÓN ADUANAL ======================= -->
 
-                                    Expediente Incompleto
+        <div class="col-12 mb-4">
 
-                                </h3>
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
 
-                                {% else %}
+                <div class="card-header bg-warning py-3">
 
-                                <i class="bi bi-x-octagon-fill text-danger" style="font-size:90px;"></i>
+                    <div class="d-flex justify-content-between align-items-center">
 
-                                <h3 class="fw-bold text-danger mt-3">
+                        <div>
 
-                                    Sin Expediente
+                            <h4 class="fw-bold mb-0">
 
-                                </h3>
+                                <i class="bi bi-globe-americas me-2"></i>
 
-                                {% endif %}
+                                Información Aduanal
 
-                            </div>
+                            </h4>
 
-                            <!-- Barra de progreso + Estadísticas -->
+                            <small class="text-dark">
 
-                            <div class="col-lg-3">
+                                Estado del expediente de importación
 
-                                {% if aduana %}
-
-                                <h6 class="fw-bold text-center mb-3">
-
-                                    Progreso del Expediente
-
-                                </h6>
-
-                                <div class="progress rounded-pill mb-4" style="height:16px;">
-
-                                    <div class="progress-bar progreso-aduana"
-                                        style="--progreso: {{ estado_aduana.porcentaje }}%">
-                                    </div>
-
-                                </div>
-
-                                <div class="row text-center">
-
-                                    <div class="col-4">
-
-                                        <div class="border rounded-4 p-2 shadow-sm">
-
-                                            <h3 class="text-success fw-bold mb-0">
-                                                {{ estado_aduana.completos }}
-                                            </h3>
-
-                                            <small>OK</small>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-4">
-
-                                        <div class="border rounded-4 p-2 shadow-sm">
-
-                                            <h3 class="text-warning fw-bold mb-0">
-                                                {{ estado_aduana.pendientes }}
-                                            </h3>
-
-                                            <small>Pend.</small>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-4">
-
-                                        <div class="border rounded-4 p-2 shadow-sm">
-
-                                            <h3 class="text-primary fw-bold mb-0">
-                                                {{ estado_aduana.total }}
-                                            </h3>
-
-                                            <small>Total</small>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                {% endif %}
-
-                            </div>
-
-                            <!-- Información Aduanal -->
-
-                            <div class="col-lg-6">
-
-                                {% if aduana %}
-
-                                <div class="row g-3">
-
-                                    <div class="col-md-6">
-
-                                        <div class="p-3 border rounded-4 bg-light h-100">
-
-                                            <small class="text-muted">
-
-                                                <i class="bi bi-receipt"></i>
-
-                                                Factura
-
-                                            </small>
-
-                                            <h5 class="fw-bold mt-2">
-
-                                                {{ aduana.factura }}
-
-                                            </h5>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-md-6">
-
-                                        <div class="p-3 border rounded-4 bg-light h-100">
-
-                                            <small class="text-muted">
-
-                                                <i class="bi bi-file-earmark-text"></i>
-
-                                                Pedimento
-
-                                            </small>
-
-                                            <h5 class="fw-bold mt-2">
-
-                                                {{ aduana.pedimento }}
-
-                                            </h5>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-md-6">
-
-                                        <div class="p-3 border rounded-4 bg-light h-100">
-
-                                            <small class="text-muted">
-
-                                                <i class="bi bi-truck"></i>
-
-                                                Entrada MTZ
-
-                                            </small>
-
-                                            <h5 class="fw-bold mt-2">
-
-                                                {{ aduana.entrada_mtz }}
-
-                                            </h5>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-md-6">
-
-                                        <div class="p-3 border rounded-4 bg-light h-100">
-
-                                            <small class="text-muted">
-
-                                                <i class="bi bi-upc-scan"></i>
-
-                                                ID IMP
-
-                                            </small>
-
-                                            <h5 class="fw-bold mt-2">
-
-                                                {{ aduana.id_imp }}
-
-                                            </h5>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-md-6">
-
-                                        <div class="p-3 border rounded-4 bg-light h-100">
-
-                                            <small class="text-muted">
-
-                                                <i class="bi bi-box-seam"></i>
-
-                                                Inbond
-
-                                            </small>
-
-                                            <h5 class="fw-bold mt-2">
-
-                                                {{ aduana.inbond }}
-
-                                            </h5>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-md-6">
-
-                                        <div class="p-3 border rounded-4 bg-light h-100">
-
-                                            <small class="text-muted">
-
-                                                <i class="bi bi-globe2"></i>
-
-                                                País de Origen
-
-                                            </small>
-
-                                            <h5 class="fw-bold mt-2">
-
-                                                {{ aduana.origen }}
-
-                                            </h5>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-12">
-
-                                        <div class="p-3 border rounded-4 bg-light">
-
-                                            <small class="text-muted">
-
-                                                <i class="bi bi-calendar-event"></i>
-
-                                                Fecha de Importación
-
-                                            </small>
-
-                                            <h5 class="fw-bold mt-2 mb-0">
-
-                                                {{ aduana.fecha_importacion }}
-
-                                            </h5>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                {% else %}
-
-                                <div class="alert alert-danger rounded-4 text-center">
-
-                                    <i class="bi bi-x-circle-fill fs-1 d-block mb-3"></i>
-
-                                    <h5>
-
-                                        No existe expediente aduanal.
-
-                                    </h5>
-
-                                    <p class="mb-0">
-
-                                        Registra la información para este activo.
-
-                                    </p>
-
-                                </div>
-
-                                {% endif %}
-
-                            </div>
+                            </small>
 
                         </div>
-                        <!-- ====================== RESUMEN Y ACCIONES ====================== -->
 
-                        <hr class="my-4">
+                        <span class="badge bg-dark rounded-pill px-4 py-2 fs-6">
 
-                        <div class="row align-items-center">
+                            {{ estado_aduana.porcentaje }}%
 
-                            <div class="col-lg-8">
+                        </span>
 
-                                {% if estado_aduana.estado=="Completo" %}
+                    </div>
 
-                                <div class="alert alert-success border-0 rounded-4 mb-0">
+                </div>
 
-                                    <div class="d-flex align-items-center">
+                <div class="card-body p-4">
 
-                                        <i class="bi bi-check-circle-fill fs-2 me-3"></i>
+                    <div class="row align-items-center">
 
-                                        <div>
+                        <!-- Estado -->
 
-                                            <strong>Expediente validado correctamente</strong><br>
+                        <div class="col-lg-3 text-center">
 
-                                            <small>
+                            {% if estado_aduana.estado=="Completo" %}
 
-                                                Toda la información aduanal se encuentra completa.
+                            <i class="bi bi-patch-check-fill text-success" style="font-size:90px;"></i>
 
-                                            </small>
+                            <h3 class="fw-bold text-success mt-3">
 
-                                        </div>
+                                Expediente Completo
 
-                                    </div>
+                            </h3>
 
+                            {% elif estado_aduana.estado=="Incompleto" %}
+
+                            <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size:90px;"></i>
+
+                            <h3 class="fw-bold text-warning mt-3">
+
+                                Expediente Incompleto
+
+                            </h3>
+
+                            {% else %}
+
+                            <i class="bi bi-x-octagon-fill text-danger" style="font-size:90px;"></i>
+
+                            <h3 class="fw-bold text-danger mt-3">
+
+                                Sin Expediente
+
+                            </h3>
+
+                            {% endif %}
+
+                        </div>
+
+                        <!-- Barra de progreso + Estadísticas -->
+
+                        <div class="col-lg-3">
+
+                            {% if aduana %}
+
+                            <h6 class="fw-bold text-center mb-3">
+
+                                Progreso del Expediente
+
+                            </h6>
+
+                            <div class="progress rounded-pill mb-4" style="height:16px;">
+
+                                <div class="progress-bar progreso-aduana"
+                                    style="--progreso: {{ estado_aduana.porcentaje }}%">
                                 </div>
-
-                                {% elif estado_aduana.estado=="Incompleto" %}
-
-                                <div class="alert alert-warning border-0 rounded-4 mb-0">
-
-                                    <div class="d-flex align-items-center">
-
-                                        <i class="bi bi-exclamation-triangle-fill fs-2 me-3"></i>
-
-                                        <div>
-
-                                            <strong>Faltan {{ estado_aduana.pendientes }} campos.</strong><br>
-
-                                            <small>
-
-                                                Completa la información para obtener un expediente al 100%.
-
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                {% else %}
-
-                                <div class="alert alert-danger border-0 rounded-4 mb-0">
-
-                                    <div class="d-flex align-items-center">
-
-                                        <i class="bi bi-x-circle-fill fs-2 me-3"></i>
-
-                                        <div>
-
-                                            <strong>Este activo no tiene expediente.</strong><br>
-
-                                            <small>
-
-                                                Crea el expediente para comenzar el registro.
-
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                {% endif %}
 
                             </div>
 
-                            <div class="col-lg-4 text-end">
+                            <div class="row text-center">
 
-                                {% if aduana %}
+                                <div class="col-4">
 
-                                <a href="{{ url_for('editar_aduana', id_activo=maquina.id_activo) }}"
-                                    class="btn btn-warning btn-lg rounded-pill px-5">
+                                    <div class="border rounded-4 p-2 shadow-sm">
 
-                                    <i class="bi bi-pencil-square"></i>
-                                    Editar Expediente
+                                        <h3 class="text-success fw-bold mb-0">
+                                            {{ estado_aduana.completos }}
+                                        </h3>
 
-                                </a>
+                                        <small>OK</small>
 
-                                {% else %}
+                                    </div>
 
-                                <a href="{{ url_for('nueva_aduana', id=maquina.id_activo) }}"
-                                    class="btn btn-success btn-lg rounded-pill px-5">
+                                </div>
 
-                                    <i class="bi bi-plus-circle"></i>
-                                    Crear Expediente
+                                <div class="col-4">
 
-                                </a>
+                                    <div class="border rounded-4 p-2 shadow-sm">
 
-                                {% endif %}
+                                        <h3 class="text-warning fw-bold mb-0">
+                                            {{ estado_aduana.pendientes }}
+                                        </h3>
+
+                                        <small>Pend.</small>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-4">
+
+                                    <div class="border rounded-4 p-2 shadow-sm">
+
+                                        <h3 class="text-primary fw-bold mb-0">
+                                            {{ estado_aduana.total }}
+                                        </h3>
+
+                                        <small>Total</small>
+
+                                    </div>
+
+                                </div>
 
                             </div>
+
+                            {% endif %}
+
+                        </div>
+
+                        <!-- Información Aduanal -->
+
+                        <div class="col-lg-6">
+
+                            {% if aduana %}
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+
+                                    <div class="p-3 border rounded-4 bg-light h-100">
+
+                                        <small class="text-muted">
+
+                                            <i class="bi bi-receipt"></i>
+
+                                            Factura
+
+                                        </small>
+
+                                        <h5 class="fw-bold mt-2">
+
+                                            {{ aduana.factura }}
+
+                                        </h5>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="p-3 border rounded-4 bg-light h-100">
+
+                                        <small class="text-muted">
+
+                                            <i class="bi bi-file-earmark-text"></i>
+
+                                            Pedimento
+
+                                        </small>
+
+                                        <h5 class="fw-bold mt-2">
+
+                                            {{ aduana.pedimento }}
+
+                                        </h5>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="p-3 border rounded-4 bg-light h-100">
+
+                                        <small class="text-muted">
+
+                                            <i class="bi bi-truck"></i>
+
+                                            Entrada MTZ
+
+                                        </small>
+
+                                        <h5 class="fw-bold mt-2">
+
+                                            {{ aduana.entrada_mtz }}
+
+                                        </h5>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="p-3 border rounded-4 bg-light h-100">
+
+                                        <small class="text-muted">
+
+                                            <i class="bi bi-upc-scan"></i>
+
+                                            ID IMP
+
+                                        </small>
+
+                                        <h5 class="fw-bold mt-2">
+
+                                            {{ aduana.id_imp }}
+
+                                        </h5>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="p-3 border rounded-4 bg-light h-100">
+
+                                        <small class="text-muted">
+
+                                            <i class="bi bi-box-seam"></i>
+
+                                            Inbond
+
+                                        </small>
+
+                                        <h5 class="fw-bold mt-2">
+
+                                            {{ aduana.inbond }}
+
+                                        </h5>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="p-3 border rounded-4 bg-light h-100">
+
+                                        <small class="text-muted">
+
+                                            <i class="bi bi-globe2"></i>
+
+                                            País de Origen
+
+                                        </small>
+
+                                        <h5 class="fw-bold mt-2">
+
+                                            {{ aduana.origen }}
+
+                                        </h5>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-12">
+
+                                    <div class="p-3 border rounded-4 bg-light">
+
+                                        <small class="text-muted">
+
+                                            <i class="bi bi-calendar-event"></i>
+
+                                            Fecha de Importación
+
+                                        </small>
+
+                                        <h5 class="fw-bold mt-2 mb-0">
+
+                                            {{ aduana.fecha_importacion }}
+
+                                        </h5>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            {% else %}
+
+                            <div class="alert alert-danger rounded-4 text-center">
+
+                                <i class="bi bi-x-circle-fill fs-1 d-block mb-3"></i>
+
+                                <h5>
+
+                                    No existe expediente aduanal.
+
+                                </h5>
+
+                                <p class="mb-0">
+
+                                    Registra la información para este activo.
+
+                                </p>
+
+                            </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+                    <!-- ====================== RESUMEN Y ACCIONES ====================== -->
+
+                    <hr class="my-4">
+
+                    <div class="row align-items-center">
+
+                        <div class="col-lg-8">
+
+                            {% if estado_aduana.estado=="Completo" %}
+
+                            <div class="alert alert-success border-0 rounded-4 mb-0">
+
+                                <div class="d-flex align-items-center">
+
+                                    <i class="bi bi-check-circle-fill fs-2 me-3"></i>
+
+                                    <div>
+
+                                        <strong>Expediente validado correctamente</strong><br>
+
+                                        <small>
+
+                                            Toda la información aduanal se encuentra completa.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            {% elif estado_aduana.estado=="Incompleto" %}
+
+                            <div class="alert alert-warning border-0 rounded-4 mb-0">
+
+                                <div class="d-flex align-items-center">
+
+                                    <i class="bi bi-exclamation-triangle-fill fs-2 me-3"></i>
+
+                                    <div>
+
+                                        <strong>Faltan {{ estado_aduana.pendientes }} campos.</strong><br>
+
+                                        <small>
+
+                                            Completa la información para obtener un expediente al 100%.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            {% else %}
+
+                            <div class="alert alert-danger border-0 rounded-4 mb-0">
+
+                                <div class="d-flex align-items-center">
+
+                                    <i class="bi bi-x-circle-fill fs-2 me-3"></i>
+
+                                    <div>
+
+                                        <strong>Este activo no tiene expediente.</strong><br>
+
+                                        <small>
+
+                                            Crea el expediente para comenzar el registro.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            {% endif %}
+
+                        </div>
+
+                        <div class="col-lg-4 text-end">
+
+                            {% if aduana %}
+
+                            <a href="{{ url_for('editar_aduana', id_activo=maquina.id_activo) }}"
+                                class="btn btn-warning btn-lg rounded-pill px-5">
+
+                                <i class="bi bi-pencil-square"></i>
+                                Editar Expediente
+
+                            </a>
+
+                            {% else %}
+
+                            <a href="{{ url_for('nueva_aduana', id=maquina.id_activo) }}"
+                                class="btn btn-success btn-lg rounded-pill px-5">
+
+                                <i class="bi bi-plus-circle"></i>
+                                Crear Expediente
+
+                            </a>
+
+                            {% endif %}
 
                         </div>
 
@@ -816,12 +920,16 @@
                 </div>
 
             </div>
+
+        </div>
 
     </div>
 
 </div>
 
 </div>
+
+
 
 <!-- Modal Solicitud de Baja -->
 <div class="modal fade" id="modalSolicitudBaja" tabindex="-1" aria-hidden="true">
