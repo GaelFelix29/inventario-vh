@@ -1039,6 +1039,15 @@ def lista_aduanas():
 @login_required
 def editar_aduana(id_activo):
 
+    if session.get("rol") != "Administrador":
+
+        flash(
+            "No tiene permisos para editar expedientes aduanales.",
+            "danger"
+        )
+
+        return redirect(url_for("lista_aduanas"))
+
     maquinarias = obtener_maquinarias_select()
 
     aduana = obtener_aduana(id_activo)

@@ -58,13 +58,12 @@
 
                     </a>
 
+                    {% if session.get("rol") == "Administrador" %}
                     <a href="{{ url_for('editar_maquinaria', id_activo=maquina.id_activo) }}" class="btn btn-warning">
-
                         <i class="bi bi-pencil"></i>
-
                         Editar
-
                     </a>
+                    {% endif %}
 
                     <a href="{{ url_for('qr_maquinaria', id_activo=maquina.id_activo) }}" class="btn btn-success">
 

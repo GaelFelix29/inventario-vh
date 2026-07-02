@@ -28,13 +28,12 @@ Aduanas
 
         </div>
 
+        {% if session["rol"] == "Administrador" %}
         <button class="btn btn-success rounded-pill px-4" onclick="seleccionarActivo()">
-
             <i class="bi bi-plus-circle"></i>
-
             Actualizar Expediente
-
         </button>
+        {% endif %}
 
     </div>
 
@@ -136,13 +135,12 @@ Aduanas
 
                             </a>
 
+                            {% if session["rol"] == "Administrador" %}
                             <a href="{{ url_for('editar_aduana', id_activo=a.id_activo) }}"
                                 class="btn btn-warning rounded-pill px-3">
-
                                 <i class="bi bi-pencil"></i>
-
                             </a>
-
+                            {% endif %}
                         </td>
 
                     </tr>
@@ -209,25 +207,25 @@ Aduanas
 
     });
 
-    
+
 </script>
 
 <script>
 
-function seleccionarActivo(){
+    function seleccionarActivo() {
 
-    let activo = prompt("Ingrese el ID del activo.\n\nEjemplo: ACT-0001");
+        let activo = prompt("Ingrese el ID del activo.\n\nEjemplo: ACT-0001");
 
-    if(!activo){
-        return;
+        if (!activo) {
+            return;
+        }
+
+        activo = activo.trim().toUpperCase();
+
+        window.location =
+            "/aduanas/" + activo + "/editar";
+
     }
-
-    activo = activo.trim().toUpperCase();
-
-    window.location =
-        "/aduanas/" + activo + "/editar";
-
-}
 
 </script>
 
