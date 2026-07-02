@@ -582,6 +582,7 @@ def nueva_maquinaria():
             "precio_unitario_us": precio,
             "total_us": total,
             "valor_mx": total,
+            "fecha_alta": request.form["fecha_alta"],
             "observaciones": request.form["observaciones"]
 
         }
@@ -692,7 +693,6 @@ def qr_maquinaria(id_activo):
         maquina=maquina,
         qr=qr
     )
-
 @app.route("/maquinarias/<id_activo>/editar", methods=["GET", "POST"])
 @login_required
 def editar_maquinaria(id_activo):
@@ -723,13 +723,13 @@ def editar_maquinaria(id_activo):
     if request.method == "POST":
 
         cantidad = int(request.form["cantidad"] or 1)
-        precio = float(request.form["precio_unitario"] or 0)
-        total = cantidad * precio
+        precio = float(request.form["precio_unitario_us"] or 0)
+        total = float(request.form["total_us"] or 0)
+        valor_mx = float(request.form["valor_mx"] or 0)
 
         datos = {
 
             "id_activo": id_activo,
-
             "categoria": request.form["categoria"],
             "descripcion": request.form["descripcion"],
             "cantidad": cantidad,
@@ -741,7 +741,8 @@ def editar_maquinaria(id_activo):
             "ubicacion": request.form["ubicacion"],
             "precio_unitario_us": precio,
             "total_us": total,
-            "valor_mx": total,
+            "valor_mx": valor_mx,
+            "fecha_alta": request.form["fecha_alta"],
             "observaciones": request.form["observaciones"]
 
         }
@@ -1156,17 +1157,17 @@ def datos_aduana(id_activo):
 
     return jsonify(datos)
 
-app.errorhandler(404)
-def pagina_no_encontrada(error):
-    return render_template("error.html"), 404
+# app.errorhandler(404)
+# def pagina_no_encontrada(error):
+#     return render_template("error.html"), 404
 
-@app.errorhandler(500)
-def error_servidor(error):
-    return render_template("error.html"), 500
+# @app.errorhandler(500)
+# def error_servidor(error):
+#     return render_template("error.html"), 500
 
-@app.errorhandler(Exception)
-def error_general(error):
-    return render_template("error.html"), 500
+# @app.errorhandler(Exception)
+# def error_general(error):
+#     return render_template("error.html"), 500
 
 # ==========================================
 # HISTORIAL DE UN ACTIVO

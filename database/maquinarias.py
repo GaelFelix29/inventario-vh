@@ -171,6 +171,7 @@ def actualizar_maquinaria(datos):
         serie_interna = :serie_interna,
         proveedor = :proveedor,
         ubicacion = :ubicacion,
+        fecha_alta = :fecha_alta,
         precio_unitario_us = :precio_unitario_us,
         total_us = :total_us,
         valor_mx = :valor_mx,
@@ -182,6 +183,7 @@ def actualizar_maquinaria(datos):
 
     with engine.begin() as conn:
 
+        conn.execute(sql, datos)
         conn.execute(sql, datos)
 
     

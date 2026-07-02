@@ -253,6 +253,23 @@ body{
 
     padding:25px;
 
+    overflow-y:auto;
+
+    overflow-x:hidden;
+
+}
+
+.sidebar::-webkit-scrollbar{
+    width:6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb{
+    background:#2f9b62;
+    border-radius:10px;
+}
+
+.sidebar::-webkit-scrollbar-track{
+    background:transparent;
 }
 
 .sidebar a{
@@ -281,6 +298,11 @@ body{
 
     padding:35px;
 
+}
+
+.sidebar-footer{
+    margin-top:auto;
+    padding-top:25px;
 }
 
 .card{

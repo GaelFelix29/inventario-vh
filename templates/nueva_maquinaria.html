@@ -327,6 +327,24 @@ value="{{ maquina.ubicacion if editar else '' }}">
 
 </div>
 
+<div class="row">
+
+    <div class="col-md-4 mb-3">
+
+        <label class="form-label">
+            Fecha de Alta
+        </label>
+
+        <input
+            type="date"
+            name="fecha_alta"
+            class="form-control"
+            value="{{ maquina.fecha_alta if editar else '' }}">
+
+    </div>
+
+</div>
+
 <hr>
 
 <h4 class="text-success mb-4">
@@ -339,48 +357,64 @@ Información Económica
 
 <div class="row">
 
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
 
         <label class="form-label">
-
             Proveedor
-
         </label>
 
         <input
-
             type="text"
-
             name="proveedor"
-
             class="form-control"
-
             value="{{ maquina.proveedor if editar else '' }}">
 
     </div>
 
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
 
         <label class="form-label">
-
             Precio Unitario (USD)
-
         </label>
 
         <input
-
             type="number"
-
             step="0.01"
-
-            name="precio_unitario"
-
+            name="precio_unitario_us"
             class="form-control"
-
             value="{{ maquina.precio_unitario_us if editar else '' }}">
 
     </div>
 
+    <div class="col-md-3 mb-3">
+
+        <label class="form-label">
+            Total USD
+        </label>
+
+        <input
+            type="number"
+            step="0.01"
+            name="total_us"
+            class="form-control"
+            value="{{ maquina.total_us if editar else '' }}">
+
+    </div>
+
+    <div class="col-md-3 mb-3">
+
+        <label class="form-label">
+            Valor MXN
+        </label>
+
+        <input
+            type="number"
+            step="0.01"
+            name="valor_mx"
+            class="form-control"
+            value="{{ maquina.valor_mx if editar else '' }}">
+
+    </div>
 
 </div>
 
