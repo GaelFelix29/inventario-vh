@@ -339,7 +339,8 @@ value="{{ maquina.ubicacion if editar else '' }}">
             type="date"
             name="fecha_alta"
             class="form-control"
-            value="{{ maquina.fecha_alta if editar else '' }}">
+            value="{{ maquina.fecha_alta if editar else '' }}"
+            value="{{ maquina.fecha_alta.strftime('%Y-%m-%d') if editar and maquina.fecha_alta else '' }}">
 
     </div>
 

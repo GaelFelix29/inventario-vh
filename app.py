@@ -564,7 +564,7 @@ def nueva_maquinaria():
     if request.method == "POST":
 
         cantidad = int(request.form["cantidad"] or 1)
-        precio = float(request.form["precio_unitario"] or 0)
+        precio = float(request.form["precio_unitario_us"] or 0)
         total = cantidad * precio
 
         datos = {
