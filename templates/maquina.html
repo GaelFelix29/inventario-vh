@@ -44,42 +44,6 @@
 
         <div class="card-body">
 
-            <div class="row mb-4">
-
-                <div class="col-md-8">
-
-                    <div class="input-group">
-
-                        <span class="input-group-text bg-white">
-
-                            <i class="bi bi-search"></i>
-
-                        </span>
-
-                        <input type="text" id="buscarMaquina" class="form-control"
-                            placeholder="Buscar por ID, Marca, Modelo, Categoría...">
-
-                    </div>
-
-                </div>
-
-                <div class="col-md-4 text-end">
-
-                    <small class="text-muted">
-
-                        Total de activos:
-                        <strong id="totalRegistros">
-
-                            {{ maquinas|length }}
-
-                        </strong>
-
-                    </small>
-
-                </div>
-
-            </div>
-
             <div class="table-responsive">
 
                 <table id="tablaMaquinas" class="table table-hover table-striped align-middle">
@@ -90,7 +54,7 @@
 
                             <th>ID</th>
 
-                            <th>Categoría</th>
+                            <th>Descripción</th>
 
                             <th>Marca</th>
 
@@ -100,47 +64,68 @@
 
                             <th>Estado</th>
 
-                            <th width="220">Acciones</th>
+                            <th width="220">
+
+                                Acciones
+
+                            </th>
 
                         </tr>
 
                     </thead>
 
-                    <tbody id="tablaMaquinas">
+                    <tbody>
 
                         {% for maquina in maquinas %}
 
-                        <tr class="fila-maquina">
+                        <tr>
 
                             <td>
 
-                                <b>{{ maquina.id_activo }}</b>
+                                <strong>{{ maquina.id_activo }}</strong>
 
                             </td>
 
-                            <td>{{ maquina.categoria }}</td>
-
-                            <td>{{ maquina.marca }}</td>
-
-                            <td>{{ maquina.modelo }}</td>
-
-                            <td>{{ maquina.ubicacion }}</td>
+                            <td style="max-width:350px;">
+                                <span class="text-truncate d-inline-block" style="max-width:350px;"
+                                    title="{{ maquina.descripcion }}">
+                                    {{ maquina.descripcion or "-" }}
+                                </span>
+                            </td>
 
                             <td>
 
-                                {% if maquina.fecha_baja %}
+                                {{ maquina.marca or "-" }}
 
-                                <span class="badge bg-danger">
+                            </td>
 
-                                    BAJA
+                            <td>
+
+                                {{ maquina.modelo or "-" }}
+
+                            </td>
+
+                            <td>
+
+                                {{ maquina.ubicacion or "-" }}
+
+                            </td>
+
+                            <td>
+
+                                {% if maquina.estado == "ACTIVO" %}
+
+                                <span class="badge bg-success">
+
+                                    ACTIVO
 
                                 </span>
 
                                 {% else %}
 
-                                <span class="badge bg-success">
+                                <span class="badge bg-danger">
 
-                                    ACTIVO
+                                    BAJA
 
                                 </span>
 
@@ -151,22 +136,26 @@
                             <td>
 
                                 <a href="{{ url_for('expediente_maquinaria', id_activo=maquina.id_activo) }}"
-                                    class="btn btn-sm btn-outline-primary">
+                                    class="btn btn-sm btn-primary rounded-pill">
 
                                     <i class="bi bi-eye"></i>
 
                                 </a>
 
+                                {% if session["rol"]=="Administrador" %}
+
                                 <a href="{{ url_for('editar_maquinaria', id_activo=maquina.id_activo) }}"
-                                    class="btn btn-sm btn-outline-warning">
+                                    class="btn btn-sm btn-warning rounded-pill">
 
                                     <i class="bi bi-pencil"></i>
 
                                 </a>
 
+                                {% endif %}
+
                             </td>
 
-                        </tr class="fila-maquina">
+                        </tr>
 
                         {% endfor %}
 
@@ -182,46 +171,67 @@
 
 </div>
 
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+{% block scripts %}
+
 <script>
 
-document.addEventListener("DOMContentLoaded", () => {
+    $(document).ready(function () {
 
-    const buscador = document.getElementById("buscarMaquina");
+        $("#tablaMaquinas").DataTable({
 
-    const filas = document.querySelectorAll(".fila-maquina");
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json"
+            },
 
-    const contador = document.getElementById("totalRegistros");
+            pageLength: 10,
 
-    buscador.addEventListener("keyup", function () {
+            responsive: true,
 
-        const texto = this.value.toLowerCase();
+            dom:
+                "<'row align-items-center mb-4'<'col-md-6'l><'col-md-6'f>>" +
+                "rt" +
+                "<'row mt-3'<'col-md-5'i><'col-md-7'p>>",
 
-        let visibles = 0;
+            initComplete: function () {
 
-        filas.forEach(fila => {
+                const filtro = $(".dataTables_filter");
 
-            const contenido = fila.innerText.toLowerCase();
+                filtro.find("label").contents().filter(function () {
+                    return this.nodeType === 3;
+                }).remove();
 
-            if (contenido.includes(texto)) {
+                filtro.find("label").addClass("w-100");
 
-                fila.style.display = "";
+                filtro.find("input")
+                    .attr("placeholder", "Buscar por ID, Marca, Modelo, Categoría...")
+                    .addClass("buscador-aduanas");
 
-                visibles++;
+                filtro.prepend(`
+                <div class="buscador-wrapper">
+                    <i class="bi bi-search buscador-icono"></i>
+                </div>
+            `);
 
-            } else {
-
-                fila.style.display = "none";
+                filtro.find("input").appendTo(".buscador-wrapper");
 
             }
 
         });
 
-        contador.textContent = visibles;
-
     });
 
-});
-
 </script>
+
+{% endblock %}
 
 {% endblock %}
