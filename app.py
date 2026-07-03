@@ -8,6 +8,10 @@ from flask import (
     session,
     flash
 )
+
+import os
+
+from werkzeug.utils import secure_filename
 from sqlalchemy import text
 from database.conexion import engine
 
@@ -16,6 +20,13 @@ from functools import wraps
 from datetime import date
 from database.aduanas import crear_registro_aduana_vacio
 from models.auditoria_model import obtener_historial_activo
+
+from database.documentos import (
+    crear_carpeta_activo,
+    guardar_documento_bd,
+    listar_documentos,
+    eliminar_documento
+)
 
 from database.solicitudes_baja import (
     guardar_solicitud,
@@ -630,6 +641,8 @@ def expediente_maquinaria(id_activo):
 
     historial = obtener_historial_activo(id_activo)
 
+    documentos = listar_documentos(id_activo)
+
     return render_template(
 
         "expediente_maquinaria.html",
@@ -640,7 +653,9 @@ def expediente_maquinaria(id_activo):
 
         estado_aduana=estado_aduana,
 
-        historial=historial
+        historial=historial,
+
+        documentos=documentos
 
     )
 
@@ -1210,6 +1225,131 @@ def obtener_historial_activo(id_activo):
             {"id": id_activo}
 
         ).mappings().all()
+
+@app.route("/maquinarias/<id_activo>/documentos", methods=["POST"])
+@login_required
+def subir_documento(id_activo):
+
+    if session.get("rol") != "Administrador":
+
+        flash(
+            "No tiene permisos para subir documentos.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("expediente_maquinaria", id_activo=id_activo)
+        )
+
+    archivo = request.files.get("documento")
+
+    if not archivo or archivo.filename == "":
+
+        flash(
+            "Seleccione un archivo.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("expediente_maquinaria", id_activo=id_activo)
+        )
+
+    carpeta = crear_carpeta_activo(id_activo)
+
+    nombre_original = archivo.filename
+
+    nombre_archivo = secure_filename(nombre_original)
+
+    ruta = os.path.join(carpeta, nombre_archivo)
+
+    archivo.save(ruta)
+
+    guardar_documento_bd(
+
+        id_activo=id_activo,
+
+        nombre_original=nombre_original,
+
+        nombre_archivo=nombre_archivo,
+
+        tipo=os.path.splitext(nombre_archivo)[1],
+
+        usuario=session["nombre"]
+
+    )
+
+    flash(
+        "Documento subido correctamente.",
+        "success"
+    )
+
+    return redirect(
+        url_for("expediente_maquinaria", id_activo=id_activo)
+    )
+
+
+@app.route("/documentos/<int:id_documento>/eliminar", methods=["POST"])
+@login_required
+def borrar_documento(id_documento):
+
+    if session.get("rol") != "Administrador":
+
+        flash(
+            "No tiene permisos para eliminar documentos.",
+            "danger"
+        )
+
+        return redirect(request.referrer or url_for("lista_maquinarias"))
+
+    doc = eliminar_documento(id_documento)
+
+    if not doc:
+
+        flash(
+            "Documento no encontrado.",
+            "danger"
+        )
+
+        return redirect(request.referrer or url_for("lista_maquinarias"))
+
+    ruta = os.path.join(
+
+        app.static_folder,
+
+        "documentos",
+
+        doc["id_activo"],
+
+        doc["nombre_archivo"]
+
+    )
+
+    if os.path.exists(ruta):
+
+        os.remove(ruta)
+
+    registrar_movimiento(
+
+        usuario=session["nombre"],
+        accion="Eliminó documento",
+        modulo="Documentación",
+        referencia=doc["id_activo"]
+
+    )
+
+    flash(
+        "Documento eliminado correctamente.",
+        "success"
+    )
+
+    return redirect(
+        url_for(
+            "expediente_maquinaria",
+            id_activo=doc["id_activo"]
+        )
+    )
+
+
 # ==========================================================
 # SERVIDOR
 # ==========================================================
