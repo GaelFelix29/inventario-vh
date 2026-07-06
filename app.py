@@ -10,16 +10,19 @@ from flask import (
 )
 
 import os
+from datetime import datetime
 
 from werkzeug.utils import secure_filename
 from sqlalchemy import text
 from database.conexion import engine
 
-from models.auditoria_model import registrar_movimiento
 from functools import wraps
 from datetime import date
-from database.aduanas import crear_registro_aduana_vacio
-from models.auditoria_model import obtener_historial_activo
+
+from models.auditoria_model import (
+    registrar_movimiento,
+    obtener_historial_activo
+)
 
 from database.documentos import (
     crear_carpeta_activo,
@@ -60,6 +63,8 @@ from database.usuarios import (
     verificar_password
 )
 
+from database.maquinarias import buscar_activos
+
 from database.maquinarias import (
     obtener_todas_maquinas,
     insertar_maquinaria,
@@ -69,7 +74,9 @@ from database.maquinarias import (
     obtener_maquinaria,
     baja_desde_solicitud,
     obtener_maquinarias_select,
-    obtener_maquinaria_detalle
+    obtener_maquinaria_detalle,
+    obtener_activos_vecinos,
+        
 )
 
 from database.aduanas import (
@@ -77,7 +84,6 @@ from database.aduanas import (
     obtener_aduana,
     crear_registro_aduana_vacio,
     guardar_aduana,
-    obtener_aduana,
     actualizar_aduana,
     estado_expediente_aduanal
 )
@@ -641,6 +647,8 @@ def expediente_maquinaria(id_activo):
 
     historial = obtener_historial_activo(id_activo)
 
+    vecinos = obtener_activos_vecinos(id_activo)
+
     documentos = listar_documentos(id_activo)
 
     return render_template(
@@ -655,7 +663,11 @@ def expediente_maquinaria(id_activo):
 
         historial=historial,
 
-        documentos=documentos
+        documentos=documentos,
+
+        anterior=vecinos["anterior"],
+
+        siguiente=vecinos["siguiente"],
 
     )
 
@@ -1123,6 +1135,15 @@ def editar_aduana(id_activo):
 @login_required
 def nueva_aduana():
 
+    if session.get("rol") != "Administrador":
+
+        flash(
+        "No tiene permisos para crear expedientes aduanales.",
+        "danger"
+    )
+
+        return redirect(url_for("lista_aduanas"))
+
     id_activo = request.args.get("id")
 
     maquinarias = obtener_maquinarias_select()
@@ -1258,11 +1279,18 @@ def subir_documento(id_activo):
 
     nombre_original = archivo.filename
 
-    nombre_archivo = secure_filename(nombre_original)
+    nombre_seguro = secure_filename(nombre_original)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    nombre_archivo = f"{id_activo}_{timestamp}_{nombre_seguro}"
 
     ruta = os.path.join(carpeta, nombre_archivo)
 
+
     archivo.save(ruta)
+
+    print("EXISTE:", os.path.exists(ruta))
 
     guardar_documento_bd(
 
@@ -1348,6 +1376,26 @@ def borrar_documento(id_documento):
             id_activo=doc["id_activo"]
         )
     )
+
+@app.route("/buscar-activos")
+@login_required
+def buscar_activos_ajax():
+
+    texto = request.args.get("q", "").strip()
+
+    if len(texto) < 2:
+        return jsonify([])
+
+    activos = buscar_activos(texto)
+
+    return jsonify([
+        {
+            "id": a["id_activo"],
+            "text": f'{a["id_activo"]} - {a["descripcion"]}'
+        }
+        for a in activos
+    ])
+
 
 
 # ==========================================================

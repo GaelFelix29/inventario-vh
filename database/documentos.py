@@ -1,39 +1,45 @@
 import os
-
 from sqlalchemy import text
-
 from database.conexion import engine
 
-RUTA_DOCUMENTOS = "static/documentos"
+# ==========================================
+# RUTA ABSOLUTA DE DOCUMENTOS
+# ==========================================
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+RUTA_DOCUMENTOS = os.path.join(
+    BASE_DIR,
+    "static",
+    "documentos"
+)
+
+# ==========================================
+# CREAR CARPETA DEL ACTIVO
+# ==========================================
 
 def crear_carpeta_activo(id_activo):
 
     carpeta = os.path.join(
-
         RUTA_DOCUMENTOS,
-
         id_activo
-
     )
 
-    os.makedirs(
-
-        carpeta,
-
-        exist_ok=True
-
-    )
+    os.makedirs(carpeta, exist_ok=True)
 
     return carpeta
 
-def guardar_documento_bd(
 
+# ==========================================
+# GUARDAR DOCUMENTO EN BD
+# ==========================================
+
+def guardar_documento_bd(
     id_activo,
     nombre_original,
     nombre_archivo,
     tipo,
     usuario
-
 ):
 
     sql = text("""
@@ -41,13 +47,9 @@ def guardar_documento_bd(
         INSERT INTO documentos_maquinaria(
 
             id_activo,
-
             nombre_original,
-
             nombre_archivo,
-
             tipo,
-
             subido_por
 
         )
@@ -55,13 +57,9 @@ def guardar_documento_bd(
         VALUES(
 
             :id_activo,
-
             :nombre_original,
-
             :nombre_archivo,
-
             :tipo,
-
             :usuario
 
         )
@@ -75,20 +73,19 @@ def guardar_documento_bd(
             sql,
 
             {
-
                 "id_activo": id_activo,
-
                 "nombre_original": nombre_original,
-
                 "nombre_archivo": nombre_archivo,
-
                 "tipo": tipo,
-
                 "usuario": usuario
-
             }
 
         )
+
+
+# ==========================================
+# LISTAR DOCUMENTOS
+# ==========================================
 
 def listar_documentos(id_activo):
 
@@ -110,39 +107,14 @@ def listar_documentos(id_activo):
 
             sql,
 
-            {
-
-                "id": id_activo
-
-            }
+            {"id": id_activo}
 
         ).mappings().all()
-    
-def eliminar_documento(id):
 
-    sql = text("""
 
-        DELETE
-
-        FROM documentos_maquinaria
-
-        WHERE id = :id
-
-    """)
-
-    with engine.begin() as conn:
-
-        conn.execute(
-
-            sql,
-
-            {
-
-                "id": id
-
-            }
-
-        )
+# ==========================================
+# ELIMINAR DOCUMENTO
+# ==========================================
 
 def eliminar_documento(id_documento):
 

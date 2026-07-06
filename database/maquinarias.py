@@ -234,3 +234,65 @@ def obtener_maquinarias_select():
     """
 
     return pd.read_sql(sql, engine)
+
+def obtener_activos_vecinos(id_activo):
+
+    sql = text("""
+
+        SELECT
+            (
+                SELECT id_activo
+                FROM maquinarias
+                WHERE id_activo < :id
+                ORDER BY id_activo DESC
+                LIMIT 1
+            ) AS anterior,
+
+            (
+                SELECT id_activo
+                FROM maquinarias
+                WHERE id_activo > :id
+                ORDER BY id_activo
+                LIMIT 1
+            ) AS siguiente
+
+    """)
+
+    with engine.connect() as conn:
+
+        return conn.execute(
+            sql,
+            {"id": id_activo}
+        ).mappings().first()
+    
+
+def buscar_activos(texto):
+
+    sql = text("""
+
+        SELECT
+            id_activo,
+            descripcion,
+            categoria,
+            marca,
+            ubicacion
+        FROM maquinarias
+        WHERE
+            id_activo LIKE :q
+            OR descripcion LIKE :q
+            OR categoria LIKE :q
+            OR marca LIKE :q
+            OR ubicacion LIKE :q
+        ORDER BY id_activo
+        LIMIT 20
+
+    """)
+
+    with engine.connect() as conn:
+
+        resultado = conn.execute(
+            sql,
+            {"q": f"%{texto}%"}
+        ).mappings().all()
+
+        return [dict(fila) for fila in resultado]

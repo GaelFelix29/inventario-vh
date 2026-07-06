@@ -5,81 +5,205 @@
 {% block contenido %}
 
 <div class="container-fluid py-4">
-
     <div class="card shadow-lg border-0 rounded-4 mb-4">
 
-        <div class="card-body">
+        <div class="card-body p-4">
 
-            <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div class="row align-items-center">
 
-                <div>
+                <!-- ================= INFORMACIÓN ================= -->
 
-                    <h2 class="fw-bold text-success mb-0">
-                        {{ maquina.id_activo }}
-                    </h2>
+                <div class="col-lg-8">
 
-                    <h5 class="text-muted mb-2">
-                        {{ maquina.categoria }}
-                    </h5>
+                    <div class="d-flex align-items-start">
 
-                    {% if maquina.estado == "ACTIVO" %}
-                    <span class="badge bg-success px-3 py-2 rounded-pill mb-2">
-                        <i class="bi bi-check-circle-fill"></i>
-                        ACTIVO
-                    </span>
+                        <div class="bg-success bg-opacity-10 rounded-4 d-flex align-items-center justify-content-center me-4"
+                            style="width:90px;height:90px;">
 
-                    <div class="text-muted small">
-                        <i class="bi bi-calendar-event"></i>
-                        Alta: {{ maquina.fecha_alta }}
+                            <i class="bi bi-cpu-fill text-success fs-1"></i>
+
+                        </div>
+
+                        <div class="flex-grow-1">
+
+                            <div class="d-flex align-items-center flex-wrap gap-3 mb-2">
+
+                                <h1 class="fw-bold text-success mb-0">
+
+                                    {{ maquina.id_activo }}
+
+                                </h1>
+
+                                {% if maquina.estado=="ACTIVO" %}
+
+                                <span class="badge bg-success rounded-pill px-3 py-2">
+
+                                    <i class="bi bi-check-circle-fill"></i>
+
+                                    ACTIVO
+
+                                </span>
+
+                                {% else %}
+
+                                <span class="badge bg-danger rounded-pill px-3 py-2">
+
+                                    <i class="bi bi-x-circle-fill"></i>
+
+                                    BAJA
+
+                                </span>
+
+                                {% endif %}
+
+                            </div>
+
+                            <h3 class="fw-bold mb-3">
+
+                                {{ maquina.descripcion }}
+
+                            </h3>
+
+                            <div class="text-muted d-flex flex-wrap gap-4">
+
+                                <span>
+
+                                    <i class="bi bi-tag"></i>
+
+                                    {{ maquina.categoria }}
+
+                                </span>
+
+                                <span>
+
+                                    <i class="bi bi-calendar3"></i>
+
+                                    {{ maquina.fecha_alta }}
+
+                                </span>
+
+                                <span>
+
+                                    <i class="bi bi-geo-alt"></i>
+
+                                    {{ maquina.ubicacion or "Sin ubicación" }}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
                     </div>
+
+                </div>
+
+                <!-- ================= BOTONES ================= -->
+
+                <div class="col-lg-4">
+
+                    <div class="d-grid gap-2">
+
+                        {% if session.get("rol")=="Administrador" %}
+
+                        <a href="{{ url_for('editar_maquinaria',id_activo=maquina.id_activo) }}"
+                            class="btn btn-warning rounded-pill">
+
+                            <i class="bi bi-pencil-square"></i>
+
+                            Editar Activo
+
+                        </a>
+
+                        {% endif %}
+
+                        <a href="{{ url_for('qr_maquinaria',id_activo=maquina.id_activo) }}"
+                            class="btn btn-success rounded-pill">
+
+                            <i class="bi bi-qr-code"></i>
+
+                            Código QR
+
+                        </a>
+
+                        {% if session["rol"] in ["Administrador","Mantenimiento"] %}
+
+                        <button class="btn btn-danger rounded-pill" data-bs-toggle="modal"
+                            data-bs-target="#modalSolicitudBaja">
+
+                            <i class="bi bi-trash3-fill"></i>
+
+                            Solicitar Baja
+
+                        </button>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <hr class="my-4">
+
+            <!-- ================= NAVEGACIÓN ================= -->
+
+            <div class="row align-items-center g-3 mb-4">
+
+                <div class="col-lg-2">
+
+                    {% if anterior %}
+
+                    <a href="{{ url_for('expediente_maquinaria', id_activo=anterior) }}"
+                        class="btn btn-outline-secondary rounded-pill w-100">
+
+                        <i class="bi bi-chevron-left"></i>
+
+                        Anterior
+
+                    </a>
 
                     {% else %}
 
-                    <span class="badge bg-danger px-3 py-2 rounded-pill mb-2">
-                        <i class="bi bi-x-circle-fill"></i>
-                        BAJA
-                    </span>
+                    <button class="btn btn-outline-secondary rounded-pill w-100" disabled>
 
-                    <div class="text-muted small">
-                        <i class="bi bi-calendar-x"></i>
-                        Baja: {{ maquina.fecha_baja }}
-                    </div>
+                        <i class="bi bi-chevron-left"></i>
+
+                        Anterior
+
+                    </button>
 
                     {% endif %}
+
                 </div>
 
-                <div class="d-flex gap-2">
+                <div class="col-lg-8">
 
-                    <a href="/maquinarias" class="btn btn-secondary">
+                    <select id="buscarActivo" style="width:100%;"></select>
 
-                        <i class="bi bi-arrow-left"></i>
+                </div>
 
-                        Regresar
+                <div class="col-lg-2">
 
-                    </a>
+                    {% if siguiente %}
 
-                    {% if session.get("rol") == "Administrador" %}
-                    <a href="{{ url_for('editar_maquinaria', id_activo=maquina.id_activo) }}" class="btn btn-warning">
-                        <i class="bi bi-pencil"></i>
-                        Editar
-                    </a>
-                    {% endif %}
+                    <a href="{{ url_for('expediente_maquinaria', id_activo=siguiente) }}"
+                        class="btn btn-outline-secondary rounded-pill w-100">
 
-                    <a href="{{ url_for('qr_maquinaria', id_activo=maquina.id_activo) }}" class="btn btn-success">
+                        Siguiente
 
-                        <i class="bi bi-qr-code"></i>
-
-                        QR
+                        <i class="bi bi-chevron-right"></i>
 
                     </a>
 
-                    {% if session["rol"] in ["Administrador","Mantenimiento"] %}
+                    {% else %}
 
-                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalSolicitudBaja">
+                    <button class="btn btn-outline-secondary rounded-pill w-100" disabled>
 
-                        <i class="bi bi-trash3-fill"></i>
+                        Siguiente
 
-                        Solicitar Baja
+                        <i class="bi bi-chevron-right"></i>
 
                     </button>
 
@@ -89,55 +213,97 @@
 
             </div>
 
-            <hr>
+            <hr class="mb-4">
 
-            <div class="row text-center">
+            <!-- ================= RESUMEN ================= -->
 
-                <div class="col-md-3">
+            <div class="row g-3">
 
-                    <small class="text-muted">
+                <div class="col-lg-3">
 
-                        Marca
+                    <div class="border rounded-4 p-3 h-100">
 
-                    </small>
+                        <small class="text-muted d-block">
 
-                    <h5>{{ maquina.marca or "-" }}</h5>
+                            <i class="bi bi-tag-fill text-success me-1"></i>
 
-                </div>
+                            Marca
 
-                <div class="col-md-3">
+                        </small>
 
-                    <small class="text-muted">
+                        <h5 class="fw-bold mt-2 mb-0">
 
-                        Modelo
+                            {{ maquina.marca or "-" }}
 
-                    </small>
+                        </h5>
 
-                    <h5>{{ maquina.modelo or "-" }}</h5>
-
-                </div>
-
-                <div class="col-md-3">
-
-                    <small class="text-muted">
-
-                        Serie
-
-                    </small>
-
-                    <h5>{{ maquina.numero_serie or "-" }}</h5>
+                    </div>
 
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-lg-3">
 
-                    <small class="text-muted">
+                    <div class="border rounded-4 p-3 h-100">
 
-                        Ubicación
+                        <small class="text-muted d-block">
 
-                    </small>
+                            <i class="bi bi-box-fill text-primary me-1"></i>
 
-                    <h5>{{ maquina.ubicacion or "-" }}</h5>
+                            Modelo
+
+                        </small>
+
+                        <h5 class="fw-bold mt-2 mb-0">
+
+                            {{ maquina.modelo or "-" }}
+
+                        </h5>
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-3">
+
+                    <div class="border rounded-4 p-3 h-100">
+
+                        <small class="text-muted d-block">
+
+                            <i class="bi bi-upc-scan text-warning me-1"></i>
+
+                            Serie
+
+                        </small>
+
+                        <h5 class="fw-bold mt-2 mb-0">
+
+                            {{ maquina.numero_serie or "-" }}
+
+                        </h5>
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-3">
+
+                    <div class="border rounded-4 p-3 h-100">
+
+                        <small class="text-muted d-block">
+
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+
+                            Ubicación
+
+                        </small>
+
+                        <h5 class="fw-bold mt-2 mb-0">
+
+                            {{ maquina.ubicacion or "-" }}
+
+                        </h5>
+
+                    </div>
 
                 </div>
 
@@ -146,7 +312,6 @@
         </div>
 
     </div>
-
     <div class="row g-4 mb-4">
 
         <div class="col-lg-4 d-flex">
@@ -821,133 +986,246 @@
                         </div>
 
                     </div>
+                </div>
+
+
+                <hr class="my-4">
+
+                <div class="row align-items-center py-3">
+
+                    <div class="col-lg-9">
+
+                        {% if estado_aduana.estado=="Completo" %}
+
+                        <div class="alert alert-success border-0 rounded-4 mb-0">
+
+                            <div class="d-flex align-items-center">
+
+                                <i class="bi bi-check-circle-fill fs-2 me-3"></i>
+
+                                <div>
+
+                                    <strong>Expediente validado correctamente</strong><br>
+
+                                    <small>
+
+                                        Toda la información aduanal se encuentra completa.
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {% elif estado_aduana.estado=="Incompleto" %}
+
+                        <div class="alert alert-warning border-0 rounded-4 mb-0">
+
+                            <div class="d-flex align-items-center">
+
+                                <i class="bi bi-exclamation-triangle-fill fs-2 me-3"></i>
+
+                                <div>
+
+                                    <strong>Faltan {{ estado_aduana.pendientes }} campos.</strong><br>
+
+                                    <small>
+
+                                        Completa la información para obtener un expediente al 100%.
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {% else %}
+
+                        <div class="alert alert-danger border-0 rounded-4 mb-0">
+
+                            <div class="d-flex align-items-center">
+
+                                <i class="bi bi-x-circle-fill fs-2 me-3"></i>
+
+                                <div>
+
+                                    <strong>Este activo no tiene expediente.</strong><br>
+
+                                    <small>
+
+                                        Crea el expediente para comenzar el registro.
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {% endif %}
+
+                    </div>
+
+                    <div class="col-lg-3 d-flex justify-content-end align-items-center">
+                        {% if session.get("rol") == "Administrador" %}
+
+                        {% if aduana %}
+
+                        <a href="{{ url_for('editar_aduana', id_activo=maquina.id_activo) }}"
+                            class="btn btn-success rounded-pill px-5 shadow-sm">
+
+                            <i class="bi bi-pencil-square"></i>
+                            Editar Expediente
+
+                        </a>
+
+                        {% else %}
+
+                        <a href="{{ url_for('nueva_aduana', id=maquina.id_activo) }}"
+                            class="btn btn-success btn-lg rounded-pill px-5">
+
+                            <i class="bi bi-plus-circle"></i>
+                            Crear Expediente
+
+                        </a>
+
+                        {% endif %}
+
+                        {% endif %}
+
+                    </div>
 
                 </div>
 
             </div>
 
-            <hr class="my-5">
+        </div>
 
-            <div class="row">
-                <div class="col-12">
-                    <div class="modern-card">
+        <hr class="my-5">
 
-                        <div class="modern-header header-primary">
+        <div class="row">
+            <div class="col-12">
+                <div class="modern-card">
 
-                            <div class="header-title">
+                    <div class="modern-header header-primary">
 
-                                <div class="header-icon">
-                                    <i class="bi bi-folder2-open"></i>
-                                </div>
+                        <div class="header-title">
 
-                                <h4>Documentación del Activo</h4>
-
+                            <div class="header-icon">
+                                <i class="bi bi-folder2-open"></i>
                             </div>
 
-                            <i class="bi bi-paperclip fs-3"></i>
+                            <h4>Documentación del Activo</h4>
 
                         </div>
 
-                        <div class="card-body-modern">
+                        <i class="bi bi-paperclip fs-3"></i>
 
-                            {% if documentos %}
+                    </div>
 
-                            <div class="row g-4">
+                    <div class="card-body-modern">
 
-                                {% for doc in documentos %}
+                        {% if documentos %}
 
-                                {% set extension = doc.nombre_archivo.split('.')[-1]|lower %}
+                        <div class="row g-4">
 
-                                <div class="col-xl-4 col-lg-6">
+                            {% for doc in documentos %}
 
-                                    <div class="card border-0 shadow-sm rounded-4 h-100 documento-card">
+                            {% set extension = doc.nombre_archivo.split('.')[-1]|lower %}
 
-                                        <div class="card-body">
+                            <div class="col-xl-4 col-lg-6">
 
-                                            <div class="d-flex align-items-center mb-3">
+                                <div class="card border-0 shadow-sm rounded-4 h-100 documento-card">
 
-                                                {% if extension == "pdf" %}
+                                    <div class="card-body">
 
-                                                <i class="bi bi-file-earmark-pdf-fill text-danger fs-1 me-3"></i>
+                                        <div class="d-flex align-items-center mb-3">
 
-                                                {% elif extension in ["doc","docx"] %}
+                                            {% if extension == "pdf" %}
 
-                                                <i class="bi bi-file-earmark-word-fill text-primary fs-1 me-3"></i>
+                                            <i class="bi bi-file-earmark-pdf-fill text-danger fs-1 me-3"></i>
 
-                                                {% elif extension in ["xls","xlsx"] %}
+                                            {% elif extension in ["doc","docx"] %}
 
-                                                <i class="bi bi-file-earmark-excel-fill text-success fs-1 me-3"></i>
+                                            <i class="bi bi-file-earmark-word-fill text-primary fs-1 me-3"></i>
 
-                                                {% elif extension in ["jpg","jpeg","png"] %}
+                                            {% elif extension in ["xls","xlsx"] %}
 
-                                                <i class="bi bi-image-fill text-warning fs-1 me-3"></i>
+                                            <i class="bi bi-file-earmark-excel-fill text-success fs-1 me-3"></i>
 
-                                                {% else %}
+                                            {% elif extension in ["jpg","jpeg","png"] %}
 
-                                                <i class="bi bi-file-earmark-fill text-secondary fs-1 me-3"></i>
+                                            <i class="bi bi-image-fill text-warning fs-1 me-3"></i>
 
-                                                {% endif %}
+                                            {% else %}
 
-                                                <div>
+                                            <i class="bi bi-file-earmark-fill text-secondary fs-1 me-3"></i>
 
-                                                    <h6 class="fw-bold mb-1">
+                                            {% endif %}
 
-                                                        {{ doc.nombre_original }}
+                                            <div>
 
-                                                    </h6>
+                                                <h6 class="fw-bold mb-1">
 
-                                                    <small class="text-muted">
+                                                    {{ doc.nombre_original }}
 
-                                                        {{ doc.fecha_subida }}
+                                                </h6>
 
-                                                    </small>
+                                                <small class="text-muted">
 
-                                                </div>
+                                                    {{ doc.fecha_subida }}
 
-                                            </div>
-
-                                            <div class="mb-3 text-muted">
-
-                                                <i class="bi bi-person-circle"></i>
-
-                                                {{ doc.subido_por }}
+                                                </small>
 
                                             </div>
 
-                                            <div class="d-flex gap-2">
+                                        </div>
 
-                                                <a href="{{ url_for('static', filename='documentos/' ~ maquina.id_activo ~ '/' ~ doc.nombre_archivo) }}"
-                                                    target="_blank" class="btn btn-primary rounded-pill flex-fill">
+                                        <div class="mb-3 text-muted">
 
-                                                    <i class="bi bi-eye"></i>
+                                            <i class="bi bi-person-circle"></i>
 
-                                                    Ver
+                                            {{ doc.subido_por }}
 
-                                                </a>
+                                        </div>
 
-                                                <a href="{{ url_for('static', filename='documentos/' ~ maquina.id_activo ~ '/' ~ doc.nombre_archivo) }}"
-                                                    download class="btn btn-success rounded-pill">
+                                        <div class="d-flex gap-2">
 
-                                                    <i class="bi bi-download"></i>
+                                            <a href="{{ url_for('static', filename='documentos/' ~ maquina.id_activo ~ '/' ~ doc.nombre_archivo) }}"
+                                                target="_blank" class="btn btn-primary rounded-pill flex-fill">
 
-                                                </a>
+                                                <i class="bi bi-eye"></i>
 
-                                                {% if session.get("rol")=="Administrador" %}
+                                                Ver
 
-                                                <form action="{{ url_for('borrar_documento', id_documento=doc.id) }}"
-                                                    method="POST" onsubmit="return confirm('¿Eliminar documento?');">
+                                            </a>
 
-                                                    <button class="btn btn-danger rounded-pill">
+                                            <a href="{{ url_for('static', filename='documentos/' ~ maquina.id_activo ~ '/' ~ doc.nombre_archivo) }}"
+                                                download class="btn btn-success rounded-pill">
 
-                                                        <i class="bi bi-trash"></i>
+                                                <i class="bi bi-download"></i>
 
-                                                    </button>
+                                            </a>
 
-                                                </form>
+                                            {% if session.get("rol")=="Administrador" %}
 
-                                                {% endif %}
+                                            <form action="{{ url_for('borrar_documento', id_documento=doc.id) }}"
+                                                method="POST" onsubmit="return confirm('¿Eliminar documento?');">
 
-                                            </div>
+                                                <button class="btn btn-danger rounded-pill">
+
+                                                    <i class="bi bi-trash"></i>
+
+                                                </button>
+
+                                            </form>
+
+                                            {% endif %}
 
                                         </div>
 
@@ -955,35 +1233,37 @@
 
                                 </div>
 
-                                {% endfor %}
-
                             </div>
 
-                            {% else %}
+                            {% endfor %}
 
-                            <div class="text-center py-5">
+                        </div>
 
-                                <i class="bi bi-folder2-open display-1 text-primary"></i>
+                        {% else %}
 
-                                <h4 class="mt-3">
+                        <div class="text-center py-5">
 
-                                    No existen documentos
+                            <i class="bi bi-folder2-open display-1 text-primary"></i>
 
-                                </h4>
+                            <h4 class="mt-3">
 
-                                <p class="text-muted">
+                                No existen documentos
 
-                                    Todavía no hay archivos asociados a este activo.
+                            </h4>
 
-                                </p>
+                            <p class="text-muted">
 
-                            </div>
+                                Todavía no hay archivos asociados a este activo.
 
-                            {% endif %}
+                            </p>
 
-                            {% if session.get("rol") == "Administrador" %}
+                        </div>
 
-                            <hr class="my-4">
+                        {% endif %}
+
+                        {% if session.get("rol") == "Administrador" %}
+
+                        <div class="border-top mt-4 pt-4">
 
                             <div class="row justify-content-center">
 
@@ -1031,238 +1311,196 @@
         </div>
     </div>
 
-<!-- ====================== RESUMEN Y ACCIONES ====================== -->
+    <!-- ====================== RESUMEN Y ACCIONES ====================== -->
 
-<hr class="my-4">
 
-<div class="row align-items-center">
 
-    <div class="col-lg-8">
 
-        {% if estado_aduana.estado=="Completo" %}
 
-        <div class="alert alert-success border-0 rounded-4 mb-0">
 
-            <div class="d-flex align-items-center">
+    <!-- Modal Solicitud de Baja -->
+    <div class="modal fade" id="modalSolicitudBaja" tabindex="-1" aria-hidden="true">
 
-                <i class="bi bi-check-circle-fill fs-2 me-3"></i>
+        <div class="modal-dialog modal-lg modal-dialog-centered">
 
-                <div>
+            <div class="modal-content border-0 shadow-lg rounded-4">
 
-                    <strong>Expediente validado correctamente</strong><br>
+                <form method="POST" action="{{ url_for('solicitud_baja', id_activo=maquina.id_activo) }}">
 
-                    <small>
+                    <div class="modal-header bg-danger text-white">
 
-                        Toda la información aduanal se encuentra completa.
+                        <h5 class="modal-title">
 
-                    </small>
+                            <i class="bi bi-trash3-fill"></i>
 
-                </div>
+                            Solicitud de Baja
+
+                        </h5>
+
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div class="alert alert-warning">
+
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+
+                            Se enviará una solicitud para dar de baja el activo:
+
+                            <strong>{{ maquina.id_activo }}</strong>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-bold">
+
+                                Motivo de la baja
+
+                            </label>
+
+                            <textarea class="form-control" name="motivo" rows="4" required></textarea>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-bold">
+
+                                Observaciones
+
+                            </label>
+
+                            <textarea class="form-control" name="observaciones" rows="3"></textarea>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-bold">
+
+                                Prioridad
+
+                            </label>
+
+                            <select name="prioridad" class="form-select" required>
+
+                                <option value="Baja">
+                                    Baja
+                                </option>
+
+                                <option value="Media" selected>
+                                    Media
+                                </option>
+
+                                <option value="Alta">
+                                    Alta
+                                </option>
+
+                                <option value="Urgente">
+                                    Urgente
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+
+                            Cancelar
+
+                        </button>
+
+                        <button type="submit" class="btn btn-danger">
+
+                            <i class="bi bi-send-fill"></i>
+
+                            Enviar Solicitud
+
+                        </button>
+
+                    </div>
+
+                </form>
 
             </div>
 
         </div>
 
-        {% elif estado_aduana.estado=="Incompleto" %}
-
-        <div class="alert alert-warning border-0 rounded-4 mb-0">
-
-            <div class="d-flex align-items-center">
-
-                <i class="bi bi-exclamation-triangle-fill fs-2 me-3"></i>
-
-                <div>
-
-                    <strong>Faltan {{ estado_aduana.pendientes }} campos.</strong><br>
-
-                    <small>
-
-                        Completa la información para obtener un expediente al 100%.
-
-                    </small>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        {% else %}
-
-        <div class="alert alert-danger border-0 rounded-4 mb-0">
-
-            <div class="d-flex align-items-center">
-
-                <i class="bi bi-x-circle-fill fs-2 me-3"></i>
-
-                <div>
-
-                    <strong>Este activo no tiene expediente.</strong><br>
-
-                    <small>
-
-                        Crea el expediente para comenzar el registro.
-
-                    </small>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        {% endif %}
-
     </div>
 
-    <div class="col-lg-4 text-end">
+{% block scripts %}
 
-        {% if aduana %}
+<script>
 
-        <a href="{{ url_for('editar_aduana', id_activo=maquina.id_activo) }}"
-            class="btn btn-warning btn-lg rounded-pill px-5">
+$(document).ready(function () {
 
-            <i class="bi bi-pencil-square"></i>
-            Editar Expediente
+    $("#buscarActivo").select2({
 
-        </a>
+        width: "100%",
 
-        {% else %}
+        placeholder: "🔍 Buscar activo...",
 
-        <a href="{{ url_for('nueva_aduana', id=maquina.id_activo) }}" class="btn btn-success btn-lg rounded-pill px-5">
+        minimumInputLength: 1,
 
-            <i class="bi bi-plus-circle"></i>
-            Crear Expediente
+        allowClear: true,
 
-        </a>
+        ajax: {
 
-        {% endif %}
+            url: "/buscar-activos",
 
-    </div>
+            dataType: "json",
 
-</div>
+            delay: 250,
 
-</div>
+            cache: true,
 
+            data: function (params) {
 
+                return {
+                    q: params.term
+                };
 
+            },
 
-<!-- Modal Solicitud de Baja -->
-<div class="modal fade" id="modalSolicitudBaja" tabindex="-1" aria-hidden="true">
+            processResults: function (data) {
 
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+                return {
+                    results: data
+                };
 
-        <div class="modal-content border-0 shadow-lg rounded-4">
+            }
 
-            <form method="POST" action="{{ url_for('solicitud_baja', id_activo=maquina.id_activo) }}">
+        }
 
-                <div class="modal-header bg-danger text-white">
+    });
 
-                    <h5 class="modal-title">
+    // Cuando cambia el activo seleccionado
+    $("#buscarActivo").on("change", function () {
 
-                        <i class="bi bi-trash3-fill"></i>
+        let id = $(this).val();
 
-                        Solicitud de Baja
+        console.log("Activo seleccionado:", id);
 
-                    </h5>
+        if (id) {
 
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
-                    </button>
+            window.location.href = "/maquinarias/" + id;
 
-                </div>
+        }
 
-                <div class="modal-body">
+    });
 
-                    <div class="alert alert-warning">
+});
 
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-
-                        Se enviará una solicitud para dar de baja el activo:
-
-                        <strong>{{ maquina.id_activo }}</strong>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label fw-bold">
-
-                            Motivo de la baja
-
-                        </label>
-
-                        <textarea class="form-control" name="motivo" rows="4" required></textarea>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label fw-bold">
-
-                            Observaciones
-
-                        </label>
-
-                        <textarea class="form-control" name="observaciones" rows="3"></textarea>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label fw-bold">
-
-                            Prioridad
-
-                        </label>
-
-                        <select name="prioridad" class="form-select" required>
-
-                            <option value="Baja">
-                                Baja
-                            </option>
-
-                            <option value="Media" selected>
-                                Media
-                            </option>
-
-                            <option value="Alta">
-                                Alta
-                            </option>
-
-                            <option value="Urgente">
-                                Urgente
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-
-                        Cancelar
-
-                    </button>
-
-                    <button type="submit" class="btn btn-danger">
-
-                        <i class="bi bi-send-fill"></i>
-
-                        Enviar Solicitud
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
+</script>
 
 {% endblock %}
+
+    {% endblock %}
