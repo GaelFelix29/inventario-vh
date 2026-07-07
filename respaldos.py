@@ -25,12 +25,15 @@ def crear_respaldo():
 
         # Verificamos que exista conexión
         conn.execute(text("SELECT 1"))
+        
+        tablas = conn.execute(text("SHOW TABLES")).fetchall()
+
+        print(tablas)
 
         with open(
             archivo,
             "w",
-            encoding="utf-8"
-        ) as f:
+            encoding="utf-8") as f:
 
             f.write("-- ======================================\n")
             f.write("-- RESPALDO VITAL HEALTH\n")
