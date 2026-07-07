@@ -50,26 +50,25 @@ def crear_respaldo():
 
         with open(archivo, "w", encoding="utf-8") as salida:
 
-            subprocess.run(
+            resultado = subprocess.run(
 
-                comando,
+            comando,
 
-                stdout=salida,
+            stdout=salida,
 
-                stderr=subprocess.PIPE,
+            stderr=subprocess.PIPE,
 
-                text=True,
+            text=True
 
-                check=True
+)
 
-            )
+        print("=" * 60)
+        print("RETURN CODE:", resultado.returncode)
+        print("=" * 60)
+        print(resultado.stderr)
 
-        print("="*50)
-        print("✅ RESPALDO CREADO CORRECTAMENTE")
-        print("="*50)
-        print(archivo)
-
-        return archivo
+        if resultado.returncode != 0:
+            raise Exception(resultado.stderr)
 
     except Exception as e:
 
@@ -78,7 +77,7 @@ def crear_respaldo():
         print("=" * 50)
         print(repr(e))
 
-    raise
+        raise
 
 
 if __name__ == "__main__":
