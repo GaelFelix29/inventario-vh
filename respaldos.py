@@ -71,14 +71,14 @@ def crear_respaldo():
 
         return archivo
 
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
 
-        print("="*50)
-        print("❌ ERROR AL CREAR RESPALDO")
-        print("="*50)
-        print(e.stderr)
+        print("=" * 50)
+        print("ERROR")
+        print("=" * 50)
+        print(repr(e))
 
-        return None
+    raise
 
 
 if __name__ == "__main__":
