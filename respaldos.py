@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+
 from sqlalchemy import text
 
 from database.conexion import engine
@@ -9,6 +10,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BACKUPS = os.path.join(BASE_DIR, "backups")
 
 os.makedirs(BACKUPS, exist_ok=True)
+
 
 def crear_respaldo():
 
@@ -21,19 +23,30 @@ def crear_respaldo():
 
     with engine.begin() as conn:
 
-        tablas = conn.execute(
-            text("SHOW TABLES")
-        ).fetchall()
+        # Verificamos que exista conexión
+        conn.execute(text("SELECT 1"))
 
         with open(
             archivo,
             "w",
             encoding="utf-8"
-        ) as sql:
+        ) as f:
 
-            sql.write("-- ======================================\n")
-            sql.write("-- RESPALDO VITAL HEALTH\n")
-            sql.write(f"-- Fecha: {fecha}\n")
-            sql.write("-- ======================================\n\n")
+            f.write("-- ======================================\n")
+            f.write("-- RESPALDO VITAL HEALTH\n")
+            f.write(f"-- Fecha: {fecha}\n")
+            f.write("-- Generado automáticamente\n")
+            f.write("-- ======================================\n\n")
 
-    return archivo
+            f.write("SET FOREIGN_KEY_CHECKS=0;\n\n")
+
+            f.write("-- Aquí comenzará el respaldo de las tablas.\n")
+
+            f.write("\nSET FOREIGN_KEY_CHECKS=1;\n")
+
+    return os.path.basename(archivo)
+
+
+if __name__ == "__main__":
+
+    print(crear_respaldo())
