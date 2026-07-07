@@ -76,7 +76,8 @@ from database.maquinarias import (
     obtener_maquinarias_select,
     obtener_maquinaria_detalle,
     obtener_activos_vecinos,
-        
+    obtener_estadisticas_maquinarias,
+    obtener_ubicaciones
 )
 
 from database.aduanas import (
@@ -566,11 +567,19 @@ def lista_maquinarias():
 
     maquinas = obtener_todas_maquinas()
 
+    estadisticas = obtener_estadisticas_maquinarias()
+
+    ubicaciones = obtener_ubicaciones()
+
     return render_template(
 
         "maquina.html",
 
-        maquinas=maquinas
+        maquinas=maquinas,
+
+        estadisticas=estadisticas,
+
+        ubicaciones=ubicaciones
 
     )
 
@@ -643,6 +652,40 @@ def expediente_maquinaria(id_activo):
 
     aduana = obtener_aduana(id_activo)
 
+    # ======================================
+    # Tipo de expediente
+    # ======================================
+
+    es_nacional = False
+    es_importado = False
+    es_pendiente = False
+    es_sin_clasificar = False
+    es_reingreso = False
+
+    if aduana:
+
+        origen = (aduana.get("origen") or "").strip().upper()
+
+        if origen in ["NACIONAL", "MEXICO"]:
+
+            es_nacional = True
+
+        elif origen == "PENDIENTE":
+
+            es_pendiente = True
+
+        elif origen == "NA":
+
+            es_sin_clasificar = True
+
+        elif origen == "REINGRESO":
+
+            es_reingreso = True
+
+        else:
+
+            es_importado = True
+
     estado_aduana = estado_expediente_aduanal(aduana)
 
     historial = obtener_historial_activo(id_activo)
@@ -668,6 +711,16 @@ def expediente_maquinaria(id_activo):
         anterior=vecinos["anterior"],
 
         siguiente=vecinos["siguiente"],
+
+        es_nacional=es_nacional,
+
+        es_importado=es_importado,
+
+        es_pendiente=es_pendiente,
+
+        es_sin_clasificar=es_sin_clasificar,
+
+        es_reingreso=es_reingreso,
 
     )
 

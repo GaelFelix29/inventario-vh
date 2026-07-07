@@ -45,17 +45,34 @@ def obtener_todas_maquinas():
 
     sql = text("""
 
-        SELECT *
+    SELECT
+        m.*,
+        a.origen
 
-        FROM maquinarias
+    FROM maquinarias m
 
-        ORDER BY id_activo
+    LEFT JOIN aduanas a
+        ON m.id_activo = a.id_activo
 
-    """)
+    ORDER BY m.id_activo""")
 
     with engine.connect() as conn:
 
-        return conn.execute(sql).mappings().all()
+        maquinas = conn.execute(sql).mappings().all()
+
+        resultado = []
+
+        for maquina in maquinas:
+
+            maquina = dict(maquina)
+            
+            maquina["tipo"] = obtener_tipo_expediente(
+            maquina.get("origen"))
+            
+            resultado.append(maquina)
+            
+    return resultado
+    
     
 
 def insertar_maquinaria(datos):
@@ -296,3 +313,109 @@ def buscar_activos(texto):
         ).mappings().all()
 
         return [dict(fila) for fila in resultado]
+    
+def obtener_tipo_expediente(origen):
+    if not origen:
+        return {
+            "nombre": "Sin clasificar",
+            "color": "secondary",
+            "icono": "question-circle"
+        }
+
+    origen = origen.strip().upper()
+
+    if origen in ("MEXICO", "NACIONAL"):
+        return {
+            "nombre": "Nacional",
+            "color": "success",
+            "icono": "flag"
+        }
+
+    if origen == "PENDIENTE":
+        return {
+            "nombre": "Pendiente",
+            "color": "warning",
+            "icono": "clock-history"
+        }
+
+    if origen == "REINGRESO":
+        return {
+            "nombre": "importado",
+            "color": "primary",
+            "icono": "globe-americas"
+        }
+
+    if origen == "NA":
+        return {
+            "nombre": "Sin clasificar",
+            "color": "secondary",
+            "icono": "question-circle"
+        }
+
+    return {
+        "nombre": "Importado",
+        "color": "primary",
+        "icono": "globe-americas"
+    }
+    
+def obtener_estadisticas_maquinarias():
+
+    sql = text("""
+
+        SELECT
+            COUNT(*) AS total,
+
+            SUM(
+                CASE
+                    WHEN a.origen IN ('CHINA','REINGRESO')
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS importados,
+
+            SUM(
+                CASE
+                    WHEN a.origen IN ('MEXICO','NACIONAL')
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS nacionales,
+
+            SUM(
+                CASE
+                    WHEN a.origen='PENDIENTE'
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS pendientes
+
+        FROM maquinarias m
+
+        LEFT JOIN aduanas a
+
+            ON m.id_activo=a.id_activo
+
+    """)
+
+    with engine.connect() as conn:
+
+        return conn.execute(sql).mappings().first()
+
+def obtener_ubicaciones():
+
+    sql = text("""
+
+        SELECT DISTINCT ubicacion
+
+        FROM maquinarias
+
+        WHERE ubicacion IS NOT NULL
+        AND TRIM(ubicacion) <> ''
+
+        ORDER BY ubicacion
+
+    """)
+
+    with engine.connect() as conn:
+
+        return conn.execute(sql).scalars().all()

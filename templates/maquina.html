@@ -26,6 +26,146 @@
 
         </div>
 
+        <div class="row g-4 mb-4">
+
+            <div class="col-md-6 col-xl-3">
+
+                <div class="card shadow-sm border-0 rounded-4 h-100 card-resumen" id="filtroTodos">
+
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <div>
+
+                                <small class="text-muted">
+                                    Total Activos
+                                </small>
+
+                                <h2 class="fw-bold mb-0">
+                                    {{ estadisticas.total }}
+                                </h2>
+
+                            </div>
+
+                            <div class="icono-resumen bg-primary">
+
+                                <i class="bi bi-box-seam"></i>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+
+                <div class="card shadow-sm border-0 rounded-4 h-100 card-resumen" id="filtroImportados">
+
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <div>
+
+                                <small class="text-muted">
+                                    Importados
+                                </small>
+
+                                <h2 class="fw-bold mb-0">
+                                    {{ estadisticas.importados }}
+                                </h2>
+
+                            </div>
+
+                            <div class="icono-resumen bg-primary">
+
+                                <i class="bi bi-globe-americas"></i>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+
+                <div class="card shadow-sm border-0 rounded-4 h-100 card-resumen" id="filtroNacionales">
+
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <div>
+
+                                <small class="text-muted">
+                                    Nacionales
+                                </small>
+
+                                <h2 class="fw-bold mb-0">
+                                    {{ estadisticas.nacionales }}
+                                </h2>
+
+                            </div>
+
+                            <div class="icono-resumen bg-success">
+
+                                <i class="bi bi-flag-fill"></i>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+
+                <div class="card shadow-sm border-0 rounded-4 h-100 card-resumen" id="filtroPendientes">
+
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <div>
+
+                                <small class="text-muted">
+                                    Pendientes
+                                </small>
+
+                                <h2 class="fw-bold mb-0">
+                                    {{ estadisticas.pendientes }}
+                                </h2>
+
+                            </div>
+
+                            <div class="icono-resumen bg-warning">
+
+                                <i class="bi bi-clock-history"></i>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
         {% if session["rol"]=="Administrador" %}
 
         <a href="/maquinarias/nuevo" class="btn btn-success">
@@ -41,6 +181,64 @@
     </div>
 
     <div class="card shadow border-0 rounded-4">
+
+        <div class="card-header bg-white border-0 pt-4 pb-0">
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+
+                    <select id="filtroTipo" class="form-select">
+
+                        <option value="">🌎 Todos los tipos</option>
+
+                        <option>Importado</option>
+
+                        <option>Nacional</option>
+
+                        <option>Pendiente</option>
+
+                        <option>Reingreso</option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <select id="filtroEstado" class="form-select">
+
+                        <option value="">🟢 Todos los estados</option>
+
+                        <option>ACTIVO</option>
+
+                        <option>BAJA</option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <select id="filtroUbicacion" class="form-select">
+
+                        <option value="">📍 Todas las ubicaciones</option>
+
+                        {% for ubicacion in ubicaciones %}
+
+                        <option value="{{ ubicacion }}">
+                            📍 {{ ubicacion }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </div>
 
         <div class="card-body">
 
@@ -62,12 +260,12 @@
 
                             <th>Ubicación</th>
 
+                            <th>Tipo</th>
+
                             <th>Estado</th>
 
                             <th width="220">
-
                                 Acciones
-
                             </th>
 
                         </tr>
@@ -87,10 +285,14 @@
                             </td>
 
                             <td style="max-width:350px;">
+
                                 <span class="text-truncate d-inline-block" style="max-width:350px;"
                                     title="{{ maquina.descripcion }}">
+
                                     {{ maquina.descripcion or "-" }}
+
                                 </span>
+
                             </td>
 
                             <td>
@@ -108,6 +310,20 @@
                             <td>
 
                                 {{ maquina.ubicacion or "-" }}
+
+                            </td>
+
+                            <!-- NUEVA COLUMNA -->
+
+                            <td>
+
+                                <span class="badge bg-{{ maquina.tipo.color }}">
+
+                                    <i class="bi bi-{{ maquina.tipo.icono }}"></i>
+
+                                    {{ maquina.tipo.nombre }}
+
+                                </span>
 
                             </td>
 
@@ -142,7 +358,7 @@
 
                                 </a>
 
-                                {% if session["rol"]=="Administrador" %}
+                                {% if session["rol"] == "Administrador" %}
 
                                 <a href="{{ url_for('editar_maquinaria', id_activo=maquina.id_activo) }}"
                                     class="btn btn-sm btn-warning rounded-pill">
@@ -187,7 +403,7 @@
 
     $(document).ready(function () {
 
-        $("#tablaMaquinas").DataTable({
+        let tabla = $("#tablaMaquinas").DataTable({
 
             language: {
                 url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json"
@@ -227,6 +443,79 @@
             }
 
         });
+
+        //==========================================
+        // FILTROS AVANZADOS
+        //==========================================
+
+        $("#filtroTipo").on("change", function () {
+
+            tabla.column(5).search($(this).val()).draw();
+
+        });
+
+        $("#filtroEstado").on("change", function () {
+
+            tabla.column(6).search($(this).val()).draw();
+
+        });
+
+        $("#filtroUbicacion").on("change", function () {
+
+            tabla.column(4).search($(this).val()).draw();
+
+        });
+
+        //==========================================
+        // ACTIVAR TARJETA
+        //==========================================
+
+        function activarTarjeta(id) {
+
+            $(".card-resumen").removeClass("activa");
+
+            $(id).addClass("activa");
+
+        }
+
+        //==========================================
+        // FILTROS
+        //==========================================
+
+        $("#filtroTodos").click(function () {
+
+            activarTarjeta("#filtroTodos");
+
+            tabla.column(5).search("").draw();
+
+        });
+
+        $("#filtroImportados").click(function () {
+
+            activarTarjeta("#filtroImportados");
+
+            tabla.column(5).search("Importado").draw();
+
+        });
+
+        $("#filtroNacionales").click(function () {
+
+            activarTarjeta("#filtroNacionales");
+
+            tabla.column(5).search("Nacional").draw();
+
+        });
+
+        $("#filtroPendientes").click(function () {
+
+            activarTarjeta("#filtroPendientes");
+
+            tabla.column(5).search("Pendiente").draw();
+
+        });
+
+        // Tarjeta activa al abrir la página
+        activarTarjeta("#filtroTodos");
 
     });
 
