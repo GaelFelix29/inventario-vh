@@ -4,6 +4,9 @@ border:none;
 border-radius:22px;
 box-shadow:0 10px 30px rgba(0,0,0,.08);
 transition:.25s;
+padding:25px;
+min-height:160px;
+
 }
 .dashboard-card:hover{
 transform:translateY(-5px);
@@ -20,4 +23,12 @@ margin-bottom:18px;
 }
 .dashboard-card canvas{
 max-height:340px;
+}
+
+.table tbody tr:hover{
+
+    background:#f7faf9;
+
+    transition:.2s;
+
 }

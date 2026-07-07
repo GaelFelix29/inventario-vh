@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Respaldos
+{% endblock %}
+
+{% block contenido %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold">
+                <i class="bi bi-database-fill-lock text-success"></i>
+                Respaldos
+            </h2>
+
+            <p class="text-muted mb-0">
+                Administración de copias de seguridad
+            </p>
+
+        </div>
+
+        <div class="row mb-4">
+
+            <div class="col-lg-4">
+
+                <div class="card shadow-sm border-0 rounded-4 h-100">
+
+                    <div class="card-body">
+
+                        <i class="bi bi-database-fill fs-2 text-success"></i>
+
+                        <h2 class="fw-bold mt-2">
+
+                            {{ total_respaldos }}
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Respaldos creados
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="card shadow-sm border-0 rounded-4 h-100">
+
+                    <div class="card-body">
+
+                        <i class="bi bi-hdd-stack-fill fs-2 text-primary"></i>
+
+                        <h2 class="fw-bold mt-2">
+
+                            {{ espacio_total }} KB
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Espacio utilizado
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="card shadow-sm border-0 rounded-4 h-100">
+
+                    <div class="card-body">
+
+                        <i class="bi bi-file-earmark-lock-fill"></i>
+
+                        {% if ultimo %}
+
+                        <h5 class="fw-bold mt-2">
+
+                            {{ ultimo.fecha }}
+
+                        </h5>
+
+                        <p class="text-muted mb-0">
+
+                            Último respaldo
+
+                        </p>
+
+                        {% else %}
+
+                        <h5 class="fw-bold mt-2">
+
+                            Sin respaldos
+
+                        </h5>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <button class="btn btn-success btn-lg" id="btnCrear">
+
+            <i class="bi bi-download"></i>
+
+            Generar Respaldo
+
+        </button>
+
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+
+        <div class="card-body">
+
+            <table class="table align-middle">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Archivo</th>
+
+                        <th>Fecha</th>
+
+                        <th>Tamaño</th>
+
+                        <th></th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% if respaldos %}
+
+                    {% for r in respaldos %}
+
+                    <tr>
+
+                        <td>
+
+                            <i class="bi bi-file-earmark-zip text-success"></i>
+
+                            {{ r.archivo }}
+
+                        </td>
+
+                        <td>
+
+                            {{ r.fecha }}
+
+                        </td>
+
+                        <td>
+
+                            {{ r.tamano }} KB
+
+                        </td>
+
+                        <td>
+
+                            <a href="{{ url_for('descargar_respaldo', nombre=r.archivo) }}"
+                                class="btn btn-success btn-sm" title="Descargar">
+
+                                <i class="bi bi-download"></i>
+
+                            </a>
+
+                            <button class="btn btn-danger btn-sm btnEliminar" data-archivo="{{ r.archivo }}"
+                                title="Eliminar">
+
+                                <i class="bi bi-trash"></i>
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                    {% else %}
+
+                    <tr>
+
+                        <td colspan="4" class="text-center text-muted">
+
+                            No hay respaldos registrados.
+
+                        </td>
+
+                    </tr>
+
+                    {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    document.getElementById("btnCrear").addEventListener("click", async () => {
+
+        const boton = document.getElementById("btnCrear");
+
+        boton.disabled = true;
+
+        boton.innerHTML = `
+        <span class="spinner-border spinner-border-sm"></span>
+        Generando...
+    `;
+
+        const respuesta = await fetch("/respaldos/crear", {
+
+            method: "POST"
+
+        });
+
+        const datos = await respuesta.json();
+
+        if (datos.ok) {
+
+            alert("✅ Respaldo creado correctamente.");
+
+            location.reload();
+
+        } else {
+
+            alert(datos.error);
+
+        }
+
+    });
+
+    document.querySelectorAll(".btnEliminar").forEach(boton => {
+
+        boton.addEventListener("click", async () => {
+
+            const archivo = boton.dataset.archivo;
+
+            if (!confirm("¿Eliminar este respaldo?")) {
+
+                return;
+
+            }
+
+            const respuesta = await fetch(
+
+                "/respaldos/eliminar/" + archivo,
+
+                {
+
+                    method: "POST"
+
+                }
+
+            );
+
+            const datos = await respuesta.json();
+
+            if (datos.ok) {
+
+                location.reload();
+
+            }
+
+        });
+
+    });
+
+
+</script>
+
+{% endblock %}

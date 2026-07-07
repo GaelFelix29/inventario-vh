@@ -244,17 +244,20 @@ def actualizar_aduana(
 
 def estado_expediente_aduanal(aduana):
 
-    campos = [
-        ("factura", "Factura"),
-        ("pedimento", "Pedimento"),
-        ("entrada_mtz", "Entrada MTZ"),
-        ("id_imp", "ID IMP"),
-        ("inbond", "Inbond"),
-        ("origen", "Origen"),
-        ("fecha_importacion", "Fecha de Importación")
-    ]
-
     if not aduana:
+
+        campos = [
+            ("factura", "Factura"),
+            ("pedimento", "Pedimento"),
+            ("entrada_mtz", "Entrada MTZ"),
+            ("id_imp", "ID IMP"),
+            ("inbond", "Inbond"),
+            ("origen", "Origen"),
+            ("fecha_importacion", "Fecha de Importación"),
+            ("kg_bruto", "Kg Bruto"),
+            ("total_bultos", "Total Bultos"),
+            ("documentacion_completa", "Documentación Completa")
+        ]
 
         return {
             "porcentaje": 0,
@@ -266,6 +269,54 @@ def estado_expediente_aduanal(aduana):
             "faltantes": [c[1] for c in campos]
         }
 
+    origen = str(aduana.get("origen", "")).strip().upper()
+
+    # ============================================
+    # MAQUINARIA NACIONAL
+    # ============================================
+
+    if origen == "NACIONAL":
+
+        campos = [
+
+            ("factura", "Factura"),
+
+            ("origen", "Origen"),
+
+            ("documentacion_completa", "Documentación Completa")
+
+        ]
+
+    # ============================================
+    # MAQUINARIA IMPORTADA
+    # ============================================
+
+    else:
+
+        campos = [
+
+            ("factura", "Factura"),
+
+            ("pedimento", "Pedimento"),
+
+            ("entrada_mtz", "Entrada MTZ"),
+
+            ("id_imp", "ID IMP"),
+
+            ("inbond", "Inbond"),
+
+            ("origen", "Origen"),
+
+            ("fecha_importacion", "Fecha de Importación"),
+
+            ("kg_bruto", "Kg Bruto"),
+
+            ("total_bultos", "Total Bultos"),
+
+            ("documentacion_completa", "Documentación Completa")
+
+        ]
+
     completos = 0
     faltantes = []
 
@@ -273,10 +324,43 @@ def estado_expediente_aduanal(aduana):
 
         valor = aduana.get(campo)
 
-        if valor is None or str(valor).strip() == "":
-            faltantes.append(nombre)
+        texto = "" if valor is None else str(valor).strip().upper()
+
+        # ===========================
+        # DOCUMENTACIÓN COMPLETA
+        # ===========================
+
+        if campo == "documentacion_completa":
+
+            if texto == "SI":
+                completos += 1
+            else:
+                faltantes.append(nombre)
+
+        # ===========================
+        # FACTURA
+        # ===========================
+
+        elif campo == "factura":
+
+            # Para nosotros "NA" significa "No aplica",
+            # por lo tanto sí cuenta como válido.
+
+            if texto != "":
+                completos += 1
+            else:
+                faltantes.append(nombre)
+
+        # ===========================
+        # RESTO DE CAMPOS
+        # ===========================
+
         else:
-            completos += 1
+
+            if texto != "":
+                completos += 1
+            else:
+                faltantes.append(nombre)
 
     pendientes = len(campos) - completos
 
