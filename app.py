@@ -1444,7 +1444,12 @@ def buscar_activos_ajax():
     return jsonify([
         {
             "id": a["id_activo"],
-            "text": f'{a["id_activo"]} - {a["descripcion"]}'
+            "text": a["id_activo"],
+
+            "descripcion": a["descripcion"],
+            "categoria": a["categoria"],
+            "marca": a["marca"],
+            "ubicacion": a["ubicacion"]
         }
         for a in activos
     ])

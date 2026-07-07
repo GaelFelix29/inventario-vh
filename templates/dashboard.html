@@ -1,137 +1,131 @@
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Premium | Vital Health</title>
+{% extends "base.html" %}
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% block titulo %}Dashboard | Vital Health{% endblock %}
+
+{% block contenido %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+
+        <div>
+            <h2 class="fw-bold mb-1">Dashboard</h2>
+            <p class="text-muted mb-0">
+                Bienvenido de nuevo,
+                <strong>{{ session["nombre"] }}</strong> 👋
+            </p>
+        </div>
+
+        <div class="mt-3 mt-md-0">
+            <a href="/" class="btn btn-outline-success rounded-pill px-4">
+                <i class="bi bi-house-door"></i> Inicio
+            </a>
+
+            <a href="/imprimir" class="btn btn-success rounded-pill px-4 ms-2">
+                <i class="bi bi-qr-code"></i> Etiquetas
+            </a>
+        </div>
+
+    </div>
+
+    <div class="row g-4 mb-5">
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="dashboard-icon bg-success-subtle text-success">
+                        <i class="bi bi-box-seam-fill"></i>
+                    </div>
+                    <small class="text-uppercase text-muted">Total Activos</small>
+                    <h2 id="totalActivos">0</h2>
+                    <span class="text-muted">Inventario registrado</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="dashboard-icon bg-primary-subtle text-primary">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <small class="text-uppercase text-muted">Activos</small>
+                    <h2 id="activos">0</h2>
+                    <span class="text-muted">Disponibles</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="dashboard-icon bg-danger-subtle text-danger">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <small class="text-uppercase text-muted">Bajas</small>
+                    <h2 id="bajas">0</h2>
+                    <span class="text-muted">Fuera de servicio</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="dashboard-icon bg-warning-subtle text-warning">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <small class="text-uppercase text-muted">Valor Inventario</small>
+                    <h2 id="valor">$0</h2>
+                    <span class="text-muted">Pesos Mexicanos</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card dashboard-card mb-4">
+        <div class="card-header bg-white border-0">
+            <h5 class="fw-bold mb-0">Análisis del Inventario</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <h6 class="fw-bold mb-3">🌎 Origen</h6>
+                    <canvas id="graficaOrigen"></canvas>
+                </div>
+                <div class="col-lg-6">
+                    <h6 class="fw-bold mb-3">📄 Estado de Documentación</h6>
+                    <canvas id="graficaEstado"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card dashboard-card mb-4">
+        <div class="card-header bg-white border-0">
+            <h5 class="fw-bold mb-0">🏆 Top 10 Maquinarias</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="graficaTop"></canvas>
+        </div>
+    </div>
+
+    <div class="card dashboard-card">
+        <div class="card-header bg-white border-0">
+            <h5 class="fw-bold mb-0">💰 Valor por Origen</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="graficaValorOrigen"></canvas>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-body{background:#eef3f8;font-family:Segoe UI,Arial,sans-serif}
-.hero{background:linear-gradient(135deg,#198754,#0f8f62);color:#fff;border-radius:25px;padding:35px;box-shadow:0 15px 40px rgba(0,0,0,.15)}
-.kpi{border:none;border-radius:22px;color:#fff;overflow:hidden;transition:.25s}
-.kpi:hover{transform:translateY(-6px)}
-.kpi i{font-size:55px;opacity:.18;position:absolute;right:18px;top:15px}
-.kpi h2{font-size:42px;font-weight:700}
-.card{border:none;border-radius:20px;box-shadow:0 8px 25px rgba(0,0,0,.08)}
-.card-header{background:#fff;font-weight:700}
-.chart-box{height:340px}
-.chart-box canvas{max-height:250px}
-.timeline li{padding:12px 0;border-bottom:1px solid #eee}
-.badge-live{background:#16a34a}
-</style>
-</head>
-<body>
-
-<div class="container-fluid p-4">
-
-<div class="hero mb-4">
-<div class="row align-items-center">
-<div class="col-lg-8">
-<h1 class="fw-bold mb-2">👋 Bienvenido, {{ session["nombre"] }}</h1>
-<p class="fs-5 mb-1">Dashboard Ejecutivo de Inventario</p>
-<span class="badge badge-live">Sistema en línea</span>
-</div>
-<div class="col-lg-4 text-end">
-<a href="/" class="btn btn-light me-2"><i class="bi bi-house"></i> Inicio</a>
-<a href="/imprimir" class="btn btn-warning"><i class="bi bi-qr-code"></i> Etiquetas</a>
-</div>
-</div>
-</div>
-
-<div class="row g-4 mb-4">
-<div class="col-xl-3 col-md-6">
-<div class="card kpi position-relative" style="background:#198754">
-<div class="card-body">
-<i class="bi bi-box-seam"></i>
-<small>Total Activos</small>
-<h2 id="totalActivos">0</h2>
-<div>Inventario registrado</div>
-</div></div></div>
-
-<div class="col-xl-3 col-md-6">
-<div class="card kpi position-relative" style="background:#0d6efd">
-<div class="card-body">
-<i class="bi bi-check-circle"></i>
-<small>Activos</small>
-<h2 id="activos">0</h2>
-<div>Disponibles</div>
-</div></div></div>
-
-<div class="col-xl-3 col-md-6">
-<div class="card kpi position-relative" style="background:#dc3545">
-<div class="card-body">
-<i class="bi bi-x-circle"></i>
-<small>Bajas</small>
-<h2 id="bajas">0</h2>
-<div>Fuera de servicio</div>
-</div></div></div>
-
-<div class="col-xl-3 col-md-6">
-<div class="card kpi position-relative" style="background:#fd7e14">
-<div class="card-body">
-<i class="bi bi-cash-stack"></i>
-<small>Valor Inventario</small>
-<h2 id="valor">$0</h2>
-<div>MXN</div>
-</div></div></div>
-</div>
-
-<div class="row g-4">
-
-<div class="col-lg-8">
-<div class="row g-4">
-<div class="col-md-6"><div class="card"><div class="card-header">🌎 Origen</div><div class="card-body chart-box"><canvas id="graficaOrigen"></canvas></div></div></div>
-<div class="col-md-6"><div class="card"><div class="card-header">📄 Documentación</div><div class="card-body chart-box"><canvas id="graficaEstado"></canvas></div></div></div>
-<div class="col-md-6"><div class="card"><div class="card-header">🏆 Top 10</div><div class="card-body chart-box"><canvas id="graficaTop"></canvas></div></div></div>
-<div class="col-md-6"><div class="card"><div class="card-header">💰 Valor por origen</div><div class="card-body chart-box"><canvas id="graficaValorOrigen"></canvas></div></div></div>
-</div>
-</div>
-
-<div class="col-lg-4">
-
-<div class="card mb-4">
-<div class="card-header">Resumen Ejecutivo</div>
-<div class="card-body text-center">
-<h1 id="tblTotal">0</h1>
-<p class="text-muted">Activos registrados</p>
-<hr>
-<div class="row">
-<div class="col"><h5 id="tblActivos">0</h5><small>Activos</small></div>
-<div class="col"><h5 id="tblBajas">0</h5><small>Bajas</small></div>
-</div>
-<hr>
-<h4 id="tblValor">$0</h4>
-<button class="btn btn-success w-100 mt-3" onclick="window.print()">
-<i class="bi bi-printer"></i> Imprimir Dashboard
-</button>
-</div>
-</div>
-
-<div class="card">
-<div class="card-header">Actividad reciente</div>
-<div class="card-body">
-<ul class="timeline list-unstyled mb-0">
-<li>✅ Inventario sincronizado</li>
-<li>📦 Nuevos activos registrados</li>
-<li>👤 Último acceso: {{ session["nombre"] }}</li>
-<li>🖨️ Módulo de etiquetas disponible</li>
-<li>🟢 Base de datos conectada</li>
-</ul>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-
-</body>
-</html>
+{% endblock %}

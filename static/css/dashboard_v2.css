@@ -1,0 +1,23 @@
+
+.dashboard-card{
+border:none;
+border-radius:22px;
+box-shadow:0 10px 30px rgba(0,0,0,.08);
+transition:.25s;
+}
+.dashboard-card:hover{
+transform:translateY(-5px);
+}
+.dashboard-icon{
+width:64px;
+height:64px;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:18px;
+font-size:30px;
+margin-bottom:18px;
+}
+.dashboard-card canvas{
+max-height:340px;
+}

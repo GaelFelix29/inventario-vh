@@ -8,58 +8,145 @@ Inventario Vital Health
 
 <div class="row justify-content-center">
 
-    <div class="col-lg-7">
+    <div class="col-xl-8 col-lg-9">
 
-        <div class="card shadow-lg border-0 p-5">
+        <div class="card border-0 shadow-lg rounded-4 p-5">
 
-            <div class="text-center">
+            <div class="text-center mb-5">
 
-                <h1 class="display-5 fw-bold text-success">
+                <div class="mb-3">
+                    <i class="bi bi-box-seam-fill text-success display-1"></i>
+                </div>
 
-                    <i class="bi bi-box-seam-fill"></i>
-
+                <h1 class="fw-bold text-success mb-2">
                     VITAL HEALTH
-
                 </h1>
 
-                <p class="text-muted fs-5">
-
+                <p class="text-muted fs-5 mb-0">
                     Sistema de Inventario de Activos
-
                 </p>
 
             </div>
 
-            <div class="mt-5">
+            <div class="mb-3">
 
-                <input
-    id="codigo"
-    type="text"
-    class="form-control"
-    placeholder="ACT-0001"
-    onkeypress="if(event.key==='Enter') buscar();">
+                <select id="buscarActivo" style="width:100%;"></select>
+
+                <div id="previewActivo" class="mt-4" style="display:none;">
+
+                    <div class="card border-0 shadow rounded-4">
+
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <div>
+
+                                    <h5 id="pActivo" class="fw-bold text-success mb-1"></h5>
+
+                                    <div id="pDescripcion" class="fs-5"></div>
+
+                                    <div class="text-muted mt-2">
+
+                                        <i class="bi bi-geo-alt-fill"></i>
+
+                                        <span id="pUbicacion"></span>
+
+                                    </div>
+
+                                    <div class="text-muted">
+
+                                        <i class="bi bi-tag-fill"></i>
+
+                                        <span id="pMarca"></span>
+
+                                    </div>
+
+                                    <div class="text-muted">
+
+                                        <i class="bi bi-grid"></i>
+
+                                        <span id="pCategoria"></span>
+
+                                    </div>
+
+                                </div>
+
+                                <div>
+
+                                    <button id="btnAbrir" class="btn btn-success rounded-pill px-4">
+
+                                        <i class="bi bi-arrow-right-circle"></i>
+
+                                        Ver detalles
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
-            <div class="d-grid mt-4">
+            <div class="text-center mt-3">
 
-                <button
-                    class="btn btn-success btn-lg"
-                    onclick="buscar()">
-
-                    <i class="bi bi-search"></i>
-
-                    Buscar Activo
-
-                </button>
+                <small class="text-muted">
+                    Presiona <strong>Enter</strong> para buscar
+                </small>
 
             </div>
 
             <hr class="my-5">
 
-            <div class="text-center text-secondary">
+            <div class="row text-center g-4">
 
-                También puedes escanear el código QR colocado en la máquina.
+                <div class="col-md-4">
+
+                    <i class="bi bi-search fs-1 text-success"></i>
+
+                    <h6 class="mt-3 fw-bold">
+                        Búsqueda Inteligente
+                    </h6>
+
+                    <small class="text-muted">
+                        Busca por activo, serie, marca o ubicación.
+                    </small>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <i class="bi bi-qr-code-scan fs-1 text-success"></i>
+
+                    <h6 class="mt-3 fw-bold">
+                        Código QR
+                    </h6>
+
+                    <small class="text-muted">
+                        Escanea el código colocado en cada maquinaria.
+                    </small>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <i class="bi bi-lightning-charge fs-1 text-success"></i>
+
+                    <h6 class="mt-3 fw-bold">
+                        Acceso Rápido
+                    </h6>
+
+                    <small class="text-muted">
+                        Consulta la información en segundos.
+                    </small>
+
+                </div>
 
             </div>
 
@@ -68,5 +155,104 @@ Inventario Vital Health
     </div>
 
 </div>
+
+{% block scripts %}
+
+<script>
+
+    function formatoActivo(activo) {
+
+        if (!activo.id) {
+            return activo.text;
+        }
+
+        return $(`
+        <div class="py-1">
+            <div class="fw-bold text-success">
+                <i class="bi bi-box-seam"></i> ${activo.id}
+            </div>
+
+            <div class="small">${activo.descripcion}</div>
+
+            <div class="small text-muted">
+                <i class="bi bi-geo-alt"></i>
+                ${activo.ubicacion || 'Sin ubicación'}
+            </div>
+        </div>
+    `);
+
+    }
+
+    $(function () {
+
+        $("#buscarActivo").select2({
+
+            theme: "bootstrap-5",
+
+            width: "100%",
+
+            placeholder: "Buscar activo...",
+
+            minimumInputLength: 2,
+
+            templateResult: formatoActivo,
+
+            templateSelection: function (activo) {
+                return activo.id || activo.text;
+            },
+
+            ajax: {
+
+                url: "{{ url_for('buscar_activos_ajax') }}",
+
+                dataType: "json",
+
+                delay: 250,
+
+                data: function (params) {
+                    return {
+                        q: params.term
+                    };
+                },
+
+                processResults: function (data) {
+                    return {
+                        results: data
+                    };
+                }
+
+            }
+
+        });
+
+        $("#buscarActivo").on("select2:select", function (e) {
+
+            let activo = e.params.data;
+
+            $("#previewActivo").fadeIn(200);
+
+            $("#pActivo").text(activo.id);
+
+            $("#pDescripcion").text(activo.descripcion);
+
+            $("#pUbicacion").text(activo.ubicacion || "Sin ubicación");
+
+            $("#pMarca").text(activo.marca || "-");
+
+            $("#pCategoria").text(activo.categoria || "-");
+
+            $("#btnAbrir").off("click").on("click", function () {
+
+                window.location = "/maquinarias/" + activo.id;
+
+            });
+
+        });
+
+    });
+
+</script>
+
+{% endblock %}
 
 {% endblock %}
