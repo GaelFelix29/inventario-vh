@@ -150,101 +150,146 @@ Información Aduanal
 
                     </div>
 
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+                            Kg Bruto
+                        </label>
+
+                        <input type="number" step="0.01" class="form-control" name="kg_bruto"
+                            value="{{ aduana.kg_bruto if aduana else '' }}">
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+                            Total de Bultos
+                        </label>
+
+                        <input type="number" class="form-control" name="total_bultos"
+                            value="{{ aduana.total_bultos if aduana else '' }}">
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+                            Documentación Completa
+                        </label>
+
+                        <select name="documentacion_completa" class="form-select">
+
+                            <option value="">Seleccione...</option>
+
+                            <option value="SI" {% if aduana and aduana.documentacion_completa=="SI" %} selected {% endif
+                                %}>
+                                Sí
+                            </option>
+
+                            <option value="NO" {% if aduana and aduana.documentacion_completa=="NO" %} selected {% endif
+                                %}>
+                                No
+                            </option>
+
+                        </select>
+
+                    </div>
+
                 </div>
 
-<hr>
+                <hr>
 
-<div class="d-flex justify-content-end gap-2">
+                <div class="d-flex justify-content-end gap-2">
 
-    {% if editar %}
+                    {% if editar %}
 
-    <a href="{{ url_for('expediente_maquinaria', id_activo=aduana.id_activo) }}"
-        class="btn btn-secondary">
+                    <a href="{{ url_for('expediente_maquinaria', id_activo=aduana.id_activo) }}"
+                        class="btn btn-secondary">
 
-        <i class="bi bi-arrow-left"></i>
+                        <i class="bi bi-arrow-left"></i>
 
-        Regresar
+                        Regresar
 
-    </a>
+                    </a>
 
-    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-success">
 
-        <i class="bi bi-save"></i>
+                        <i class="bi bi-save"></i>
 
-        Actualizar Expediente
+                        Actualizar Expediente
 
-    </button>
+                    </button>
 
-    {% else %}
+                    {% else %}
 
-    <a href="{{ url_for('lista_aduanas') }}"
-        class="btn btn-secondary">
+                    <a href="{{ url_for('lista_aduanas') }}" class="btn btn-secondary">
 
-        <i class="bi bi-x-circle"></i>
+                        <i class="bi bi-x-circle"></i>
 
-        Cancelar
+                        Cancelar
 
-    </a>
+                    </a>
 
-    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-success">
 
-        <i class="bi bi-save"></i>
+                        <i class="bi bi-save"></i>
 
-        Guardar Expediente
+                        Guardar Expediente
 
-    </button>
+                    </button>
 
-    {% endif %}
+                    {% endif %}
 
-</div>
+                </div>
+
+        </div>
 
     </div>
 
-</div>
+    {% endblock %}
 
-{% endblock %}
+    {% block scripts %}
 
-{% block scripts %}
+    <script>
 
-<script>
+        $("#id_activo").change(function () {
 
-    $("#id_activo").change(function () {
+            let id = $(this).val();
 
-        let id = $(this).val();
+            if (id == "") {
 
-        if (id == "") {
+                $("#factura").val("");
+                $("#pedimento").val("");
+                $("#entrada_mtz").val("");
+                $("#id_imp").val("");
+                $("#inbond").val("");
+                $("#origen").val("");
+                $("#fecha_importacion").val("");
+                return;
 
-            $("#factura").val("");
-            $("#pedimento").val("");
-            $("#entrada_mtz").val("");
-            $("#id_imp").val("");
-            $("#inbond").val("");
-            $("#origen").val("");
-            $("#fecha_importacion").val("");
-            return;
+            }
 
-        }
+            $.get("/aduanas/datos/" + id, function (r) {
 
-        $.get("/aduanas/datos/" + id, function (r) {
+                $("#factura").val(r.factura || "");
 
-            $("#factura").val(r.factura || "");
+                $("#pedimento").val(r.pedimento || "");
 
-            $("#pedimento").val(r.pedimento || "");
+                $("#entrada_mtz").val(r.entrada_mtz || "");
 
-            $("#entrada_mtz").val(r.entrada_mtz || "");
+                $("#id_imp").val(r.id_imp || "");
 
-            $("#id_imp").val(r.id_imp || "");
+                $("#inbond").val(r.inbond || "");
 
-            $("#inbond").val(r.inbond || "");
+                $("#origen").val(r.origen || "");
 
-            $("#origen").val(r.origen || "");
+                $("#fecha_importacion").val(r.fecha_importacion || "");
 
-            $("#fecha_importacion").val(r.fecha_importacion || "");
+            });
 
         });
 
-    });
+    </script>
 
-</script>
-
-{% endblock %}
+    {% endblock %}
