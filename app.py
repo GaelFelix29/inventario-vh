@@ -1351,6 +1351,8 @@ def obtener_historial_activo(id_activo):
 @login_required
 def subir_documento(id_activo):
 
+    print("===== SUBIR DOCUMENTO =====")
+
     if session.get("rol") != "Administrador":
 
         flash(
