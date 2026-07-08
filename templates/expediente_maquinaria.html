@@ -126,7 +126,7 @@
 
                         </a>
 
-                        {% if session["rol"] in ["Administrador","Mantenimiento"] %}
+                        {% if session["rol"] in ["Administrador","Mantenimiento"] and maquina.estado == "ACTIVO" %}
 
                         <button class="btn btn-danger rounded-pill" data-bs-toggle="modal"
                             data-bs-target="#modalSolicitudBaja">
