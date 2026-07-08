@@ -13,7 +13,7 @@ from flask import send_from_directory
 
 
 from flask import jsonify
-from respaldos import crear_respaldo
+from respaldos import BASE_DIR, crear_respaldo
 
 import os
 from datetime import datetime
@@ -31,6 +31,7 @@ from models.auditoria_model import (
 )
 
 from database.documentos import (
+    RUTA_DOCUMENTOS,
     crear_carpeta_activo,
     guardar_documento_bd,
     listar_documentos,
@@ -1351,8 +1352,6 @@ def obtener_historial_activo(id_activo):
 @login_required
 def subir_documento(id_activo):
 
-    print("===== SUBIR DOCUMENTO =====")
-
     if session.get("rol") != "Administrador":
 
         flash(
@@ -1389,10 +1388,20 @@ def subir_documento(id_activo):
 
     ruta = os.path.join(carpeta, nombre_archivo)
 
+    # ==========================================
+    # DEPURACIÓN
+    # ==========================================
+
+    print("=" * 60)
+    print("RUTA_DOCUMENTOS:", RUTA_DOCUMENTOS)
+    print("CARPETA:", carpeta)
+    print("RUTA ARCHIVO:", ruta)
+    print("¿Existe carpeta?:", os.path.isdir(carpeta))
+    print("=" * 60)
 
     archivo.save(ruta)
 
-    print("EXISTE:", os.path.exists(ruta))
+    print("¿Existe archivo?:", os.path.exists(ruta))
 
     guardar_documento_bd(
 
