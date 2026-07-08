@@ -50,11 +50,20 @@ def guardar_aduana(
     id_imp,
     inbond,
     origen,
-    fecha_importacion
+    fecha_importacion,
+    kg_bruto,
+    total_bultos,
+    documentacion_completa
 ):
 
     if fecha_importacion == "":
         fecha_importacion = None
+
+    if kg_bruto == "":
+        kg_bruto = None
+
+    if total_bultos == "":
+        total_bultos = None
 
     with engine.begin() as conn:
 
@@ -73,25 +82,33 @@ def guardar_aduana(
 
                 UPDATE aduanas
                 SET
+
                     factura=:factura,
                     pedimento=:pedimento,
                     entrada_mtz=:entrada_mtz,
                     id_imp=:id_imp,
                     inbond=:inbond,
                     origen=:origen,
-                    fecha_importacion=:fecha_importacion
+                    fecha_importacion=:fecha_importacion,
+                    kg_bruto=:kg_bruto,
+                    total_bultos=:total_bultos,
+                    documentacion_completa=:documentacion_completa
+
                 WHERE id_activo=:id_activo
 
             """),{
 
-                "id_activo":id_activo,
-                "factura":factura,
-                "pedimento":pedimento,
-                "entrada_mtz":entrada_mtz,
-                "id_imp":id_imp,
-                "inbond":inbond,
-                "origen":origen,
-                "fecha_importacion":fecha_importacion
+                "id_activo": id_activo,
+                "factura": factura,
+                "pedimento": pedimento,
+                "entrada_mtz": entrada_mtz,
+                "id_imp": id_imp,
+                "inbond": inbond,
+                "origen": origen,
+                "fecha_importacion": fecha_importacion,
+                "kg_bruto": kg_bruto,
+                "total_bultos": total_bultos,
+                "documentacion_completa": documentacion_completa
 
             })
 
@@ -101,6 +118,7 @@ def guardar_aduana(
 
                 INSERT INTO aduanas
                 (
+
                     id_activo,
                     factura,
                     pedimento,
@@ -108,10 +126,16 @@ def guardar_aduana(
                     id_imp,
                     inbond,
                     origen,
-                    fecha_importacion
+                    fecha_importacion,
+                    kg_bruto,
+                    total_bultos,
+                    documentacion_completa
+
                 )
+
                 VALUES
                 (
+
                     :id_activo,
                     :factura,
                     :pedimento,
@@ -119,19 +143,26 @@ def guardar_aduana(
                     :id_imp,
                     :inbond,
                     :origen,
-                    :fecha_importacion
+                    :fecha_importacion,
+                    :kg_bruto,
+                    :total_bultos,
+                    :documentacion_completa
+
                 )
 
             """),{
 
-                "id_activo":id_activo,
-                "factura":factura,
-                "pedimento":pedimento,
-                "entrada_mtz":entrada_mtz,
-                "id_imp":id_imp,
-                "inbond":inbond,
-                "origen":origen,
-                "fecha_importacion":fecha_importacion
+                "id_activo": id_activo,
+                "factura": factura,
+                "pedimento": pedimento,
+                "entrada_mtz": entrada_mtz,
+                "id_imp": id_imp,
+                "inbond": inbond,
+                "origen": origen,
+                "fecha_importacion": fecha_importacion,
+                "kg_bruto": kg_bruto,
+                "total_bultos": total_bultos,
+                "documentacion_completa": documentacion_completa
 
             })
 
@@ -210,37 +241,59 @@ def actualizar_aduana(
     id_imp,
     inbond,
     origen,
-    fecha_importacion
+    fecha_importacion,
+    kg_bruto,
+    total_bultos,
+    documentacion_completa
 ):
 
+    if fecha_importacion == "":
+        fecha_importacion = None
+
+    if kg_bruto == "":
+        kg_bruto = None
+
+    if total_bultos == "":
+        total_bultos = None
+
     sql = text("""
+
         UPDATE aduanas
+
         SET
-            factura = :factura,
-            pedimento = :pedimento,
-            entrada_mtz = :entrada_mtz,
-            id_imp = :id_imp,
-            inbond = :inbond,
-            origen = :origen,
-            fecha_importacion = :fecha_importacion
-        WHERE id_activo = :id_activo
+
+            factura=:factura,
+            pedimento=:pedimento,
+            entrada_mtz=:entrada_mtz,
+            id_imp=:id_imp,
+            inbond=:inbond,
+            origen=:origen,
+            fecha_importacion=:fecha_importacion,
+            kg_bruto=:kg_bruto,
+            total_bultos=:total_bultos,
+            documentacion_completa=:documentacion_completa
+
+        WHERE id_activo=:id_activo
+
     """)
 
     with engine.begin() as conn:
 
-        conn.execute(
-            sql,
-            {
-                "id_activo": id_activo,
-                "factura": factura,
-                "pedimento": pedimento,
-                "entrada_mtz": entrada_mtz,
-                "id_imp": id_imp,
-                "inbond": inbond,
-                "origen": origen,
-                "fecha_importacion": fecha_importacion
-            }
-        )
+        conn.execute(sql, {
+
+            "id_activo": id_activo,
+            "factura": factura,
+            "pedimento": pedimento,
+            "entrada_mtz": entrada_mtz,
+            "id_imp": id_imp,
+            "inbond": inbond,
+            "origen": origen,
+            "fecha_importacion": fecha_importacion,
+            "kg_bruto": kg_bruto,
+            "total_bultos": total_bultos,
+            "documentacion_completa": documentacion_completa
+
+        })
 
 def estado_expediente_aduanal(aduana):
 

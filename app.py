@@ -1174,7 +1174,11 @@ def editar_aduana(id_activo):
             request.form["id_imp"],
             request.form["inbond"],
             request.form["origen"],
-            request.form["fecha_importacion"]
+            request.form["fecha_importacion"],
+
+            request.form.get("kg_bruto"),
+            request.form.get("total_bultos"),
+            request.form.get("documentacion_completa")
 
         )
 
@@ -1190,14 +1194,29 @@ def editar_aduana(id_activo):
     if not editar:
 
         aduana = {
+
             "id_activo": id_activo,
+
             "factura": "",
+
             "pedimento": "",
+
             "entrada_mtz": "",
+
             "id_imp": "",
+
             "inbond": "",
+
             "origen": "",
-            "fecha_importacion": ""
+
+            "fecha_importacion": "",
+
+            "kg_bruto": "",
+
+            "total_bultos": "",
+
+            "documentacion_completa": ""
+
         }
 
     return render_template(
