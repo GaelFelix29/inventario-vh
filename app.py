@@ -1390,6 +1390,11 @@ def subir_documento(id_activo):
 
     try:
 
+        print("=" * 70)
+        print("INICIANDO SUBIDA A CLOUDINARY")
+        print("Activo:", id_activo)
+        print("Archivo:", nombre_original)
+
         resultado = cloudinary.uploader.upload(
             archivo,
             resource_type="raw",
@@ -1397,6 +1402,9 @@ def subir_documento(id_activo):
             public_id=nombre_archivo,
             overwrite=False
         )
+
+        print("RESULTADO:")
+        print(resultado)
 
         guardar_documento_bd(
 
@@ -1416,6 +1424,9 @@ def subir_documento(id_activo):
 
         )
 
+        print("DOCUMENTO GUARDADO EN MYSQL")
+        print("=" * 70)
+
         flash(
             "Documento subido correctamente.",
             "success"
@@ -1423,73 +1434,22 @@ def subir_documento(id_activo):
 
     except Exception as e:
 
-        print(e)
+        import traceback
+
+        print("=" * 70)
+        print("ERROR AL SUBIR DOCUMENTO")
+        traceback.print_exc()
+        print("=" * 70)
 
         flash(
-            "Ocurrió un error al subir el documento.",
+            f"Error: {str(e)}",
             "danger"
         )
-
-    return redirect(
-        url_for("expediente_maquinaria", id_activo=id_activo)
-    )
-
-
-@app.route("/documentos/<int:id_documento>/eliminar", methods=["POST"])
-@login_required
-def borrar_documento(id_documento):
-
-    if session.get("rol") != "Administrador":
-
-        flash(
-            "No tiene permisos para eliminar documentos.",
-            "danger"
-        )
-
-        return redirect(request.referrer or url_for("lista_maquinarias"))
-
-    doc = eliminar_documento(id_documento)
-
-    if not doc:
-
-        flash(
-            "Documento no encontrado.",
-            "danger"
-        )
-
-        return redirect(request.referrer or url_for("lista_maquinarias"))
-
-    try:
-
-        if doc["public_id"]:
-
-            cloudinary.uploader.destroy(
-                doc["public_id"],
-                resource_type="raw"
-            )
-
-    except Exception as e:
-
-        print("Error eliminando en Cloudinary:", e)
-
-    registrar_movimiento(
-
-        usuario=session["nombre"],
-        accion="Eliminó documento",
-        modulo="Documentación",
-        referencia=doc["id_activo"]
-
-    )
-
-    flash(
-        "Documento eliminado correctamente.",
-        "success"
-    )
 
     return redirect(
         url_for(
             "expediente_maquinaria",
-            id_activo=doc["id_activo"]
+            id_activo=id_activo
         )
     )
 
