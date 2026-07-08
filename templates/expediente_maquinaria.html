@@ -1310,8 +1310,8 @@
 
                                 <div class="d-flex gap-2">
 
-                                    <a href="{{ url_for('static', filename='documentos/' ~ maquina.id_activo ~ '/' ~ doc.nombre_archivo) }}"
-                                        target="_blank" class="btn btn-primary rounded-pill flex-fill">
+                                    <a href="{{ doc.url }}" target="_blank"
+                                        class="btn btn-primary rounded-pill flex-fill">
 
                                         <i class="bi bi-eye"></i>
 
@@ -1319,8 +1319,7 @@
 
                                     </a>
 
-                                    <a href="{{ url_for('static', filename='documentos/' ~ maquina.id_activo ~ '/' ~ doc.nombre_archivo) }}"
-                                        download class="btn btn-success rounded-pill">
+                                    <a href="{{ doc.url }}" target="_blank" class="btn btn-success rounded-pill">
 
                                         <i class="bi bi-download"></i>
 

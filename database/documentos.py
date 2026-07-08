@@ -39,6 +39,8 @@ def guardar_documento_bd(
     nombre_original,
     nombre_archivo,
     tipo,
+    url,
+    public_id,
     usuario
 ):
 
@@ -50,6 +52,8 @@ def guardar_documento_bd(
             nombre_original,
             nombre_archivo,
             tipo,
+            url,
+            public_id,
             subido_por
 
         )
@@ -60,6 +64,8 @@ def guardar_documento_bd(
             :nombre_original,
             :nombre_archivo,
             :tipo,
+            :url,
+            :public_id,
             :usuario
 
         )
@@ -77,6 +83,8 @@ def guardar_documento_bd(
                 "nombre_original": nombre_original,
                 "nombre_archivo": nombre_archivo,
                 "tipo": tipo,
+                "url": url,
+                "public_id": public_id,
                 "usuario": usuario
             }
 

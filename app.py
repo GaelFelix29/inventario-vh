@@ -9,6 +9,10 @@ from flask import (
     flash
 )
 
+import cloudinary_config
+import cloudinary.uploader
+import cloudinary.api
+
 from flask import send_from_directory
 
 
@@ -1376,8 +1380,6 @@ def subir_documento(id_activo):
             url_for("expediente_maquinaria", id_activo=id_activo)
         )
 
-    carpeta = crear_carpeta_activo(id_activo)
-
     nombre_original = archivo.filename
 
     nombre_seguro = secure_filename(nombre_original)
@@ -1386,41 +1388,47 @@ def subir_documento(id_activo):
 
     nombre_archivo = f"{id_activo}_{timestamp}_{nombre_seguro}"
 
-    ruta = os.path.join(carpeta, nombre_archivo)
+    try:
 
-    # ==========================================
-    # DEPURACIÓN
-    # ==========================================
+        resultado = cloudinary.uploader.upload(
+            archivo,
+            resource_type="raw",
+            folder=f"documentos/{id_activo}",
+            public_id=nombre_archivo,
+            overwrite=False
+        )
 
-    print("=" * 60)
-    print("RUTA_DOCUMENTOS:", RUTA_DOCUMENTOS)
-    print("CARPETA:", carpeta)
-    print("RUTA ARCHIVO:", ruta)
-    print("¿Existe carpeta?:", os.path.isdir(carpeta))
-    print("=" * 60)
+        guardar_documento_bd(
 
-    archivo.save(ruta)
+            id_activo=id_activo,
 
-    print("¿Existe archivo?:", os.path.exists(ruta))
+            nombre_original=nombre_original,
 
-    guardar_documento_bd(
+            nombre_archivo=nombre_archivo,
 
-        id_activo=id_activo,
+            tipo=os.path.splitext(nombre_archivo)[1],
 
-        nombre_original=nombre_original,
+            url=resultado["secure_url"],
 
-        nombre_archivo=nombre_archivo,
+            public_id=resultado["public_id"],
 
-        tipo=os.path.splitext(nombre_archivo)[1],
+            usuario=session["nombre"]
 
-        usuario=session["nombre"]
+        )
 
-    )
+        flash(
+            "Documento subido correctamente.",
+            "success"
+        )
 
-    flash(
-        "Documento subido correctamente.",
-        "success"
-    )
+    except Exception as e:
+
+        print(e)
+
+        flash(
+            "Ocurrió un error al subir el documento.",
+            "danger"
+        )
 
     return redirect(
         url_for("expediente_maquinaria", id_activo=id_activo)
@@ -1451,21 +1459,18 @@ def borrar_documento(id_documento):
 
         return redirect(request.referrer or url_for("lista_maquinarias"))
 
-    ruta = os.path.join(
+    try:
 
-        app.static_folder,
+        if doc["public_id"]:
 
-        "documentos",
+            cloudinary.uploader.destroy(
+                doc["public_id"],
+                resource_type="raw"
+            )
 
-        doc["id_activo"],
+    except Exception as e:
 
-        doc["nombre_archivo"]
-
-    )
-
-    if os.path.exists(ruta):
-
-        os.remove(ruta)
+        print("Error eliminando en Cloudinary:", e)
 
     registrar_movimiento(
 
