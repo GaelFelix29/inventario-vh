@@ -1,0 +1,385 @@
+/* ===========================
+   VITAL HEALTH LOGIN
+=========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:'Segoe UI',sans-serif;
+
+    min-height:100vh;
+
+    background:linear-gradient(135deg,#0d6b3c,#198754,#dff5e8);
+
+    overflow:hidden;
+
+}
+
+/* Fondo decorativo */
+
+body::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:500px;
+
+    height:500px;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,.08);
+
+    top:-180px;
+
+    left:-120px;
+
+}
+
+body::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:450px;
+
+    height:450px;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,.06);
+
+    bottom:-150px;
+
+    right:-120px;
+
+}
+
+.login-container{
+
+    position:relative;
+
+    z-index:2;
+
+    width:100%;
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:30px;
+
+}
+
+.login-card{
+
+    width:980px;
+
+    max-width:100%;
+
+    min-height:560px;
+
+    display:flex;
+
+    background:white;
+
+    border-radius:28px;
+
+    overflow:hidden;
+
+    box-shadow:0 20px 50px rgba(0,0,0,.20);
+
+    animation:fadeIn .8s ease;
+
+}
+
+/* =====================
+   LADO IZQUIERDO
+===================== */
+
+.login-left{
+
+    width:42%;
+
+    background:linear-gradient(180deg,#198754,#0f5b3a);
+
+    color:white;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:50px;
+
+    text-align:center;
+
+}
+
+.logo{
+
+    width:150px;
+
+    margin-bottom:30px;
+
+    animation:float 3s infinite ease-in-out;
+
+}
+
+.login-left h2{
+
+    font-size:38px;
+
+    font-weight:700;
+
+    margin-bottom:15px;
+
+}
+
+.login-left p{
+
+    font-size:18px;
+
+    opacity:.92;
+
+    line-height:1.6;
+
+}
+
+/* =====================
+   LADO DERECHO
+===================== */
+
+.login-right{
+
+    width:58%;
+
+    padding:60px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+}
+
+.login-right h3{
+
+    font-size:34px;
+
+    font-weight:700;
+
+    color:#198754;
+
+}
+
+.form-label{
+
+    font-weight:600;
+
+    margin-bottom:8px;
+
+}
+
+.form-control{
+
+    border-radius:12px;
+
+    height:48px;
+
+    border:1px solid #ced4da;
+
+    transition:.25s;
+
+}
+
+.form-control:focus{
+
+    border-color:#198754;
+
+    box-shadow:0 0 0 .18rem rgba(25,135,84,.15);
+
+}
+
+.input-group .btn{
+
+    border-radius:0 12px 12px 0;
+
+}
+
+.btn-login{
+
+    height:50px;
+
+    border-radius:12px;
+
+    font-size:17px;
+
+    font-weight:600;
+
+    transition:.25s;
+
+}
+
+.btn-login:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 10px 25px rgba(25,135,84,.30);
+
+}
+
+.alert{
+
+    border-radius:12px;
+
+}
+
+.version{
+
+    margin-top:35px;
+
+    text-align:center;
+
+    color:#999;
+
+    font-size:14px;
+
+}
+
+/* =====================
+   Animaciones
+===================== */
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(35px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+@keyframes float{
+
+    0%{
+
+        transform:translateY(0);
+
+    }
+
+    50%{
+
+        transform:translateY(-8px);
+
+    }
+
+    100%{
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* =====================
+   Responsive
+===================== */
+
+@media(max-width:900px){
+
+.login-card{
+
+    flex-direction:column;
+
+}
+
+.login-left{
+
+    width:100%;
+
+    padding:40px;
+
+}
+
+.login-right{
+
+    width:100%;
+
+    padding:40px;
+
+}
+
+.logo{
+
+    width:100px;
+
+}
+
+.login-left h2{
+
+    font-size:30px;
+
+}
+
+.login-right h3{
+
+    font-size:28px;
+
+}
+
+}
+
+@media(max-width:576px){
+
+.login-right{
+
+    padding:25px;
+
+}
+
+.login-left{
+
+    padding:25px;
+
+}
+
+.logo{
+
+    width:80px;
+
+}
+
+.login-left p{
+
+    font-size:15px;
+
+}
+
+}

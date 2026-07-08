@@ -3,45 +3,58 @@
 
 <head>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Login | Vital Health</title>
+<title>Vital Health | Login</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='css/login.css') }}">
 
 </head>
 
-<body class="bg-light">
+<body>
 
-<div class="container vh-100 d-flex justify-content-center align-items-center">
+<div class="login-container">
 
-    <div class="card shadow-lg border-0" style="width:420px; border-radius:20px;">
+    <div class="login-card">
 
-        <div class="card-body p-5">
+        <div class="login-left">
 
-            <div class="text-center mb-4">
+            <img src="{{ url_for('static', filename='img/logo.png') }}"
+                 class="logo">
 
-                <h2 class="fw-bold text-success">
-                    Vital Health
-                </h2>
+            <h2>Vital Health</h2>
 
-                <p class="text-muted">
-                    Iniciar sesión
-                </p>
+            <p>
+                Sistema de Gestión de Inventario
+            </p>
 
-            </div>
+        </div>
+
+        <div class="login-right">
+
+            <h3>Iniciar sesión</h3>
+
+            <p class="text-muted mb-4">
+                Bienvenido nuevamente
+            </p>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
+            {% if messages %}
+            {% for category,message in messages %}
 
-                        <div class="alert alert-{{category}}">
-                            {{message}}
-                        </div>
+            <div class="alert alert-{{category}}">
+                {{message}}
+            </div>
 
-                    {% endfor %}
-                {% endif %}
+            {% endfor %}
+            {% endif %}
             {% endwith %}
 
             <form method="POST">
@@ -49,35 +62,56 @@
                 <div class="mb-3">
 
                     <label class="form-label">
+
+                        <i class="bi bi-person"></i>
+
                         Usuario
+
                     </label>
 
                     <input
                         type="text"
                         name="usuario"
                         class="form-control"
-                        required
-                    >
+                        required>
 
                 </div>
 
                 <div class="mb-4">
 
                     <label class="form-label">
+
+                        <i class="bi bi-lock"></i>
+
                         Contraseña
+
                     </label>
 
-                    <input
-                        type="password"
-                        name="password"
-                        class="form-control"
-                        required
-                    >
+                    <div class="input-group">
+
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            class="form-control"
+                            required>
+
+                        <button
+                            class="btn btn-outline-secondary"
+                            type="button"
+                            id="togglePassword">
+
+                            <i class="bi bi-eye"></i>
+
+                        </button>
+
+                    </div>
 
                 </div>
 
-                <button
-                    class="btn btn-success w-100">
+                <button class="btn btn-success w-100 btn-login">
+
+                    <i class="bi bi-box-arrow-in-right"></i>
 
                     Iniciar sesión
 
@@ -85,12 +119,42 @@
 
             </form>
 
+            <div class="version">
+
+                Vital Health v2.0
+
+            </div>
+
         </div>
 
     </div>
 
 </div>
 
-</body>
+<script>
 
+const btn=document.getElementById("togglePassword");
+const pass=document.getElementById("password");
+
+btn.onclick=function(){
+
+if(pass.type==="password"){
+
+pass.type="text";
+
+this.innerHTML='<i class="bi bi-eye-slash"></i>';
+
+}else{
+
+pass.type="password";
+
+this.innerHTML='<i class="bi bi-eye"></i>';
+
+}
+
+}
+
+</script>
+
+</body>
 </html>
