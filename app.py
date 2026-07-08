@@ -1396,12 +1396,12 @@ def subir_documento(id_activo):
         print("Archivo:", nombre_original)
 
         resultado = cloudinary.uploader.upload(
-            archivo,
-            resource_type="raw",
-            folder=f"documentos/{id_activo}",
-            public_id=nombre_archivo,
-            overwrite=False
-        )
+        archivo,
+        resource_type="auto",
+        folder=f"documentos/{id_activo}",
+        public_id=nombre_archivo,
+        overwrite=False
+)
 
         print("RESULTADO:")
         print(resultado)
