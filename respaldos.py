@@ -76,7 +76,11 @@ def crear_respaldo():
 
                 f.write(f"DROP TABLE IF EXISTS `{nombre}`;\n\n")
 
-                f.write(create[1])
+                sql_create = create[1]
+
+                sql_create = sql_create.replace('"', '`')
+
+                f.write(sql_create)
                 f.write(";\n\n")
 
                 # -----------------------------
