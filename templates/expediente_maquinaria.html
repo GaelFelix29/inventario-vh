@@ -137,6 +137,40 @@
 
                         </button>
 
+                        {% if maquina.estado == "EN_TRASLADO" %}
+
+                        <form method="POST"
+                            action="{{ url_for('confirmar_recepcion_route', id_activo=maquina.id_activo) }}">
+
+                            <button type="submit" class="btn btn-primary w-100 mt-2">
+
+                                <i class="bi bi-box-seam"></i>
+
+                                Confirmar recepción
+
+                            </button>
+
+                        </form>
+
+                        {% endif %}
+
+                        {% if maquina.estado == "EN_MANTENIMIENTO" %}
+
+                        <form method="POST"
+                            action="{{ url_for('finalizar_mantenimiento_route', id_activo=maquina.id_activo) }}">
+
+                            <button type="submit" class="btn btn-success w-100 mt-2">
+
+                                <i class="bi bi-tools"></i>
+
+                                Finalizar mantenimiento
+
+                            </button>
+
+                        </form>
+
+                        {% endif %}
+
                         {% endif %}
 
                     </div>
@@ -1411,9 +1445,9 @@
 
                     <h5 class="modal-title">
 
-                        <i class="bi bi-trash3-fill"></i>
+                        <i class="bi bi-clipboard-check-fill"></i>
 
-                        Solicitud de Baja
+                        Nueva Solicitud
 
                     </h5>
 
@@ -1424,13 +1458,67 @@
 
                 <div class="modal-body">
 
-                    <div class="alert alert-warning">
+                    <div class="alert alert-info">
 
-                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <i class="bi bi-info-circle-fill"></i>
 
-                        Se enviará una solicitud para dar de baja el activo:
+                        Complete la información de la solicitud para el activo:
 
                         <strong>{{ maquina.id_activo }}</strong>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-bold">
+                            Tipo de solicitud
+                        </label>
+
+                        <select class="form-select" id="tipoSolicitud" name="tipo" required>
+
+                            <option value="BAJA" selected>
+                                🗑️ Baja definitiva
+                            </option>
+
+                            <option value="TRASLADO">
+                                🚚 Traslado
+                            </option>
+
+                            <option value="MANTENIMIENTO">
+                                🔧 Mantenimiento
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div id="campoUbicacion" class="mb-3 d-none">
+
+                        <label class="form-label fw-bold">
+                            Ubicación destino
+                        </label>
+
+                        <input type="text" name="ubicacion_destino" class="form-control">
+
+                    </div>
+
+                    <div id="campoProveedor" class="mb-3 d-none">
+
+                        <label class="form-label fw-bold">
+                            Proveedor de mantenimiento
+                        </label>
+
+                        <input type="text" name="proveedor_mantenimiento" class="form-control">
+
+                    </div>
+
+                    <div id="campoFecha" class="mb-3 d-none">
+
+                        <label class="form-label fw-bold">
+                            Fecha estimada de finalización
+                        </label>
+
+                        <input type="date" name="fecha_estimada_fin" class="form-control">
 
                     </div>
 
@@ -1578,6 +1666,44 @@
         });
 
     });
+
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const tipo = document.getElementById("tipoSolicitud");
+
+        const campoUbicacion = document.getElementById("campoUbicacion");
+        const campoProveedor = document.getElementById("campoProveedor");
+        const campoFecha = document.getElementById("campoFecha");
+
+        function actualizarFormulario() {
+
+            campoUbicacion.classList.add("d-none");
+            campoProveedor.classList.add("d-none");
+            campoFecha.classList.add("d-none");
+
+            if (tipo.value === "TRASLADO") {
+
+                campoUbicacion.classList.remove("d-none");
+
+            }
+
+            if (tipo.value === "MANTENIMIENTO") {
+
+                campoProveedor.classList.remove("d-none");
+                campoFecha.classList.remove("d-none");
+
+            }
+
+        }
+
+        tipo.addEventListener("change", actualizarFormulario);
+
+        actualizarFormulario();
+
+    });
+
 
 </script>
 

@@ -5,7 +5,7 @@ from database.conexion import engine
 from sqlalchemy import text
 from database.conexion import engine
 
-
+from models.auditoria_model import registrar_movimiento
 
 def obtener_maquinarias():
 
@@ -237,6 +237,50 @@ def baja_desde_solicitud(conn, id_activo, motivo, responsable):
         "responsable": responsable
 
     })
+    
+def traslado_desde_solicitud(conn, id_activo):
+
+    sql = text("""
+
+        UPDATE maquinarias
+
+        SET
+
+            estado='EN_TRASLADO',
+
+            ultima_actualizacion=NOW()
+
+        WHERE id_activo=:id
+
+    """)
+
+    conn.execute(sql, {
+
+        "id": id_activo
+
+    })
+
+def mantenimiento_desde_solicitud(conn, id_activo):
+
+    sql = text("""
+
+        UPDATE maquinarias
+
+        SET
+
+            estado='EN_MANTENIMIENTO',
+
+            ultima_actualizacion=NOW()
+
+        WHERE id_activo=:id
+
+    """)
+
+    conn.execute(sql, {
+
+        "id": id_activo
+
+    })
 
 def obtener_maquinarias_select():
 
@@ -419,3 +463,141 @@ def obtener_ubicaciones():
     with engine.connect() as conn:
 
         return conn.execute(sql).scalars().all()
+
+def confirmar_recepcion(conn, id_activo, nueva_ubicacion):
+
+    sql = text("""
+
+        UPDATE maquinarias
+
+        SET
+
+            estado='ACTIVO',
+
+            ubicacion=:ubicacion,
+
+            ultima_actualizacion=NOW()
+
+        WHERE id_activo=:id
+
+    """)
+
+    conn.execute(sql, {
+
+        "id": id_activo,
+
+        "ubicacion": nueva_ubicacion
+
+    })
+
+def finalizar_mantenimiento(conn, id_activo):
+
+    sql = text("""
+
+        UPDATE maquinarias
+
+        SET
+
+            estado='ACTIVO',
+
+            ultima_actualizacion=NOW()
+
+        WHERE id_activo=:id
+
+    """)
+
+    conn.execute(sql, {
+
+        "id": id_activo
+
+    })
+
+def confirmar_recepcion_activo(id_activo, usuario):
+
+    with engine.begin() as conn:
+
+        sql = text("""
+
+            SELECT ubicacion_destino
+
+            FROM solicitudes_baja
+
+            WHERE
+
+                id_activo=:id
+
+                AND tipo='TRASLADO'
+
+                AND estado='Aprobada'
+
+            ORDER BY fecha_aprobacion DESC
+
+            LIMIT 1
+
+        """)
+
+        fila = conn.execute(
+
+            sql,
+
+            {"id": id_activo}
+
+        ).mappings().first()
+
+        if not fila:
+
+            raise Exception(
+
+                "No existe un traslado aprobado para este activo."
+
+            )
+
+        confirmar_recepcion(
+
+            conn,
+
+            id_activo,
+
+            fila["ubicacion_destino"]
+
+        )
+
+        registrar_movimiento(
+
+            usuario=usuario,
+
+            accion="Confirmó recepción del activo",
+
+            modulo="Maquinaria",
+
+            referencia=id_activo,
+
+            conn=conn
+
+        )
+
+def finalizar_mantenimiento_activo(id_activo, usuario):
+
+    with engine.begin() as conn:
+
+        finalizar_mantenimiento(
+
+            conn,
+
+            id_activo
+
+        )
+
+        registrar_movimiento(
+
+            usuario=usuario,
+
+            accion="Finalizó mantenimiento del activo",
+
+            modulo="Maquinaria",
+
+            referencia=id_activo,
+
+            conn=conn
+
+        )

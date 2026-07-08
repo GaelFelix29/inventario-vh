@@ -1,10 +1,15 @@
 import pandas as pd
 
 from sqlalchemy import text
-from database.maquinarias import baja_desde_solicitud
 from models.auditoria_model import registrar_movimiento
 
 from database.conexion import engine
+
+from database.maquinarias import (
+    baja_desde_solicitud,
+    traslado_desde_solicitud,
+    mantenimiento_desde_solicitud
+)
 
 
 # ======================================================
@@ -19,9 +24,13 @@ def guardar_solicitud(datos):
 
             id_activo,
             solicitante,
+            tipo,
             motivo,
             observaciones,
-            prioridad
+            prioridad,
+            ubicacion_destino,
+            proveedor_mantenimiento,
+            fecha_estimada_fin
 
         )
 
@@ -29,9 +38,13 @@ def guardar_solicitud(datos):
 
             :id_activo,
             :solicitante,
+            :tipo,
             :motivo,
             :observaciones,
-            :prioridad
+            :prioridad,
+            :ubicacion_destino,
+            :proveedor_mantenimiento,
+            :fecha_estimada_fin
 
         )
 
@@ -154,7 +167,7 @@ def aprobar_solicitud(id, administrador, comentario):
         })
 
         # ==========================================
-        # 3. OBTENER DATOS PARA DAR DE BAJA
+        # 3. OBTENER DATOS DE LA SOLICITUD
         # ==========================================
 
         sql_select = text("""
@@ -163,7 +176,9 @@ def aprobar_solicitud(id, administrador, comentario):
 
                 id_activo,
 
-                motivo
+                motivo,
+
+                tipo
 
             FROM solicitudes_baja
 
@@ -180,28 +195,64 @@ def aprobar_solicitud(id, administrador, comentario):
         ).fetchone()
 
         # ==========================================
-        # 4. DAR DE BAJA EL ACTIVO
+        # 4. PROCESAR SEGÚN EL TIPO DE SOLICITUD
         # ==========================================
 
         if fila:
 
-            baja_desde_solicitud(
+            if fila.tipo == "BAJA":
 
-                conn,
+                baja_desde_solicitud(
 
-                fila.id_activo,
+                    conn,
 
-                fila.motivo,
+                    fila.id_activo,
 
-                administrador
+                    fila.motivo,
 
-            )
+                    administrador
+
+                )
+
+                accion = "Aprobó solicitud de baja"
+
+            elif fila.tipo == "TRASLADO":
+
+                traslado_desde_solicitud(
+
+                    conn,
+
+                    fila.id_activo
+
+                )
+
+                accion = "Aprobó solicitud de traslado"
+
+            elif fila.tipo == "MANTENIMIENTO":
+
+                mantenimiento_desde_solicitud(
+
+                    conn,
+
+                    fila.id_activo
+
+                )
+
+                accion = "Aprobó solicitud de mantenimiento"
+
+            else:
+
+                raise Exception("Tipo de solicitud no válido.")
+
+            # ==========================================
+            # 5. AUDITORÍA
+            # ==========================================
 
             registrar_movimiento(
 
                 usuario=administrador,
 
-                accion="Aprobó solicitud de baja",
+                accion=accion,
 
                 modulo="Solicitudes",
 

@@ -83,7 +83,10 @@ from database.maquinarias import (
     obtener_maquinaria_detalle,
     obtener_activos_vecinos,
     obtener_estadisticas_maquinarias,
-    obtener_ubicaciones
+    obtener_ubicaciones,
+    finalizar_mantenimiento,
+    confirmar_recepcion_activo,
+    finalizar_mantenimiento_activo
 )
 
 from database.aduanas import (
@@ -921,8 +924,8 @@ def solicitud_baja(id_activo):
     if existe_solicitud_pendiente(id_activo):
 
         flash(
-            "Este activo ya cuenta con una solicitud de baja pendiente.",
-            "warning"
+        "Este activo ya cuenta con una solicitud pendiente.",
+        "warning"
         )
 
         return redirect(
@@ -934,25 +937,44 @@ def solicitud_baja(id_activo):
 
     datos = {
 
-        "id_activo": id_activo,
+    "id_activo": id_activo,
 
-        "solicitante": session["nombre"],
+    "solicitante": session["nombre"],
 
-        "motivo": request.form["motivo"],
+    "tipo": request.form["tipo"],
 
-        "observaciones": request.form["observaciones"],
+    "motivo": request.form["motivo"],
 
-        "prioridad": request.form["prioridad"]
+    "observaciones": request.form["observaciones"],
 
-    }
+    "prioridad": request.form["prioridad"],
+
+    "ubicacion_destino": request.form.get("ubicacion_destino") or None,
+
+    "proveedor_mantenimiento": request.form.get("proveedor_mantenimiento") or None,
+
+    "fecha_estimada_fin": request.form.get("fecha_estimada_fin") or None
+}
 
     guardar_solicitud(datos)
+
+    tipo = request.form["tipo"]
+
+    acciones = {
+
+    "BAJA": "Solicitó baja del activo",
+
+    "TRASLADO": "Solicitó traslado del activo",
+
+    "MANTENIMIENTO": "Solicitó mantenimiento del activo"
+
+}
 
     registrar_movimiento(
 
         usuario=session["nombre"],
 
-        accion="Solicitó baja del activo",
+        accion=acciones[tipo],
 
         modulo="Maquinaria",
 
@@ -1615,6 +1637,98 @@ def eliminar_respaldo(nombre):
     return jsonify({
         "ok": False
     }),404
+
+@app.route("/maquinarias/<id_activo>/confirmar-recepcion", methods=["POST"])
+@login_required
+def confirmar_recepcion_route(id_activo):
+
+    if session.get("rol") != "Administrador":
+
+        flash(
+            "No tiene permisos para realizar esta acción.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "expediente_maquinaria",
+                id_activo=id_activo
+            )
+        )
+
+    confirmar_recepcion_activo(
+
+        id_activo,
+
+        session["nombre"]
+
+    )
+
+    flash(
+
+        "La maquinaria fue recibida correctamente.",
+
+        "success"
+
+    )
+
+    return redirect(
+
+        url_for(
+
+            "expediente_maquinaria",
+
+            id_activo=id_activo
+
+        )
+
+    )
+
+@app.route("/maquinarias/<id_activo>/finalizar-mantenimiento", methods=["POST"])
+@login_required
+def finalizar_mantenimiento_route(id_activo):
+
+    if session.get("rol") != "Administrador":
+
+        flash(
+            "No tiene permisos para realizar esta acción.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "expediente_maquinaria",
+                id_activo=id_activo
+            )
+        )
+
+    finalizar_mantenimiento_activo(
+
+        id_activo,
+
+        session["nombre"]
+
+    )
+
+    flash(
+
+        "El mantenimiento fue finalizado correctamente.",
+
+        "success"
+
+    )
+
+    return redirect(
+
+        url_for(
+
+            "expediente_maquinaria",
+
+            id_activo=id_activo
+
+        )
+
+    )
 
 # ==========================================================
 # SERVIDOR
