@@ -1386,7 +1386,11 @@ def subir_documento(id_activo):
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
+    # Nombre del archivo (con extensión)
     nombre_archivo = f"{id_activo}_{timestamp}_{nombre_seguro}"
+
+    # Nombre sin extensión para Cloudinary
+    nombre_base = os.path.splitext(nombre_archivo)[0]
 
     try:
 
@@ -1396,12 +1400,18 @@ def subir_documento(id_activo):
         print("Archivo:", nombre_original)
 
         resultado = cloudinary.uploader.upload(
-        archivo,
-        resource_type="auto",
-        folder=f"documentos/{id_activo}",
-        public_id=nombre_archivo,
-        overwrite=False
-)
+
+            archivo,
+
+            resource_type="auto",
+
+            folder=f"documentos/{id_activo}",
+
+            public_id=nombre_base,
+
+            overwrite=False
+
+        )
 
         print("RESULTADO:")
         print(resultado)
@@ -1414,7 +1424,7 @@ def subir_documento(id_activo):
 
             nombre_archivo=nombre_archivo,
 
-            tipo=os.path.splitext(nombre_archivo)[1],
+            tipo=os.path.splitext(nombre_original)[1],
 
             url=resultado["secure_url"],
 
@@ -1432,7 +1442,7 @@ def subir_documento(id_activo):
             "success"
         )
 
-    except Exception as e:
+    except Exception:
 
         import traceback
 
@@ -1442,7 +1452,7 @@ def subir_documento(id_activo):
         print("=" * 70)
 
         flash(
-            f"Error: {str(e)}",
+            "Ocurrió un error al subir el documento.",
             "danger"
         )
 
