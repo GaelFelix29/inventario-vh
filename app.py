@@ -1391,48 +1391,33 @@ def subir_documento(id_activo):
 
     nombre_archivo = f"{id_activo}_{timestamp}_{nombre_seguro}"
 
-    nombre_base = os.path.splitext(nombre_archivo)[0]
-
     try:
 
         print("=" * 70)
-        print("INICIANDO SUBIDA A CLOUDINARY")
+        print("INICIANDO SUBIDA A SUPABASE")
         print("Activo:", id_activo)
         print("Archivo:", nombre_original)
 
-        resultado = cloudinary.uploader.upload(
-        archivo,
-        resource_type="auto",
-        folder=f"documentos/{id_activo}",
-        public_id=nombre_archivo,
-        overwrite=False
-    )
+        archivo_bytes = archivo.read()
 
-        print(resultado)
+        ruta = f"{id_activo}/{nombre_archivo}"
 
-        print("======================================")
-        print("SECURE URL:", resultado["secure_url"])
-        print("PUBLIC ID:", resultado["public_id"])
-        print("RESOURCE TYPE:", resultado["resource_type"])
-        print("FORMAT:", resultado["format"])
-
-        if "url" in resultado:
-            print("URL:", resultado["url"])
-
-        print("======================================")
-
-        # ESTA ES LA URL QUE VAMOS A GUARDAR
-        url_pdf, _ = cloudinary_url(
-
-            resultado["public_id"],
-
-            resource_type="image",
-
-            format="pdf",
-
-            secure=True
-
+        supabase.storage.from_("documentos").upload(
+            path=ruta,
+            file=archivo_bytes,
+            file_options={
+                "content-type": archivo.content_type,
+                "upsert": "false"
+            }
         )
+
+        url_pdf = supabase.storage.from_("documentos").get_public_url(ruta)
+
+        print("=" * 70)
+        print("DOCUMENTO SUBIDO A SUPABASE")
+        print("RUTA:", ruta)
+        print("URL:", url_pdf)
+        print("=" * 70)
 
         guardar_documento_bd(
 
@@ -1446,7 +1431,7 @@ def subir_documento(id_activo):
 
             url=url_pdf,
 
-            public_id=resultado["public_id"],
+            public_id=ruta,
 
             usuario=session["nombre"]
 
@@ -1459,14 +1444,16 @@ def subir_documento(id_activo):
             "success"
         )
 
-    except Exception:
+    except Exception as e:
 
         import traceback
 
         traceback.print_exc()
 
+        print("ERROR:", e)
+
         flash(
-            "Ocurrió un error al subir el documento.",
+            f"Ocurrió un error al subir el documento: {e}",
             "danger"
         )
 
