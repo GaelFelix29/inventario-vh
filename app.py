@@ -11,6 +11,7 @@ from flask import (
 
 import cloudinary_config
 import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
 import cloudinary.api
 
 from flask import send_from_directory
@@ -1386,10 +1387,8 @@ def subir_documento(id_activo):
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # Nombre del archivo (con extensión)
     nombre_archivo = f"{id_activo}_{timestamp}_{nombre_seguro}"
 
-    # Nombre sin extensión para Cloudinary
     nombre_base = os.path.splitext(nombre_archivo)[0]
 
     try:
@@ -1403,7 +1402,7 @@ def subir_documento(id_activo):
 
             archivo,
 
-            resource_type="auto",
+            resource_type="image",
 
             folder=f"documentos/{id_activo}",
 
@@ -1413,8 +1412,20 @@ def subir_documento(id_activo):
 
         )
 
-        print("RESULTADO:")
         print(resultado)
+
+        # ESTA ES LA URL QUE VAMOS A GUARDAR
+        url_pdf, _ = cloudinary_url(
+
+            resultado["public_id"],
+
+            resource_type="image",
+
+            format="pdf",
+
+            secure=True
+
+        )
 
         guardar_documento_bd(
 
@@ -1426,7 +1437,7 @@ def subir_documento(id_activo):
 
             tipo=os.path.splitext(nombre_original)[1],
 
-            url=resultado["secure_url"],
+            url=url_pdf,
 
             public_id=resultado["public_id"],
 
@@ -1435,7 +1446,6 @@ def subir_documento(id_activo):
         )
 
         print("DOCUMENTO GUARDADO EN MYSQL")
-        print("=" * 70)
 
         flash(
             "Documento subido correctamente.",
@@ -1446,10 +1456,7 @@ def subir_documento(id_activo):
 
         import traceback
 
-        print("=" * 70)
-        print("ERROR AL SUBIR DOCUMENTO")
         traceback.print_exc()
-        print("=" * 70)
 
         flash(
             "Ocurrió un error al subir el documento.",

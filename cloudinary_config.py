@@ -1,6 +1,7 @@
 import os
 import cloudinary
 from dotenv import load_dotenv
+from cloudinary.utils import cloudinary_url
 
 load_dotenv()
 
