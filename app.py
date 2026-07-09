@@ -9,6 +9,8 @@ from flask import (
     flash
 )
 
+from supabase_config import supabase
+
 import cloudinary_config
 import cloudinary.uploader
 from cloudinary.utils import cloudinary_url
@@ -1804,6 +1806,8 @@ def borrar_documento(id_documento):
             id_activo=doc["id_activo"]
         )
     )
+
+
 
 # ==========================================================
 # SERVIDOR
