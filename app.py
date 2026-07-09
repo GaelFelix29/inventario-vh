@@ -1399,20 +1399,25 @@ def subir_documento(id_activo):
         print("Archivo:", nombre_original)
 
         resultado = cloudinary.uploader.upload(
-
-            archivo,
-
-            resource_type="image",
-
-            folder=f"documentos/{id_activo}",
-
-            public_id=nombre_base,
-
-            overwrite=False
-
-        )
+        archivo,
+        resource_type="auto",
+        folder=f"documentos/{id_activo}",
+        public_id=nombre_archivo,
+        overwrite=False
+    )
 
         print(resultado)
+
+        print("======================================")
+        print("SECURE URL:", resultado["secure_url"])
+        print("PUBLIC ID:", resultado["public_id"])
+        print("RESOURCE TYPE:", resultado["resource_type"])
+        print("FORMAT:", resultado["format"])
+
+        if "url" in resultado:
+            print("URL:", resultado["url"])
+
+        print("======================================")
 
         # ESTA ES LA URL QUE VAMOS A GUARDAR
         url_pdf, _ = cloudinary_url(
