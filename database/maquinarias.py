@@ -203,7 +203,6 @@ def actualizar_maquinaria(datos):
     with engine.begin() as conn:
 
         conn.execute(sql, datos)
-        conn.execute(sql, datos)
 
     
 def baja_desde_solicitud(conn, id_activo, motivo, responsable):
@@ -601,3 +600,29 @@ def finalizar_mantenimiento_activo(id_activo, usuario):
             conn=conn
 
         )
+
+# ==========================================
+# OBTENER DOCUMENTO
+# ==========================================
+
+def obtener_documento(id_documento):
+
+    sql = text("""
+
+        SELECT *
+
+        FROM documentos_maquinaria
+
+        WHERE id = :id
+
+    """)
+
+    with engine.connect() as conn:
+
+        return conn.execute(
+
+            sql,
+
+            {"id": id_documento}
+
+        ).mappings().first()

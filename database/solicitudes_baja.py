@@ -268,25 +268,44 @@ def aprobar_solicitud(id, administrador, comentario):
 
 def rechazar_solicitud(id, administrador, comentario):
 
-    sql = text("""
-
-        UPDATE solicitudes_baja
-
-        SET
-
-            estado='Rechazada',
-
-            aprobado_por=:admin,
-
-            comentario_admin=:comentario,
-
-            fecha_aprobacion=NOW()
-
-        WHERE id=:id
-
-    """)
-
     with engine.begin() as conn:
+
+        # Obtener el activo antes de actualizar
+        sql = text("""
+
+            SELECT id_activo
+
+            FROM solicitudes_baja
+
+            WHERE id=:id
+
+        """)
+
+        fila = conn.execute(
+
+            sql,
+
+            {"id": id}
+
+        ).mappings().first()
+
+        sql = text("""
+
+            UPDATE solicitudes_baja
+
+            SET
+
+                estado='Rechazada',
+
+                aprobado_por=:admin,
+
+                comentario_admin=:comentario,
+
+                fecha_aprobacion=NOW()
+
+            WHERE id=:id
+
+        """)
 
         conn.execute(sql, {
 
@@ -297,6 +316,22 @@ def rechazar_solicitud(id, administrador, comentario):
             "id": id
 
         })
+
+        if fila:
+
+            registrar_movimiento(
+
+                usuario=administrador,
+
+                accion="Rechazó solicitud",
+
+                modulo="Solicitudes",
+
+                referencia=fila["id_activo"],
+
+                conn=conn
+
+            )
 
 
 def obtener_solicitud(id):

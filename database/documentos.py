@@ -168,3 +168,25 @@ def eliminar_documento(id_documento):
         )
 
     return doc
+
+def obtener_documento(id_documento):
+
+    sql = text("""
+
+        SELECT *
+
+        FROM documentos_maquinaria
+
+        WHERE id = :id
+
+    """)
+
+    with engine.connect() as conn:
+
+        return conn.execute(
+
+            sql,
+
+            {"id": id_documento}
+
+        ).mappings().first()

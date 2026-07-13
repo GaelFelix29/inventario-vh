@@ -11,10 +11,7 @@ from flask import (
 
 from supabase_config import supabase
 
-import cloudinary_config
-import cloudinary.uploader
-from cloudinary.utils import cloudinary_url
-import cloudinary.api
+from database.documentos import obtener_documento
 
 from flask import send_from_directory
 
@@ -221,6 +218,16 @@ def login():
 @login_required
 def logout():
 
+    registrar_movimiento(
+
+        usuario=session["nombre"],
+
+        accion="Cerró sesión",
+
+        modulo="Login"
+
+    )
+
     session.clear()
 
     flash(
@@ -305,6 +312,18 @@ def nuevo_usuario():
             request.form["rol"]
 
         )
+        
+        registrar_movimiento(
+
+    usuario=session["nombre"],
+
+    accion=f"Creó el usuario: {request.form['usuario']}",
+
+    modulo="Usuarios",
+
+    referencia=str(request.form["usuario"])
+
+)
 
         flash(
             "Usuario creado correctamente.",
@@ -347,6 +366,18 @@ def editar_usuario(id):
             int(request.form["activo"])
 
         )
+        
+        registrar_movimiento(
+
+    usuario=session["nombre"],
+
+    accion=f"Actualizó el usuario: {request.form['usuario']}",
+
+    modulo="Usuarios",
+
+    referencia=str(id)
+
+)
 
         if request.form["password"] != "":
 
@@ -356,6 +387,18 @@ def editar_usuario(id):
                 request.form["password"]
 
             )
+            
+        registrar_movimiento(
+
+    usuario=session["nombre"],
+
+    accion=f"Cambió la contraseña del usuario: {request.form['usuario']}",
+
+    modulo="Usuarios",
+
+    referencia=str(id)
+
+)   
 
         flash(
             "Usuario actualizado correctamente.",
@@ -379,6 +422,20 @@ def editar_usuario(id):
 def desactivar(id):
 
     desactivar_usuario(id)
+    
+    usuario = obtener_usuario_id(id)
+
+    registrar_movimiento(
+
+    usuario=session["nombre"],
+
+    accion=f"Desactivó el usuario: {usuario.usuario}",
+
+    modulo="Usuarios",
+
+    referencia=str(id)
+
+)
 
     flash(
         "Usuario desactivado correctamente.",
@@ -397,6 +454,20 @@ def desactivar(id):
 def reactivar_usuario_route(id):
 
     reactivar_usuario(id)
+    
+    usuario = obtener_usuario_id(id)
+
+    registrar_movimiento(
+
+    usuario=session["nombre"],
+
+    accion=f"Reactivó el usuario: {usuario.usuario}",
+
+    modulo="Usuarios",
+
+    referencia=str(id)
+
+)
 
     flash(
         "Usuario reactivado correctamente.",
@@ -1183,12 +1254,23 @@ def editar_aduana(id_activo):
             request.form["inbond"],
             request.form["origen"],
             request.form["fecha_importacion"],
-
             request.form.get("kg_bruto"),
             request.form.get("total_bultos"),
             request.form.get("documentacion_completa")
 
         )
+        
+        registrar_movimiento(
+
+        usuario=session["nombre"],
+
+        accion="Actualizó expediente aduanal",
+
+        modulo="Aduanas",
+
+        referencia=id_activo
+
+)
 
         flash(
             "Expediente guardado correctamente.",
@@ -1259,6 +1341,7 @@ def nueva_aduana():
     if request.method == "POST":
 
         guardar_aduana(
+
             request.form["id_activo"],
             request.form["factura"],
             request.form["pedimento"],
@@ -1266,8 +1349,23 @@ def nueva_aduana():
             request.form["id_imp"],
             request.form["inbond"],
             request.form["origen"],
-            request.form["fecha_importacion"]
-        )
+            request.form["fecha_importacion"],
+            request.form.get("kg_bruto"),
+            request.form.get("total_bultos"),
+            request.form.get("documentacion_completa")
+)
+        
+        registrar_movimiento(
+
+    usuario=session["nombre"],
+
+    accion="Creó expediente aduanal",
+
+    modulo="Aduanas",
+
+    referencia=request.form["id_activo"]
+
+)
 
         flash(
             "Expediente aduanal actualizado correctamente.",
@@ -1444,6 +1542,18 @@ def subir_documento(id_activo):
             usuario=session["nombre"]
 
         )
+        
+        registrar_movimiento(
+
+    usuario=session["nombre"],
+
+    accion=f"Subió documento: {nombre_original}",
+
+    modulo="Documentación",
+
+    referencia=id_activo
+
+)
 
         print("DOCUMENTO GUARDADO EN MYSQL")
 
@@ -1591,6 +1701,15 @@ def crear_respaldo_ajax():
     try:
 
         archivo = crear_respaldo()
+        
+        registrar_movimiento(
+
+        usuario=session["nombre"],
+
+        accion=f"Generó respaldo: {archivo}",
+
+        modulo="Respaldos"
+    )
 
         return jsonify({
 
@@ -1646,6 +1765,16 @@ def eliminar_respaldo(nombre):
     if os.path.exists(ruta):
 
         os.remove(ruta)
+        
+        registrar_movimiento(
+
+    usuario=session["nombre"],
+
+    accion=f"Eliminó respaldo: {nombre}",
+
+    modulo="Respaldos"
+
+)
 
         return jsonify({
             "ok": True
@@ -1760,7 +1889,8 @@ def borrar_documento(id_documento):
 
         return redirect(request.referrer or url_for("lista_maquinarias"))
 
-    doc = eliminar_documento(id_documento)
+    # Obtener información del documento
+    doc = obtener_documento(id_documento)
 
     if not doc:
 
@@ -1771,38 +1901,59 @@ def borrar_documento(id_documento):
 
         return redirect(request.referrer or url_for("lista_maquinarias"))
 
+    # Eliminar archivo de Supabase
     try:
 
         if doc["public_id"]:
 
-            cloudinary.uploader.destroy(
-                doc["public_id"],
-                resource_type="raw"
+            print("PUBLIC ID:", repr(doc["public_id"]))
+
+            respuesta = supabase.storage.from_("documentos").remove(
+
+                [doc["public_id"]]
+
             )
+
+            print("RESPUESTA SUPABASE:", respuesta)
 
     except Exception as e:
 
-        print("Error eliminando en Cloudinary:", e)
+        print("ERROR SUPABASE:", e)
 
+    # Eliminar registro de MySQL
+    eliminar_documento(id_documento)
+
+    # Auditoría
     registrar_movimiento(
 
         usuario=session["nombre"],
+
         accion="Eliminó documento",
+
         modulo="Documentación",
+
         referencia=doc["id_activo"]
 
     )
 
     flash(
+
         "Documento eliminado correctamente.",
+
         "success"
+
     )
 
     return redirect(
+
         url_for(
+
             "expediente_maquinaria",
+
             id_activo=doc["id_activo"]
+
         )
+
     )
 
 
