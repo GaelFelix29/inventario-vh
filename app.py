@@ -1402,22 +1402,30 @@ def subir_documento(id_activo):
 
         ruta = f"{id_activo}/{nombre_archivo}"
 
-        supabase.storage.from_("documentos").upload(
+        respuesta = supabase.storage.from_("documentos").upload(
             path=ruta,
             file=archivo_bytes,
             file_options={
                 "content-type": archivo.content_type,
-                "upsert": "false"
+                "upsert": False
             }
         )
+
+        print("RESPUESTA UPLOAD:")
+        print(respuesta)
 
         url_pdf = supabase.storage.from_("documentos").get_public_url(ruta)
 
         print("=" * 70)
-        print("DOCUMENTO SUBIDO A SUPABASE")
-        print("RUTA:", ruta)
+        print("TIPO URL:", type(url_pdf))
         print("URL:", url_pdf)
         print("=" * 70)
+
+        # Compatibilidad con distintas versiones del SDK
+        if isinstance(url_pdf, dict):
+            url_guardar = url_pdf.get("publicUrl") or url_pdf.get("public_url")
+        else:
+            url_guardar = url_pdf
 
         guardar_documento_bd(
 
@@ -1429,7 +1437,7 @@ def subir_documento(id_activo):
 
             tipo=os.path.splitext(nombre_original)[1],
 
-            url=url_pdf,
+            url=url_guardar,
 
             public_id=ruta,
 
@@ -1450,7 +1458,10 @@ def subir_documento(id_activo):
 
         traceback.print_exc()
 
-        print("ERROR:", e)
+        print("=" * 70)
+        print("ERROR SUBIENDO DOCUMENTO")
+        print(e)
+        print("=" * 70)
 
         flash(
             f"Ocurrió un error al subir el documento: {e}",

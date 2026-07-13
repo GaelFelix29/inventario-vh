@@ -623,6 +623,12 @@ body{
 
 .progreso-aduana{
     width: var(--progreso);
+
+    background:linear-gradient(90deg,#00c853,#00e676);
+
+    border-radius:30px;
+
+    transition:1.2s;
 }
 
 /*=========================
@@ -1513,5 +1519,543 @@ SELECT2 - BUSCADOR PRINCIPAL
 .select2-container--bootstrap-5.select2-container--focus .select2-selection{
 
     box-shadow:0 0 0 .2rem rgba(25,135,84,.15);
+
+}
+
+/*=====================================================
+            TARJETA ADUANAL V2
+=====================================================*/
+
+.aduana-card{
+
+    border-radius:28px;
+    overflow:hidden;
+    background:#fff;
+    transition:.35s;
+}
+
+.aduana-card:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:0 20px 45px rgba(0,0,0,.12);
+
+}
+
+
+/*=====================================================
+
+HEADER
+
+=====================================================*/
+
+.aduana-header{
+
+    background:linear-gradient(135deg,#0f9d58,#198754);
+
+    color:#fff;
+
+}
+
+.aduana-header h2{
+
+    font-weight:700;
+
+}
+
+.aduana-header p{
+
+    opacity:.9;
+
+    margin:0;
+
+}
+
+.aduana-icon{
+
+    width:90px;
+
+    height:90px;
+
+    border-radius:24px;
+
+    background:rgba(255,255,255,.15);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:42px;
+
+}
+
+
+/*=====================================================
+
+CIRCULO %
+
+=====================================================*/
+
+.porcentaje-circle{
+
+    width:120px;
+
+    height:120px;
+
+    border-radius:50%;
+
+    background:#fff;
+
+    color:#198754;
+
+    font-weight:700;
+
+    font-size:32px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border:8px solid rgba(255,255,255,.35);
+
+    box-shadow:0 12px 25px rgba(0,0,0,.18);
+
+}
+
+
+/*=====================================================
+
+PROGRESO
+
+=====================================================*/
+
+
+/*=====================================================
+
+ESTADO
+
+=====================================================*/
+
+.estado-card{
+
+    background:#fafafa;
+
+    border-radius:25px;
+
+    padding:35px;
+
+    text-align:center;
+
+    border:1px solid #e7e7e7;
+
+    height:100%;
+
+}
+
+.estado-card h2{
+
+    margin-top:20px;
+
+    margin-bottom:15px;
+
+}
+
+.estado-card p{
+
+    color:#6c757d;
+
+}
+
+
+/*=====================================================
+
+ICONO GRANDE
+
+=====================================================*/
+
+.estado-icon{
+
+    width:130px;
+
+    height:130px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:64px;
+
+}
+
+.estado-icon.success{
+
+    background:#d1fae5;
+
+    color:#198754;
+
+}
+
+.estado-icon.warning{
+
+    background:#fff3cd;
+
+    color:#f59e0b;
+
+}
+
+.estado-icon.danger{
+
+    background:#fde2e2;
+
+    color:#dc3545;
+
+}
+
+
+/*=====================================================
+
+MINI CARDS
+
+=====================================================*/
+
+.mini-card{
+
+    border-radius:20px;
+
+    padding:18px;
+
+    text-align:center;
+
+    background:white;
+
+    border:2px solid #eee;
+
+    transition:.30s;
+
+}
+
+.mini-card:hover{
+
+    transform:translateY(-6px);
+
+}
+
+.mini-card h2{
+
+    margin:0;
+
+    font-size:40px;
+
+    font-weight:700;
+
+}
+
+.mini-card small{
+
+    font-size:15px;
+
+}
+
+.mini-card.success{
+
+    border-color:#c7f3d5;
+
+}
+
+.mini-card.success h2{
+
+    color:#198754;
+
+}
+
+.mini-card.warning{
+
+    border-color:#ffe39c;
+
+}
+
+.mini-card.warning h2{
+
+    color:#f0ad00;
+
+}
+
+.mini-card.primary{
+
+    border-color:#b7d4ff;
+
+}
+
+.mini-card.primary h2{
+
+    color:#0d6efd;
+
+}
+
+
+/*=====================================================
+
+DATOS
+
+=====================================================*/
+
+.dato-card{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+    background:#fff;
+
+    border-radius:20px;
+
+    padding:22px;
+
+    border:1px solid #e8e8e8;
+
+    transition:.30s;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.05);
+
+}
+
+.dato-card:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:0 12px 30px rgba(0,0,0,.10);
+
+}
+
+.dato-card i{
+
+    width:65px;
+
+    height:65px;
+
+    border-radius:18px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:#e9f7ef;
+
+    color:#198754;
+
+    font-size:28px;
+
+}
+
+.dato-card small{
+
+    display:block;
+
+    color:#6c757d;
+
+    margin-bottom:4px;
+
+}
+
+.dato-card h5{
+
+    margin:0;
+
+    font-weight:700;
+
+    font-size:23px;
+
+}
+
+
+/*=====================================================
+
+ALERTA
+
+=====================================================*/
+
+.aduana-card .alert{
+
+    padding:22px;
+
+    font-size:17px;
+
+    border-radius:20px;
+
+}
+
+
+/*=====================================================
+
+RESPONSIVE
+
+=====================================================*/
+
+@media(max-width:991px){
+
+    .porcentaje-circle{
+
+        margin:auto;
+
+        margin-top:25px;
+
+    }
+
+    .estado-card{
+
+        margin-bottom:20px;
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    .dato-card{
+
+        padding:18px;
+
+    }
+
+    .dato-card h5{
+
+        font-size:19px;
+
+    }
+
+    .estado-icon{
+
+        width:100px;
+
+        height:100px;
+
+        font-size:48px;
+
+    }
+
+}
+
+/*=====================================================
+
+ANIMACIONES
+
+=====================================================*/
+
+@keyframes fadeUp{
+
+    from{
+
+        opacity:0;
+        transform:translateY(25px);
+
+    }
+
+    to{
+
+        opacity:1;
+        transform:translateY(0);
+
+    }
+
+}
+
+.aduana-card{
+
+    animation:fadeUp .7s ease;
+
+}
+
+/* Barra animada */
+
+.progreso-aduana{
+
+    position:relative;
+    overflow:hidden;
+
+}
+
+.progreso-aduana::after{
+
+    content:"";
+
+    position:absolute;
+
+    top:0;
+
+    left:-120%;
+
+    width:70%;
+
+    height:100%;
+
+    background:linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,.45),
+        transparent
+    );
+
+    animation:shine 2.5s infinite;
+
+}
+
+@keyframes shine{
+
+    100%{
+
+        left:140%;
+
+    }
+
+}
+
+/* Iconos */
+
+.dato-card i{
+
+    transition:.35s;
+
+}
+
+.dato-card:hover i{
+
+    transform:rotate(-8deg) scale(1.15);
+
+}
+
+/* Circulo */
+
+.porcentaje-circle{
+
+    transition:.35s;
+
+}
+
+.porcentaje-circle:hover{
+
+    transform:scale(1.08);
+
+}
+
+/* Tarjetas */
+
+.dato-card,
+.mini-card{
+
+    animation:fadeUp .7s ease;
 
 }
