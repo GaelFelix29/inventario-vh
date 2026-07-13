@@ -1128,97 +1128,95 @@
 
         </div>
 
-        <hr class="my-4">
+<div class="mt-5">
 
-        <div class="row align-items-center py-3">
+    <div class="row align-items-center g-3">
 
-            <div class="col-lg-9">
+        <div class="col-lg-8">
 
-                {% if estado_aduana.estado=="Completo" %}
+            {% if estado_aduana.estado=="Completo" %}
 
-                <div class="alert alert-success border-0 rounded-4 mb-0">
+            <div class="alert alert-success border-0 rounded-4 mb-0">
 
-                    <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center">
 
-                        <i class="bi bi-check-circle-fill fs-2 me-3"></i>
+                    <i class="bi bi-check-circle-fill fs-2 me-3"></i>
 
-                        <div>
+                    <div>
 
-                            <strong>Expediente validado correctamente</strong><br>
+                        <strong>Expediente validado correctamente</strong><br>
 
-                            <small>
-
-                                Toda la información aduanal se encuentra completa.
-
-                            </small>
-
-                        </div>
+                        <small>
+                            Toda la información aduanal se encuentra completa.
+                        </small>
 
                     </div>
 
                 </div>
-
-                {% elif estado_aduana.estado=="Incompleto" %}
-
-                <div class="alert alert-warning border-0 rounded-4 mb-0">
-
-                    <div class="d-flex align-items-center">
-
-                        <i class="bi bi-exclamation-triangle-fill fs-2 me-3"></i>
-
-                        <div>
-
-                            <strong>Faltan {{ estado_aduana.pendientes }} campos.</strong><br>
-
-                            <small>
-
-                                Completa la información para obtener un expediente al 100%.
-
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                {% else %}
-
-                <div class="alert alert-danger border-0 rounded-4 mb-0">
-
-                    <div class="d-flex align-items-center">
-
-                        <i class="bi bi-x-circle-fill fs-2 me-3"></i>
-
-                        <div>
-
-                            <strong>Este activo no tiene expediente.</strong><br>
-
-                            <small>
-
-                                Crea el expediente para comenzar el registro.
-
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                {% endif %}
 
             </div>
 
-            <div class="col-lg-3 d-flex justify-content-end align-items-center">
-                {% if session.get("rol") == "Administrador" %}
+            {% elif estado_aduana.estado=="Incompleto" %}
+
+            <div class="alert alert-warning border-0 rounded-4 mb-0">
+
+                <div class="d-flex align-items-center">
+
+                    <i class="bi bi-exclamation-triangle-fill fs-2 me-3"></i>
+
+                    <div>
+
+                        <strong>
+                            Faltan {{ estado_aduana.pendientes }} campos.
+                        </strong><br>
+
+                        <small>
+                            Completa la información para obtener un expediente al 100%.
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% else %}
+
+            <div class="alert alert-danger border-0 rounded-4 mb-0">
+
+                <div class="d-flex align-items-center">
+
+                    <i class="bi bi-x-circle-fill fs-2 me-3"></i>
+
+                    <div>
+
+                        <strong>Este activo no tiene expediente.</strong><br>
+
+                        <small>
+                            Crea el expediente para comenzar el registro.
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+        <div class="col-lg-4 text-lg-end">
+
+            {% if session.get("rol") == "Administrador" %}
 
                 {% if aduana %}
 
                 <a href="{{ url_for('editar_aduana', id_activo=maquina.id_activo) }}"
-                    class="btn btn-success rounded-pill px-5 shadow-sm">
+                   class="btn btn-success rounded-pill px-4">
 
                     <i class="bi bi-pencil-square"></i>
+
                     Editar Expediente
 
                 </a>
@@ -1226,20 +1224,23 @@
                 {% else %}
 
                 <a href="{{ url_for('nueva_aduana', id=maquina.id_activo) }}"
-                    class="btn btn-success btn-lg rounded-pill px-5">
+                   class="btn btn-success rounded-pill px-4">
 
                     <i class="bi bi-plus-circle"></i>
+
                     Crear Expediente
 
                 </a>
 
                 {% endif %}
 
-                {% endif %}
-
-            </div>
+            {% endif %}
 
         </div>
+
+    </div>
+
+</div>
 
     </div>
 
