@@ -4,33 +4,80 @@
 <head>
 
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{% block titulo %}{% endblock %}</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}?v=5">
+    <title>
+
+        {% block titulo %}
+
+        {% endblock %}
+
+    </title>
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+
+    <!-- Bootstrap -->
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Bootstrap Icons -->
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <!-- DataTables -->
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Select2 -->
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+        rel="stylesheet">
+
+    <!-- CSS del proyecto -->
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/maquinaria.css') }}">
+
 </head>
 
 <body>
+
+    <!-- ===================================== -->
+    <!-- NAVBAR MÓVIL -->
+    <!-- ===================================== -->
+
+    <nav class="navbar navbar-dark bg-success d-lg-none sticky-top shadow-sm">
+
+        <div class="container-fluid">
+
+            <button class="btn text-white border-0" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#menuMovil">
+
+                <i class="bi bi-list fs-2"></i>
+
+            </button>
+
+            <span class="navbar-brand fw-bold mb-0">
+
+                <i class="bi bi-heart-pulse-fill"></i>
+
+                Vital Health
+
+            </span>
+
+        </div>
+
+    </nav>
 
     <div class="d-flex">
 
         <!-- SIDEBAR -->
 
-        <aside class="sidebar">
+        <aside class="sidebar d-none d-lg-flex flex-column">
 
             <h3 class="text-center mb-4">
 
@@ -130,12 +177,141 @@
 
         </aside>
 
+        <!-- ===================================== -->
+        <!-- MENÚ MÓVIL -->
+        <!-- ===================================== -->
+
+        <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="menuMovil">
+
+            <div class="offcanvas-header bg-success text-white">
+
+                <h5 class="mb-0">
+
+                    <i class="bi bi-heart-pulse-fill"></i>
+
+                    Vital Health
+
+                </h5>
+
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas">
+
+                </button>
+
+            </div>
+
+            <div class="offcanvas-body p-0">
+
+                <div class="list-group list-group-flush">
+
+                    <a href="/" class="list-group-item list-group-item-action py-3">
+
+                        <i class="bi bi-house-door-fill me-2 text-success"></i>
+
+                        Inicio
+
+                    </a>
+
+                    <a href="/dashboard" class="list-group-item list-group-item-action py-3">
+
+                        <i class="bi bi-speedometer2 me-2 text-success"></i>
+
+                        Dashboard
+
+                    </a>
+
+                    <a href="/imprimir" class="list-group-item list-group-item-action py-3">
+
+                        <i class="bi bi-qr-code me-2 text-success"></i>
+
+                        Etiquetas QR
+
+                    </a>
+
+                    <a href="/maquinarias" class="list-group-item list-group-item-action py-3">
+
+                        <i class="bi bi-pc-display me-2 text-success"></i>
+
+                        Maquinaria
+
+                    </a>
+
+                    <a href="{{ url_for('lista_aduanas') }}" class="list-group-item list-group-item-action py-3">
+
+                        <i class="bi bi-truck me-2 text-success"></i>
+
+                        Aduanas
+
+                    </a>
+
+                    {% if session["rol"] == "Administrador" %}
+
+                    <a href="{{ url_for('lista_solicitudes_baja') }}"
+                        class="list-group-item list-group-item-action py-3">
+
+                        <i class="bi bi-clipboard-check me-2 text-success"></i>
+
+                        Solicitudes Baja
+
+                    </a>
+
+                    <a href="/usuarios" class="list-group-item list-group-item-action py-3">
+
+                        <i class="bi bi-people me-2 text-success"></i>
+
+                        Usuarios
+
+                    </a>
+
+                    <a href="{{ url_for('vista_respaldos') }}" class="list-group-item list-group-item-action py-3">
+
+                        <i class="bi bi-database-fill-lock me-2 text-success"></i>
+
+                        Respaldos
+
+                    </a>
+
+                    {% endif %}
+
+                </div>
+
+                <div class="border-top mt-4 p-3">
+
+                    <div class="fw-bold">
+
+                        {{ session["nombre"] }}
+
+                    </div>
+
+                    <small class="text-muted">
+
+                        {{ session["rol"] }}
+
+                    </small>
+
+                    <a href="/logout" class="btn btn-outline-danger w-100 mt-3">
+
+                        <i class="bi bi-box-arrow-right"></i>
+
+                        Cerrar sesión
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
         <!-- CONTENIDO -->
 
         <main class="contenido flex-grow-1">
 
-            {% block contenido %}
-            {% endblock %}
+            <div class="container-fluid py-3 py-lg-4 px-2 px-lg-4">
+
+                {% block contenido %}
+                {% endblock %}
+
+            </div>
 
         </main>
 

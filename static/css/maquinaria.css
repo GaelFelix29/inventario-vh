@@ -113,3 +113,27 @@
     transition:.25s;
 
 }
+
+/*=============================
+FILTROS RESPONSIVE
+==============================*/
+
+@media (max-width:991px){
+
+    .card-header{
+
+        padding:1rem;
+
+    }
+
+    .form-select{
+
+        height:48px;
+
+        border-radius:12px;
+
+        font-size:.95rem;
+
+    }
+
+}
