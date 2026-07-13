@@ -183,27 +183,37 @@
 
         <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="menuMovil">
 
-            <div class="offcanvas-header bg-success text-white">
+            <div class="offcanvas-header mobile-header">
 
-                <h5 class="mb-0">
+                <div>
 
-                    <i class="bi bi-heart-pulse-fill"></i>
+                    <h5 class="mobile-logo mb-1">
 
-                    Vital Health
+                        <i class="bi bi-heart-pulse-fill"></i>
 
-                </h5>
+                        Vital Health
+
+                    </h5>
+
+                    <small class="mobile-subtitle">
+
+                        Sistema de Inventario
+
+                    </small>
+
+                </div>
 
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas">
-
                 </button>
 
             </div>
 
-            <div class="offcanvas-body p-0">
+            <div class="offcanvas-body p-0 d-flex flex-column">
 
                 <div class="list-group list-group-flush">
 
-                    <a href="/" class="list-group-item list-group-item-action py-3">
+                    <a href="/"
+                        class="list-group-item list-group-item-action py-3 {% if request.path == '/' %}menu-active{% endif %}">
 
                         <i class="bi bi-house-door-fill me-2 text-success"></i>
 
@@ -211,7 +221,8 @@
 
                     </a>
 
-                    <a href="/dashboard" class="list-group-item list-group-item-action py-3">
+                    <a href="/dashboard"
+                        class="list-group-item list-group-item-action py-3 {% if request.path.startswith('/dashboard') %}menu-active{% endif %}">
 
                         <i class="bi bi-speedometer2 me-2 text-success"></i>
 
@@ -219,7 +230,8 @@
 
                     </a>
 
-                    <a href="/imprimir" class="list-group-item list-group-item-action py-3">
+                    <a href="/imprimir"
+                        class="list-group-item list-group-item-action py-3 {% if request.path.startswith('/imprimir') %}menu-active{% endif %}">
 
                         <i class="bi bi-qr-code me-2 text-success"></i>
 
@@ -227,7 +239,8 @@
 
                     </a>
 
-                    <a href="/maquinarias" class="list-group-item list-group-item-action py-3">
+                    <a href="/maquinarias"
+                        class="list-group-item list-group-item-action py-3 {% if request.path.startswith('/maquinarias') %}menu-active{% endif %}">
 
                         <i class="bi bi-pc-display me-2 text-success"></i>
 
@@ -235,7 +248,8 @@
 
                     </a>
 
-                    <a href="{{ url_for('lista_aduanas') }}" class="list-group-item list-group-item-action py-3">
+                    <a href="{{ url_for('lista_aduanas') }}"
+                        class="list-group-item list-group-item-action py-3 {% if request.path.startswith('/aduanas') %}menu-active{% endif %}">
 
                         <i class="bi bi-truck me-2 text-success"></i>
 
@@ -246,7 +260,7 @@
                     {% if session["rol"] == "Administrador" %}
 
                     <a href="{{ url_for('lista_solicitudes_baja') }}"
-                        class="list-group-item list-group-item-action py-3">
+                        class="list-group-item list-group-item-action py-3 {% if request.path.startswith('/solicitudes-baja') %}menu-active{% endif %}">
 
                         <i class="bi bi-clipboard-check me-2 text-success"></i>
 
@@ -254,7 +268,8 @@
 
                     </a>
 
-                    <a href="/usuarios" class="list-group-item list-group-item-action py-3">
+                    <a href="/usuarios"
+                        class="list-group-item list-group-item-action py-3 {% if request.path.startswith('/usuarios') %}menu-active{% endif %}">
 
                         <i class="bi bi-people me-2 text-success"></i>
 
@@ -262,7 +277,8 @@
 
                     </a>
 
-                    <a href="{{ url_for('vista_respaldos') }}" class="list-group-item list-group-item-action py-3">
+                    <a href="{{ url_for('vista_respaldos') }}"
+                        class="list-group-item list-group-item-action py-3 {% if request.path.startswith('/respaldos') %}menu-active{% endif %}">
 
                         <i class="bi bi-database-fill-lock me-2 text-success"></i>
 
@@ -274,7 +290,7 @@
 
                 </div>
 
-                <div class="border-top mt-4 p-3">
+                <div class="border-top mt-auto p-3 menu-user">
 
                     <div class="fw-bold">
 
@@ -288,9 +304,9 @@
 
                     </small>
 
-                    <a href="/logout" class="btn btn-outline-danger w-100 mt-3">
+                    <a href="/logout" class="btn menu-logout w-100 mt-3">
 
-                        <i class="bi bi-box-arrow-right"></i>
+                        <i class="bi bi-box-arrow-right me-2"></i>
 
                         Cerrar sesión
 

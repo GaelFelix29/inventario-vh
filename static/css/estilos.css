@@ -2107,3 +2107,149 @@ ANIMACIONES
     }
 
 }
+
+/*=========================
+HEADER MENÚ MÓVIL
+==========================*/
+
+.mobile-header{
+
+    background:linear-gradient(135deg,#198754,#20b15a);
+
+    color:#fff;
+
+    padding:22px;
+
+    border-bottom-left-radius:18px;
+
+    border-bottom-right-radius:18px;
+
+}
+
+.mobile-logo{
+
+    font-size:1.35rem;
+
+    font-weight:700;
+
+}
+
+.mobile-logo i{
+
+    margin-right:8px;
+
+}
+
+.mobile-subtitle{
+
+    opacity:.9;
+
+    font-size:.82rem;
+
+    letter-spacing:.5px;
+
+}
+
+/*==================================
+MENÚ MÓVIL
+===================================*/
+
+.offcanvas-body a{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    padding:15px 18px;
+
+    margin-bottom:10px;
+
+    border-radius:14px;
+
+    color:#444;
+
+    font-weight:500;
+
+    text-decoration:none;
+
+    transition:.25s;
+
+}
+
+.offcanvas-body a:hover{
+
+    background:#eef8f2;
+
+    color:#198754;
+
+    transform:translateX(4px);
+
+}
+
+.offcanvas-body a i{
+
+    font-size:1.2rem;
+
+    color:#198754;
+
+}
+
+/*==============================
+BOTÓN CERRAR SESIÓN
+===============================*/
+
+.menu-logout{
+
+    background:#198754;
+
+    color:#fff;
+
+    border:none;
+
+    border-radius:14px;
+
+    padding:12px;
+
+    font-weight:600;
+
+    transition:.25s;
+
+}
+
+.menu-logout:hover{
+
+    background:#157347;
+
+    color:#fff;
+
+}
+
+.menu-logout:active{
+
+    transform:scale(.98);
+
+}
+
+/*==============================
+OPCIÓN ACTIVA DEL MENÚ
+===============================*/
+
+.menu-active{
+
+    background:#e9f8ef !important;
+
+    color:#198754 !important;
+
+    font-weight:700;
+
+    border-left:5px solid #198754;
+
+}
+
+.menu-active i{
+
+    color:#198754 !important;
+
+}
