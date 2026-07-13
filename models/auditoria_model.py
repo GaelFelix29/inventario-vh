@@ -83,3 +83,30 @@ def obtener_historial():
 
         return resultado.mappings().all()
     
+def obtener_historial_activo(id_activo):
+
+    sql = text("""
+
+        SELECT
+
+            fecha,
+            usuario,
+            accion,
+            modulo
+
+        FROM auditoria
+
+        WHERE referencia = :id
+
+        ORDER BY fecha DESC
+
+    """)
+
+    with engine.connect() as conn:
+
+        resultado = conn.execute(
+            sql,
+            {"id": id_activo}
+        )
+
+        return resultado.mappings().all()
