@@ -1958,17 +1958,17 @@ def borrar_documento(id_documento):
         )
 
     )
-
+    
 @app.route("/<id_activo>")
+@login_required
 def redireccion_qr_antiguo(id_activo):
 
     if not id_activo.startswith("ACT-"):
         abort(404)
 
     return redirect(
-        url_for("detalle_maquinaria", id_activo=id_activo)
+        url_for("expediente_maquinaria", id_activo=id_activo)
     )
-
 
 # ==========================================================
 # SERVIDOR
