@@ -9,6 +9,9 @@ from flask import (
     flash
 )
 
+from flask import redirect, url_for, abort
+import re
+
 from supabase_config import supabase
 
 from database.documentos import obtener_documento
@@ -1956,6 +1959,15 @@ def borrar_documento(id_documento):
 
     )
 
+@app.route("/<id_activo>")
+def redireccion_qr_antiguo(id_activo):
+
+    if not id_activo.startswith("ACT-"):
+        abort(404)
+
+    return redirect(
+        url_for("detalle_maquinaria", id_activo=id_activo)
+    )
 
 
 # ==========================================================
