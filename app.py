@@ -6,7 +6,7 @@ from flask import (
     redirect,
     url_for,
     session,
-    flash
+    flash,
 )
 
 from flask import redirect, url_for, abort
@@ -32,17 +32,14 @@ from database.conexion import engine
 from functools import wraps
 from datetime import date
 
-from models.auditoria_model import (
-    registrar_movimiento,
-    obtener_historial_activo
-)
+from models.auditoria_model import registrar_movimiento, obtener_historial_activo
 
 from database.documentos import (
     RUTA_DOCUMENTOS,
     crear_carpeta_activo,
     guardar_documento_bd,
     listar_documentos,
-    eliminar_documento
+    eliminar_documento,
 )
 
 from database.solicitudes_baja import (
@@ -52,7 +49,7 @@ from database.solicitudes_baja import (
     obtener_pendientes,
     aprobar_solicitud,
     rechazar_solicitud,
-    existe_solicitud_pendiente
+    existe_solicitud_pendiente,
 )
 
 import pandas as pd
@@ -74,7 +71,7 @@ from database.usuarios import (
     actualizar_password,
     desactivar_usuario,
     reactivar_usuario,
-    verificar_password
+    verificar_password,
 )
 
 from database.maquinarias import buscar_activos
@@ -94,7 +91,7 @@ from database.maquinarias import (
     obtener_ubicaciones,
     finalizar_mantenimiento,
     confirmar_recepcion_activo,
-    finalizar_mantenimiento_activo
+    finalizar_mantenimiento_activo,
 )
 
 from database.aduanas import (
@@ -103,7 +100,7 @@ from database.aduanas import (
     crear_registro_aduana_vacio,
     guardar_aduana,
     actualizar_aduana,
-    estado_expediente_aduanal
+    estado_expediente_aduanal,
 )
 
 # ==========================================
@@ -117,6 +114,7 @@ app.secret_key = "VitalHealth2026"
 # ==========================================
 # DECORADORES
 # ==========================================
+
 
 def login_required(func):
 
@@ -143,10 +141,7 @@ def admin_required(func):
 
         if session.get("rol") != "Administrador":
 
-            flash(
-                "No tienes permisos para acceder a esta sección.",
-                "danger"
-            )
+            flash("No tienes permisos para acceder a esta sección.", "danger")
 
             return redirect(url_for("inicio"))
 
@@ -154,9 +149,11 @@ def admin_required(func):
 
     return wrapper
 
+
 # ==========================================================
 # INICIO
 # ==========================================================
+
 
 @app.route("/")
 @login_required
@@ -168,6 +165,7 @@ def inicio():
 # ==========================================================
 # LOGIN
 # ==========================================================
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -189,26 +187,14 @@ def login():
             session["usuario"] = datos.usuario
             session["rol"] = datos.rol
 
-            flash(
-                f"Bienvenido {datos.nombre}",
-                "success"
-            )
+            flash(f"Bienvenido {datos.nombre}", "success")
 
             registrar_movimiento(
-
-                usuario=session["nombre"],
-
-                accion="Inició sesión",
-
-                modulo="Login"
-
+                usuario=session["nombre"], accion="Inició sesión", modulo="Login"
             )
         return redirect(url_for("inicio"))
 
-        flash(
-            "Usuario o contraseña incorrectos.",
-            "danger"
-        )
+        flash("Usuario o contraseña incorrectos.", "danger")
 
     return render_template("login.html")
 
@@ -217,26 +203,18 @@ def login():
 # LOGOUT
 # ==========================================================
 
+
 @app.route("/logout")
 @login_required
 def logout():
 
     registrar_movimiento(
-
-        usuario=session["nombre"],
-
-        accion="Cerró sesión",
-
-        modulo="Login"
-
+        usuario=session["nombre"], accion="Cerró sesión", modulo="Login"
     )
 
     session.clear()
 
-    flash(
-        "Sesión cerrada correctamente.",
-        "info"
-    )
+    flash("Sesión cerrada correctamente.", "info")
 
     return redirect(url_for("login"))
 
@@ -244,6 +222,7 @@ def logout():
 # ==========================================================
 # PERFIL
 # ==========================================================
+
 
 @app.route("/perfil")
 @login_required
@@ -255,14 +234,15 @@ def perfil():
             "id": session["usuario_id"],
             "nombre": session["nombre"],
             "usuario": session["usuario"],
-            "rol": session["rol"]
-        }
+            "rol": session["rol"],
+        },
     )
 
 
 # ==========================================================
 # EDITAR PERFIL
 # ==========================================================
+
 
 @app.route("/perfil/editar", methods=["GET", "POST"])
 @login_required
@@ -275,21 +255,20 @@ def editar_perfil():
 # USUARIOS
 # ==========================================================
 
+
 @app.route("/usuarios")
 @admin_required
 def usuarios():
 
     lista = obtener_usuarios()
 
-    return render_template(
-        "usuarios.html",
-        usuarios=lista
-    )
+    return render_template("usuarios.html", usuarios=lista)
 
 
 # ==========================================================
 # NUEVO USUARIO
 # ==========================================================
+
 
 @app.route("/usuarios/nuevo", methods=["GET", "POST"])
 @admin_required
@@ -299,39 +278,26 @@ def nuevo_usuario():
 
         if request.form["password"] != request.form["confirmar"]:
 
-            flash(
-                "Las contraseñas no coinciden.",
-                "danger"
-            )
+            flash("Las contraseñas no coinciden.", "danger")
 
             return redirect(url_for("nuevo_usuario"))
 
         crear_usuario(
-
             request.form["nombre"],
             request.form["usuario"],
             request.form["correo"],
             request.form["password"],
-            request.form["rol"]
-
+            request.form["rol"],
         )
-        
+
         registrar_movimiento(
-
-    usuario=session["nombre"],
-
-    accion=f"Creó el usuario: {request.form['usuario']}",
-
-    modulo="Usuarios",
-
-    referencia=str(request.form["usuario"])
-
-)
-
-        flash(
-            "Usuario creado correctamente.",
-            "success"
+            usuario=session["nombre"],
+            accion=f"Creó el usuario: {request.form['usuario']}",
+            modulo="Usuarios",
+            referencia=str(request.form["usuario"]),
         )
+
+        flash("Usuario creado correctamente.", "success")
 
         return redirect(url_for("usuarios"))
 
@@ -342,6 +308,7 @@ def nuevo_usuario():
 # EDITAR USUARIO
 # ==========================================================
 
+
 @app.route("/usuarios/editar/<int:id>", methods=["GET", "POST"])
 @admin_required
 def editar_usuario(id):
@@ -350,100 +317,67 @@ def editar_usuario(id):
 
     if not usuario:
 
-        flash(
-            "Usuario no encontrado.",
-            "danger"
-        )
+        flash("Usuario no encontrado.", "danger")
 
         return redirect(url_for("usuarios"))
 
     if request.method == "POST":
 
         actualizar_usuario(
-
             id,
             request.form["nombre"],
             request.form["usuario"],
             request.form["correo"],
             request.form["rol"],
-            int(request.form["activo"])
-
+            int(request.form["activo"]),
         )
-        
+
         registrar_movimiento(
-
-    usuario=session["nombre"],
-
-    accion=f"Actualizó el usuario: {request.form['usuario']}",
-
-    modulo="Usuarios",
-
-    referencia=str(id)
-
-)
+            usuario=session["nombre"],
+            accion=f"Actualizó el usuario: {request.form['usuario']}",
+            modulo="Usuarios",
+            referencia=str(id),
+        )
 
         if request.form["password"] != "":
 
-            actualizar_password(
+            actualizar_password(id, request.form["password"])
 
-                id,
-                request.form["password"]
-
-            )
-            
         registrar_movimiento(
-
-    usuario=session["nombre"],
-
-    accion=f"Cambió la contraseña del usuario: {request.form['usuario']}",
-
-    modulo="Usuarios",
-
-    referencia=str(id)
-
-)   
-
-        flash(
-            "Usuario actualizado correctamente.",
-            "success"
+            usuario=session["nombre"],
+            accion=f"Cambió la contraseña del usuario: {request.form['usuario']}",
+            modulo="Usuarios",
+            referencia=str(id),
         )
+
+        flash("Usuario actualizado correctamente.", "success")
 
         return redirect(url_for("usuarios"))
 
-    return render_template(
-        "editar_usuario.html",
-        usuario=usuario
-    )
+    return render_template("editar_usuario.html", usuario=usuario)
 
 
 # ==========================================================
 # DESACTIVAR USUARIO
 # ==========================================================
 
+
 @app.route("/usuarios/desactivar/<int:id>")
 @admin_required
 def desactivar(id):
 
     desactivar_usuario(id)
-    
+
     usuario = obtener_usuario_id(id)
 
     registrar_movimiento(
-
-    usuario=session["nombre"],
-
-    accion=f"Desactivó el usuario: {usuario.usuario}",
-
-    modulo="Usuarios",
-
-    referencia=str(id)
-
-)
-
-    flash(
-        "Usuario desactivado correctamente.",
-        "warning"
+        usuario=session["nombre"],
+        accion=f"Desactivó el usuario: {usuario.usuario}",
+        modulo="Usuarios",
+        referencia=str(id),
     )
+
+    flash("Usuario desactivado correctamente.", "warning")
 
     return redirect(url_for("usuarios"))
 
@@ -452,36 +386,31 @@ def desactivar(id):
 # REACTIVAR USUARIO
 # ==========================================================
 
+
 @app.route("/usuarios/reactivar/<int:id>")
 @admin_required
 def reactivar_usuario_route(id):
 
     reactivar_usuario(id)
-    
+
     usuario = obtener_usuario_id(id)
 
     registrar_movimiento(
-
-    usuario=session["nombre"],
-
-    accion=f"Reactivó el usuario: {usuario.usuario}",
-
-    modulo="Usuarios",
-
-    referencia=str(id)
-
-)
-
-    flash(
-        "Usuario reactivado correctamente.",
-        "success"
+        usuario=session["nombre"],
+        accion=f"Reactivó el usuario: {usuario.usuario}",
+        modulo="Usuarios",
+        referencia=str(id),
     )
 
+    flash("Usuario reactivado correctamente.", "success")
+
     return redirect(url_for("usuarios"))
+
 
 # ==========================================================
 # DASHBOARD
 # ==========================================================
+
 
 @app.route("/dashboard")
 @login_required
@@ -493,6 +422,7 @@ def dashboard():
 # ==========================================================
 # DATOS DASHBOARD
 # ==========================================================
+
 
 @app.route("/dashboard/datos")
 @login_required
@@ -506,80 +436,47 @@ def dashboard_datos():
     activos = total - bajas
     valor = maq["valor_mx"].fillna(0).sum()
 
-    origen = (
-        aduana["origen"]
-        .fillna("SIN DATO")
-        .value_counts()
-    )
+    origen = aduana["origen"].fillna("SIN DATO").value_counts()
 
-    documentacion = (
-        aduana["documentacion_completa"]
-        .fillna("NO")
-        .value_counts()
-    )
+    documentacion = aduana["documentacion_completa"].fillna("NO").value_counts()
 
-    top = (
-        maq["categoria"]
-        .fillna("SIN DATO")
-        .value_counts()
-        .head(10)
-    )
+    top = maq["categoria"].fillna("SIN DATO").value_counts().head(10)
 
     valor_origen = (
-        aduana
-        .merge(
-            maq[["id_activo", "valor_mx"]],
-            on="id_activo",
-            how="left"
-        )
+        aduana.merge(maq[["id_activo", "valor_mx"]], on="id_activo", how="left")
         .groupby("origen")["valor_mx"]
         .sum()
     )
 
-    return jsonify({
-
-        "kpi":{
-
-            "total": int(total),
-            "activos": int(activos),
-            "bajas": int(bajas),
-            "valor": float(valor)
-
-        },
-
-        "origen":{
-
-            "labels": origen.index.tolist(),
-            "values": origen.values.tolist()
-
-        },
-
-        "documentacion":{
-
-            "labels": documentacion.index.tolist(),
-            "values": documentacion.values.tolist()
-
-        },
-
-        "top":{
-
-            "labels": top.index.tolist(),
-            "values": top.values.tolist()
-
-        },
-
-        "valorOrigen":{
-
-            "labels": valor_origen.index.tolist(),
-            "values": valor_origen.values.tolist()
-
+    return jsonify(
+        {
+            "kpi": {
+                "total": int(total),
+                "activos": int(activos),
+                "bajas": int(bajas),
+                "valor": float(valor),
+            },
+            "origen": {
+                "labels": origen.index.tolist(),
+                "values": origen.values.tolist(),
+            },
+            "documentacion": {
+                "labels": documentacion.index.tolist(),
+                "values": documentacion.values.tolist(),
+            },
+            "top": {"labels": top.index.tolist(), "values": top.values.tolist()},
+            "valorOrigen": {
+                "labels": valor_origen.index.tolist(),
+                "values": valor_origen.values.tolist(),
+            },
         }
+    )
 
-    })  
 
 # ==========================================================
 # IMPRIMIR QR
 # ==========================================================
+
 
 @app.route("/imprimir")
 @login_required
@@ -587,15 +484,13 @@ def imprimir_qr():
 
     maquinas = obtener_maquinarias()
 
-    return render_template(
-        "imprimir-qr.html",
-        maquinas=maquinas.to_dict("records")
-    )
+    return render_template("imprimir-qr.html", maquinas=maquinas.to_dict("records"))
 
 
 # ==========================================================
 # ETIQUETAS
 # ==========================================================
+
 
 @app.route("/etiquetas", methods=["POST"])
 @login_required
@@ -607,15 +502,15 @@ def etiquetas():
 
     maquinas = obtener_maquinarias()
 
-    maquinas = maquinas[
-        maquinas["id_activo"].isin(codigos)
-    ]
+    maquinas = maquinas[maquinas["id_activo"].isin(codigos)]
 
     etiquetas = []
 
     for _, fila in maquinas.iterrows():
 
-        url = request.host_url + "maquina/" + fila["id_activo"]
+        url = url_for(
+            "expediente_maquinaria", id_activo=fila["id_activo"], _external=True
+        )
 
         qr = qrcode.make(url)
 
@@ -623,34 +518,20 @@ def etiquetas():
 
         qr.save(buffer, format="PNG")
 
-        qr64 = base64.b64encode(
-            buffer.getvalue()
-        ).decode()
+        qr64 = base64.b64encode(buffer.getvalue()).decode()
 
-        etiquetas.append({
+        etiquetas.append(
+            {
+                "codigo": fila["id_activo"],
+                "nombre": fila["descripcion"],
+                "estado": "BAJA" if pd.notna(fila["fecha_baja"]) else "ACTIVO",
+                "url": url,
+                "qr": qr64,
+            }
+        )
 
-            "codigo": fila["id_activo"],
+    return render_template("etiquetas.html", etiquetas=etiquetas)
 
-            "nombre": fila["descripcion"],
-
-            "estado":
-                "BAJA"
-                if pd.notna(fila["fecha_baja"])
-                else "ACTIVO",
-
-            "url": url,
-
-            "qr": qr64
-
-        })
-
-    return render_template(
-
-        "etiquetas.html",
-
-        etiquetas=etiquetas
-
-    )
 
 @app.route("/maquinarias")
 @login_required
@@ -663,16 +544,12 @@ def lista_maquinarias():
     ubicaciones = obtener_ubicaciones()
 
     return render_template(
-
         "maquina.html",
-
         maquinas=maquinas,
-
         estadisticas=estadisticas,
-
-        ubicaciones=ubicaciones
-
+        ubicaciones=ubicaciones,
     )
+
 
 @app.route("/maquinarias/nuevo", methods=["GET", "POST"])
 @login_required
@@ -685,7 +562,6 @@ def nueva_maquinaria():
         total = cantidad * precio
 
         datos = {
-
             "id_activo": request.form["id_activo"],
             "categoria": request.form["categoria"],
             "descripcion": request.form["descripcion"],
@@ -700,29 +576,24 @@ def nueva_maquinaria():
             "total_us": total,
             "valor_mx": total,
             "fecha_alta": request.form["fecha_alta"],
-            "observaciones": request.form["observaciones"]
-
+            "observaciones": request.form["observaciones"],
         }
 
         insertar_maquinaria(datos)
 
         registrar_movimiento(
-
             usuario=session["nombre"],
             accion="Registró un nuevo activo",
             modulo="Maquinaria",
-            referencia=request.form["id_activo"]
-
+            referencia=request.form["id_activo"],
         )
 
         flash("Activo registrado correctamente.", "success")
 
         return redirect(url_for("lista_maquinarias"))
 
-    return render_template(
-        "nueva_maquinaria.html",
-        siguiente_id=siguiente_id_activo()
-    )
+    return render_template("nueva_maquinaria.html", siguiente_id=siguiente_id_activo())
+
 
 @app.route("/maquinarias/<id_activo>")
 @login_required
@@ -732,14 +603,9 @@ def expediente_maquinaria(id_activo):
 
     if not maquina:
 
-        flash(
-            "El activo no existe.",
-            "danger"
-        )
+        flash("El activo no existe.", "danger")
 
-        return redirect(
-            url_for("lista_maquinarias")
-        )
+        return redirect(url_for("lista_maquinarias"))
 
     aduana = obtener_aduana(id_activo)
 
@@ -786,34 +652,21 @@ def expediente_maquinaria(id_activo):
     documentos = listar_documentos(id_activo)
 
     return render_template(
-
         "expediente_maquinaria.html",
-
         maquina=maquina,
-
         aduana=aduana,
-
         estado_aduana=estado_aduana,
-
         historial=historial,
-
         documentos=documentos,
-
         anterior=vecinos["anterior"],
-
         siguiente=vecinos["siguiente"],
-
         es_nacional=es_nacional,
-
         es_importado=es_importado,
-
         es_pendiente=es_pendiente,
-
         es_sin_clasificar=es_sin_clasificar,
-
         es_reingreso=es_reingreso,
-
     )
+
 
 @app.route("/maquinarias/<id_activo>/imprimir")
 @login_required
@@ -822,16 +675,11 @@ def imprimir_maquinaria(id_activo):
     maquina = obtener_maquinaria_detalle(id_activo)
 
     if not maquina:
-        flash(
-            "El activo no existe.",
-            "danger"
-        )
+        flash("El activo no existe.", "danger")
         return redirect(url_for("lista_maquinarias"))
 
-    return render_template(
-        "imprimir-qr.html",
-        maquina=maquina
-    )
+    return render_template("imprimir-qr.html", maquina=maquina)
+
 
 @app.route("/maquinarias/<id_activo>/qr")
 @login_required
@@ -844,11 +692,7 @@ def qr_maquinaria(id_activo):
         return redirect(url_for("lista_maquinarias"))
 
     # URL que abrirá el QR
-    url = url_for(
-        "expediente_maquinaria",
-        id_activo=id_activo,
-        _external=True
-    )
+    url = url_for("expediente_maquinaria", id_activo=id_activo, _external=True)
 
     # Generar QR
     img = qrcode.make(url)
@@ -859,11 +703,9 @@ def qr_maquinaria(id_activo):
 
     qr = base64.b64encode(buffer.getvalue()).decode("utf-8")
 
-    return render_template(
-        "qr_maquinaria.html",
-        maquina=maquina,
-        qr=qr
-    )
+    return render_template("qr_maquinaria.html", maquina=maquina, qr=qr)
+
+
 @app.route("/maquinarias/<id_activo>/editar", methods=["GET", "POST"])
 @login_required
 def editar_maquinaria(id_activo):
@@ -871,10 +713,7 @@ def editar_maquinaria(id_activo):
     # Solo administrador
     if session.get("rol") != "Administrador":
 
-        flash(
-            "No tiene permisos para editar activos.",
-            "danger"
-        )
+        flash("No tiene permisos para editar activos.", "danger")
 
         return redirect(url_for("lista_maquinarias"))
 
@@ -883,10 +722,7 @@ def editar_maquinaria(id_activo):
 
     if not maquina:
 
-        flash(
-            "El activo no existe.",
-            "danger"
-        )
+        flash("El activo no existe.", "danger")
 
         return redirect(url_for("lista_maquinarias"))
 
@@ -899,7 +735,6 @@ def editar_maquinaria(id_activo):
         valor_mx = float(request.form["valor_mx"] or 0)
 
         datos = {
-
             "id_activo": id_activo,
             "categoria": request.form["categoria"],
             "descripcion": request.form["descripcion"],
@@ -914,41 +749,24 @@ def editar_maquinaria(id_activo):
             "total_us": total,
             "valor_mx": valor_mx,
             "fecha_alta": request.form["fecha_alta"],
-            "observaciones": request.form["observaciones"]
-
+            "observaciones": request.form["observaciones"],
         }
 
         actualizar_maquinaria(datos)
 
         registrar_movimiento(
-
             usuario=session["nombre"],
             accion="Actualizó información del activo",
             modulo="Maquinaria",
-            referencia=id_activo
-
+            referencia=id_activo,
         )
 
-        flash(
-            f"El activo {id_activo} fue actualizado correctamente.",
-            "success"
-        )
+        flash(f"El activo {id_activo} fue actualizado correctamente.", "success")
 
-        return redirect(
-            url_for("expediente_maquinaria", id_activo=id_activo)
-        )
+        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
     # Mostrar formulario
-    return render_template(
-
-        "nueva_maquinaria.html",
-
-        maquina=maquina,
-
-        editar=True
-
-    )
-
+    return render_template("nueva_maquinaria.html", maquina=maquina, editar=True)
 
 
 @app.route("/maquinarias/<id_activo>/solicitud-baja", methods=["POST"])
@@ -958,24 +776,15 @@ def solicitud_baja(id_activo):
     # Solo Administrador y Mantenimiento
     if session.get("rol") not in ["Administrador", "Mantenimiento"]:
 
-        flash(
-            "No tiene permisos para realizar esta acción.",
-            "danger"
-        )
+        flash("No tiene permisos para realizar esta acción.", "danger")
 
-        return redirect(url_for(
-            "expediente_maquinaria",
-            id_activo=id_activo
-        ))
+        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
     maquina = obtener_maquinaria(id_activo)
 
     if not maquina:
 
-        flash(
-            "El activo no existe.",
-            "danger"
-        )
+        flash("El activo no existe.", "danger")
 
         return redirect(url_for("lista_maquinarias"))
 
@@ -988,15 +797,10 @@ def solicitud_baja(id_activo):
 
         flash(
             "Este activo ya fue dado de baja y no puede generar otra solicitud.",
-            "warning"
+            "warning",
         )
 
-        return redirect(
-            url_for(
-                "expediente_maquinaria",
-                id_activo=id_activo
-            )
-        )
+        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
     # ==================================================
     # VALIDACIÓN 2
@@ -1005,76 +809,46 @@ def solicitud_baja(id_activo):
 
     if existe_solicitud_pendiente(id_activo):
 
-        flash(
-        "Este activo ya cuenta con una solicitud pendiente.",
-        "warning"
-        )
+        flash("Este activo ya cuenta con una solicitud pendiente.", "warning")
 
-        return redirect(
-            url_for(
-                "expediente_maquinaria",
-                id_activo=id_activo
-            )
-        )
+        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
     datos = {
-
-    "id_activo": id_activo,
-
-    "solicitante": session["nombre"],
-
-    "tipo": request.form["tipo"],
-
-    "motivo": request.form["motivo"],
-
-    "observaciones": request.form["observaciones"],
-
-    "prioridad": request.form["prioridad"],
-
-    "ubicacion_destino": request.form.get("ubicacion_destino") or None,
-
-    "proveedor_mantenimiento": request.form.get("proveedor_mantenimiento") or None,
-
-    "fecha_estimada_fin": request.form.get("fecha_estimada_fin") or None
-}
+        "id_activo": id_activo,
+        "solicitante": session["nombre"],
+        "tipo": request.form["tipo"],
+        "motivo": request.form["motivo"],
+        "observaciones": request.form["observaciones"],
+        "prioridad": request.form["prioridad"],
+        "ubicacion_destino": request.form.get("ubicacion_destino") or None,
+        "proveedor_mantenimiento": request.form.get("proveedor_mantenimiento") or None,
+        "fecha_estimada_fin": request.form.get("fecha_estimada_fin") or None,
+    }
 
     guardar_solicitud(datos)
 
     tipo = request.form["tipo"]
 
     acciones = {
-
-    "BAJA": "Solicitó baja del activo",
-
-    "TRASLADO": "Solicitó traslado del activo",
-
-    "MANTENIMIENTO": "Solicitó mantenimiento del activo"
-
-}
+        "BAJA": "Solicitó baja del activo",
+        "TRASLADO": "Solicitó traslado del activo",
+        "MANTENIMIENTO": "Solicitó mantenimiento del activo",
+    }
 
     registrar_movimiento(
-
         usuario=session["nombre"],
-
         accion=acciones[tipo],
-
         modulo="Maquinaria",
-
-        referencia=id_activo
-
+        referencia=id_activo,
     )
 
     flash(
         "La solicitud fue enviada correctamente y está pendiente de aprobación.",
-        "success"
+        "success",
     )
 
-    return redirect(
-        url_for(
-            "expediente_maquinaria",
-            id_activo=id_activo
-        )
-    )
+    return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
+
 
 @app.route("/solicitudes-baja")
 @login_required
@@ -1082,19 +856,16 @@ def lista_solicitudes_baja():
 
     if session.get("rol") != "Administrador":
 
-        flash(
-            "No tiene permisos.",
-            "danger"
-        )
+        flash("No tiene permisos.", "danger")
 
         return redirect(url_for("dashboard"))
 
     solicitudes = obtener_solicitudes()
 
     return render_template(
-    "solicitudes_baja.html",
-    solicitudes=solicitudes.to_dict("records")
-)
+        "solicitudes_baja.html", solicitudes=solicitudes.to_dict("records")
+    )
+
 
 @app.route("/solicitudes-baja/<int:id>")
 @login_required
@@ -1102,10 +873,7 @@ def ver_solicitud(id):
 
     if session.get("rol") != "Administrador":
 
-        flash(
-            "No tiene permisos.",
-            "danger"
-        )
+        flash("No tiene permisos.", "danger")
 
         return redirect(url_for("dashboard"))
 
@@ -1113,16 +881,14 @@ def ver_solicitud(id):
 
     return jsonify(solicitud.to_dict())
 
+
 @app.route("/solicitudes-baja/<int:id>/aprobar", methods=["POST"])
 @login_required
 def aprobar_solicitud_route(id):
 
     if session.get("rol") != "Administrador":
 
-        return jsonify({
-            "ok": False,
-            "error": "No tiene permisos."
-        }), 403
+        return jsonify({"ok": False, "error": "No tiene permisos."}), 403
 
     try:
 
@@ -1130,21 +896,9 @@ def aprobar_solicitud_route(id):
 
         comentario = data.get("comentario", "")
 
-        aprobar_solicitud(
+        aprobar_solicitud(id, session["nombre"], comentario)
 
-            id,
-
-            session["nombre"],
-
-            comentario
-
-        )
-
-        return jsonify({
-
-            "ok": True
-
-        })
+        return jsonify({"ok": True})
 
     except Exception as e:
 
@@ -1152,14 +906,7 @@ def aprobar_solicitud_route(id):
 
         traceback.print_exc()
 
-        return jsonify({
-
-            "ok": False,
-
-            "error": str(e)
-
-        }), 500
-
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 @app.route("/solicitudes-baja/<int:id>/rechazar", methods=["POST"])
@@ -1168,10 +915,7 @@ def rechazar_solicitud_route(id):
 
     if session.get("rol") != "Administrador":
 
-        return jsonify({
-            "ok": False,
-            "error": "No tiene permisos."
-        }), 403
+        return jsonify({"ok": False, "error": "No tiene permisos."}), 403
 
     try:
 
@@ -1179,21 +923,9 @@ def rechazar_solicitud_route(id):
 
         comentario = data.get("comentario", "")
 
-        rechazar_solicitud(
+        rechazar_solicitud(id, session["nombre"], comentario)
 
-            id,
-
-            session["nombre"],
-
-            comentario
-
-        )
-
-        return jsonify({
-
-            "ok": True
-
-        })
+        return jsonify({"ok": True})
 
     except Exception as e:
 
@@ -1201,13 +933,7 @@ def rechazar_solicitud_route(id):
 
         traceback.print_exc()
 
-        return jsonify({
-
-            "ok": False,
-
-            "error": str(e)
-
-        }), 500
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 @app.route("/aduanas")
@@ -1219,10 +945,7 @@ def lista_aduanas():
     print(aduanas.head())
     print(aduanas.shape)
 
-    return render_template(
-        "aduanas.html",
-        aduanas=aduanas.to_dict("records")
-    )
+    return render_template("aduanas.html", aduanas=aduanas.to_dict("records"))
 
 
 @app.route("/aduanas/<id_activo>/editar", methods=["GET", "POST"])
@@ -1231,10 +954,7 @@ def editar_aduana(id_activo):
 
     if session.get("rol") != "Administrador":
 
-        flash(
-            "No tiene permisos para editar expedientes aduanales.",
-            "danger"
-        )
+        flash("No tiene permisos para editar expedientes aduanales.", "danger")
 
         return redirect(url_for("lista_aduanas"))
 
@@ -1247,9 +967,7 @@ def editar_aduana(id_activo):
     if request.method == "POST":
 
         guardar_aduana(
-
             id_activo,
-
             request.form["factura"],
             request.form["pedimento"],
             request.form["entrada_mtz"],
@@ -1259,70 +977,43 @@ def editar_aduana(id_activo):
             request.form["fecha_importacion"],
             request.form.get("kg_bruto"),
             request.form.get("total_bultos"),
-            request.form.get("documentacion_completa")
-
+            request.form.get("documentacion_completa"),
         )
-        
+
         registrar_movimiento(
-
-        usuario=session["nombre"],
-
-        accion="Actualizó expediente aduanal",
-
-        modulo="Aduanas",
-
-        referencia=id_activo
-
-)
-
-        flash(
-            "Expediente guardado correctamente.",
-            "success"
+            usuario=session["nombre"],
+            accion="Actualizó expediente aduanal",
+            modulo="Aduanas",
+            referencia=id_activo,
         )
 
-        return redirect(
-            url_for("expediente_maquinaria", id_activo=id_activo)
-        )
+        flash("Expediente guardado correctamente.", "success")
+
+        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
     if not editar:
 
         aduana = {
-
             "id_activo": id_activo,
-
             "factura": "",
-
             "pedimento": "",
-
             "entrada_mtz": "",
-
             "id_imp": "",
-
             "inbond": "",
-
             "origen": "",
-
             "fecha_importacion": "",
-
             "kg_bruto": "",
-
             "total_bultos": "",
-
-            "documentacion_completa": ""
-
+            "documentacion_completa": "",
         }
 
     return render_template(
-
         "nueva_aduana.html",
-
         maquinarias=maquinarias.to_dict("records"),
-
         aduana=aduana,
-
-        editar=editar
-
+        editar=editar,
     )
+
 
 @app.route("/aduanas/nuevo", methods=["GET", "POST"])
 @login_required
@@ -1330,10 +1021,7 @@ def nueva_aduana():
 
     if session.get("rol") != "Administrador":
 
-        flash(
-        "No tiene permisos para crear expedientes aduanales.",
-        "danger"
-    )
+        flash("No tiene permisos para crear expedientes aduanales.", "danger")
 
         return redirect(url_for("lista_aduanas"))
 
@@ -1344,7 +1032,6 @@ def nueva_aduana():
     if request.method == "POST":
 
         guardar_aduana(
-
             request.form["id_activo"],
             request.form["factura"],
             request.form["pedimento"],
@@ -1355,25 +1042,17 @@ def nueva_aduana():
             request.form["fecha_importacion"],
             request.form.get("kg_bruto"),
             request.form.get("total_bultos"),
-            request.form.get("documentacion_completa")
-)
-        
-        registrar_movimiento(
-
-    usuario=session["nombre"],
-
-    accion="Creó expediente aduanal",
-
-    modulo="Aduanas",
-
-    referencia=request.form["id_activo"]
-
-)
-
-        flash(
-            "Expediente aduanal actualizado correctamente.",
-            "success"
+            request.form.get("documentacion_completa"),
         )
+
+        registrar_movimiento(
+            usuario=session["nombre"],
+            accion="Creó expediente aduanal",
+            modulo="Aduanas",
+            referencia=request.form["id_activo"],
+        )
+
+        flash("Expediente aduanal actualizado correctamente.", "success")
 
         return redirect(url_for("lista_aduanas"))
 
@@ -1385,15 +1064,16 @@ def nueva_aduana():
         "id_imp": "",
         "inbond": "",
         "origen": "",
-        "fecha_importacion": ""
+        "fecha_importacion": "",
     }
 
     return render_template(
         "nueva_aduana.html",
         maquinarias=maquinarias.to_dict("records"),
         aduana=aduana,
-        editar=False
+        editar=False,
     )
+
 
 @app.route("/aduanas/datos/<id_activo>")
 @login_required
@@ -1411,6 +1091,7 @@ def datos_aduana(id_activo):
 
     return jsonify(datos)
 
+
 # app.errorhandler(404)
 # def pagina_no_encontrada(error):
 #     return render_template("error.html"), 404
@@ -1426,6 +1107,7 @@ def datos_aduana(id_activo):
 # ==========================================
 # HISTORIAL DE UN ACTIVO
 # ==========================================
+
 
 def obtener_historial_activo(id_activo):
 
@@ -1448,13 +1130,8 @@ def obtener_historial_activo(id_activo):
 
     with engine.connect() as conn:
 
-        return conn.execute(
+        return conn.execute(sql, {"id": id_activo}).mappings().all()
 
-            sql,
-
-            {"id": id_activo}
-
-        ).mappings().all()
 
 @app.route("/maquinarias/<id_activo>/documentos", methods=["POST"])
 @login_required
@@ -1462,27 +1139,17 @@ def subir_documento(id_activo):
 
     if session.get("rol") != "Administrador":
 
-        flash(
-            "No tiene permisos para subir documentos.",
-            "danger"
-        )
+        flash("No tiene permisos para subir documentos.", "danger")
 
-        return redirect(
-            url_for("expediente_maquinaria", id_activo=id_activo)
-        )
+        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
     archivo = request.files.get("documento")
 
     if not archivo or archivo.filename == "":
 
-        flash(
-            "Seleccione un archivo.",
-            "warning"
-        )
+        flash("Seleccione un archivo.", "warning")
 
-        return redirect(
-            url_for("expediente_maquinaria", id_activo=id_activo)
-        )
+        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
     nombre_original = archivo.filename
 
@@ -1506,10 +1173,7 @@ def subir_documento(id_activo):
         respuesta = supabase.storage.from_("documentos").upload(
             path=ruta,
             file=archivo_bytes,
-            file_options={
-                "content-type": archivo.content_type,
-                "upsert": False
-            }
+            file_options={"content-type": archivo.content_type, "upsert": False},
         )
 
         print("RESPUESTA UPLOAD:")
@@ -1529,41 +1193,25 @@ def subir_documento(id_activo):
             url_guardar = url_pdf
 
         guardar_documento_bd(
-
             id_activo=id_activo,
-
             nombre_original=nombre_original,
-
             nombre_archivo=nombre_archivo,
-
             tipo=os.path.splitext(nombre_original)[1],
-
             url=url_guardar,
-
             public_id=ruta,
-
-            usuario=session["nombre"]
-
+            usuario=session["nombre"],
         )
-        
+
         registrar_movimiento(
-
-    usuario=session["nombre"],
-
-    accion=f"Subió documento: {nombre_original}",
-
-    modulo="Documentación",
-
-    referencia=id_activo
-
-)
+            usuario=session["nombre"],
+            accion=f"Subió documento: {nombre_original}",
+            modulo="Documentación",
+            referencia=id_activo,
+        )
 
         print("DOCUMENTO GUARDADO EN MYSQL")
 
-        flash(
-            "Documento subido correctamente.",
-            "success"
-        )
+        flash("Documento subido correctamente.", "success")
 
     except Exception as e:
 
@@ -1576,17 +1224,10 @@ def subir_documento(id_activo):
         print(e)
         print("=" * 70)
 
-        flash(
-            f"Ocurrió un error al subir el documento: {e}",
-            "danger"
-        )
+        flash(f"Ocurrió un error al subir el documento: {e}", "danger")
 
-    return redirect(
-        url_for(
-            "expediente_maquinaria",
-            id_activo=id_activo
-        )
-    )
+    return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
+
 
 @app.route("/buscar-activos")
 @login_required
@@ -1599,28 +1240,27 @@ def buscar_activos_ajax():
 
     activos = buscar_activos(texto)
 
-    return jsonify([
-        {
-            "id": a["id_activo"],
-            "text": a["id_activo"],
+    return jsonify(
+        [
+            {
+                "id": a["id_activo"],
+                "text": a["id_activo"],
+                "descripcion": a["descripcion"],
+                "categoria": a["categoria"],
+                "marca": a["marca"],
+                "ubicacion": a["ubicacion"],
+            }
+            for a in activos
+        ]
+    )
 
-            "descripcion": a["descripcion"],
-            "categoria": a["categoria"],
-            "marca": a["marca"],
-            "ubicacion": a["ubicacion"]
-        }
-        for a in activos
-    ])
 
 @app.route("/respaldos")
 @login_required
 def vista_respaldos():
     if session.get("rol") != "Administrador":
 
-        flash(
-            "No tiene permisos para eliminar documentos.",
-            "danger"
-        )
+        flash("No tiene permisos para eliminar documentos.", "danger")
 
         return redirect(request.referrer or url_for("lista_maquinarias"))
 
@@ -1640,24 +1280,21 @@ def vista_respaldos():
 
                 fecha_modificacion = os.path.getmtime(ruta)
 
-                fecha = datetime.fromtimestamp(
-                    fecha_modificacion
-                ).strftime("%d/%m/%Y %H:%M")
+                fecha = datetime.fromtimestamp(fecha_modificacion).strftime(
+                    "%d/%m/%Y %H:%M"
+                )
 
-                respaldos.append({
-
-                    "archivo": archivo,
-
-                    "fecha": fecha,
-
-                    "tamano": round(tamano / 1024, 2)
-
-                })
+                respaldos.append(
+                    {
+                        "archivo": archivo,
+                        "fecha": fecha,
+                        "tamano": round(tamano / 1024, 2),
+                    }
+                )
 
     # Ordenar por fecha de modificación (más reciente primero)
     respaldos.sort(
-        key=lambda x: datetime.strptime(x["fecha"], "%d/%m/%Y %H:%M"),
-        reverse=True
+        key=lambda x: datetime.strptime(x["fecha"], "%d/%m/%Y %H:%M"), reverse=True
     )
 
     # ===========================
@@ -1666,100 +1303,67 @@ def vista_respaldos():
 
     total_respaldos = len(respaldos)
 
-    espacio_total = round(
-        sum(r["tamano"] for r in respaldos),
-        2
-    )
+    espacio_total = round(sum(r["tamano"] for r in respaldos), 2)
 
     ultimo = respaldos[0] if respaldos else None
 
     return render_template(
-
         "respaldos.html",
-
         respaldos=respaldos,
-
         total_respaldos=total_respaldos,
-
         espacio_total=espacio_total,
-
-        ultimo=ultimo
-
+        ultimo=ultimo,
     )
 
 
 @app.route("/respaldos/crear", methods=["POST"])
 @login_required
 def crear_respaldo_ajax():
-    
+
     if session.get("rol") != "Administrador":
 
-        flash(
-            "No tiene permisos para eliminar documentos.",
-            "danger"
-        )
+        flash("No tiene permisos para eliminar documentos.", "danger")
 
         return redirect(request.referrer or url_for("lista_maquinarias"))
 
     try:
 
         archivo = crear_respaldo()
-        
+
         registrar_movimiento(
+            usuario=session["nombre"],
+            accion=f"Generó respaldo: {archivo}",
+            modulo="Respaldos",
+        )
 
-        usuario=session["nombre"],
-
-        accion=f"Generó respaldo: {archivo}",
-
-        modulo="Respaldos"
-    )
-
-        return jsonify({
-
-            "ok": True,
-            "archivo": archivo
-
-        })
+        return jsonify({"ok": True, "archivo": archivo})
 
     except Exception as e:
 
-        return jsonify({
+        return jsonify({"ok": False, "error": str(e)}), 500
 
-            "ok": False,
-            "error": str(e)
 
-        }), 500
-        
 @app.route("/respaldos/descargar/<nombre>")
 @login_required
 def descargar_respaldo(nombre):
     if session.get("rol") != "Administrador":
 
-        flash(
-            "No tiene permisos para eliminar documentos.",
-            "danger"
-        )
+        flash("No tiene permisos para eliminar documentos.", "danger")
 
         return redirect(request.referrer or url_for("lista_maquinarias"))
 
     carpeta = os.path.join(app.root_path, "backups")
 
-    return send_from_directory(
-        carpeta,
-        nombre,
-        as_attachment=True
-    )
+    return send_from_directory(carpeta, nombre, as_attachment=True)
+
 
 @app.route("/respaldos/eliminar/<nombre>", methods=["POST"])
 @login_required
 def eliminar_respaldo(nombre):
-    
+
     if session.get("rol") != "Administrador":
 
-        flash(
-            "No tiene permisos para eliminar documentos.",
-            "danger"
-        )
+        flash("No tiene permisos para eliminar documentos.", "danger")
 
         return redirect(request.referrer or url_for("lista_maquinarias"))
 
@@ -1768,24 +1372,17 @@ def eliminar_respaldo(nombre):
     if os.path.exists(ruta):
 
         os.remove(ruta)
-        
+
         registrar_movimiento(
+            usuario=session["nombre"],
+            accion=f"Eliminó respaldo: {nombre}",
+            modulo="Respaldos",
+        )
 
-    usuario=session["nombre"],
+        return jsonify({"ok": True})
 
-    accion=f"Eliminó respaldo: {nombre}",
+    return jsonify({"ok": False}), 404
 
-    modulo="Respaldos"
-
-)
-
-        return jsonify({
-            "ok": True
-        })
-
-    return jsonify({
-        "ok": False
-    }),404
 
 @app.route("/maquinarias/<id_activo>/confirmar-recepcion", methods=["POST"])
 @login_required
@@ -1793,45 +1390,16 @@ def confirmar_recepcion_route(id_activo):
 
     if session.get("rol") != "Administrador":
 
-        flash(
-            "No tiene permisos para realizar esta acción.",
-            "danger"
-        )
+        flash("No tiene permisos para realizar esta acción.", "danger")
 
-        return redirect(
-            url_for(
-                "expediente_maquinaria",
-                id_activo=id_activo
-            )
-        )
+        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
-    confirmar_recepcion_activo(
+    confirmar_recepcion_activo(id_activo, session["nombre"])
 
-        id_activo,
+    flash("La maquinaria fue recibida correctamente.", "success")
 
-        session["nombre"]
+    return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
-    )
-
-    flash(
-
-        "La maquinaria fue recibida correctamente.",
-
-        "success"
-
-    )
-
-    return redirect(
-
-        url_for(
-
-            "expediente_maquinaria",
-
-            id_activo=id_activo
-
-        )
-
-    )
 
 @app.route("/maquinarias/<id_activo>/finalizar-mantenimiento", methods=["POST"])
 @login_required
@@ -1839,56 +1407,24 @@ def finalizar_mantenimiento_route(id_activo):
 
     if session.get("rol") != "Administrador":
 
-        flash(
-            "No tiene permisos para realizar esta acción.",
-            "danger"
-        )
+        flash("No tiene permisos para realizar esta acción.", "danger")
 
-        return redirect(
-            url_for(
-                "expediente_maquinaria",
-                id_activo=id_activo
-            )
-        )
+        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
-    finalizar_mantenimiento_activo(
+    finalizar_mantenimiento_activo(id_activo, session["nombre"])
 
-        id_activo,
+    flash("El mantenimiento fue finalizado correctamente.", "success")
 
-        session["nombre"]
+    return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
-    )
 
-    flash(
-
-        "El mantenimiento fue finalizado correctamente.",
-
-        "success"
-
-    )
-
-    return redirect(
-
-        url_for(
-
-            "expediente_maquinaria",
-
-            id_activo=id_activo
-
-        )
-
-    )
-    
 @app.route("/documentos/<int:id_documento>/eliminar", methods=["POST"])
 @login_required
 def borrar_documento(id_documento):
 
     if session.get("rol") != "Administrador":
 
-        flash(
-            "No tiene permisos para eliminar documentos.",
-            "danger"
-        )
+        flash("No tiene permisos para eliminar documentos.", "danger")
 
         return redirect(request.referrer or url_for("lista_maquinarias"))
 
@@ -1897,10 +1433,7 @@ def borrar_documento(id_documento):
 
     if not doc:
 
-        flash(
-            "Documento no encontrado.",
-            "danger"
-        )
+        flash("Documento no encontrado.", "danger")
 
         return redirect(request.referrer or url_for("lista_maquinarias"))
 
@@ -1911,11 +1444,7 @@ def borrar_documento(id_documento):
 
             print("PUBLIC ID:", repr(doc["public_id"]))
 
-            respuesta = supabase.storage.from_("documentos").remove(
-
-                [doc["public_id"]]
-
-            )
+            respuesta = supabase.storage.from_("documentos").remove([doc["public_id"]])
 
             print("RESPUESTA SUPABASE:", respuesta)
 
@@ -1928,37 +1457,17 @@ def borrar_documento(id_documento):
 
     # Auditoría
     registrar_movimiento(
-
         usuario=session["nombre"],
-
         accion="Eliminó documento",
-
         modulo="Documentación",
-
-        referencia=doc["id_activo"]
-
+        referencia=doc["id_activo"],
     )
 
-    flash(
+    flash("Documento eliminado correctamente.", "success")
 
-        "Documento eliminado correctamente.",
+    return redirect(url_for("expediente_maquinaria", id_activo=doc["id_activo"]))
 
-        "success"
 
-    )
-
-    return redirect(
-
-        url_for(
-
-            "expediente_maquinaria",
-
-            id_activo=doc["id_activo"]
-
-        )
-
-    )
-    
 @app.route("/<id_activo>")
 @login_required
 def redireccion_qr_antiguo(id_activo):
@@ -1966,9 +1475,15 @@ def redireccion_qr_antiguo(id_activo):
     if not id_activo.startswith("ACT-"):
         abort(404)
 
-    return redirect(
-        url_for("expediente_maquinaria", id_activo=id_activo)
-    )
+    return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
+
+
+@app.route("/maquina/<id_activo>")
+@login_required
+def redireccion_qr_maquina(id_activo):
+
+    return redirect(url_for("expediente_maquinaria", id_activo=id_activo), code=301)
+
 
 # ==========================================================
 # SERVIDOR
