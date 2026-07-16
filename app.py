@@ -123,12 +123,10 @@ def login_required(func):
 
         if "usuario_id" not in session:
 
-            return redirect(
-        url_for(
-            "login",
-            next=request.url
-        )
-    )
+            # Guardar la URL que el usuario intentó abrir
+            session["next_url"] = request.url
+
+            return redirect(url_for("login"))
 
         return func(*args, **kwargs)
 
@@ -176,10 +174,6 @@ def inicio():
 def login():
 
     if "usuario_id" in session:
-        next_page = request.args.get("next")
-
-        if next_page:
-            return redirect(next_page)
 
         return redirect(url_for("inicio"))
 
@@ -200,11 +194,23 @@ def login():
             flash(f"Bienvenido {datos.nombre}", "success")
 
             registrar_movimiento(
-                usuario=session["nombre"], accion="Inició sesión", modulo="Login"
+                usuario=session["nombre"],
+                accion="Inició sesión",
+                modulo="Login"
             )
-        return redirect(url_for("inicio"))
 
-        flash("Usuario o contraseña incorrectos.", "danger")
+            # Recuperar la URL original
+            next_page = session.pop("next_url", None)
+
+            if next_page:
+                return redirect(next_page)
+
+            return redirect(url_for("inicio"))
+
+        flash(
+            "Usuario o contraseña incorrectos.",
+            "danger"
+        )
 
     return render_template("login.html")
 
