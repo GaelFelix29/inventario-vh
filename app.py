@@ -123,7 +123,12 @@ def login_required(func):
 
         if "usuario_id" not in session:
 
-            return redirect(url_for("login"))
+            return redirect(
+        url_for(
+            "login",
+            next=request.url
+        )
+    )
 
         return func(*args, **kwargs)
 
@@ -171,6 +176,11 @@ def inicio():
 def login():
 
     if "usuario_id" in session:
+        next_page = request.args.get("next")
+
+        if next_page:
+            return redirect(next_page)
+
         return redirect(url_for("inicio"))
 
     if request.method == "POST":
