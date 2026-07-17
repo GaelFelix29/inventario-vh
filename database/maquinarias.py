@@ -523,11 +523,11 @@ def confirmar_recepcion_activo(id_activo, usuario):
 
             WHERE
 
-                id_activo=:id
+            id_activo=:id
 
-                AND tipo='TRASLADO'
+            AND tipo='TRASLADO'
 
-                AND estado='Aprobada'
+            AND estado='En proceso'
 
             ORDER BY fecha_aprobacion DESC
 
@@ -560,6 +560,36 @@ def confirmar_recepcion_activo(id_activo, usuario):
             fila["ubicacion_destino"]
 
         )
+        
+        sql = text("""
+
+        UPDATE solicitudes_baja
+
+        SET
+
+            estado='Finalizada',
+
+            fecha_finalizacion=NOW(),
+
+            finalizado_por=:usuario
+
+            WHERE
+
+            id_activo=:id
+
+            AND tipo='TRASLADO'
+
+            AND estado='En proceso'
+
+    """)
+
+        conn.execute(sql, {
+
+        "id": id_activo,
+
+        "usuario": usuario
+
+})
 
         registrar_movimiento(
 
@@ -586,6 +616,54 @@ def finalizar_mantenimiento_activo(id_activo, usuario):
             id_activo
 
         )
+        
+        sql = text("""
+
+        SELECT *
+
+        FROM solicitudes_baja
+
+        WHERE
+
+            id_activo=:id
+
+            AND tipo='MANTENIMIENTO'
+
+        """)
+
+        fila = conn.execute(sql, {"id": id_activo}).mappings().first()
+
+        print(fila)
+        
+        sql = text("""
+
+        UPDATE solicitudes_baja
+
+        SET
+
+            estado='Finalizada',
+
+            fecha_finalizacion=NOW(),
+
+            finalizado_por=:usuario
+
+        WHERE
+
+            id_activo=:id
+
+            AND tipo='MANTENIMIENTO'
+
+            AND estado='En proceso'
+
+        """)
+
+        conn.execute(sql, {
+
+            "id": id_activo,
+
+            "usuario": usuario
+
+        })
 
         registrar_movimiento(
 

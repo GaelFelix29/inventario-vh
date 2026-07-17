@@ -8,155 +8,154 @@ Solicitudes de Baja
 
 <div class="container-fluid py-4">
 
-<div class="card shadow border-0 rounded-4">
+    <div class="card shadow border-0 rounded-4">
 
-<div class="card-body">
+        <div class="card-body">
 
-<h2 class="text-danger">
+            <h2 class="text-primary">
+                <i class="bi bi-arrow-left-right"></i>
+                Movimientos de Activos
+            </h2>
 
-<i class="bi bi-clipboard-check"></i>
+            <hr>
 
-Solicitudes de Baja
+            <table class="table table-hover align-middle">
 
-</h2>
+                <thead class="table-dark">
 
-<hr>
+                    <tr>
 
-<table class="table table-hover align-middle">
+                        <th>ID</th>
 
-<thead class="table-dark">
+                        <th>Activo</th>
 
-<tr>
+                        <th>Solicitante</th>
 
-<th>ID</th>
+                        <th>Fecha</th>
 
-<th>Activo</th>
+                        <th>Prioridad</th>
 
-<th>Solicitante</th>
+                        <th>Estado</th>
 
-<th>Fecha</th>
+                        <th></th>
 
-<th>Prioridad</th>
+                    </tr>
 
-<th>Estado</th>
+                </thead>
 
-<th></th>
+                <tbody>
 
-</tr>
+                    {% for s in solicitudes %}
 
-</thead>
+                    <tr>
 
-<tbody>
+                        <td>{{ s.id }}</td>
 
-{% for s in solicitudes %}
+                        <td>
 
-<tr>
+                            <strong>{{ s.id_activo }}</strong>
 
-<td>{{ s.id }}</td>
+                        </td>
 
-<td>
+                        <td>{{ s.solicitante }}</td>
 
-<strong>{{ s.id_activo }}</strong>
+                        <td>{{ s.fecha }}</td>
 
-</td>
+                        <td>
 
-<td>{{ s.solicitante }}</td>
+                            {% if s.prioridad=="Alta" %}
 
-<td>{{ s.fecha }}</td>
+                            <span class="badge bg-danger">
 
-<td>
+                                Alta
 
-{% if s.prioridad=="Alta" %}
+                            </span>
 
-<span class="badge bg-danger">
+                            {% elif s.prioridad=="Media" %}
 
-Alta
+                            <span class="badge bg-warning text-dark">
 
-</span>
+                                Media
 
-{% elif s.prioridad=="Media" %}
+                            </span>
 
-<span class="badge bg-warning text-dark">
+                            {% else %}
 
-Media
+                            <span class="badge bg-success">
 
-</span>
+                                Baja
 
-{% else %}
+                            </span>
 
-<span class="badge bg-success">
+                            {% endif %}
 
-Baja
+                        </td>
 
-</span>
+                        <td>
 
-{% endif %}
+                            {% if s.estado == "Pendiente" %}
 
-</td>
+                            <span class="badge bg-warning text-dark">
+                                Pendiente
+                            </span>
 
-<td>
+                            {% elif s.estado == "En proceso" %}
 
-{% if s.estado=="Pendiente" %}
+                            <span class="badge bg-primary">
+                                En proceso
+                            </span>
 
-<span class="badge bg-warning text-dark">
+                            {% elif s.estado == "Finalizada" %}
 
-Pendiente
+                            <span class="badge bg-success">
+                                Finalizada
+                            </span>
 
-</span>
+                            {% elif s.estado == "Rechazada" %}
 
-{% elif s.estado=="Aprobada" %}
+                            <span class="badge bg-danger">
+                                Rechazada
+                            </span>
 
-<span class="badge bg-success">
+                            {% else %}
 
-Aprobada
+                            <span class="badge bg-secondary">
+                                {{ s.estado }}
+                            </span>
 
-</span>
+                            {% endif %}
 
-{% else %}
+                        </td>
 
-<span class="badge bg-danger">
+                        <td>
 
-Rechazada
+                            <button class="btn btn-primary btn-sm" data-id="{{ s.id }}"
+                                onclick="verSolicitud(this.dataset.id)">
 
-</span>
+                                <i class="bi bi-eye"></i>
 
-{% endif %}
+                                Ver
 
-</td>
+                            </button>
 
-<td>
+                        </td>
+                        </td>
 
-<button
-    class="btn btn-primary btn-sm"
-    data-id="{{ s.id }}"
-    onclick="verSolicitud(this.dataset.id)">
+                    </tr>
 
-    <i class="bi bi-eye"></i>
+                    {% endfor %}
 
-    Ver
+                </tbody>
 
-</button>
+            </table>
 
-</td>
-</td>
+        </div>
 
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
+    </div>
 
 </div>
 
-</div>
-
-</div>
-
-<div class="modal fade"
-     id="modalSolicitud"
-     tabindex="-1">
+<div class="modal fade" id="modalSolicitud" tabindex="-1">
 
     <div class="modal-dialog modal-lg">
 
@@ -170,9 +169,7 @@ Rechazada
 
                 </h5>
 
-                <button
-                    class="btn-close btn-close-white"
-                    data-bs-dismiss="modal">
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal">
                 </button>
 
             </div>
@@ -189,10 +186,7 @@ Rechazada
 
                         </label>
 
-                        <input
-                            id="m_activo"
-                            class="form-control"
-                            readonly>
+                        <input id="m_activo" class="form-control" readonly>
 
                     </div>
 
@@ -204,10 +198,7 @@ Rechazada
 
                         </label>
 
-                        <input
-                            id="m_solicitante"
-                            class="form-control"
-                            readonly>
+                        <input id="m_solicitante" class="form-control" readonly>
 
                     </div>
 
@@ -221,11 +212,7 @@ Rechazada
 
                     </label>
 
-                    <textarea
-                        id="m_motivo"
-                        class="form-control"
-                        rows="3"
-                        readonly></textarea>
+                    <textarea id="m_motivo" class="form-control" rows="3" readonly></textarea>
 
                 </div>
 
@@ -237,11 +224,7 @@ Rechazada
 
                     </label>
 
-                    <textarea
-                        id="m_observaciones"
-                        class="form-control"
-                        rows="3"
-                        readonly></textarea>
+                    <textarea id="m_observaciones" class="form-control" rows="3" readonly></textarea>
 
                 </div>
 
@@ -253,10 +236,7 @@ Rechazada
 
                     </label>
 
-                    <textarea
-                        id="comentario"
-                        class="form-control"
-                        rows="3"></textarea>
+                    <textarea id="comentario" class="form-control" rows="3"></textarea>
 
                 </div>
 
@@ -264,17 +244,13 @@ Rechazada
 
             <div class="modal-footer">
 
-                <button
-                    class="btn btn-success"
-                    id="btnAprobar">
+                <button class="btn btn-success" id="btnAprobar">
 
                     Aprobar
 
                 </button>
 
-                <button
-                    class="btn btn-danger"
-                    id="btnRechazar">
+                <button class="btn btn-danger" id="btnRechazar">
 
                     Rechazar
 
@@ -292,167 +268,167 @@ Rechazada
 
 <script>
 
-function verSolicitud(id){
+    function verSolicitud(id) {
 
-    fetch("/solicitudes-baja/" + id)
+        fetch("/solicitudes-baja/" + id)
 
-    .then(r => r.json())
+            .then(r => r.json())
 
-    .then(data => {
+            .then(data => {
 
-        document.getElementById("m_activo").value = data.id_activo;
-        document.getElementById("m_solicitante").value = data.solicitante;
-        document.getElementById("m_motivo").value = data.motivo;
-        document.getElementById("m_observaciones").value = data.observaciones;
-        document.getElementById("comentario").value = "";
+                document.getElementById("m_activo").value = data.id_activo;
+                document.getElementById("m_solicitante").value = data.solicitante;
+                document.getElementById("m_motivo").value = data.motivo;
+                document.getElementById("m_observaciones").value = data.observaciones;
+                document.getElementById("comentario").value = "";
 
-        const btnAprobar = document.getElementById("btnAprobar");
-        const btnRechazar = document.getElementById("btnRechazar");
+                const btnAprobar = document.getElementById("btnAprobar");
+                const btnRechazar = document.getElementById("btnRechazar");
 
-        // Asignar eventos
-        btnAprobar.onclick = function(){
+                // Asignar eventos
+                btnAprobar.onclick = function () {
 
-            aprobarSolicitud(id);
+                    aprobarSolicitud(id);
 
-        };
+                };
 
-        btnRechazar.onclick = function(){
+                btnRechazar.onclick = function () {
 
-            rechazarSolicitud(id);
+                    rechazarSolicitud(id);
 
-        };
+                };
 
-        // Habilitar o deshabilitar botones según el estado
-        if(data.estado === "Pendiente"){
+                // Habilitar o deshabilitar botones según el estado
+                if (data.estado === "Pendiente") {
 
-            btnAprobar.disabled = false;
-            btnRechazar.disabled = false;
+                    btnAprobar.disabled = false;
+                    btnRechazar.disabled = false;
 
-        }else{
+                } else {
 
-            btnAprobar.disabled = true;
-            btnRechazar.disabled = true;
+                    btnAprobar.disabled = true;
+                    btnRechazar.disabled = true;
 
-        }
+                }
 
-        new bootstrap.Modal(
-            document.getElementById("modalSolicitud")
-        ).show();
+                new bootstrap.Modal(
+                    document.getElementById("modalSolicitud")
+                ).show();
 
-    });
+            });
 
-}
+    }
 
 
-// 👇 AQUÍ, inmediatamente después de verSolicitud()
+    // 👇 AQUÍ, inmediatamente después de verSolicitud()
 
-function aprobarSolicitud(id){
+    function aprobarSolicitud(id) {
 
-    fetch("/solicitudes-baja/" + id + "/aprobar", {
+        fetch("/solicitudes-baja/" + id + "/aprobar", {
 
-        method: "POST",
+            method: "POST",
 
-        headers: {
+            headers: {
 
-            "Content-Type": "application/json"
+                "Content-Type": "application/json"
 
-        },
+            },
 
-        body: JSON.stringify({
+            body: JSON.stringify({
 
-            comentario: document.getElementById("comentario").value
+                comentario: document.getElementById("comentario").value
 
-        })
-
-    })
-
-    .then(async response => {
-
-        const data = await response.json();
-
-        if (!response.ok) {
-
-            throw new Error(data.error || "Ocurrió un error.");
-
-        }
-
-        return data;
-
-    })
-
-    .then(data => {
-
-        if (data.ok) {
-
-            location.reload();
-
-        }
-
-    })
-
-    .catch(error => {
-
-        alert(error.message);
-
-        console.error(error);
-
-    });
-
-}
-
-function rechazarSolicitud(id){
-
-    fetch("/solicitudes-baja/" + id + "/rechazar", {
-
-        method: "POST",
-
-        headers: {
-
-            "Content-Type": "application/json"
-
-        },
-
-        body: JSON.stringify({
-
-            comentario: document.getElementById("comentario").value
+            })
 
         })
 
-    })
+            .then(async response => {
 
-    .then(async response => {
+                const data = await response.json();
 
-        const data = await response.json();
+                if (!response.ok) {
 
-        if (!response.ok) {
+                    throw new Error(data.error || "Ocurrió un error.");
 
-            throw new Error(data.error || "Ocurrió un error.");
+                }
 
-        }
+                return data;
 
-        return data;
+            })
 
-    })
+            .then(data => {
 
-    .then(data => {
+                if (data.ok) {
 
-        if (data.ok) {
+                    location.reload();
 
-            location.reload();
+                }
 
-        }
+            })
 
-    })
+            .catch(error => {
 
-    .catch(error => {
+                alert(error.message);
 
-        alert(error.message);
+                console.error(error);
 
-        console.error(error);
+            });
 
-    });
+    }
 
-}
+    function rechazarSolicitud(id) {
+
+        fetch("/solicitudes-baja/" + id + "/rechazar", {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type": "application/json"
+
+            },
+
+            body: JSON.stringify({
+
+                comentario: document.getElementById("comentario").value
+
+            })
+
+        })
+
+            .then(async response => {
+
+                const data = await response.json();
+
+                if (!response.ok) {
+
+                    throw new Error(data.error || "Ocurrió un error.");
+
+                }
+
+                return data;
+
+            })
+
+            .then(data => {
+
+                if (data.ok) {
+
+                    location.reload();
+
+                }
+
+            })
+
+            .catch(error => {
+
+                alert(error.message);
+
+                console.error(error);
+
+            });
+
+    }
 
 </script>
 

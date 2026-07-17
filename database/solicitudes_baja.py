@@ -100,167 +100,105 @@ def obtener_pendientes():
 # ======================================================
 
 
-def aprobar_solicitud(id, administrador, comentario):
+def aprobar_solicitud(id_solicitud, administrador, comentario):
 
     with engine.begin() as conn:
 
-        # ==========================================
-        # 1. OBTENER LA SOLICITUD
-        # ==========================================
-
+        # Obtener solicitud
         sql = text("""
-
             SELECT *
-
             FROM solicitudes_baja
-
             WHERE id = :id
-
         """)
 
         solicitud = conn.execute(
-
             sql,
-
-            {"id": id}
-
+            {"id": id_solicitud}
         ).mappings().first()
 
         if not solicitud:
-
             raise Exception("La solicitud no existe.")
 
         if solicitud["estado"] != "Pendiente":
-
             raise Exception("La solicitud ya fue procesada.")
 
-        # ==========================================
-        # 2. APROBAR LA SOLICITUD
-        # ==========================================
+        # Definir el nuevo estado de la solicitud
+        if solicitud["tipo"] == "BAJA":
+            nuevo_estado = "Finalizada"
+        else:
+            nuevo_estado = "En proceso"
 
+        # Actualizar solicitud
         sql_update = text("""
+        UPDATE solicitudes_baja
+        SET
+            estado = :estado,
 
-            UPDATE solicitudes_baja
+            aprobado_por = :admin,
 
-            SET
+            fecha_aprobacion = NOW(),
 
-                estado='Aprobada',
+            finalizado_por = CASE
+                WHEN :estado = 'Finalizada' THEN :admin
+                ELSE finalizado_por
+            END,
 
-                aprobado_por=:admin,
+            fecha_finalizacion = CASE
+                WHEN :estado = 'Finalizada' THEN NOW()
+                ELSE fecha_finalizacion
+            END,
 
-                fecha_aprobacion=NOW(),
+            comentario_admin = :comentario
 
-                comentario_admin=:comentario
-
-            WHERE id=:id
-
+        WHERE id = :id
         """)
 
         conn.execute(sql_update, {
 
+            "id": id_solicitud,
+            "estado": nuevo_estado,
             "admin": administrador,
-
-            "comentario": comentario,
-
-            "id": id
+            "comentario": comentario
 
         })
 
-        # ==========================================
-        # 3. OBTENER DATOS DE LA SOLICITUD
-        # ==========================================
+        # Ejecutar acción según el tipo
+        if solicitud["tipo"] == "BAJA":
 
-        sql_select = text("""
-
-            SELECT
-
-                id_activo,
-
-                motivo,
-
-                tipo
-
-            FROM solicitudes_baja
-
-            WHERE id=:id
-
-        """)
-
-        fila = conn.execute(
-
-            sql_select,
-
-            {"id": id}
-
-        ).fetchone()
-
-        # ==========================================
-        # 4. PROCESAR SEGÚN EL TIPO DE SOLICITUD
-        # ==========================================
-
-        if fila:
-
-            if fila.tipo == "BAJA":
-
-                baja_desde_solicitud(
-
-                    conn,
-
-                    fila.id_activo,
-
-                    fila.motivo,
-
-                    administrador
-
-                )
-
-                accion = "Aprobó solicitud de baja"
-
-            elif fila.tipo == "TRASLADO":
-
-                traslado_desde_solicitud(
-
-                    conn,
-
-                    fila.id_activo
-
-                )
-
-                accion = "Aprobó solicitud de traslado"
-
-            elif fila.tipo == "MANTENIMIENTO":
-
-                mantenimiento_desde_solicitud(
-
-                    conn,
-
-                    fila.id_activo
-
-                )
-
-                accion = "Aprobó solicitud de mantenimiento"
-
-            else:
-
-                raise Exception("Tipo de solicitud no válido.")
-
-            # ==========================================
-            # 5. AUDITORÍA
-            # ==========================================
-
-            registrar_movimiento(
-
-                usuario=administrador,
-
-                accion=accion,
-
-                modulo="Solicitudes",
-
-                referencia=fila.id_activo,
-
-                conn=conn
-
+            baja_desde_solicitud(
+                conn,
+                solicitud["id_activo"],
+                solicitud["motivo"],
+                administrador
             )
+
+        elif solicitud["tipo"] == "TRASLADO":
+
+            traslado_desde_solicitud(
+                conn,
+                solicitud["id_activo"]
+            )
+
+        elif solicitud["tipo"] == "MANTENIMIENTO":
+
+            mantenimiento_desde_solicitud(
+                conn,
+                solicitud["id_activo"]
+            )
+
+        registrar_movimiento(
+
+            usuario=administrador,
+
+            accion=f"Aprobó solicitud de {solicitud['tipo']}",
+
+            modulo="Movimientos",
+
+            referencia=solicitud["id_activo"],
+
+            conn=conn
+
+        )
 
 # ======================================================
 # RECHAZAR
