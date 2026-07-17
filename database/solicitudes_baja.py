@@ -8,7 +8,8 @@ from database.conexion import engine
 from database.maquinarias import (
     baja_desde_solicitud,
     traslado_desde_solicitud,
-    mantenimiento_desde_solicitud
+    mantenimiento_desde_solicitud,
+    reincorporar_desde_solicitud
 )
 
 
@@ -122,35 +123,36 @@ def aprobar_solicitud(id_solicitud, administrador, comentario):
         if solicitud["estado"] != "Pendiente":
             raise Exception("La solicitud ya fue procesada.")
 
-        # Definir el nuevo estado de la solicitud
-        if solicitud["tipo"] == "BAJA":
+        # Definir el nuevo estado
+        if solicitud["tipo"] in ("BAJA", "REINCORPORACION"):
             nuevo_estado = "Finalizada"
         else:
             nuevo_estado = "En proceso"
 
         # Actualizar solicitud
         sql_update = text("""
-        UPDATE solicitudes_baja
-        SET
-            estado = :estado,
+            UPDATE solicitudes_baja
+            SET
 
-            aprobado_por = :admin,
+                estado = :estado,
 
-            fecha_aprobacion = NOW(),
+                aprobado_por = :admin,
 
-            finalizado_por = CASE
-                WHEN :estado = 'Finalizada' THEN :admin
-                ELSE finalizado_por
-            END,
+                fecha_aprobacion = NOW(),
 
-            fecha_finalizacion = CASE
-                WHEN :estado = 'Finalizada' THEN NOW()
-                ELSE fecha_finalizacion
-            END,
+                finalizado_por = CASE
+                    WHEN :estado = 'Finalizada' THEN :admin
+                    ELSE finalizado_por
+                END,
 
-            comentario_admin = :comentario
+                fecha_finalizacion = CASE
+                    WHEN :estado = 'Finalizada' THEN NOW()
+                    ELSE fecha_finalizacion
+                END,
 
-        WHERE id = :id
+                comentario_admin = :comentario
+
+            WHERE id = :id
         """)
 
         conn.execute(sql_update, {
@@ -166,24 +168,45 @@ def aprobar_solicitud(id_solicitud, administrador, comentario):
         if solicitud["tipo"] == "BAJA":
 
             baja_desde_solicitud(
+
                 conn,
+
                 solicitud["id_activo"],
+
                 solicitud["motivo"],
+
                 administrador
+
             )
 
         elif solicitud["tipo"] == "TRASLADO":
 
             traslado_desde_solicitud(
+
                 conn,
+
                 solicitud["id_activo"]
+
             )
 
         elif solicitud["tipo"] == "MANTENIMIENTO":
 
             mantenimiento_desde_solicitud(
+
                 conn,
+
                 solicitud["id_activo"]
+
+            )
+
+        elif solicitud["tipo"] == "REINCORPORACION":
+
+            reincorporar_desde_solicitud(
+
+                conn,
+
+                solicitud["id_activo"]
+
             )
 
         registrar_movimiento(

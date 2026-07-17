@@ -704,3 +704,22 @@ def obtener_documento(id_documento):
             {"id": id_documento}
 
         ).mappings().first()
+
+def reincorporar_desde_solicitud(conn, id_activo):
+
+    sql = text("""
+        UPDATE maquinarias
+        SET
+
+            estado = 'ACTIVO',
+
+            ultima_actualizacion = NOW()
+
+        WHERE id_activo = :id
+    """)
+
+    conn.execute(sql, {
+
+        "id": id_activo
+
+    })

@@ -128,15 +128,18 @@
 
                         {% if session["rol"] in ["Administrador","Mantenimiento"] %}
 
-                        {% if maquina.estado == "ACTIVO" %}
+                        {% if maquina.estado == "BAJA" %}
 
-                        <button class="btn btn-danger rounded-pill" data-bs-toggle="modal"
+                        <button class="btn btn-success w-100" data-bs-toggle="modal"
                             data-bs-target="#modalSolicitudBaja">
+                            ♻️ Reactivar activo
+                        </button>
 
-                            <i class="bi bi-trash3-fill"></i>
+                        {% else %}
 
-                            Solicitar movimiento
-
+                        <button class="btn btn-danger w-100" data-bs-toggle="modal"
+                            data-bs-target="#modalSolicitudBaja">
+                            🗑 Solicitar movimiento
                         </button>
 
                         {% endif %}
@@ -1503,21 +1506,29 @@
                             Tipo de solicitud
                         </label>
 
-                        <select class="form-select" id="tipoSolicitud" name="tipo" required>
+                        {% if maquina.estado == "BAJA" %}
 
-                            <option value="BAJA" selected>
-                                🗑️ Baja definitiva
-                            </option>
+                        <select class="form-select" name="tipo">
 
-                            <option value="TRASLADO">
-                                🚚 Traslado
-                            </option>
-
-                            <option value="MANTENIMIENTO">
-                                🔧 Mantenimiento
+                            <option value="REINCORPORACION">
+                                ♻️ Reactivación
                             </option>
 
                         </select>
+
+                        {% else %}
+
+                        <select class="form-select" name="tipo">
+
+                            <option value="BAJA">🗑️ Baja definitiva</option>
+
+                            <option value="TRASLADO">🚚 Traslado</option>
+
+                            <option value="MANTENIMIENTO">🔧 Mantenimiento</option>
+
+                        </select>
+
+                        {% endif %}
 
                     </div>
 

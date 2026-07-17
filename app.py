@@ -805,19 +805,20 @@ def solicitud_baja(id_activo):
         return redirect(url_for("lista_maquinarias"))
 
     # ==================================================
-    # VALIDACIÓN 1
-    # El activo ya está dado de baja
-    # ==================================================
+# VALIDACIÓN 1
+# El activo ya está dado de baja
+# ==================================================
 
-    if maquina["estado"] == "BAJA":
+    tipo = request.form["tipo"]
 
-        flash(
-            "Este activo ya fue dado de baja y no puede generar otra solicitud.",
-            "warning",
-        )
+    if maquina["estado"] == "BAJA" and tipo != "REINCORPORACION":
 
-        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
+            flash(
+                "Este activo ya fue dado de baja y solo puede solicitar una reactivación.",
+                "warning",
+            )
 
+            return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
     # ==================================================
     # VALIDACIÓN 2
     # Ya existe una solicitud pendiente
@@ -843,12 +844,12 @@ def solicitud_baja(id_activo):
 
     guardar_solicitud(datos)
 
-    tipo = request.form["tipo"]
 
     acciones = {
         "BAJA": "Solicitó baja del activo",
         "TRASLADO": "Solicitó traslado del activo",
         "MANTENIMIENTO": "Solicitó mantenimiento del activo",
+        "REINCORPORACION": "Solicitó reactivación del activo",
     }
 
     registrar_movimiento(
