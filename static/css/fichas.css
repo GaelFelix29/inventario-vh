@@ -90,11 +90,11 @@ body {
 
 }
 
-.cabecera img{
+.cabecera img {
 
-    width:28px;
+    width: 28px;
 
-    height:28px;
+    height: 28px;
 
 }
 
@@ -128,21 +128,37 @@ body {
 
 .codigo {
 
-    font-size: 26px;
+    display: inline-block;
 
-    font-weight: bold;
+    background: #19875415;
 
     color: #198754;
+
+    padding: 3px 8px;
+
+    border-radius: 6px;
+
+    font-size: 20px;
+
+    font-weight: 700;
 
 }
 
 .nombre {
 
-    font-size: 13px;
+    font-size: 10px;
 
-    font-weight: bold;
+    font-weight: 600;
 
-    margin: 4px 0 10px;
+    color: #333;
+
+    margin-top: 6px;
+
+    line-height: 1.2;
+
+    height: 24px;
+
+    overflow: hidden;
 
 }
 
@@ -174,15 +190,19 @@ table td:first-child {
 =               QR                        =
 =========================================*/
 
-.derecha {
+.derecha{
 
-    width: 35%;
+    width:110px;
 
-    display: flex;
+    display:flex;
 
-    justify-content: center;
+    flex-direction:column;
 
-    align-items: center;
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
 
 }
 
@@ -233,5 +253,95 @@ table td:first-child {
         background: white;
 
     }
+
+}
+
+.empresa {
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+.logo{
+
+    width:45px;
+
+    height:auto;
+
+    object-fit:contain;
+
+}
+.logo img {
+
+    width: 28px;
+
+    height: 28px;
+
+    object-fit: contain;
+
+}
+
+.logo{
+
+    width:55px;
+    height:auto;
+
+    border:none;
+    background:transparent;
+    padding:0;
+
+}
+
+.info div {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    border-bottom: 1px solid #eee;
+
+    padding: 2px 0;
+
+}
+
+.qr{
+
+    width:70px;
+    height:70px;
+
+    border:2px solid #198754;
+    border-radius:6px;
+    padding:3px;
+    background:white;
+
+}
+
+.codigo{
+
+    font-size:24px;
+    font-weight:800;
+    letter-spacing:.5px;
+
+}
+
+table td:first-child{
+
+    width:55px;
+    color:#555;
+    font-weight:600;
+
+}
+
+table td:last-child{
+
+    font-weight:700;
+
+}
+
+.cuerpo{
+
+    border-top:1px solid #e8e8e8;
 
 }

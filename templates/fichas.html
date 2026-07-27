@@ -7,98 +7,95 @@
 
     <title>Fichas de Identificación</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/fichas.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fichas.css') }}">
 
 </head>
 
 <body>
 
-<div class="pagina">
+    <div class="pagina">
 
-{% for ficha in fichas %}
+        {% for ficha in fichas %}
 
-<div class="ficha">
+        <div class="ficha">
 
-    <div class="cabecera">
+            <div class="cabecera">
 
-        <div>
+                <div class="empresa">
 
-            <h2>VITAL HEALTH</h2>
+                    <h2>VITAL HEALTH</h2>
 
-            <span>Sistema de Gestión de Activos</span>
-
-        </div>
-
-    </div>
-
-    <div class="cuerpo">
-
-        <div class="izquierda">
-
-            <div class="codigo">
-
-                {{ ficha.codigo }}
+                </div>
 
             </div>
 
-            <div class="nombre">
+            <div class="cuerpo">
 
-                {{ ficha.nombre }}
+                <div class="izquierda">
+
+                    <div class="codigo">
+
+                        {{ ficha.codigo }}
+
+                    </div>
+
+                    <div class="nombre">
+
+                        {{ ficha.nombre }}
+
+                    </div>
+
+                    <table>
+
+                        <tr>
+
+                            <td>Marca</td>
+
+                            <td>{{ ficha.marca }}</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td>Modelo</td>
+
+                            <td>{{ ficha.modelo }}</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td>Serie</td>
+
+                            <td>{{ ficha.serie }}</td>
+
+                        </tr>
+
+                    </table>
+
+                </div>
+
+                <div class="derecha">
+
+                    <img class="logo" src="{{ url_for('static', filename='img/logo.png') }}">
+
+                    <img class="qr" src="data:image/png;base64,{{ ficha.qr }}">
+
+                </div>
 
             </div>
 
-            <table>
+            <div class="pie">
 
-                <tr>
+                Escanee para consultar el expediente digital
 
-                    <td>Marca</td>
-
-                    <td>{{ ficha.marca }}</td>
-
-                </tr>
-
-                <tr>
-
-                    <td>Modelo</td>
-
-                    <td>{{ ficha.modelo }}</td>
-
-                </tr>
-
-                <tr>
-
-                    <td>Serie</td>
-
-                    <td>{{ ficha.serie }}</td>
-
-                </tr>
-
-            </table>
+            </div>
 
         </div>
 
-        <div class="derecha">
-
-            <img
-                src="data:image/png;base64,{{ ficha.qr }}"
-                alt="QR">
-
-        </div>
+        {% endfor %}
 
     </div>
-
-    <div class="pie">
-
-        Escanee para consultar el expediente digital
-
-    </div>
-
-</div>
-
-{% endfor %}
-
-</div>
 
 </body>
 
