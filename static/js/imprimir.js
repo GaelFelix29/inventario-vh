@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnVista = document.getElementById("vistaPrevia");
     const btnImprimir = document.getElementById("imprimirQR");
     const btnPDF = document.getElementById("generarPDF");
+    const btnFichas = document.getElementById("imprimirFichas");
 
     const chkTodos = document.getElementById("chkSeleccionarTodo");
 
@@ -166,6 +167,92 @@ async function enviarEtiquetas(imprimir = true){
 }
 
 //--------------------------------------------------
+// ENVIAR FICHAS
+//--------------------------------------------------
+
+async function enviarFichas(imprimir = true){
+
+    const codigos = obtenerSeleccionados();
+
+    if(codigos.length === 0){
+
+        alert("Selecciona al menos un activo.");
+
+        return;
+
+    }
+
+    const datos = {
+
+        codigos: codigos,
+
+        copias: copias.value,
+
+        tamano: tamano.value
+
+    };
+
+    try{
+
+        const respuesta = await fetch("/fichas",{
+
+            method:"POST",
+
+            headers:{
+
+                "Content-Type":"application/json"
+
+            },
+
+            body:JSON.stringify(datos)
+
+        });
+
+        if(!respuesta.ok){
+
+            throw new Error(await respuesta.text());
+
+        }
+
+        const html = await respuesta.text();
+
+        const ventana = window.open("", "_blank");
+
+        if(!ventana){
+
+            alert("El navegador bloqueó la ventana.");
+
+            return;
+
+        }
+
+        ventana.document.open();
+        ventana.document.write(html);
+        ventana.document.close();
+
+        if(imprimir){
+
+            ventana.onload = function(){
+
+                ventana.focus();
+                ventana.print();
+
+            };
+
+        }
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        alert(error);
+
+    }
+
+}
+//--------------------------------------------------
 // BOTONES
 //--------------------------------------------------
 
@@ -194,6 +281,16 @@ if(btnPDF){
     btnPDF.addEventListener("click",()=>{
 
         enviarEtiquetas(true);
+
+    });
+
+}
+
+if(btnFichas){
+
+    btnFichas.addEventListener("click",()=>{
+
+        enviarFichas(true);
 
     });
 

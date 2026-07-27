@@ -548,6 +548,61 @@ def etiquetas():
 
     return render_template("etiquetas.html", etiquetas=etiquetas)
 
+@app.route("/fichas", methods=["POST"])
+@login_required
+def fichas():
+
+    datos = request.get_json()
+
+    codigos = datos["codigos"]
+
+    maquinas = obtener_maquinarias()
+
+    maquinas = maquinas[maquinas["id_activo"].isin(codigos)]
+
+    fichas = []
+
+    for _, fila in maquinas.iterrows():
+
+        url = url_for(
+            "expediente_maquinaria",
+            id_activo=fila["id_activo"],
+            _external=True
+        )
+
+        qr = qrcode.make(url)
+
+        buffer = BytesIO()
+
+        qr.save(buffer, format="PNG")
+
+        qr64 = base64.b64encode(buffer.getvalue()).decode()
+
+        fichas.append({
+
+            "codigo": fila["id_activo"],
+
+            "nombre": fila["descripcion"],
+
+            "marca": fila["marca"],
+
+            "modelo": fila["modelo"],
+
+            "serie": fila["numero_serie"],
+
+            "estado": "BAJA" if pd.notna(fila["fecha_baja"]) else "ACTIVO",
+
+            "url": url,
+
+            "qr": qr64
+
+        })
+
+    return render_template(
+        "fichas.html",
+        fichas=fichas
+    )
+
 
 @app.route("/maquinarias")
 @login_required
@@ -1500,6 +1555,8 @@ def redireccion_qr_antiguo(id_activo):
 def redireccion_qr_maquina(id_activo):
 
     return redirect(url_for("expediente_maquinaria", id_activo=id_activo), code=301)
+
+
 
 
 # ==========================================================

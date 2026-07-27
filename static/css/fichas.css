@@ -1,0 +1,237 @@
+/*=========================================
+=              IMPRESIÓN                  =
+=========================================*/
+
+@page {
+    size: Letter landscape;
+    margin: 10mm;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+
+    font-family: Segoe UI, Arial, sans-serif;
+
+    background: #d9d9d9;
+
+}
+
+/*=========================================
+=               HOJA                      =
+=========================================*/
+
+.pagina {
+
+    width: 279mm;
+    min-height: 216mm;
+
+    margin: auto;
+
+    background: white;
+
+    padding: 8mm;
+
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 8mm;
+
+}
+
+/*=========================================
+=              TARJETA                    =
+=========================================*/
+
+.ficha {
+
+    height: 60mm;
+
+    border: 2px solid #198754;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+/*=========================================
+=             CABECERA                    =
+=========================================*/
+
+.cabecera {
+
+    background: #198754;
+
+    color: white;
+
+    padding: 6px 10px;
+
+}
+
+.cabecera h2 {
+
+    font-size: 18px;
+
+}
+
+.cabecera span {
+
+    font-size: 11px;
+
+}
+
+.cabecera img{
+
+    width:28px;
+
+    height:28px;
+
+}
+
+/*=========================================
+=               CUERPO                    =
+=========================================*/
+
+.cuerpo {
+
+    flex: 1;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 8px 10px;
+
+}
+
+/*=========================================
+=            LADO IZQUIERDO               =
+=========================================*/
+
+.izquierda {
+
+    width: 65%;
+
+}
+
+.codigo {
+
+    font-size: 26px;
+
+    font-weight: bold;
+
+    color: #198754;
+
+}
+
+.nombre {
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    margin: 4px 0 10px;
+
+}
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+}
+
+table td {
+
+    font-size: 11px;
+
+    padding: 2px 0;
+
+}
+
+table td:first-child {
+
+    font-weight: bold;
+
+    width: 60px;
+
+}
+
+/*=========================================
+=               QR                        =
+=========================================*/
+
+.derecha {
+
+    width: 35%;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+}
+
+.derecha img {
+
+    width: 82px;
+
+    height: 82px;
+
+    border: 2px solid #198754;
+
+    border-radius: 8px;
+
+    padding: 3px;
+
+    background: white;
+
+}
+
+/*=========================================
+=               PIE                       =
+=========================================*/
+
+.pie {
+
+    background: #198754;
+
+    color: white;
+
+    text-align: center;
+
+    padding: 5px;
+
+    font-size: 9px;
+
+    font-weight: 600;
+
+}
+
+/*=========================================
+=            SOLO IMPRESIÓN               =
+=========================================*/
+
+@media print {
+
+    body {
+
+        background: white;
+
+    }
+
+}
