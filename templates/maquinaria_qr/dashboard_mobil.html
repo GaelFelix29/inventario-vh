@@ -1,0 +1,108 @@
+{% extends "maquinaria_qr/base_qr.html" %}
+
+{% block titulo %}
+Dashboard
+{% endblock %}
+
+{% block estilos %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_mobil.css') }}">
+
+{% endblock %}
+
+{% block contenido %}
+
+<div class="dashboard-mobile">
+
+    <section class="welcome">
+
+        <h2>👋 Hola, {{ session["nombre"] }}</h2>
+
+        <p>Bienvenido nuevamente.</p>
+
+    </section>
+
+    <section class="stats-grid">
+
+        <div class="stat-card">
+
+            <div class="icon-box">
+
+                <i class="bi bi-box-seam"></i>
+
+            </div>
+
+            <div class="stat-info">
+
+                <h3>217</h3>
+
+                <span>Activos</span>
+
+            </div>
+
+        </div>
+
+        <div class="stat-card">
+
+            <i class="bi bi-tools"></i>
+
+            <h3>12</h3>
+
+            <span>Mantenimiento</span>
+
+        </div>
+
+        <div class="stat-card">
+
+            <i class="bi bi-file-earmark-text"></i>
+
+            <h3>5</h3>
+
+            <span>Solicitudes</span>
+
+        </div>
+
+        <div class="stat-card">
+
+            <i class="bi bi-truck"></i>
+
+            <h3>84</h3>
+
+            <span>Importados</span>
+
+        </div>
+
+    </section>
+
+    <!-- Escanear QR -->
+
+<section class="scan-card">
+
+    <div class="scan-icon">
+
+        <i class="bi bi-qr-code-scan"></i>
+
+    </div>
+
+    <h2>ESCANEAR QR</h2>
+
+    <p>
+
+        Consulta un activo de forma rápida
+        escaneando su código QR.
+
+    </p>
+
+    <button class="scan-btn">
+
+        <i class="bi bi-camera-fill"></i>
+
+        Escanear ahora
+
+    </button>
+
+</section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "maquinaria_qr/base_qr.html" %}
+
+{% block titulo %}
+
+{{ documento.tipo }}
+
+{% endblock %}
+
+{% block contenido %}
+
+<div class="page-title">
+
+    <h2>
+
+        <i class="bi bi-file-earmark-pdf"></i>
+
+        {{ documento.tipo }}
+
+    </h2>
+
+    <p>
+
+        {{ documento.nombre_original }}
+
+    </p>
+
+</div>
+
+<div class="pdf-card">
+
+    <iframe
+
+        src="{{ documento.url }}"
+
+        class="pdf-viewer">
+
+    </iframe>
+
+</div>
+
+<div class="acciones-pdf">
+
+    <a
+
+        href="{{ documento.url }}"
+
+        target="_blank"
+
+        class="btn-pdf">
+
+        <i class="bi bi-box-arrow-up-right"></i>
+
+        Abrir en navegador
+
+    </a>
+
+</div>
+
+{% endblock %}

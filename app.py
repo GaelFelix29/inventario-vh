@@ -12,6 +12,7 @@ from flask import (
 from flask import redirect, url_for, abort
 import re
 
+from database import documentos
 from supabase_config import supabase
 
 from database.documentos import obtener_documento
@@ -1216,6 +1217,8 @@ def subir_documento(id_activo):
         return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
     archivo = request.files.get("documento")
+    
+    tipo_documento = request.form.get("tipo_documento")
 
     if not archivo or archivo.filename == "":
 
@@ -1268,8 +1271,7 @@ def subir_documento(id_activo):
             id_activo=id_activo,
             nombre_original=nombre_original,
             nombre_archivo=nombre_archivo,
-            tipo=os.path.splitext(nombre_original)[1],
-            url=url_guardar,
+            tipo=tipo_documento,
             public_id=ruta,
             usuario=session["nombre"],
         )
@@ -1557,7 +1559,79 @@ def redireccion_qr_maquina(id_activo):
     return redirect(url_for("expediente_maquinaria", id_activo=id_activo), code=301)
 
 
+@app.route("/qr/<id_activo>")
+@login_required
+def maquinaria_qr(id_activo):
 
+    maquinaria = obtener_maquinaria(id_activo)
+
+    if not maquinaria:
+        abort(404)
+
+    return render_template(
+        "maquinaria_qr/inicio.html",
+        maquinaria=maquinaria
+    )
+
+@app.route("/qr/<id_activo>/expediente")
+@login_required
+def qr_expediente(id_activo):
+
+    maquinaria = obtener_maquinaria(id_activo)
+
+    aduana = obtener_aduana(id_activo)
+
+    estado = estado_expediente_aduanal(aduana)
+
+    documentos = listar_documentos(id_activo)
+
+    documentos_map = {}
+
+    for doc in documentos:
+        documentos_map[doc["tipo"]] = doc
+
+    return render_template(
+        "maquinaria_qr/expediente.html",
+        maquinaria=maquinaria,
+        aduana=aduana,
+        estado=estado,
+        documentos_map=documentos_map
+    )
+
+@app.route("/qr/<id_activo>/documento/<tipo>")
+@login_required
+def qr_documento(id_activo, tipo):
+
+    documentos = listar_documentos(id_activo)
+
+    print("TIPO SOLICITADO:", tipo)
+
+    for doc in documentos:
+        print(doc)
+
+    documento = None
+
+    for doc in documentos:
+        if doc["tipo"].lower() == tipo.lower():
+            documento = doc
+            break
+
+    if not documento:
+        abort(404)
+
+    return render_template(
+        "maquinaria_qr/documento.html",
+        documento=documento,
+        id_activo=id_activo
+    )
+
+@app.route("/m/dashboard")
+@login_required
+def dashboard_mobil():
+
+    return render_template(
+        "maquinaria_qr/dashboard_mobil.html"
+    )
 
 # ==========================================================
 # SERVIDOR

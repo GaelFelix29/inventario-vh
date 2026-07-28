@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color"
+        content="#198754">
+
+    <title>{% block titulo %}Vital Health{% endblock %}</title>
+
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/qr.css') }}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+
+    {% block estilos %}
+    {% endblock %}
+
+</head>
+
+<body>
+
+
+    <header class="topbar">
+
+        <button class="icon-btn" id="menuBtn">
+
+            <i class="bi bi-list"></i>
+
+        </button>
+
+        <div class="topbar-center">
+
+            <h1>VITAL HEALTH</h1>
+
+            <small>Sistema de Activos</small>
+
+        </div>
+
+        <button class="icon-btn">
+
+            <i class="bi bi-bell"></i>
+
+        </button>
+
+    </header>
+
+    <!-- Drawer -->
+
+    <div class="drawer" id="drawer">
+
+        <div class="drawer-header">
+
+            <h3>VITAL HEALTH</h3>
+
+            <small>{{ session["nombre"] }}</small>
+
+        </div>
+
+        <a href="/">
+            <i class="bi bi-house-door"></i>
+            Inicio
+        </a>
+
+        <a href="/dashboard">
+            <i class="bi bi-speedometer2"></i>
+            Dashboard
+        </a>
+
+        <a href="/maquinarias">
+            <i class="bi bi-pc-display"></i>
+            Maquinaria
+        </a>
+
+        <a href="/aduanas">
+            <i class="bi bi-truck"></i>
+            Aduanas
+        </a>
+
+        {% if session.get("rol")=="Administrador" %}
+
+        <a href="/usuarios">
+
+            <i class="bi bi-people"></i>
+
+            Usuarios
+
+        </a>
+
+        {% endif %}
+
+        <hr>
+
+        <a href="/logout" class="logout">
+
+            <i class="bi bi-box-arrow-right"></i>
+
+            Cerrar sesión
+
+        </a>
+
+    </div>
+
+    <div class="drawer-overlay" id="overlay"></div>
+
+    <!-- Contenido -->
+
+    <main class="contenido">
+
+        {% block contenido %}
+
+        {% endblock %}
+
+    </main>
+
+    <!-- Bottom Navigation -->
+
+    <nav class="bottom-nav">
+
+        <a href="#">
+
+            <i class="bi bi-house-door-fill"></i>
+
+            <span>Inicio</span>
+
+        </a>
+
+        <a href="#">
+
+            <i class="bi bi-file-earmark-text"></i>
+
+            <span>Docs</span>
+
+        </a>
+
+        <a href="#">
+
+            <i class="bi bi-arrow-left-right"></i>
+
+            <span>Mov.</span>
+
+        </a>
+
+        <a href="#">
+
+            <i class="bi bi-camera"></i>
+
+            <span>Fotos</span>
+
+        </a>
+
+        <a href="#">
+
+            <i class="bi bi-tools"></i>
+
+            <span>Manto.</span>
+
+        </a>
+
+    </nav>
+
+    <script>
+
+        const menuBtn = document.getElementById("menuBtn");
+
+        const drawer = document.getElementById("drawer");
+
+        const overlay = document.getElementById("overlay");
+
+        menuBtn.onclick = () => {
+
+            drawer.classList.add("open");
+
+            overlay.classList.add("show");
+
+        };
+
+        overlay.onclick = () => {
+
+            drawer.classList.remove("open");
+
+            overlay.classList.remove("show");
+
+        };
+
+    </script>
+
+</body>
+
+</html>

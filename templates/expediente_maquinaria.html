@@ -1415,28 +1415,38 @@
 
                         <div class="col-lg-7">
 
-                            <form action="{{ url_for('subir_documento', id_activo=maquina.id_activo) }}" method="POST"
-                                enctype="multipart/form-data">
+                            <form action="{{ url_for('subir_documento', id_activo=maquina.id_activo) }}"
+                                method="POST" enctype="multipart/form-data">
 
-                                <div class="input-group">
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        Tipo de documento
+                                    </label>
 
-                                    <input type="file" name="documento" class="form-control" required>
+                                    <select name="tipo_documento" class="form-select" required>
 
-                                    <button class="btn btn-primary px-4" type="submit">
-
-                                        <i class="bi bi-upload"></i>
-
-                                        Subir documento
-
-                                    </button>
-
+                                        <option value="">Seleccione...</option>
+                                        <option value="Factura">Factura Comercial</option>
+                                        <option value="Pedimento">Pedimento</option>
+                                        <option value="Entrada MTY">Entrada MTY</option>
+                                        <option value="Inbond">Inbond</option>
+                                        <option value="Packing List">Packing List</option>
+                                        <option value="BL">Bill of Lading</option>
+                                        <option value="Otro">Otro</option>
+                                    </select>
                                 </div>
 
-                                <small class="text-muted mt-2 d-block">
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        Archivo
+                                    </label>
 
-                                    Formatos permitidos: PDF, Word, Excel, imágenes, etc.
+                                    <input type="file" name="documento" class="form-control" accept=".pdf" required>
+                                </div>
 
-                                </small>
+                                <button type="submit" class="btn btn-success w-100">
+                                    Subir documento
+                                </button>
 
                             </form>
 

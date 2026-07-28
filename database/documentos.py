@@ -98,28 +98,27 @@ def guardar_documento_bd(
 def listar_documentos(id_activo):
 
     sql = text("""
-
         SELECT *
-
         FROM documentos_maquinaria
-
         WHERE id_activo = :id
-
         ORDER BY fecha_subida DESC
-
     """)
 
     with engine.connect() as conn:
 
-        return conn.execute(
-
+        documentos = conn.execute(
             sql,
-
             {"id": id_activo}
-
         ).mappings().all()
 
+        print("\n===== DOCUMENTOS ENCONTRADOS =====")
 
+        for doc in documentos:
+            print(dict(doc))
+
+        print("==================================\n")
+
+        return documentos
 # ==========================================
 # ELIMINAR DOCUMENTO
 # ==========================================

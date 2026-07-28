@@ -1,0 +1,189 @@
+{% extends "maquinaria_qr/base_qr.html" %}
+
+{% block titulo %}
+{{ maquinaria.id_activo }}
+{% endblock %}
+
+{% block contenido %}
+
+<div class="hero-card">
+
+    <div class="estado activo">
+
+        <div class="estado-icono">
+
+            <i class="bi bi-check-circle-fill"></i>
+
+        </div>
+
+        <div>
+
+            <small>Estado del activo</small>
+
+            <strong>ACTIVO</strong>
+
+        </div>
+
+    </div>
+
+    <h1>{{ maquinaria.id_activo }}</h1>
+
+    <p class="descripcion">
+
+        {{ maquinaria.descripcion }}
+
+    </p>
+
+</div>
+
+<div class="info-general">
+
+    <h3>
+
+        <i class="bi bi-info-circle-fill"></i>
+
+        Información General
+
+    </h3>
+
+    <div class="info-item">
+
+        <i class="bi bi-geo-alt-fill"></i>
+
+        <div>
+
+            <small>Ubicación</small>
+
+            <strong>{{ maquinaria.ubicacion }}</strong>
+
+        </div>
+
+    </div>
+
+    <div class="info-item">
+
+        <i class="bi bi-tag-fill"></i>
+
+        <div>
+
+            <small>Marca</small>
+
+            <strong>{{ maquinaria.marca }}</strong>
+
+        </div>
+
+    </div>
+
+    <div class="info-item">
+
+        <i class="bi bi-cpu-fill"></i>
+
+        <div>
+
+            <small>Modelo</small>
+
+            <strong>{{ maquinaria.modelo }}</strong>
+
+        </div>
+
+    </div>
+
+    <div class="info-item">
+
+        <i class="bi bi-upc-scan"></i>
+
+        <div>
+
+            <small>Número de Serie</small>
+
+            <strong>{{ maquinaria.numero_serie }}</strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="expediente-card">
+
+    <div class="exp-header">
+
+        <i class="bi bi-folder2-open"></i>
+
+        <span>Expediente Aduanal</span>
+
+    </div>
+
+    <div class="progress">
+
+        <div class="progress-bar" style="width:82%">
+
+        </div>
+
+    </div>
+
+    <div class="exp-status">
+
+        <span class="badge-ok">
+
+            Completo
+
+        </span>
+
+        <strong>82%</strong>
+
+    </div>
+
+    <a href="{{ url_for('qr_expediente', id_activo=maquinaria.id_activo) }}" class="exp-link">
+
+        Ver expediente
+
+        <i class="bi bi-chevron-right"></i>
+
+    </a>
+
+</div>
+
+<h3 class="section-title">
+
+    Accesos rápidos
+
+</h3>
+
+<div class="quick-grid">
+
+    <a href="#" class="quick-card">
+
+        <i class="bi bi-file-earmark-text-fill"></i>
+
+        <span>Documentos</span>
+
+    </a>
+
+    <a href="#" class="quick-card">
+
+        <i class="bi bi-arrow-left-right"></i>
+
+        <span>Movimientos</span>
+
+    </a>
+
+    <a href="#" class="quick-card">
+
+        <i class="bi bi-camera-fill"></i>
+
+        <span>Fotografías</span>
+
+    </a>
+
+    <a href="#" class="quick-card">
+
+        <i class="bi bi-tools"></i>
+
+        <span>Mantenimiento</span>
+
+    </a>
+
+</div>
+
+{% endblock %}

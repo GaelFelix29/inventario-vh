@@ -1,0 +1,227 @@
+{% extends "maquinaria_qr/base_qr.html" %}
+
+{% block titulo %}
+Expediente Aduanal
+{% endblock %}
+
+{% block contenido %}
+
+<div class="page-title">
+
+    <h2>
+
+        <i class="bi bi-folder2-open"></i>
+
+        Expediente Aduanal
+
+    </h2>
+
+    <p>
+
+        Estado del expediente del activo
+
+    </p>
+
+</div>
+
+<div class="exp-card">
+
+    <div class="estado-exp {{ estado.color }}">
+
+        <i class="bi bi-check-circle-fill"></i>
+
+        {{ estado.estado }}
+
+    </div>
+
+    <div class="progress">
+
+        <div class="progress-bar"
+            style="--porcentaje: {{ estado.porcentaje }}%;">
+        </div>
+
+    </div>
+
+    <div class="porcentaje">
+
+        {{ estado.porcentaje }}%
+
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- DOCUMENTOS -->
+    <!-- ===================================================== -->
+
+    <h3 class="grupo-titulo">
+
+        <i class="bi bi-folder-fill"></i>
+
+        Documentos
+
+    </h3>
+
+    <!-- FACTURA -->
+
+    <a class="exp-item"
+
+    href="{{ url_for('qr_documento',
+            id_activo=maquinaria.id_activo,
+            tipo='Factura') }}">
+
+        <div class="exp-left">
+
+            <div class="icon-circle">
+
+                <i class="bi bi-file-earmark-pdf-fill"></i>
+
+            </div>
+
+            <div class="exp-info">
+
+                <small>Factura Comercial</small>
+
+                <strong>{{ aduana.factura or "Sin documento" }}</strong>
+
+                {% if documentos_map.get("Factura") %}
+
+                    <span class="estado-doc disponible">
+
+                        Documento disponible
+
+                    </span>
+
+                {% else %}
+
+                    <span class="estado-doc">
+
+                        Sin documento adjunto
+
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <i class="bi bi-chevron-right"></i>
+
+    </a>
+
+    <!-- PEDIMENTO -->
+
+    <a class="exp-item"
+
+    href="{{ url_for('qr_documento',
+            id_activo=maquinaria.id_activo,
+            tipo='Pedimento') }}">
+
+        <div class="exp-left">
+
+            <div class="icon-circle">
+
+                <i class="bi bi-file-earmark-pdf-fill"></i>
+
+            </div>
+
+            <div class="exp-info">
+
+                <small>Pedimento</small>
+
+                <strong>{{ aduana.pedimento or "Sin documento" }}</strong>
+
+            </div>
+
+        </div>
+
+        <i class="bi bi-chevron-right"></i>
+
+    </a>
+
+<!-- ENTRADA MTY -->
+
+<div class="exp-item">
+
+    <div class="exp-left">
+
+        <div class="icon-circle">
+
+            <i class="bi bi-file-earmark-text"></i>
+
+        </div>
+
+        <div class="exp-info">
+
+            <small>Entrada MTY</small>
+
+            <strong>{{ aduana.entrada_mtz or "Sin registro" }}</strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+    <!-- ===================================================== -->
+    <!-- DATOS IMPORTACIÓN -->
+    <!-- ===================================================== -->
+
+    <h3 class="grupo-titulo">
+
+        <i class="bi bi-globe-americas"></i>
+
+        Datos de Importación
+
+    </h3>
+
+    <div class="exp-item">
+
+        <div>
+
+            <small>Origen</small>
+
+            <strong>{{ aduana.origen or "-" }}</strong>
+
+        </div>
+
+    </div>
+
+    <div class="exp-item">
+
+        <div>
+
+            <small>Fecha de Importación</small>
+
+            <strong>{{ aduana.fecha_importacion or "-" }}</strong>
+
+        </div>
+
+    </div>
+
+    <div class="exp-item">
+
+        <div>
+
+            <small>ID Importación</small>
+
+            <strong>{{ aduana.id_imp or "-" }}</strong>
+
+        </div>
+
+    </div>
+
+    <div class="exp-item">
+
+        <div>
+
+            <small>Inbond</small>
+
+            <strong>{{ aduana.inbond or "-" }}</strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

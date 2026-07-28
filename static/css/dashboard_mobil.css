@@ -1,0 +1,246 @@
+.dashboard-mobile{
+
+    padding:10px;
+
+}
+
+.welcome{
+
+    margin-bottom:28px;
+
+}
+
+.welcome h2{
+
+    font-size:30px;
+
+    line-height:1.2;
+
+    margin-bottom:6px;
+
+}
+
+.welcome p{
+
+    color:#7a7a7a;
+
+    font-size:16px;
+
+}
+.stats-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:15px;
+
+}
+
+.stat-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    text-align:center;
+
+    padding:18px;
+
+}
+
+.stat-card:active{
+
+    transform:scale(.97);
+
+}
+
+.stat-card i{
+
+    font-size:34px;
+
+    color:#198754;
+
+    margin-bottom:10px;
+
+}
+
+.stat-card h3{
+
+    font-size:32px;
+
+    margin:10px 0;
+
+}
+
+.stat-card span{
+
+    color:#777;
+
+}
+
+.icon-box{
+
+    width:60px;
+
+    height:60px;
+
+    border-radius:18px;
+
+    background:#19875415;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex-shrink:0;
+
+    margin-bottom:12px;
+
+
+}
+
+.icon-box i{
+
+    font-size:34px;
+
+}
+
+.stat-info{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+
+}
+
+.stat-info h3{
+
+    font-size:28px;
+
+    margin:0;
+
+    font-weight:700;
+
+}
+
+.stat-info span{
+
+    color:#666;
+
+    font-size:15px;
+
+}
+
+body{
+
+    background:#f5f7fb;
+
+}
+
+/*======================================
+=            ESCANEAR QR              =
+======================================*/
+
+.scan-card{
+
+    margin-top:30px;
+
+    background:linear-gradient(135deg,#198754,#157347);
+
+    border-radius:24px;
+
+    padding:30px 25px;
+
+    text-align:center;
+
+    color:white;
+
+    box-shadow:0 10px 25px rgba(25,135,84,.30);
+
+}
+
+.scan-icon{
+
+    width:90px;
+
+    height:90px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,.15);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+.scan-icon i{
+
+    font-size:48px;
+
+}
+
+.scan-card h2{
+
+    margin-bottom:10px;
+
+    font-size:28px;
+
+    letter-spacing:1px;
+
+}
+
+.scan-card p{
+
+    opacity:.9;
+
+    line-height:1.5;
+
+    margin-bottom:25px;
+
+}
+
+.scan-btn{
+
+    border:none;
+
+    background:white;
+
+    color:#198754;
+
+    padding:15px 28px;
+
+    border-radius:50px;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.scan-btn:active{
+
+    transform:scale(.96);
+
+}
