@@ -1,0 +1,90 @@
+{% extends "maquinaria_qr/base_qr.html" %}
+
+{% block titulo %}
+Actividad
+{% endblock %}
+
+{% block estilos %}
+
+<link rel="stylesheet" href="{{ url_for('static',
+    filename='css/actividad_mobile.css') }}">
+
+{% endblock %}
+
+{% block contenido %}
+
+<div class="timeline-page">
+
+    <div class="timeline-header">
+
+        <span class="timeline-label">
+            ACTIVIDAD
+        </span>
+
+        <h2>
+            {{ maquinaria.id_activo }}
+        </h2>
+
+        <p>
+            {{ maquinaria.descripcion }}
+        </p>
+
+    </div>
+
+    <div class="activity-feed">
+
+        {% for evento in historial %}
+
+        <div class="activity-item">
+
+            <div class="activity-card">
+
+                <div class="activity-header">
+
+                    <div class="activity-icon {{ evento.color }}">
+
+                        <i class="bi {{ evento.icono }}"></i>
+
+                    </div>
+
+                    <div class="activity-info">
+
+                        <h5>
+
+                            {{ evento.accion }}
+
+                        </h5>
+
+                        <span>
+
+                            {{ evento.fecha_formato }}
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="activity-footer">
+
+                    <div class="activity-user">
+
+                        <i class="bi bi-person-circle"></i>
+
+                        {{ evento.usuario }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

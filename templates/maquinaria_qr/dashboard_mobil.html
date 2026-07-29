@@ -5,125 +5,172 @@ Dashboard
 {% endblock %}
 
 {% block estilos %}
-
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_mobil.css') }}">
-
 {% endblock %}
 
 {% block contenido %}
 
 <div class="dashboard-mobile">
 
-    <section class="welcome">
+    <!-- Header -->
 
-        <h2>👋 Hola, {{ session["nombre"] }}</h2>
+    <section class="dashboard-header">
 
-        <p>Bienvenido nuevamente.</p>
+        <div>
 
-    </section>
+            <span class="dashboard-label">
+                PANEL DE CONTROL
+            </span>
 
-    <section class="stats-grid">
+            <h2>
+                👋 Hola, {{ session["nombre"] }}
+            </h2>
 
-        <div class="stat-card">
-
-            <div class="icon-box">
-
-                <i class="bi bi-box-seam"></i>
-
-            </div>
-
-            <div class="stat-info">
-
-                <h3>217</h3>
-
-                <span>Activos</span>
-
-            </div>
-
-        </div>
-
-        <div class="stat-card">
-
-            <i class="bi bi-tools"></i>
-
-            <h3>12</h3>
-
-            <span>Mantenimiento</span>
-
-        </div>
-
-        <div class="stat-card">
-
-            <i class="bi bi-file-earmark-text"></i>
-
-            <h3>5</h3>
-
-            <span>Solicitudes</span>
-
-        </div>
-
-        <div class="stat-card">
-
-            <i class="bi bi-truck"></i>
-
-            <h3>84</h3>
-
-            <span>Importados</span>
+            <p>
+                Bienvenido nuevamente.
+            </p>
 
         </div>
 
     </section>
 
-    <!-- Escanear QR -->
+    <!-- Buscar -->
 
-<section class="scan-card">
+    <section class="search-section">
 
-    <div class="scan-icon">
+        <label>
 
-        <i class="bi bi-qr-code-scan"></i>
+            <i class="bi bi-search"></i>
 
-    </div>
+            Buscar activo
 
-    <h2>ESCANEAR QR</h2>
+        </label>
 
-    <p>
+        <input
+            type="search"
+            class="search-input"
+            placeholder="ACT-0001, Serie, Descripción...">
 
-        Consulta un activo de forma rápida
-        escaneando su código QR.
+    </section>
 
-    </p>
+    <!-- Escanear -->
 
-    <button class="scan-btn">
+    <section class="scan-card">
 
-        <i class="bi bi-camera-fill"></i>
+        <div class="scan-icon">
 
-        Escanear ahora
+            <i class="bi bi-qr-code-scan"></i>
 
-    </button>
+        </div>
 
-</section>
+        <h3>Escanear código QR</h3>
 
-<section class="search-section">
+        <p>
 
-    <h3>
+            Consulta cualquier activo
+            escaneando su código.
 
-        <i class="bi bi-search"></i>
+        </p>
 
-        Buscar activo
+        <button class="scan-btn">
 
-    </h3>
+            <i class="bi bi-camera-fill"></i>
 
-    <input
+            Escanear ahora
 
-        type="search"
+        </button>
 
-        class="search-input"
+    </section>
 
-        placeholder="ACT-0001 o Llenadora..."
+    <!-- Resumen -->
 
-    >
+    <section class="summary">
 
-</section>
+        <h3>
+
+            <i class="bi bi-bar-chart"></i>
+
+            Resumen
+
+        </h3>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="icon-box">
+
+                    <i class="bi bi-box-seam"></i>
+
+                </div>
+
+                <div>
+
+                    <h3>217</h3>
+
+                    <span>Activos</span>
+
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="icon-box warning">
+
+                    <i class="bi bi-tools"></i>
+
+                </div>
+
+                <div>
+
+                    <h3>12</h3>
+
+                    <span>Mantenimiento</span>
+
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="icon-box primary">
+
+                    <i class="bi bi-file-earmark-text"></i>
+
+                </div>
+
+                <div>
+
+                    <h3>5</h3>
+
+                    <span>Solicitudes</span>
+
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="icon-box secondary">
+
+                    <i class="bi bi-truck"></i>
+
+                </div>
+
+                <div>
+
+                    <h3>84</h3>
+
+                    <span>Importados</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
 
 </div>
 

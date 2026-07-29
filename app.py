@@ -9,6 +9,10 @@ from flask import (
     flash,
 )
 
+from utils.responsive import render_responsive
+
+from datetime import datetime
+
 
 from user_agents import parse
 
@@ -36,7 +40,12 @@ from database.conexion import engine
 from functools import wraps
 from datetime import date
 
-from models.auditoria_model import registrar_movimiento, obtener_historial_activo
+
+from models.auditoria_model import (
+    registrar_movimiento,
+    obtener_historial,
+    obtener_historial_activo
+)
 
 from database.documentos import (
     RUTA_DOCUMENTOS,
@@ -1814,6 +1823,108 @@ def movimientos_mobile(id_activo):
         mantenimiento_en_proceso=mantenimiento_en_proceso,
         solicitud_pendiente=solicitud_pendiente
     )
+
+
+@app.route("/m/maquinarias/<id_activo>/actividad")
+@login_required
+def actividad_mobile(id_activo):
+
+    maquinaria = obtener_maquinaria(id_activo)
+
+    if not maquinaria:
+
+        flash("Activo no encontrado.", "danger")
+        return redirect(url_for("dashboard_mobil"))
+
+    historial = obtener_historial_activo(id_activo)
+
+    historial_procesado = []
+
+    for evento in historial:
+
+        nuevo = dict(evento)
+
+        accion = nuevo["accion"].upper()
+
+        # ===========================
+        # ICONO Y COLOR
+        # ===========================
+
+        if "REINCORPORACION" in accion:
+
+            nuevo["icono"] = "bi-arrow-clockwise"
+            nuevo["color"] = "success"
+
+        elif "BAJA" in accion:
+
+            nuevo["icono"] = "bi-trash-fill"
+            nuevo["color"] = "danger"
+
+        elif "DOCUMENTO" in accion:
+
+            nuevo["icono"] = "bi-file-earmark-text-fill"
+            nuevo["color"] = "primary"
+
+        elif "TRASLADO" in accion:
+
+            nuevo["icono"] = "bi-truck"
+            nuevo["color"] = "info"
+
+        elif "MANTENIMIENTO" in accion:
+
+            nuevo["icono"] = "bi-tools"
+            nuevo["color"] = "warning"
+
+        elif "ADUANA" in accion or "PEDIMENTO" in accion:
+
+            nuevo["icono"] = "bi-folder2-open"
+            nuevo["color"] = "secondary"
+
+        else:
+
+            nuevo["icono"] = "bi-clock-history"
+            nuevo["color"] = "dark"
+
+        # ===========================
+        # FORMATO DE FECHA
+        # ===========================
+
+        fecha = nuevo["fecha"]
+
+        if isinstance(fecha, datetime):
+
+            nuevo["fecha_formato"] = fecha.strftime("%d %b · %H:%M")
+
+        else:
+
+            nuevo["fecha_formato"] = str(fecha)
+
+        historial_procesado.append(nuevo)
+
+    return render_template(
+
+        "maquinaria_qr/actividad_mobile.html",
+
+        maquinaria=maquinaria,
+
+        historial=historial_procesado
+
+    )
+
+from flask import request
+
+def es_movil():
+
+    user_agent = request.user_agent.string.lower()
+
+    palabras = [
+        "android",
+        "iphone",
+        "ipad",
+        "mobile"
+    ]
+
+    return any(p in user_agent for p in palabras)
 # ==========================================================
 # SERVIDOR
 # ==========================================================

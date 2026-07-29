@@ -240,7 +240,7 @@
 
 <h3 class="section-title">
 
-    Accesos rápidos
+    Explorar el activo
 
 </h3>
 
@@ -263,23 +263,36 @@
 
     </a>
 
+    <a class="quick-card" href="{{ url_for('actividad_mobile',
+                    id_activo=maquinaria.id_activo) }}">
+
+        <i class="bi bi-clock-history"></i>
+
+        <span>Actividad</span>
+
+    </a>
+
+    <a class="quick-card" href="#">
+
+        <i class="bi bi-images"></i>
+
+        <span>Fotografías</span>
+
+    </a>
+
 
 
 </div>
 
 {% if maquinaria.estado == "BAJA" %}
 
-<div class="modal fade"
-    id="modalSolicitudReactivacion"
-    tabindex="-1"
-    aria-hidden="true">
+<div class="modal fade" id="modalSolicitudReactivacion" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog">
 
         <div class="modal-content">
 
-            <form method="POST"
-                action="{{ url_for('solicitud_baja',
+            <form method="POST" action="{{ url_for('solicitud_baja',
                                     id_activo=maquinaria.id_activo) }}">
 
                 <div class="modal-header">
@@ -288,25 +301,17 @@
                         Solicitar reactivación
                     </h5>
 
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 
                 </div>
 
                 <div class="modal-body">
 
-                    <input type="hidden"
-                        name="tipo"
-                        value="REINCORPORACION">
+                    <input type="hidden" name="tipo" value="REINCORPORACION">
 
-                    <input type="hidden"
-                        name="origen"
-                        value="qr">
+                    <input type="hidden" name="origen" value="qr">
 
-                    <input type="hidden"
-                        name="prioridad"
-                        value="Media">
+                    <input type="hidden" name="prioridad" value="Media">
 
                     <div class="mb-3">
 
@@ -314,10 +319,7 @@
                             Motivo
                         </label>
 
-                        <textarea class="form-control"
-                                name="motivo"
-                                rows="3"
-                                required></textarea>
+                        <textarea class="form-control" name="motivo" rows="3" required></textarea>
 
                     </div>
 
@@ -327,9 +329,7 @@
                             Observaciones
                         </label>
 
-                        <textarea class="form-control"
-                                name="observaciones"
-                                rows="3"></textarea>
+                        <textarea class="form-control" name="observaciones" rows="3"></textarea>
 
                     </div>
 
@@ -337,14 +337,11 @@
 
                 <div class="modal-footer">
 
-                    <button type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         Cancelar
                     </button>
 
-                    <button type="submit"
-                            class="btn btn-success">
+                    <button type="submit" class="btn btn-success">
                         Enviar solicitud
                     </button>
 
@@ -361,4 +358,3 @@
 {% endif %}
 
 {% endblock %}
-

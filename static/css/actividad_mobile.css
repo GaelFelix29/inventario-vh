@@ -1,0 +1,209 @@
+.timeline-page{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:22px;
+
+}
+
+.timeline-header{
+
+    margin-bottom:10px;
+
+}
+
+.timeline-label{
+
+    font-size:.75rem;
+
+    font-weight:700;
+
+    color:#8A8A8A;
+
+    letter-spacing:1px;
+
+}
+
+.timeline-header h2{
+
+    font-size:1.8rem;
+
+    font-weight:700;
+
+    margin:4px 0;
+
+    color:#1C1C1E;
+
+}
+
+.timeline-header p{
+
+    color:#6B7280;
+
+    font-size:.95rem;
+
+    line-height:1.4;
+
+}
+
+.activity-feed{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+
+}
+
+.activity-card{
+
+    background:#FFFFFF;
+
+    border-radius:18px;
+
+    padding:18px;
+
+    box-shadow:0 4px 14px rgba(0,0,0,.08);
+
+}
+
+.activity-header{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:16px;
+
+}
+
+.activity-icon{
+
+    width:52px;
+
+    height:52px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex-shrink:0;
+
+    font-size:22px;
+
+}
+
+.activity-icon.success{
+
+    background:#EAF8F0;
+
+    color:#198754;
+
+}
+
+.activity-icon.danger{
+
+    background:#FDECEC;
+
+    color:#DC3545;
+
+}
+
+.activity-icon.primary{
+
+    background:#E9F2FF;
+
+    color:#0D6EFD;
+
+}
+
+.activity-icon.warning{
+
+    background:#FFF7E6;
+
+    color:#F59E0B;
+
+}
+
+.activity-icon.info{
+
+    background:#EAF7FB;
+
+    color:#0EA5E9;
+
+}
+
+.activity-icon.secondary{
+
+    background:#F3F4F6;
+
+    color:#6B7280;
+
+}
+
+.activity-icon.dark{
+
+    background:#F5F5F5;
+
+    color:#343A40;
+
+}
+
+.activity-info{
+
+    flex:1;
+
+}
+
+.activity-info h5{
+
+    font-size:1.05rem;
+
+    font-weight:700;
+
+    line-height:1.3;
+
+    margin:0;
+}
+
+.activity-info span{
+
+    display:block;
+
+    margin-top:6px;
+
+    color:#8A8A8A;
+
+    font-size:.82rem;
+
+}
+
+.activity-footer{
+
+    margin-top:14px;
+
+    padding-top:14px;
+
+    border-top:1px solid #F3F4F6;
+}
+
+.activity-user{
+
+    color:#6B7280;
+
+    font-size:.82rem;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+}
