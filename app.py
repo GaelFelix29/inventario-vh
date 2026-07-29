@@ -1354,6 +1354,9 @@ def subir_documento(id_activo):
             nombre_original=nombre_original,
             nombre_archivo=nombre_archivo,
             tipo=tipo_documento,
+            tipo_archivo="DOCUMENTO",
+            descripcion=request.form.get("descripcion"),
+            url=url_guardar,
             public_id=ruta,
             usuario=session["nombre"],
         )
@@ -1951,6 +1954,112 @@ def qr_evidencias(id_activo):
 
         imagenes=imagenes
 
+    )
+    
+@app.route("/qr/<id_activo>/evidencias", methods=["POST"])
+@login_required
+def subir_evidencia(id_activo):
+
+    if session.get("rol") != "Administrador":
+
+        flash("No tiene permisos para subir evidencias.", "danger")
+
+        return redirect(
+            url_for("qr_evidencias", id_activo=id_activo)
+        )
+
+    archivo = request.files.get("documento")
+
+    if not archivo or archivo.filename == "":
+
+        flash("Seleccione una imagen.", "warning")
+
+        return redirect(
+            url_for("qr_evidencias", id_activo=id_activo)
+        )
+
+    try:
+
+        nombre_original = archivo.filename
+
+        nombre_seguro = secure_filename(nombre_original)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        nombre_archivo = f"{id_activo}_{timestamp}_{nombre_seguro}"
+
+        archivo_bytes = archivo.read()
+
+        ruta = f"{id_activo}/{nombre_archivo}"
+
+        supabase.storage.from_("documentos").upload(
+
+            path=ruta,
+
+            file=archivo_bytes,
+
+            file_options={
+                "content-type": archivo.content_type,
+                "upsert": False
+            }
+
+        )
+
+        url_publica = supabase.storage.from_("documentos").get_public_url(ruta)
+
+        if isinstance(url_publica, dict):
+
+            url_guardar = (
+                url_publica.get("publicUrl")
+                or url_publica.get("public_url")
+            )
+
+        else:
+
+            url_guardar = url_publica
+
+        guardar_documento_bd(
+
+            id_activo=id_activo,
+
+            nombre_original=nombre_original,
+
+            nombre_archivo=nombre_archivo,
+
+            tipo=request.form.get("tipo"),
+
+            tipo_archivo="IMAGEN",
+
+            descripcion=request.form.get("descripcion"),
+
+            url=url_guardar,
+
+            public_id=ruta,
+
+            usuario=session["nombre"]
+
+        )
+
+        registrar_movimiento(
+
+            usuario=session["nombre"],
+
+            accion=f"Subió evidencia: {nombre_original}",
+
+            modulo="Evidencias",
+
+            referencia=id_activo
+
+        )
+
+        flash("Evidencia guardada correctamente.", "success")
+
+    except Exception as e:
+
+        flash(str(e), "danger")
+
+    return redirect(
+        url_for("qr_evidencias", id_activo=id_activo)
     )
 # ==========================================================
 # SERVIDOR

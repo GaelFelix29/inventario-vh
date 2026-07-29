@@ -1,22 +1,20 @@
 {% extends "maquinaria_qr/base_qr.html" %}
 
-{% block contenido %}
-
 {% block estilos %}
 
-<link rel="stylesheet" href="{{ url_for('static',
-filename='css/evidencias.css') }}">
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/evidencias.css') }}">
 
 {% endblock %}
+
+{% block contenido %}
 
 <div class="evidencias-page">
 
     <div class="evidencias-header">
 
         <div class="icono">
-
             <i class="bi bi-images"></i>
-
         </div>
 
         <h2>Evidencias</h2>
@@ -24,91 +22,107 @@ filename='css/evidencias.css') }}">
         <span>{{ maquinaria.id_activo }}</span>
 
         <p>
-
             {{ maquinaria.descripcion }}
-
         </p>
 
     </div>
 
-    <div class="capturar-card">
+    <form id="formEvidencia"
+          method="POST"
+          enctype="multipart/form-data"
+          action="{{ url_for('subir_evidencia',
+                             id_activo=maquinaria.id_activo) }}">
 
-        <i class="bi bi-camera-fill"></i>
-
-        <h5>Capturar evidencia</h5>
-
-        <p>
-
-            Agrega fotografías para documentar
-            el estado del activo.
-
-        </p>
-
-        <label class="btn-capturar" for="inputImagen">
+        <div class="capturar-card">
 
             <i class="bi bi-camera-fill"></i>
 
-            Agregar evidencia
+            <h5>Capturar evidencia</h5>
 
-        </label>
+            <p>
+                Agrega fotografías para documentar
+                el estado del activo.
+            </p>
 
-        <input id="inputImagen" type="file" accept="image/*" capture="environment" hidden>
+            <label class="btn-capturar" for="inputImagen">
 
-    </div>
+                <i class="bi bi-camera-fill"></i>
 
-    <div id="previewCard" class="preview-card d-none">
-
-        <img id="previewImagen" class="preview-img">
-
-        <div class="mt-3">
-
-            <label>
-
-                Tipo de evidencia
+                Agregar evidencia
 
             </label>
 
-            <select id="tipoEvidencia" class="form-select">
+        </div>
 
-                <option>General</option>
+        <input
+            id="inputImagen"
+            name="documento"
+            type="file"
+            accept="image/*"
+            capture="environment"
+            hidden>
 
-                <option>Motor</option>
+        <div id="previewCard" class="preview-card d-none">
 
-                <option>Placa</option>
+            <img
+                id="previewImagen"
+                class="preview-img"
+                alt="Vista previa de la evidencia">
 
-                <option>Número de serie</option>
+            <div class="mt-3">
 
-                <option>Daño</option>
+                <label>
 
-                <option>Antes mantenimiento</option>
+                    Tipo de evidencia
 
-                <option>Después mantenimiento</option>
+                </label>
 
-                <option>Otro</option>
+                <select
+                    id="tipoEvidencia"
+                    class="form-select"
+                    name="tipo">
 
-            </select>
+                    <option value="General">General</option>
+                    <option value="Motor">Motor</option>
+                    <option value="Placa">Placa</option>
+                    <option value="Número de serie">Número de serie</option>
+                    <option value="Daño">Daño</option>
+                    <option value="Antes mantenimiento">Antes mantenimiento</option>
+                    <option value="Después mantenimiento">Después mantenimiento</option>
+                    <option value="Otro">Otro</option>
+
+                </select>
+
+            </div>
+
+            <div class="mt-3">
+
+                <label>
+
+                    Descripción
+
+                </label>
+
+                <textarea
+                    id="descripcion"
+                    name="descripcion"
+                    rows="3"
+                    class="form-control"
+                    placeholder="Describe la evidencia..."></textarea>
+
+            </div>
+
+            <button
+                type="submit"
+                class="btn-capturar mt-4">
+
+                Guardar evidencia
+
+            </button>
 
         </div>
 
-        <div class="mt-3">
-
-            <label>
-
-                Descripción
-
-            </label>
-
-            <textarea id="descripcion" rows="3" class="form-control"></textarea>
-
-        </div>
-
-        <button class="btn-capturar mt-4">
-
-            Guardar evidencia
-
-        </button>
-
-    </div>
+    </form>
 
     {% if imagenes %}
 
@@ -118,7 +132,10 @@ filename='css/evidencias.css') }}">
 
         <div class="foto-card">
 
-            FOTO
+            <img
+                src="{{ imagen.url }}"
+                class="foto-galeria"
+                alt="{{ imagen.descripcion or 'Evidencia' }}">
 
         </div>
 
@@ -151,20 +168,17 @@ filename='css/evidencias.css') }}">
 
 </div>
 
-
 <script>
 
-const input=document.getElementById("inputImagen");
+const input = document.getElementById("inputImagen");
+const preview = document.getElementById("previewCard");
+const img = document.getElementById("previewImagen");
 
-const preview=document.getElementById("previewCard");
+input.addEventListener("change", function () {
 
-const img=document.getElementById("previewImagen");
+    if (!this.files.length) return;
 
-input.addEventListener("change",function(){
-
-    if(!this.files.length) return;
-
-    img.src=URL.createObjectURL(this.files[0]);
+    img.src = URL.createObjectURL(this.files[0]);
 
     preview.classList.remove("d-none");
 

@@ -144,10 +144,10 @@
 
     width:100%;
 
-    border-radius:18px;
+    max-height:220px;
 
     object-fit:cover;
 
-    max-height:300px;
+    border-radius:18px;
 
 }
