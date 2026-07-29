@@ -1,0 +1,229 @@
+{% extends "maquinaria_qr/base_qr.html" %}
+
+{% block titulo %}
+Solicitud de Movimiento
+{% endblock %}
+
+{% block estilos %}
+<link rel="stylesheet"
+    href="{{ url_for('static', filename='css/formulario_movimiento.css') }}">
+{% endblock %}
+
+{% block contenido %}
+
+<div class="page-title">
+
+    <a href="javascript:history.back()" class="back-btn">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+
+    <div>
+
+        <h2>{{ titulo }}</h2>
+
+        <p>{{ maquina.descripcion }}</p>
+
+    </div>
+
+</div>
+
+<div class="fm-activo-card">
+
+    <div class="fm-activo-icon">
+
+        <i class="bi bi-cpu-fill"></i>
+
+    </div>
+
+    <div class="fm-activo-info">
+
+        <span class="fm-activo-id">
+
+            {{ maquina.id_activo }}
+
+        </span>
+
+        <h3>
+
+            {{ maquina.descripcion }}
+
+        </h3>
+
+        <p>
+
+            {{ maquina.marca }} • {{ maquina.modelo }}
+
+        </p>
+
+    </div>
+
+</div>
+
+<form method="POST"
+    action="{{ url_for('solicitud_baja', id_activo=maquina.id_activo) }}">
+
+    <input type="hidden" name="tipo" value="{{ tipo }}">
+    <input type="hidden" name="origen" value="mobile">
+
+    <!-- PRIORIDAD -->
+
+    <div class="fm-campo">
+
+        <label class="fm-titulo-seccion">
+
+            Prioridad
+
+        </label>
+
+        <div class="fm-prioridad-grid">
+
+            <label class="fm-prioridad-card alta">
+
+                <input type="radio"
+                    name="prioridad"
+                    value="ALTA"
+                    required>
+
+                <span class="fm-icono">🔴</span>
+
+                <span>Alta</span>
+
+            </label>
+
+            <label class="fm-prioridad-card media">
+
+                <input type="radio"
+                    name="prioridad"
+                    value="MEDIA">
+
+                <span class="fm-icono">🟡</span>
+
+                <span>Media</span>
+
+            </label>
+
+            <label class="fm-prioridad-card baja">
+
+                <input type="radio"
+                    name="prioridad"
+                    value="BAJA">
+
+                <span class="fm-icono">🟢</span>
+
+                <span>Baja</span>
+
+            </label>
+
+        </div>
+
+    </div>
+
+    <!-- MOTIVO -->
+
+    <div class="fm-campo">
+
+        <label class="fm-titulo-seccion">
+
+            Motivo
+
+        </label>
+
+        <textarea
+            class="fm-campo-texto"
+            name="motivo"
+            rows="4"
+            placeholder="Describe el motivo de la solicitud..."
+            required></textarea>
+
+    </div>
+
+    <!-- OBSERVACIONES -->
+
+    <div class="fm-campo">
+
+        <label class="fm-titulo-seccion">
+
+            Observaciones
+
+        </label>
+
+        <textarea
+            class="fm-campo-texto"
+            name="observaciones"
+            rows="5"
+            placeholder="Información adicional..."></textarea>
+
+    </div>
+
+    <!-- TRASLADO -->
+
+    {% if tipo == "TRASLADO" %}
+
+    <div class="fm-campo">
+
+        <label class="fm-titulo-seccion">
+
+            📍 Ubicación destino
+
+        </label>
+
+        <input
+            class="fm-campo-input"
+            type="text"
+            name="ubicacion_destino"
+            placeholder="Ej. Almacén Norte">
+
+    </div>
+
+    {% endif %}
+
+    <!-- MANTENIMIENTO -->
+
+    {% if tipo == "MANTENIMIENTO" %}
+
+    <div class="fm-campo">
+
+        <label class="fm-titulo-seccion">
+
+            🏭 Proveedor
+
+        </label>
+
+        <input
+            class="fm-campo-input"
+            type="text"
+            name="proveedor_mantenimiento"
+            placeholder="Proveedor de mantenimiento">
+
+    </div>
+
+    <div class="fm-campo">
+
+        <label class="fm-titulo-seccion">
+
+            📅 Fecha estimada
+
+        </label>
+
+        <input
+            class="fm-campo-input"
+            type="date"
+            name="fecha_estimada_fin">
+
+    </div>
+
+    {% endif %}
+
+    <button
+        class="fm-btn-enviar"
+        type="submit">
+
+        <i class="bi bi-send-fill"></i>
+
+        Enviar solicitud
+
+    </button>
+
+</form>
+
+{% endblock %}

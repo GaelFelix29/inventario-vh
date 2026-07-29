@@ -144,29 +144,26 @@
 
                         {% endif %}
 
-                        {% if maquina.estado == "EN_TRASLADO" %}
+                        {% if traslado_en_proceso %}
 
                         <form method="POST" action="{{ url_for('confirmar_recepcion_route',
-                                id_activo=maquina.id_activo) }}">
+                        id_activo=maquina.id_activo) }}">
 
-                            <button class="btn btn-primary rounded-pill">
-
+                            <button class="btn btn-primary w-100 rounded-pill mt-2">
                                 <i class="bi bi-truck"></i>
-
                                 Confirmar recepción
-
                             </button>
 
                         </form>
 
                         {% endif %}
 
-                        {% if maquina.estado == "EN_MANTENIMIENTO" %}
+                        {% if mantenimiento_en_proceso %}
 
                         <form method="POST" action="{{ url_for('finalizar_mantenimiento_route',
-                                id_activo=maquina.id_activo) }}">
+                        id_activo=maquina.id_activo) }}">
 
-                            <button class="btn btn-success rounded-pill">
+                            <button class="btn btn-warning w-100 rounded-pill mt-2">
 
                                 <i class="bi bi-tools"></i>
 
@@ -1415,8 +1412,8 @@
 
                         <div class="col-lg-7">
 
-                            <form action="{{ url_for('subir_documento', id_activo=maquina.id_activo) }}"
-                                method="POST" enctype="multipart/form-data">
+                            <form action="{{ url_for('subir_documento', id_activo=maquina.id_activo) }}" method="POST"
+                                enctype="multipart/form-data">
 
                                 <div class="mb-3">
                                     <label class="form-label">
@@ -1518,7 +1515,7 @@
 
                         {% if maquina.estado == "BAJA" %}
 
-                        <select class="form-select" name="tipo">
+                        <select class="form-select" name="tipo" id="tipoSolicitud">
 
                             <option value="REINCORPORACION">
                                 ♻️ Reactivación
@@ -1528,7 +1525,7 @@
 
                         {% else %}
 
-                        <select class="form-select" name="tipo">
+                        <select class="form-select" name="tipo" id="tipoSolicitud">
 
                             <option value="BAJA">🗑️ Baja definitiva</option>
 
@@ -1728,6 +1725,9 @@
         const campoFecha = document.getElementById("campoFecha");
 
         function actualizarFormulario() {
+
+            console.log("Tipo:", tipo.value);
+
 
             campoUbicacion.classList.add("d-none");
             campoProveedor.classList.add("d-none");

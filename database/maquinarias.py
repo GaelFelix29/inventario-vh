@@ -515,94 +515,57 @@ def confirmar_recepcion_activo(id_activo, usuario):
 
     with engine.begin() as conn:
 
+        # Buscar el traslado en proceso
         sql = text("""
-
             SELECT ubicacion_destino
-
             FROM solicitudes_baja
-
-            WHERE
-
-            id_activo=:id
-
-            AND tipo='TRASLADO'
-
-            AND estado='En proceso'
-
+            WHERE id_activo = :id
+            AND tipo = 'TRASLADO'
+            AND estado = 'En proceso'
             ORDER BY fecha_aprobacion DESC
-
             LIMIT 1
-
         """)
 
         fila = conn.execute(
-
             sql,
-
             {"id": id_activo}
-
         ).mappings().first()
 
         if not fila:
-
             raise Exception(
-
-                "No existe un traslado aprobado para este activo."
-
+                "No existe un traslado en proceso para este activo."
             )
 
+        # Confirmar recepción de la maquinaria
         confirmar_recepcion(
-
             conn,
-
             id_activo,
-
             fila["ubicacion_destino"]
-
         )
-        
+
+        # Finalizar la solicitud
         sql = text("""
-
-        UPDATE solicitudes_baja
-
-        SET
-
-            estado='Finalizada',
-
-            fecha_finalizacion=NOW(),
-
-            finalizado_por=:usuario
-
-            WHERE
-
-            id_activo=:id
-
-            AND tipo='TRASLADO'
-
-            AND estado='En proceso'
-
-    """)
+            UPDATE solicitudes_baja
+            SET
+                estado = 'Finalizada',
+                fecha_finalizacion = NOW(),
+                finalizado_por = :usuario
+            WHERE id_activo = :id
+            AND tipo = 'TRASLADO'
+            AND estado = 'En proceso'
+        """)
 
         conn.execute(sql, {
-
-        "id": id_activo,
-
-        "usuario": usuario
-
-})
+            "id": id_activo,
+            "usuario": usuario
+        })
 
         registrar_movimiento(
-
             usuario=usuario,
-
-            accion="Confirmó recepción del activo",
-
-            modulo="Maquinaria",
-
+            accion="Confirmó recepción del traslado",
+            modulo="Movimientos",
             referencia=id_activo,
-
             conn=conn
-
         )
 
 def finalizar_mantenimiento_activo(id_activo, usuario):
@@ -723,3 +686,22 @@ def reincorporar_desde_solicitud(conn, id_activo):
         "id": id_activo
 
     })
+
+def obtener_mantenimiento_en_proceso(id_activo):
+
+    with engine.begin() as conn:
+
+        sql = text("""
+            SELECT *
+            FROM solicitudes_baja
+            WHERE id_activo = :id_activo
+            AND tipo = 'MANTENIMIENTO'
+            AND estado = 'En proceso'
+            ORDER BY fecha DESC
+            LIMIT 1
+        """)
+
+        return conn.execute(
+            sql,
+            {"id_activo": id_activo}
+        ).mappings().first()

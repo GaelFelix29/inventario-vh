@@ -163,6 +163,24 @@ def aprobar_solicitud(id_solicitud, administrador, comentario):
             "comentario": comentario
 
         })
+        
+        print("=" * 60)
+        print("TIPO:", solicitud["tipo"])
+        print("NUEVO ESTADO:", nuevo_estado)
+
+        sql_estado = text("""
+            SELECT estado
+            FROM solicitudes_baja
+            WHERE id = :id
+        """)
+
+        estado_bd = conn.execute(
+            sql_estado,
+            {"id": id_solicitud}
+        ).scalar()
+
+        print("ESTADO EN BD:", estado_bd)
+        print("=" * 60)
 
         # Ejecutar acción según el tipo
         if solicitud["tipo"] == "BAJA":
@@ -181,13 +199,10 @@ def aprobar_solicitud(id_solicitud, administrador, comentario):
 
         elif solicitud["tipo"] == "TRASLADO":
 
-            traslado_desde_solicitud(
-
-                conn,
-
-                solicitud["id_activo"]
-
-            )
+            # El traslado NO cambia la ubicación al aprobarse.
+            # La ubicación se actualizará cuando el usuario
+            # confirme la recepción del activo.
+            pass
 
         elif solicitud["tipo"] == "MANTENIMIENTO":
 
@@ -335,3 +350,22 @@ def existe_solicitud_pendiente(id_activo):
         ).scalar()
 
     return total > 0
+
+def obtener_traslado_en_proceso(id_activo):
+
+    with engine.begin() as conn:
+
+        sql = text("""
+            SELECT *
+            FROM solicitudes_baja
+            WHERE id_activo = :id_activo
+            AND tipo = 'TRASLADO'
+            AND estado = 'En proceso'
+            ORDER BY fecha DESC
+            LIMIT 1
+        """)
+
+        return conn.execute(
+            sql,
+            {"id_activo": id_activo}
+        ).mappings().first()

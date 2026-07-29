@@ -244,3 +244,35 @@ body{
     transform:scale(.96);
 
 }
+
+.search-section{
+
+    margin-top:25px;
+
+}
+
+.search-section h3{
+
+    font-size:20px;
+
+    margin-bottom:15px;
+
+}
+
+.search-input{
+
+    width:100%;
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:white;
+
+    font-size:16px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+
+}

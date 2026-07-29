@@ -1,0 +1,217 @@
+{% extends "maquinaria_qr/base_qr.html" %}
+
+{% block titulo %}
+Movimientos
+{% endblock %}
+
+{% block estilos %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/movimientos_mobil.css') }}">
+{% endblock %}
+
+{% block contenido %}
+
+<div class="page-header">
+
+    <div class="page-icon">
+        <i class="bi bi-arrow-left-right"></i>
+    </div>
+
+    <div class="page-info">
+
+        <span class="page-label">
+            Centro de Operaciones
+        </span>
+
+        <h1 class="asset-name">
+            {{ maquina.descripcion }}
+        </h1>
+
+        <span class="asset-id">
+            {{ maquina.id_activo }}
+        </span>
+
+    </div>
+
+</div>
+
+<div class="asset-status">
+
+    <div class="status-pill
+        {% if maquina.estado == 'ACTIVO' %}
+            success
+        {% elif maquina.estado == 'BAJA' %}
+            danger
+        {% else %}
+            warning
+        {% endif %}
+    ">
+
+        {% if solicitud_pendiente %}
+            <i class="bi bi-hourglass-split"></i>
+            Solicitud pendiente
+
+        {% elif maquina.estado == "BAJA" %}
+            <i class="bi bi-x-circle-fill"></i>
+            Activo dado de baja
+
+        {% else %}
+            <i class="bi bi-check-circle-fill"></i>
+            Disponible
+        {% endif %}
+
+    </div>
+
+</div>
+
+<!-- Solicitar Movimiento -->
+
+{% if not solicitud_pendiente %}
+
+<section class="nuevo-movimiento">
+
+    <h3>
+
+        <i class="bi bi-lightning-charge-fill"></i>
+
+        Operaciones disponibles
+
+    </h3>
+
+    <div class="movimientos-grid">
+
+        <!-- Traslado -->
+
+        <a class="mov-card traslado" href="{{ url_for('formulario_movimiento_mobile',
+                    id_activo=maquina.id_activo,
+                    tipo='TRASLADO') }}">
+
+            <div class="mov-left">
+
+                <div class="mov-icon traslado-icon">
+
+                    <i class="bi bi-truck"></i>
+
+                </div>
+
+                <div class="mov-info">
+
+                    <h4>Traslado</h4>
+
+                    <p>
+                        Cambiar la ubicación del activo.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="mov-arrow">
+
+                <i class="bi bi-chevron-right"></i>
+
+            </div>
+
+        </a>
+
+        <!-- Mantenimiento -->
+
+        <a class="mov-card mantenimiento" href="{{ url_for('formulario_movimiento_mobile',
+                    id_activo=maquina.id_activo,
+                    tipo='MANTENIMIENTO') }}">
+
+            <div class="mov-left">
+
+                <div class="mov-icon mantenimiento-icon">
+                    <i class="bi bi-tools"></i>
+                </div>
+
+                <div class="mov-info">
+
+                    <h4>Mantenimiento</h4>
+
+                    <p>Solicitar reparación o servicio.</p>
+
+                </div>
+
+            </div>
+
+            <div class="mov-arrow">
+                <i class="bi bi-chevron-right"></i>
+            </div>
+
+        </a>
+
+        <!-- Baja -->
+
+        <a class="mov-card baja" href="{{ url_for('formulario_movimiento_mobile',
+                    id_activo=maquina.id_activo,
+                    tipo='BAJA') }}">
+
+            <div class="mov-left">
+
+                <div class="mov-icon baja-icon">
+                    <i class="bi bi-trash"></i>
+                </div>
+
+                <div class="mov-info">
+
+                    <h4>Baja definitiva</h4>
+
+                    <p>Retirar el activo del inventario.</p>
+
+                </div>
+
+            </div>
+
+            <div class="mov-arrow">
+                <i class="bi bi-chevron-right"></i>
+            </div>
+
+        </a>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<!-- Historial -->
+
+<section class="historial">
+
+    <h3>
+
+        <i class="bi bi-clock-history"></i>
+
+        Historial
+
+    </h3>
+
+    <div class="historial-card">
+
+        <span class="badge traslado">
+            🚚 Traslado
+        </span>
+
+        <h4>Pendiente</h4>
+
+        <small>Hace 2 horas</small>
+
+    </div>
+
+    <div class="historial-card">
+
+        <span class="badge mantenimiento">
+            🔧 Mantenimiento
+        </span>
+
+        <h4>Aprobado</h4>
+
+        <small>Hace 5 días</small>
+
+    </div>
+
+</section>
+
+{% endblock %}

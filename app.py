@@ -9,6 +9,9 @@ from flask import (
     flash,
 )
 
+
+from user_agents import parse
+
 from flask import redirect, url_for, abort
 import re
 
@@ -51,6 +54,7 @@ from database.solicitudes_baja import (
     aprobar_solicitud,
     rechazar_solicitud,
     existe_solicitud_pendiente,
+    obtener_traslado_en_proceso
 )
 
 import pandas as pd
@@ -93,6 +97,8 @@ from database.maquinarias import (
     finalizar_mantenimiento,
     confirmar_recepcion_activo,
     finalizar_mantenimiento_activo,
+    obtener_mantenimiento_en_proceso
+    
 )
 
 from database.aduanas import (
@@ -116,6 +122,26 @@ app.secret_key = "VitalHealth2026"
 # DECORADORES
 # ==========================================
 
+def es_dispositivo_movil():
+
+    user_agent = request.headers.get("User-Agent")
+
+    ua = parse(user_agent)
+
+    return ua.is_mobile
+
+@app.route("/prueba")
+
+@app.route("/prueba")
+def prueba():
+
+    user_agent = request.headers.get("User-Agent")
+
+    return f"""
+    <h2>{user_agent}</h2>
+    <hr>
+    {'CELULAR' if es_dispositivo_movil() else 'COMPUTADORA'}
+    """
 
 def login_required(func):
 
@@ -449,8 +475,11 @@ def dashboard_datos():
     aduana = obtener_aduanas()
 
     total = len(maq)
-    bajas = maq["fecha_baja"].notna().sum()
-    activos = total - bajas
+
+    bajas = (maq["estado"] == "BAJA").sum()
+
+    activos = (maq["estado"] == "ACTIVO").sum()
+    
     valor = maq["valor_mx"].fillna(0).sum()
 
     origen = aduana["origen"].fillna("SIN DATO").value_counts()
@@ -722,22 +751,33 @@ def expediente_maquinaria(id_activo):
     vecinos = obtener_activos_vecinos(id_activo)
 
     documentos = listar_documentos(id_activo)
+    
+    traslado_en_proceso = obtener_traslado_en_proceso(id_activo)
+    
+    mantenimiento_en_proceso = obtener_mantenimiento_en_proceso(id_activo)
+    
+    print("=" * 60)
+    print("ACTIVO:", id_activo)
+    print("TRASLADO:", traslado_en_proceso)
+    print("=" * 60)
 
     return render_template(
-        "expediente_maquinaria.html",
-        maquina=maquina,
-        aduana=aduana,
-        estado_aduana=estado_aduana,
-        historial=historial,
-        documentos=documentos,
-        anterior=vecinos["anterior"],
-        siguiente=vecinos["siguiente"],
-        es_nacional=es_nacional,
-        es_importado=es_importado,
-        es_pendiente=es_pendiente,
-        es_sin_clasificar=es_sin_clasificar,
-        es_reingreso=es_reingreso,
-    )
+    "expediente_maquinaria.html",
+    maquina=maquina,
+    aduana=aduana,
+    estado_aduana=estado_aduana,
+    historial=historial,
+    documentos=documentos,
+    traslado_en_proceso=traslado_en_proceso,
+    anterior=vecinos["anterior"],
+    siguiente=vecinos["siguiente"],
+    es_nacional=es_nacional,
+    es_importado=es_importado,
+    es_pendiente=es_pendiente,
+    es_sin_clasificar=es_sin_clasificar,
+    es_reingreso=es_reingreso,
+    mantenimiento_en_proceso=mantenimiento_en_proceso,
+)
 
 
 @app.route("/maquinarias/<id_activo>/imprimir")
@@ -849,7 +889,6 @@ def solicitud_baja(id_activo):
     if session.get("rol") not in ["Administrador", "Mantenimiento"]:
 
         flash("No tiene permisos para realizar esta acción.", "danger")
-
         return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
     maquina = obtener_maquinaria(id_activo)
@@ -857,39 +896,73 @@ def solicitud_baja(id_activo):
     if not maquina:
 
         flash("El activo no existe.", "danger")
-
         return redirect(url_for("lista_maquinarias"))
 
+    origen = request.form.get("origen", "desktop")
+
+    print("=" * 50)
+    print("ORIGEN:", origen)
+    print("FORM:", request.form.to_dict())
+    print("=" * 50)
+
+    # ---------- ESTA FUNCIÓN VA DENTRO ----------
+    def regresar():
+
+        print(">>> regresar()")
+        print(">>> origen =", origen)
+
+        if origen in ("mobile", "qr"):
+
+            print(">>> REDIRECCIÓN A MÓVIL")
+
+            return redirect(
+                url_for(
+                    "maquinaria_qr",
+                    id_activo=id_activo
+                )
+            )
+
+        print(">>> REDIRECCIÓN A ESCRITORIO")
+
+        return redirect(
+            url_for(
+                "expediente_maquinaria",
+                id_activo=id_activo
+            )
+        )
+
     # ==================================================
-# VALIDACIÓN 1
-# El activo ya está dado de baja
-# ==================================================
+    # VALIDACIÓN 1
+    # ==================================================
 
     tipo = request.form["tipo"]
 
     if maquina["estado"] == "BAJA" and tipo != "REINCORPORACION":
 
-            flash(
-                "Este activo ya fue dado de baja y solo puede solicitar una reactivación.",
-                "warning",
-            )
+        flash(
+            "Este activo ya fue dado de baja y solo puede solicitar una reactivación.",
+            "warning",
+        )
 
-            return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
+        return regresar()
+
     # ==================================================
     # VALIDACIÓN 2
-    # Ya existe una solicitud pendiente
     # ==================================================
 
     if existe_solicitud_pendiente(id_activo):
 
-        flash("Este activo ya cuenta con una solicitud pendiente.", "warning")
+        flash(
+            "Este activo ya cuenta con una solicitud pendiente.",
+            "warning"
+        )
 
-        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
+        return regresar()
 
     datos = {
         "id_activo": id_activo,
         "solicitante": session["nombre"],
-        "tipo": request.form["tipo"],
+        "tipo": tipo,
         "motivo": request.form["motivo"],
         "observaciones": request.form["observaciones"],
         "prioridad": request.form["prioridad"],
@@ -899,7 +972,6 @@ def solicitud_baja(id_activo):
     }
 
     guardar_solicitud(datos)
-
 
     acciones = {
         "BAJA": "Solicitó baja del activo",
@@ -920,7 +992,8 @@ def solicitud_baja(id_activo):
         "success",
     )
 
-    return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
+    return regresar()
+
 
 
 @app.route("/solicitudes-baja")
@@ -1462,15 +1535,23 @@ def eliminar_respaldo(nombre):
 @login_required
 def confirmar_recepcion_route(id_activo):
 
+    origen = request.form.get("origen")
+
     if session.get("rol") != "Administrador":
 
         flash("No tiene permisos para realizar esta acción.", "danger")
+
+        if origen == "qr":
+            return redirect(url_for("maquinaria_qr", id_activo=id_activo))
 
         return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
     confirmar_recepcion_activo(id_activo, session["nombre"])
 
     flash("La maquinaria fue recibida correctamente.", "success")
+
+    if origen == "qr":
+        return redirect(url_for("maquinaria_qr", id_activo=id_activo))
 
     return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
@@ -1479,15 +1560,23 @@ def confirmar_recepcion_route(id_activo):
 @login_required
 def finalizar_mantenimiento_route(id_activo):
 
+    origen = request.form.get("origen")
+
     if session.get("rol") != "Administrador":
 
         flash("No tiene permisos para realizar esta acción.", "danger")
+
+        if origen == "qr":
+            return redirect(url_for("maquinaria_qr", id_activo=id_activo))
 
         return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
     finalizar_mantenimiento_activo(id_activo, session["nombre"])
 
     flash("El mantenimiento fue finalizado correctamente.", "success")
+
+    if origen == "qr":
+        return redirect(url_for("maquinaria_qr", id_activo=id_activo))
 
     return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
@@ -1568,9 +1657,47 @@ def maquinaria_qr(id_activo):
     if not maquinaria:
         abort(404)
 
+    aduana = obtener_aduana(id_activo)
+
+    estado = estado_expediente_aduanal(aduana)
+
+    traslado_en_proceso = obtener_traslado_en_proceso(id_activo)
+
+    mantenimiento_en_proceso = obtener_mantenimiento_en_proceso(id_activo)
+
+    estado_ui = {
+        "ACTIVO": {
+            "clase": "activo",
+            "icono": "bi-check-circle-fill"
+        },
+        "BAJA": {
+            "clase": "baja",
+            "icono": "bi-x-circle-fill"
+        },
+        "MANTENIMIENTO": {
+            "clase": "mantenimiento",
+            "icono": "bi-tools"
+        },
+        "EN TRASLADO": {
+            "clase": "traslado",
+            "icono": "bi-truck"
+        }
+    }.get(
+        maquinaria["estado"],
+        {
+            "clase": "activo",
+            "icono": "bi-circle-fill"
+        }
+    )
+
     return render_template(
         "maquinaria_qr/inicio.html",
-        maquinaria=maquinaria
+        maquinaria=maquinaria,
+        aduana=aduana,
+        estado=estado,
+        traslado_en_proceso=traslado_en_proceso,
+        mantenimiento_en_proceso=mantenimiento_en_proceso,
+        estado_ui=estado_ui
     )
 
 @app.route("/qr/<id_activo>/expediente")
@@ -1633,6 +1760,60 @@ def dashboard_mobil():
         "maquinaria_qr/dashboard_mobil.html"
     )
 
+@app.route("/m/maquinarias/<id_activo>/movimiento/<tipo>")
+@login_required
+def formulario_movimiento_mobile(id_activo, tipo):
+
+    if session.get("rol") not in ["Administrador", "Mantenimiento"]:
+        flash("No tiene permisos.", "danger")
+        return redirect(url_for("dashboard_mobile"))
+
+    maquina = obtener_maquinaria(id_activo)
+
+    if not maquina:
+        flash("Activo no encontrado.", "danger")
+        return redirect(url_for("dashboard_mobile"))
+
+    titulos = {
+        "TRASLADO": "Solicitud de Traslado",
+        "MANTENIMIENTO": "Solicitud de Mantenimiento",
+        "BAJA": "Solicitud de Baja",
+        "REINCORPORACION": "Solicitud de Reactivación"
+    }
+
+    if tipo not in titulos:
+        abort(404)
+
+    return render_template(
+        "maquinaria_qr/formulario_movimiento.html",
+        maquina=maquina,
+        tipo=tipo,
+        titulo=titulos[tipo]
+    )
+    
+@app.route("/m/maquinarias/<id_activo>/movimientos")
+@login_required
+def movimientos_mobile(id_activo):
+
+    maquina = obtener_maquinaria(id_activo)
+
+    if not maquina:
+        flash("Activo no encontrado.", "danger")
+        return redirect(url_for("dashboard_mobile"))
+
+    traslado_en_proceso = obtener_traslado_en_proceso(id_activo)
+
+    mantenimiento_en_proceso = obtener_mantenimiento_en_proceso(id_activo)
+
+    solicitud_pendiente = existe_solicitud_pendiente(id_activo)
+
+    return render_template(
+        "maquinaria_qr/movimientos_mobile.html",
+        maquina=maquina,
+        traslado_en_proceso=traslado_en_proceso,
+        mantenimiento_en_proceso=mantenimiento_en_proceso,
+        solicitud_pendiente=solicitud_pendiente
+    )
 # ==========================================================
 # SERVIDOR
 # ==========================================================

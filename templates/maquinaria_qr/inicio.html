@@ -8,20 +8,15 @@
 
 <div class="hero-card">
 
-    <div class="estado activo">
+    <div class="estado {{ estado_ui.clase }}">
 
         <div class="estado-icono">
-
-            <i class="bi bi-check-circle-fill"></i>
-
+            <i class="bi {{ estado_ui.icono }}"></i>
         </div>
 
         <div>
-
             <small>Estado del activo</small>
-
-            <strong>ACTIVO</strong>
-
+            <strong>{{ maquinaria.estado }}</strong>
         </div>
 
     </div>
@@ -29,10 +24,10 @@
     <h1>{{ maquinaria.id_activo }}</h1>
 
     <p class="descripcion">
-
         {{ maquinaria.descripcion }}
-
     </p>
+
+</div>
 
 </div>
 
@@ -116,25 +111,31 @@
 
     <div class="progress">
 
-        <div class="progress-bar" style="width:82%">
-
+        <div class="progress-bar" style="width: {{ estado.porcentaje }}%;">
         </div>
 
     </div>
 
     <div class="exp-status">
 
-        <span class="badge-ok">
-
-            Completo
-
+        <span class="
+        {% if estado.estado == 'Completo' %}
+            badge-ok
+        {% elif estado.estado == 'Incompleto' %}
+            badge-warning
+        {% else %}
+            badge-danger
+        {% endif %}
+        ">
+            {{ estado.estado }}
         </span>
 
-        <strong>82%</strong>
+        <strong>{{ estado.porcentaje }}%</strong>
 
     </div>
 
-    <a href="{{ url_for('qr_expediente', id_activo=maquinaria.id_activo) }}" class="exp-link">
+    <a class="quick-card" href="{{ url_for('qr_expediente',
+                        id_activo=maquinaria.id_activo) }}">
 
         Ver expediente
 
@@ -144,6 +145,99 @@
 
 </div>
 
+{% if traslado_en_proceso %}
+
+<div class="accion-card accion-traslado">
+
+    <div class="accion-icono">
+
+        <i class="bi bi-truck"></i>
+
+    </div>
+
+    <div class="accion-info">
+
+        <strong>Traslado en proceso</strong>
+
+        <small>
+            Confirma que el activo llegó a su destino.
+        </small>
+
+    </div>
+
+    <form method="POST" action="{{ url_for('confirmar_recepcion_route',
+                        id_activo=maquinaria.id_activo) }}">
+
+        <input type="hidden" name="origen" value="qr">
+
+        <button type="submit" class="btn-accion">
+            <i class="bi bi-check-circle-fill"></i>
+            Confirmar recepción
+        </button>
+
+    </form>
+
+</div>
+
+{% endif %}
+
+{% if mantenimiento_en_proceso %}
+
+<div class="accion-card mantenimiento-card">
+
+    <div class="accion-header">
+
+        <div class="accion-icono mantenimiento-icono">
+
+            <i class="bi bi-tools"></i>
+
+        </div>
+
+        <div>
+
+            <h5>Mantenimiento en proceso</h5>
+
+            <p>
+                Finaliza el mantenimiento cuando el activo esté listo.
+            </p>
+
+        </div>
+
+    </div>
+
+    <form method="POST" action="{{ url_for('finalizar_mantenimiento_route',
+                        id_activo=maquinaria.id_activo) }}">
+
+        <input type="hidden" name="origen" value="qr">
+
+        <button type="submit" class="btn-accion btn-mantenimiento">
+            <i class="bi bi-check-circle-fill"></i>
+            Finalizar mantenimiento
+        </button>
+
+    </form>
+
+</div>
+
+{% endif %}
+
+{% if maquinaria.estado == "BAJA" %}
+<div class="quick-card">
+    <div class="quick-icon">
+        <i class="bi bi-arrow-clockwise"></i>
+    </div>
+
+    <div class="quick-content">
+        <h6>Activo dado de baja</h6>
+        <small>Puedes solicitar su reactivación.</small>
+    </div>
+
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalSolicitudReactivacion">
+        ♻ Reactivar activo
+    </button>
+</div>
+{% endif %}
+
 <h3 class="section-title">
 
     Accesos rápidos
@@ -152,7 +246,8 @@
 
 <div class="quick-grid">
 
-    <a href="#" class="quick-card">
+    <a class="quick-card" href="{{ url_for('qr_expediente',
+                        id_activo=maquinaria.id_activo) }}">
 
         <i class="bi bi-file-earmark-text-fill"></i>
 
@@ -160,7 +255,7 @@
 
     </a>
 
-    <a href="#" class="quick-card">
+    <a class="quick-card" href="{{ url_for('movimientos_mobile', id_activo=maquinaria.id_activo) }}">
 
         <i class="bi bi-arrow-left-right"></i>
 
@@ -168,22 +263,102 @@
 
     </a>
 
-    <a href="#" class="quick-card">
 
-        <i class="bi bi-camera-fill"></i>
-
-        <span>Fotografías</span>
-
-    </a>
-
-    <a href="#" class="quick-card">
-
-        <i class="bi bi-tools"></i>
-
-        <span>Mantenimiento</span>
-
-    </a>
 
 </div>
 
+{% if maquinaria.estado == "BAJA" %}
+
+<div class="modal fade"
+    id="modalSolicitudReactivacion"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form method="POST"
+                action="{{ url_for('solicitud_baja',
+                                    id_activo=maquinaria.id_activo) }}">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Solicitar reactivación
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"></button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="hidden"
+                        name="tipo"
+                        value="REINCORPORACION">
+
+                    <input type="hidden"
+                        name="origen"
+                        value="qr">
+
+                    <input type="hidden"
+                        name="prioridad"
+                        value="Media">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Motivo
+                        </label>
+
+                        <textarea class="form-control"
+                                name="motivo"
+                                rows="3"
+                                required></textarea>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Observaciones
+                        </label>
+
+                        <textarea class="form-control"
+                                name="observaciones"
+                                rows="3"></textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-success">
+                        Enviar solicitud
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endif %}
+
 {% endblock %}
+

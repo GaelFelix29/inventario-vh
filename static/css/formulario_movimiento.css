@@ -1,0 +1,281 @@
+/* ===========================
+   FORMULARIO MOVIMIENTO
+=========================== */
+
+.fm-activo-card{
+
+    background:#fff;
+
+    border-radius:22px;
+
+    padding:18px;
+
+    display:flex;
+
+    gap:16px;
+
+    align-items:center;
+
+    margin:20px 0;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+.fm-activo-icon{
+
+    width:70px;
+
+    height:70px;
+
+    border-radius:18px;
+
+    background:#e8f5e9;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:#198754;
+
+    font-size:32px;
+
+}
+
+.fm-activo-info{
+
+    flex:1;
+
+}
+
+.fm-activo-id{
+
+    display:inline-block;
+
+    background:#198754;
+
+    color:#fff;
+
+    padding:5px 12px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
+    margin-bottom:8px;
+
+}
+
+.fm-activo-info h3{
+
+    font-size:18px;
+
+    margin-bottom:6px;
+
+    color:#222;
+
+}
+
+.fm-activo-info p{
+
+    color:#777;
+
+    font-size:14px;
+
+}
+
+/* ===========================
+   SECCIONES
+=========================== */
+
+.fm-titulo-seccion{
+
+    display:block;
+
+    font-weight:700;
+
+    margin-bottom:15px;
+
+    color:#222;
+
+}
+
+/* ===========================
+   PRIORIDAD
+=========================== */
+
+.fm-prioridad-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:12px;
+
+    margin-bottom:22px;
+
+}
+
+.fm-prioridad-card{
+
+    background:#fff;
+
+    border-radius:18px;
+
+    padding:18px 10px;
+
+    text-align:center;
+
+    cursor:pointer;
+
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+
+    transition:.25s;
+
+}
+
+.fm-prioridad-card input{
+
+    display:none;
+
+}
+
+.fm-prioridad-card .fm-icono{
+
+    display:block;
+
+    font-size:28px;
+
+    margin-bottom:8px;
+
+}
+
+.fm-prioridad-card:hover{
+
+    transform:translateY(-3px);
+
+}
+
+.fm-prioridad-card input:checked + .fm-icono{
+
+    transform:scale(1.25);
+
+}
+
+.fm-prioridad-card:has(input:checked){
+
+    border:3px solid #198754;
+
+    background:#eefaf3;
+
+}
+
+/* ===========================
+   CAMPOS
+=========================== */
+
+.fm-campo{
+
+    margin-bottom:22px;
+
+}
+
+.fm-campo-texto{
+
+    width:100%;
+
+    border:none;
+
+    background:#fff;
+
+    border-radius:20px;
+
+    padding:18px;
+
+    font-size:15px;
+
+    resize:none;
+
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+
+    outline:none;
+
+    transition:.25s;
+
+}
+
+.fm-campo-texto:focus{
+
+    box-shadow:0 0 0 3px rgba(25,135,84,.20);
+
+}
+
+.fm-campo-input{
+
+    width:100%;
+
+    border:none;
+
+    background:#fff;
+
+    border-radius:18px;
+
+    padding:16px;
+
+    font-size:15px;
+
+    outline:none;
+
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+
+}
+
+.fm-campo-input:focus{
+
+    box-shadow:0 0 0 3px rgba(25,135,84,.20);
+
+}
+
+/* ===========================
+   BOTÓN
+=========================== */
+
+.fm-btn-enviar{
+
+    width:100%;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:#198754;
+
+    color:#fff;
+
+    padding:18px;
+
+    font-size:17px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    box-shadow:0 10px 25px rgba(25,135,84,.30);
+
+    transition:.25s;
+
+}
+
+.fm-btn-enviar:hover{
+
+    transform:translateY(-2px);
+
+}
+
+.fm-btn-enviar i{
+
+    margin-right:8px;
+
+}
