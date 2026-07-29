@@ -2019,25 +2019,15 @@ def subir_evidencia(id_activo):
             url_guardar = url_publica
 
         guardar_documento_bd(
-
             id_activo=id_activo,
-
             nombre_original=nombre_original,
-
             nombre_archivo=nombre_archivo,
-
-            tipo=request.form.get("tipo"),
-
+            tipo="General",
             tipo_archivo="IMAGEN",
-
-            descripcion=request.form.get("descripcion"),
-
+            descripcion=None,
             url=url_guardar,
-
             public_id=ruta,
-
-            usuario=session["nombre"]
-
+            usuario=session["nombre"],
         )
 
         registrar_movimiento(
@@ -2061,6 +2051,62 @@ def subir_evidencia(id_activo):
     return redirect(
         url_for("qr_evidencias", id_activo=id_activo)
     )
+
+@app.route("/evidencias/<int:id>/eliminar")
+@login_required
+def eliminar_evidencia(id):
+
+    if session.get("rol") != "Administrador":
+
+        flash("Sin permisos.", "danger")
+
+        return redirect(request.referrer or url_for("dashboard"))
+
+    try:
+
+        documento = obtener_documento(id)
+
+        if not documento:
+
+            flash("La evidencia no existe.", "warning")
+
+            return redirect(request.referrer)
+
+        # Eliminar archivo de Supabase
+        supabase.storage.from_("documentos").remove(
+            [documento["public_id"]]
+        )
+
+        # Eliminar registro de MySQL
+        eliminar_documento(id)
+
+        # Registrar auditoría
+        registrar_movimiento(
+
+            usuario=session["nombre"],
+
+            accion=f"Eliminó evidencia: {documento['nombre_original']}",
+
+            modulo="Evidencias",
+
+            referencia=documento["id_activo"]
+
+        )
+
+        flash("Evidencia eliminada correctamente.", "success")
+
+        return redirect(
+            url_for(
+                "qr_evidencias",
+                id_activo=documento["id_activo"]
+            )
+        )
+
+    except Exception as e:
+
+        flash(f"Error al eliminar evidencia: {e}", "danger")
+
+        return redirect(request.referrer)
 # ==========================================================
 # SERVIDOR
 # ==========================================================

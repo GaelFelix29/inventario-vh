@@ -2,8 +2,7 @@
 
 {% block estilos %}
 
-<link rel="stylesheet"
-      href="{{ url_for('static', filename='css/evidencias.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/evidencias.css') }}">
 
 {% endblock %}
 
@@ -21,17 +20,12 @@
 
         <span>{{ maquinaria.id_activo }}</span>
 
-        <p>
-            {{ maquinaria.descripcion }}
-        </p>
+        <p>{{ maquinaria.descripcion }}</p>
 
     </div>
 
-    <form id="formEvidencia"
-          method="POST"
-          enctype="multipart/form-data"
-          action="{{ url_for('subir_evidencia',
-                             id_activo=maquinaria.id_activo) }}">
+    <form id="formEvidencia" method="POST" enctype="multipart/form-data" action="{{ url_for('subir_evidencia',
+                            id_activo=maquinaria.id_activo) }}">
 
         <div class="capturar-card">
 
@@ -40,8 +34,10 @@
             <h5>Capturar evidencia</h5>
 
             <p>
+
                 Agrega fotografías para documentar
                 el estado del activo.
+
             </p>
 
             <label class="btn-capturar" for="inputImagen">
@@ -54,73 +50,7 @@
 
         </div>
 
-        <input
-            id="inputImagen"
-            name="documento"
-            type="file"
-            accept="image/*"
-            capture="environment"
-            hidden>
-
-        <div id="previewCard" class="preview-card d-none">
-
-            <img
-                id="previewImagen"
-                class="preview-img"
-                alt="Vista previa de la evidencia">
-
-            <div class="mt-3">
-
-                <label>
-
-                    Tipo de evidencia
-
-                </label>
-
-                <select
-                    id="tipoEvidencia"
-                    class="form-select"
-                    name="tipo">
-
-                    <option value="General">General</option>
-                    <option value="Motor">Motor</option>
-                    <option value="Placa">Placa</option>
-                    <option value="Número de serie">Número de serie</option>
-                    <option value="Daño">Daño</option>
-                    <option value="Antes mantenimiento">Antes mantenimiento</option>
-                    <option value="Después mantenimiento">Después mantenimiento</option>
-                    <option value="Otro">Otro</option>
-
-                </select>
-
-            </div>
-
-            <div class="mt-3">
-
-                <label>
-
-                    Descripción
-
-                </label>
-
-                <textarea
-                    id="descripcion"
-                    name="descripcion"
-                    rows="3"
-                    class="form-control"
-                    placeholder="Describe la evidencia..."></textarea>
-
-            </div>
-
-            <button
-                type="submit"
-                class="btn-capturar mt-4">
-
-                Guardar evidencia
-
-            </button>
-
-        </div>
+        <input id="inputImagen" name="documento" type="file" accept="image/*" capture="environment" hidden>
 
     </form>
 
@@ -132,14 +62,60 @@
 
         <div class="foto-card">
 
-            <img
-                src="{{ imagen.url }}"
-                class="foto-galeria"
-                alt="{{ imagen.descripcion or 'Evidencia' }}">
+            <img src="{{ imagen.url }}" class="foto-galeria" onclick="abrirVisor({{ loop.index0 }})">
+
+            <div class="foto-footer">
+
+                <small>
+
+                    {{ imagen.fecha_subida.strftime("%d/%m/%Y %H:%M") }}
+
+                </small>
+
+            </div>
 
         </div>
 
         {% endfor %}
+
+    </div>
+
+    <div id="visor" class="visor">
+
+        <div class="visor-header">
+
+            <button type="button" onclick="cerrarVisor()">
+                ✕
+            </button>
+
+            <span id="contador"></span>
+
+        </div>
+
+        <button type="button" class="flecha izquierda" onclick="anterior()">
+
+            ❮
+
+        </button>
+
+        <img id="imagenGrande" alt="Evidencia">
+
+        <button type="button" class="flecha derecha" onclick="siguiente()">
+
+            ❯
+
+        </button>
+
+        {% if session.get("rol") == "Administrador" %}
+
+        <button type="button" id="btnEliminar" class="btn-eliminar" onclick="eliminarImagen()">
+
+            <i class="bi bi-trash"></i>
+            <span>Eliminar evidencia</span>
+
+        </button>
+
+        {% endif %}
 
     </div>
 
@@ -149,17 +125,11 @@
 
         <i class="bi bi-image"></i>
 
-        <h4>
-
-            Sin evidencias
-
-        </h4>
+        <h4>Sin evidencias</h4>
 
         <p>
-
             Todavía no existen fotografías
             para este activo.
-
         </p>
 
     </div>
@@ -170,20 +140,20 @@
 
 <script>
 
-const input = document.getElementById("inputImagen");
-const preview = document.getElementById("previewCard");
-const img = document.getElementById("previewImagen");
+    const imagenes = [
 
-input.addEventListener("change", function () {
+        {% for imagen in imagenes %}
+    {
+        id: {{ imagen.id }},
+        url: "{{ imagen.url }}",
+            public_id: "{{ imagen.public_id }}"
+    },
+    {% endfor %}
 
-    if (!this.files.length) return;
-
-    img.src = URL.createObjectURL(this.files[0]);
-
-    preview.classList.remove("d-none");
-
-});
+];
 
 </script>
+
+<script src="{{ url_for('static', filename='js/evidencias.js') }}"></script>
 
 {% endblock %}
