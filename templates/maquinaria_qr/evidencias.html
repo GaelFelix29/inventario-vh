@@ -1,0 +1,175 @@
+{% extends "maquinaria_qr/base_qr.html" %}
+
+{% block contenido %}
+
+{% block estilos %}
+
+<link rel="stylesheet" href="{{ url_for('static',
+filename='css/evidencias.css') }}">
+
+{% endblock %}
+
+<div class="evidencias-page">
+
+    <div class="evidencias-header">
+
+        <div class="icono">
+
+            <i class="bi bi-images"></i>
+
+        </div>
+
+        <h2>Evidencias</h2>
+
+        <span>{{ maquinaria.id_activo }}</span>
+
+        <p>
+
+            {{ maquinaria.descripcion }}
+
+        </p>
+
+    </div>
+
+    <div class="capturar-card">
+
+        <i class="bi bi-camera-fill"></i>
+
+        <h5>Capturar evidencia</h5>
+
+        <p>
+
+            Agrega fotografías para documentar
+            el estado del activo.
+
+        </p>
+
+        <label class="btn-capturar" for="inputImagen">
+
+            <i class="bi bi-camera-fill"></i>
+
+            Agregar evidencia
+
+        </label>
+
+        <input id="inputImagen" type="file" accept="image/*" capture="environment" hidden>
+
+    </div>
+
+    <div id="previewCard" class="preview-card d-none">
+
+        <img id="previewImagen" class="preview-img">
+
+        <div class="mt-3">
+
+            <label>
+
+                Tipo de evidencia
+
+            </label>
+
+            <select id="tipoEvidencia" class="form-select">
+
+                <option>General</option>
+
+                <option>Motor</option>
+
+                <option>Placa</option>
+
+                <option>Número de serie</option>
+
+                <option>Daño</option>
+
+                <option>Antes mantenimiento</option>
+
+                <option>Después mantenimiento</option>
+
+                <option>Otro</option>
+
+            </select>
+
+        </div>
+
+        <div class="mt-3">
+
+            <label>
+
+                Descripción
+
+            </label>
+
+            <textarea id="descripcion" rows="3" class="form-control"></textarea>
+
+        </div>
+
+        <button class="btn-capturar mt-4">
+
+            Guardar evidencia
+
+        </button>
+
+    </div>
+
+    {% if imagenes %}
+
+    <div class="galeria">
+
+        {% for imagen in imagenes %}
+
+        <div class="foto-card">
+
+            FOTO
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="sin-fotos">
+
+        <i class="bi bi-image"></i>
+
+        <h4>
+
+            Sin evidencias
+
+        </h4>
+
+        <p>
+
+            Todavía no existen fotografías
+            para este activo.
+
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<script>
+
+const input=document.getElementById("inputImagen");
+
+const preview=document.getElementById("previewCard");
+
+const img=document.getElementById("previewImagen");
+
+input.addEventListener("change",function(){
+
+    if(!this.files.length) return;
+
+    img.src=URL.createObjectURL(this.files[0]);
+
+    preview.classList.remove("d-none");
+
+});
+
+</script>
+
+{% endblock %}

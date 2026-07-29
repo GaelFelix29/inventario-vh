@@ -41,7 +41,9 @@ def guardar_documento_bd(
     tipo,
     url,
     public_id,
-    usuario
+    usuario,
+    tipo_archivo="DOCUMENTO",
+    descripcion=None
 ):
 
     sql = text("""
@@ -52,6 +54,8 @@ def guardar_documento_bd(
             nombre_original,
             nombre_archivo,
             tipo,
+            tipo_archivo,
+            descripcion,
             url,
             public_id,
             subido_por
@@ -64,6 +68,8 @@ def guardar_documento_bd(
             :nombre_original,
             :nombre_archivo,
             :tipo,
+            :tipo_archivo,
+            :descripcion,
             :url,
             :public_id,
             :usuario
@@ -78,15 +84,17 @@ def guardar_documento_bd(
 
             sql,
 
-            {
-                "id_activo": id_activo,
-                "nombre_original": nombre_original,
-                "nombre_archivo": nombre_archivo,
-                "tipo": tipo,
-                "url": url,
-                "public_id": public_id,
-                "usuario": usuario
-            }
+        {
+            "id_activo": id_activo,
+            "nombre_original": nombre_original,
+            "nombre_archivo": nombre_archivo,
+            "tipo": tipo,
+            "tipo_archivo": tipo_archivo,
+            "descripcion": descripcion,
+            "url": url,
+            "public_id": public_id,
+            "usuario": usuario
+        }
 
         )
 
@@ -95,30 +103,67 @@ def guardar_documento_bd(
 # LISTAR DOCUMENTOS
 # ==========================================
 
-def listar_documentos(id_activo):
+def listar_documentos(
+    id_activo,
+    tipo_archivo=None
+):
 
-    sql = text("""
-        SELECT *
-        FROM documentos_maquinaria
-        WHERE id_activo = :id
-        ORDER BY fecha_subida DESC
-    """)
+    if tipo_archivo:
+
+        sql = text("""
+
+            SELECT *
+
+            FROM documentos_maquinaria
+
+            WHERE id_activo=:id
+
+            AND tipo_archivo=:tipo
+
+            ORDER BY fecha_subida DESC
+
+        """)
+
+        parametros = {
+            "id": id_activo,
+            "tipo": tipo_archivo
+        }
+
+    else:
+
+        sql = text("""
+
+            SELECT *
+
+            FROM documentos_maquinaria
+
+            WHERE id_activo=:id
+
+            ORDER BY fecha_subida DESC
+
+        """)
+
+        parametros = {
+            "id": id_activo
+        }
+
+    # 👇 ESTE WITH VA FUERA DEL IF/ELSE
 
     with engine.connect() as conn:
 
         documentos = conn.execute(
             sql,
-            {"id": id_activo}
+            parametros
         ).mappings().all()
 
-        print("\n===== DOCUMENTOS ENCONTRADOS =====")
+    print("\n===== DOCUMENTOS ENCONTRADOS =====")
 
-        for doc in documentos:
-            print(dict(doc))
+    for doc in documentos:
+        print(dict(doc))
 
-        print("==================================\n")
+    print("==================================\n")
 
-        return documentos
+    return documentos
 # ==========================================
 # ELIMINAR DOCUMENTO
 # ==========================================

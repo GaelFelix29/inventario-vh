@@ -1925,6 +1925,33 @@ def es_movil():
     ]
 
     return any(p in user_agent for p in palabras)
+
+
+@app.route("/qr/<id_activo>/evidencias")
+@login_required
+def qr_evidencias(id_activo):
+
+    maquinaria = obtener_maquinaria(id_activo)
+
+    imagenes = listar_documentos(
+        id_activo,
+        "IMAGEN"
+    )
+    
+    print("=" * 60)
+    print(imagenes)
+    print(type(imagenes))
+    print("=" * 60)
+
+    return render_template(
+
+        "maquinaria_qr/evidencias.html",
+
+        maquinaria=maquinaria,
+
+        imagenes=imagenes
+
+    )
 # ==========================================================
 # SERVIDOR
 # ==========================================================

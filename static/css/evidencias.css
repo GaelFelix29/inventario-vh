@@ -1,0 +1,153 @@
+.evidencias-page{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:22px;
+
+}
+
+.evidencias-header{
+
+    text-align:center;
+
+}
+
+.icono{
+
+    width:70px;
+
+    height:70px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    background:#198754;
+
+    color:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:30px;
+
+    margin-bottom:15px;
+
+}
+
+.evidencias-header h2{
+
+    font-weight:700;
+
+}
+
+.evidencias-header span{
+
+    color:#198754;
+
+    font-weight:700;
+
+}
+
+.evidencias-header p{
+
+    color:#777;
+
+}
+
+.capturar-card{
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:24px;
+
+    text-align:center;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+
+}
+
+.capturar-card i{
+
+    font-size:40px;
+
+    color:#198754;
+
+}
+
+.btn-capturar{
+
+    width:100%;
+
+    border:none;
+
+    border-radius:14px;
+
+    padding:14px;
+
+    background:#198754;
+
+    color:white;
+
+    font-weight:600;
+
+}
+
+.sin-fotos{
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:35px;
+
+    text-align:center;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+
+}
+
+.sin-fotos i{
+
+    font-size:55px;
+
+    color:#198754;
+
+    margin-bottom:15px;
+
+}
+
+.preview-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:20px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+
+}
+
+.preview-img{
+
+    width:100%;
+
+    border-radius:18px;
+
+    object-fit:cover;
+
+    max-height:300px;
+
+}
