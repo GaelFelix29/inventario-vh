@@ -6,21 +6,32 @@ Inicio
 
 {% block contenido %}
 
+{% block estilos %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_mobil.css') }}">
+{% endblock %}
+
 <div class="container py-4">
 
     <!-- Bienvenida -->
-    <div class="text-center mb-4">
 
-        <div class="mb-3">
-            <i class="bi bi-box-seam-fill text-success display-3"></i>
-        </div>
+    <div class="mb-4">
 
-        <h2 class="fw-bold text-success">
-            VITAL HEALTH
+        <small class="text-uppercase text-muted fw-semibold">
+
+            PANEL DE CONTROL
+
+        </small>
+
+        <h2 class="fw-bold mt-2">
+
+            👋 Hola, {{ session["nombre"] }}
+
         </h2>
 
-        <p class="text-muted mb-0">
-            Sistema de Inventario
+        <p class="text-muted">
+
+            Bienvenido nuevamente.
+
         </p>
 
     </div>
@@ -37,11 +48,40 @@ Inicio
                 Buscar activo
 
             </label>
+            <h6 class="text-uppercase text-muted fw-bold mt-4">
+
+                <i class="bi bi-clock-history"></i>
+
+                Últimos activos
+
+            </h6>
+
+            <div class="list-group rounded-4 shadow-sm mb-4">
+
+                <a href="#" class="list-group-item list-group-item-action">
+
+                    🕒 ACT-0241
+
+                </a>
+
+                <a href="#" class="list-group-item list-group-item-action">
+
+                    🕒 ACT-0187
+
+                </a>
+
+                <a href="#" class="list-group-item list-group-item-action">
+
+                    🕒 ACT-0074
+
+                </a>
+
+            </div>
 
             <div class="position-relative">
 
                 <input type="text" id="buscarActivo" class="form-control form-control-lg rounded-4"
-                    placeholder="Buscar activo...">
+                    placeholder="ACT-0001, Serie, Descripción...">
 
                 <div id="resultadoBusqueda" class="mt-2">
                 </div>
@@ -52,6 +92,38 @@ Inicio
 
     </div>
 
+    <!-- Escanear -->
+
+    <section class="scan-card mb-4">
+
+        <div class="scan-icon">
+
+            <i class="bi bi-qr-code-scan"></i>
+
+        </div>
+
+        <h2>Escanear código QR</h2>
+
+        <p>
+
+            Consulta cualquier activo
+            escaneando su código.
+
+        </p>
+
+        <button class="scan-btn" id="btnEscanear">
+
+            <i class="bi bi-camera-fill"></i>
+
+            Escanear ahora
+
+        </button>
+
+        <div id="lectorQR" class="mt-3"></div>
+
+
+    </section>
+
     <!-- Módulos -->
 
     <h6 class="text-uppercase text-muted fw-bold mb-3">
@@ -60,128 +132,126 @@ Inicio
 
     <div class="d-grid gap-3">
 
-        <a href="#" class="card border-0 shadow-sm rounded-4 text-decoration-none">
+        <a href="{{ url_for('dashboard_mobil') }}" class="card border-0 shadow-sm rounded-4 text-decoration-none">
 
-            <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
 
-                <div>
+                <i class="bi bi-speedometer2 fs-2 text-success"></i>
 
-                    <i class="bi bi-speedometer2 fs-2 text-success"></i>
-
-                    <div class="fw-bold mt-2">
-                        Dashboard
-                    </div>
-
-                    <small class="text-muted">
-                        Indicadores generales
-                    </small>
-
+                <div class="fw-bold mt-2">
+                    Dashboard
                 </div>
 
-                <i class="bi bi-chevron-right fs-4 text-muted"></i>
+                <small class="text-muted">
+                    Indicadores generales
+                </small>
 
             </div>
 
-        </a>
-
-        <a href="#" class="card border-0 shadow-sm rounded-4 text-decoration-none">
-
-            <div class="card-body d-flex justify-content-between align-items-center">
-
-                <div>
-
-                    <i class="bi bi-box-seam fs-2 text-success"></i>
-
-                    <div class="fw-bold mt-2">
-                        Maquinarias
-                    </div>
-
-                    <small class="text-muted">
-                        Consultar activos
-                    </small>
-
-                </div>
-
-                <i class="bi bi-chevron-right fs-4 text-muted"></i>
-
-            </div>
-
-        </a>
-
-        <a href="#" class="card border-0 shadow-sm rounded-4 text-decoration-none">
-
-            <div class="card-body d-flex justify-content-between align-items-center">
-
-                <div>
-
-                    <i class="bi bi-file-earmark-text fs-2 text-success"></i>
-
-                    <div class="fw-bold mt-2">
-                        Aduanas
-                    </div>
-
-                    <small class="text-muted">
-                        Expedientes aduanales
-                    </small>
-
-                </div>
-
-                <i class="bi bi-chevron-right fs-4 text-muted"></i>
-
-            </div>
-
-        </a>
+            <i class="bi bi-chevron-right fs-4 text-muted"></i>
 
     </div>
+
+    </a>
+
+    <a href="#" class="card border-0 shadow-sm rounded-4 text-decoration-none">
+
+        <div class="card-body d-flex justify-content-between align-items-center">
+
+            <div>
+
+                <i class="bi bi-box-seam fs-2 text-success"></i>
+
+                <div class="fw-bold mt-2">
+                    Maquinarias
+                </div>
+
+                <small class="text-muted">
+                    Consultar activos
+                </small>
+
+            </div>
+
+            <i class="bi bi-chevron-right fs-4 text-muted"></i>
+
+        </div>
+
+    </a>
+
+    <a href="#" class="card border-0 shadow-sm rounded-4 text-decoration-none">
+
+        <div class="card-body d-flex justify-content-between align-items-center">
+
+            <div>
+
+                <i class="bi bi-file-earmark-text fs-2 text-success"></i>
+
+                <div class="fw-bold mt-2">
+                    Aduanas
+                </div>
+
+                <small class="text-muted">
+                    Expedientes aduanales
+                </small>
+
+            </div>
+
+            <i class="bi bi-chevron-right fs-4 text-muted"></i>
+
+        </div>
+
+    </a>
+
+</div>
 
 </div>
 
 <script>
 
-const txtBuscar = document.getElementById("buscarActivo");
-const resultados = document.getElementById("resultadoBusqueda");
+    const txtBuscar = document.getElementById("buscarActivo");
+    const resultados = document.getElementById("resultadoBusqueda");
 
-txtBuscar.addEventListener("input", buscarActivos);
+    txtBuscar.addEventListener("input", buscarActivos);
 
-async function buscarActivos() {
+    async function buscarActivos() {
 
-    const texto = txtBuscar.value.trim();
+        const texto = txtBuscar.value.trim();
 
-    if (texto.length < 2) {
+        if (texto.length < 2) {
 
-        resultados.innerHTML = "";
-
-        return;
-
-    }
-
-    try {
-
-        const respuesta = await fetch(
-            "/buscar-activos?q=" + encodeURIComponent(texto)
-        );
-
-        const activos = await respuesta.json();
-
-        resultados.innerHTML = "";
-
-        if (activos.length === 0) {
-
-            resultados.innerHTML = `
-                <div class="text-center text-muted py-3">
-                    No se encontraron activos
-                </div>
-            `;
+            resultados.innerHTML = "";
 
             return;
 
         }
 
-        activos.forEach(activo => {
+        try {
 
-            resultados.innerHTML += `
+            const respuesta = await fetch(
+                "/buscar-activos?q=" + encodeURIComponent(texto)
+            );
+
+            const activos = await respuesta.json();
+
+            resultados.innerHTML = "";
+
+            if (activos.length === 0) {
+
+                resultados.innerHTML = `
+                <div class="text-center text-muted py-3">
+                    No se encontraron activos
+                </div>
+            `;
+
+                return;
+
+            }
+
+            activos.forEach(activo => {
+
+                resultados.innerHTML += `
                 <div class="card shadow-sm border-0 rounded-4 mb-2 resultado-activo"
-                     data-id="${activo.id}">
+                    data-id="${activo.id}">
 
                     <div class="card-body">
 
@@ -204,24 +274,91 @@ async function buscarActivos() {
                 </div>
             `;
 
-        });
+            });
 
-        document.querySelectorAll(".resultado-activo").forEach(card => {
+            document.querySelectorAll(".resultado-activo").forEach(card => {
 
-            card.addEventListener("click", function () {
+                card.addEventListener("click", function () {
 
-                window.location =
-                    "/maquinarias/" + this.dataset.id;
+                    window.location =
+                        "/maquinarias/" + this.dataset.id;
+
+                });
 
             });
 
-        });
+        } catch (error) {
 
-    } catch (error) {
+            console.error(error);
 
-        console.error(error);
+        }
 
     }
+
+    const btnEscanear = document.getElementById("btnEscanear");
+
+let lector = null;
+
+btnEscanear.addEventListener("click", iniciarEscaner);
+
+function iniciarEscaner() {
+
+    if (lector) return;
+
+    lector = new Html5Qrcode("lectorQR");
+
+    lector.start(
+
+        {
+            facingMode: "environment"
+        },
+
+        {
+            fps: 10,
+            qrbox: 250
+        },
+
+        function (textoLeido) {
+
+            lector.stop();
+
+            lector = null;
+
+            abrirActivo(textoLeido);
+
+        },
+
+        function () {
+            // Ignorar errores de lectura
+        }
+
+    );
+
+}
+
+function abrirActivo(valor) {
+
+    valor = valor.trim();
+
+    // Si el QR ya contiene una URL
+    if (valor.startsWith("http")) {
+
+        window.location = valor;
+
+        return;
+
+    }
+
+    // Si el QR contiene solo ACT-0001
+    if (valor.startsWith("ACT-")) {
+
+        window.location = "/maquinarias/" + valor;
+
+        return;
+
+    }
+
+    alert("QR no reconocido");
 
 }
 

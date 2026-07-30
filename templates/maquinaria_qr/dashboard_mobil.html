@@ -22,11 +22,11 @@ Dashboard
                 PANEL DE CONTROL
             </span>
 
-            <h2>
+            <h2 class="fw-bold">
                 👋 Hola, {{ session["nombre"] }}
             </h2>
 
-            <p>
+            <p class="text-muted">
                 Bienvenido nuevamente.
             </p>
 
@@ -46,39 +46,7 @@ Dashboard
 
         </label>
 
-        <input
-            type="search"
-            class="search-input"
-            placeholder="ACT-0001, Serie, Descripción...">
-
-    </section>
-
-    <!-- Escanear -->
-
-    <section class="scan-card">
-
-        <div class="scan-icon">
-
-            <i class="bi bi-qr-code-scan"></i>
-
-        </div>
-
-        <h3>Escanear código QR</h3>
-
-        <p>
-
-            Consulta cualquier activo
-            escaneando su código.
-
-        </p>
-
-        <button class="scan-btn">
-
-            <i class="bi bi-camera-fill"></i>
-
-            Escanear ahora
-
-        </button>
+        <input type="search" class="search-input" placeholder="ACT-0001, Serie, Descripción...">
 
     </section>
 
