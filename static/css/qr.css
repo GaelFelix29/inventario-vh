@@ -1434,3 +1434,36 @@ body {
     margin-bottom:4px;
 
 }
+
+
+
+.resultado-activo{
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.resultado-activo:hover{
+
+    transform:translateY(-2px);
+
+}
+
+.resultado-activo:active{
+
+    background:#19875410;
+
+}
+
+#resultadoBusqueda{
+
+    max-height:300px;
+
+    overflow-y:auto;
+
+}
+
+
+

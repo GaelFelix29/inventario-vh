@@ -216,8 +216,10 @@ def admin_required(func):
 @login_required
 def inicio():
 
-    return render_template("index.html")
+    if es_dispositivo_movil():
+        return render_template("maquinaria_qr/index.html")
 
+    return render_template("index.html")
 
 # ==========================================================
 # LOGIN
