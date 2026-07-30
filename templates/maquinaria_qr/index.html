@@ -119,9 +119,6 @@ Inicio
 
         </button>
 
-        <div id="lectorQR" class="mt-3"></div>
-
-
     </section>
 
     <!-- Módulos -->
@@ -203,6 +200,55 @@ Inicio
     </a>
 
 </div>
+
+</div>
+
+<!-- Modal Escáner QR -->
+
+<div class="modal fade" id="modalEscaner" tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content border-0 rounded-4 shadow">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    <i class="bi bi-qr-code-scan text-success"></i>
+
+                    Escanear activo
+
+                </h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body scanner-body">
+
+                <div class="scanner-frame">
+
+                    <div id="lectorQR"></div>
+
+                    <div class="scanner-line"></div>
+
+                </div>
+
+                <div id="mensajeQR" class="scanner-message">
+
+                    <i class="bi bi-qr-code-scan"></i>
+
+                    Acerca el código QR al recuadro
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
@@ -297,9 +343,47 @@ Inicio
 
     const btnEscanear = document.getElementById("btnEscanear");
 
+    const modalEscaner = new bootstrap.Modal(
+        document.getElementById("modalEscaner")
+    );
+
     let lector = null;
 
-    btnEscanear.addEventListener("click", iniciarEscaner);
+    btnEscanear.addEventListener("click", () => {
+
+        modalEscaner.show();
+
+    });
+
+    document
+        .getElementById("modalEscaner")
+        .addEventListener("shown.bs.modal", function () {
+
+            iniciarEscaner();
+
+        });
+
+    document
+        .getElementById("modalEscaner")
+        .addEventListener("hidden.bs.modal", async function () {
+
+            if (lector) {
+
+                try {
+
+                    await lector.stop();
+
+                    await lector.clear();
+
+                } catch (e) {
+                    console.log(e);
+                }
+
+                lector = null;
+
+            }
+
+        });
 
     function iniciarEscaner() {
 
@@ -322,18 +406,18 @@ Inicio
 
             function (textoLeido) {
 
-                alert(textoLeido);
+                lector.stop().then(() => {
 
-                lector.stop();
+                    lector.clear();
 
-                lector = null;
+                    lector = null;
 
-                abrirActivo(textoLeido);
+                    modalEscaner.hide();
 
-            },
+                    abrirActivo(textoLeido);
 
-            function () {
-                // Ignorar errores de lectura
+                });
+
             }
 
         );
