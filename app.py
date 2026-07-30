@@ -177,8 +177,13 @@ def login_required(func):
 
         if "usuario_id" not in session:
 
-            # Guardar la URL que el usuario intentó abrir
-            session["next_url"] = request.url
+            # Guardar únicamente la primera URL solicitada
+            if (
+                "next_url" not in session
+                and not request.path.startswith("/static/")
+                and request.path != "/favicon.ico"
+            ):
+                session["next_url"] = request.url
 
             return redirect(url_for("login"))
 
@@ -231,7 +236,12 @@ def login():
 
     if "usuario_id" in session:
 
-        return redirect(url_for("inicio"))
+        next_page = session.pop("next_url", None)
+
+    if next_page:
+        return redirect(next_page)
+
+    return redirect(url_for("inicio"))
 
     if request.method == "POST":
 
