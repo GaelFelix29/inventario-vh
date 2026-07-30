@@ -297,70 +297,72 @@ Inicio
 
     const btnEscanear = document.getElementById("btnEscanear");
 
-let lector = null;
+    let lector = null;
 
-btnEscanear.addEventListener("click", iniciarEscaner);
+    btnEscanear.addEventListener("click", iniciarEscaner);
 
-function iniciarEscaner() {
+    function iniciarEscaner() {
 
-    if (lector) return;
+        if (lector) return;
 
-    lector = new Html5Qrcode("lectorQR");
+        lector = new Html5Qrcode("lectorQR");
 
-    lector.start(
+        lector.start(
 
-        {
-            facingMode: "environment"
-        },
+            {
+                facingMode: "environment"
+            },
 
-        {
-            fps: 10,
-            qrbox: 250
-        },
+            {
+                fps: 10,
+                qrbox: 250
+            },
 
-        function (textoLeido) {
+            function (textoLeido) {
 
-            lector.stop();
+                alert(textoLeido);
 
-            lector = null;
+                lector.stop();
 
-            abrirActivo(textoLeido);
+                lector = null;
 
-        },
+                abrirActivo(textoLeido);
 
-        function () {
-            // Ignorar errores de lectura
+            },
+
+            function () {
+                // Ignorar errores de lectura
+            }
+
+        );
+
+    }
+
+    function abrirActivo(valor) {
+
+        valor = valor.trim();
+
+        // Si el QR ya contiene una URL
+        if (valor.startsWith("http")) {
+
+            window.location = valor;
+
+            return;
+
         }
 
-    );
+        // Si el QR contiene solo ACT-0001
+        if (valor.startsWith("ACT-")) {
 
-}
+            window.location = "/maquinarias/" + valor;
 
-function abrirActivo(valor) {
+            return;
 
-    valor = valor.trim();
+        }
 
-    // Si el QR ya contiene una URL
-    if (valor.startsWith("http")) {
-
-        window.location = valor;
-
-        return;
+        alert("QR no reconocido");
 
     }
-
-    // Si el QR contiene solo ACT-0001
-    if (valor.startsWith("ACT-")) {
-
-        window.location = "/maquinarias/" + valor;
-
-        return;
-
-    }
-
-    alert("QR no reconocido");
-
-}
 
 </script>
 
