@@ -238,10 +238,10 @@ def login():
 
         next_page = session.pop("next_url", None)
 
-    if next_page:
-        return redirect(next_page)
+        if next_page:
+            return redirect(next_page)
 
-    return redirect(url_for("inicio"))
+        return redirect(url_for("inicio"))
 
     if request.method == "POST":
 
