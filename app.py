@@ -137,10 +137,28 @@ def es_dispositivo_movil():
 
     ua = parse(user_agent)
 
-    return ua.is_mobile
+    return ua.is_mobile or ua.is_tablet
+
+def abrir_activo(id_activo):
+
+    if es_dispositivo_movil():
+
+        return redirect(
+            url_for(
+                "maquinaria_qr",
+                id_activo=id_activo
+            )
+        )
+
+    return redirect(
+        url_for(
+            "expediente_maquinaria",
+            id_activo=id_activo
+        )
+    )
+
 
 @app.route("/prueba")
-
 @app.route("/prueba")
 def prueba():
 
@@ -709,6 +727,16 @@ def nueva_maquinaria():
 @login_required
 def expediente_maquinaria(id_activo):
 
+    # Si el usuario entra desde un celular o tablet,
+    # mostrar automáticamente la interfaz móvil.
+    if es_dispositivo_movil():
+        return redirect(
+            url_for(
+                "maquinaria_qr",
+                id_activo=id_activo
+            )
+        )
+
     maquina = obtener_maquinaria_detalle(id_activo)
 
     if not maquina:
@@ -760,33 +788,33 @@ def expediente_maquinaria(id_activo):
     vecinos = obtener_activos_vecinos(id_activo)
 
     documentos = listar_documentos(id_activo)
-    
+
     traslado_en_proceso = obtener_traslado_en_proceso(id_activo)
-    
+
     mantenimiento_en_proceso = obtener_mantenimiento_en_proceso(id_activo)
-    
+
     print("=" * 60)
     print("ACTIVO:", id_activo)
     print("TRASLADO:", traslado_en_proceso)
     print("=" * 60)
 
     return render_template(
-    "expediente_maquinaria.html",
-    maquina=maquina,
-    aduana=aduana,
-    estado_aduana=estado_aduana,
-    historial=historial,
-    documentos=documentos,
-    traslado_en_proceso=traslado_en_proceso,
-    anterior=vecinos["anterior"],
-    siguiente=vecinos["siguiente"],
-    es_nacional=es_nacional,
-    es_importado=es_importado,
-    es_pendiente=es_pendiente,
-    es_sin_clasificar=es_sin_clasificar,
-    es_reingreso=es_reingreso,
-    mantenimiento_en_proceso=mantenimiento_en_proceso,
-)
+        "expediente_maquinaria.html",
+        maquina=maquina,
+        aduana=aduana,
+        estado_aduana=estado_aduana,
+        historial=historial,
+        documentos=documentos,
+        traslado_en_proceso=traslado_en_proceso,
+        anterior=vecinos["anterior"],
+        siguiente=vecinos["siguiente"],
+        es_nacional=es_nacional,
+        es_importado=es_importado,
+        es_pendiente=es_pendiente,
+        es_sin_clasificar=es_sin_clasificar,
+        es_reingreso=es_reingreso,
+        mantenimiento_en_proceso=mantenimiento_en_proceso,
+    )
 
 
 @app.route("/maquinarias/<id_activo>/imprimir")
@@ -1709,7 +1737,9 @@ def maquinaria_qr(id_activo):
         estado=estado,
         traslado_en_proceso=traslado_en_proceso,
         mantenimiento_en_proceso=mantenimiento_en_proceso,
-        estado_ui=estado_ui
+        estado_ui=estado_ui,
+        id_activo=id_activo,
+        pagina="inicio"
     )
 
 @app.route("/qr/<id_activo>/expediente")
@@ -1734,7 +1764,9 @@ def qr_expediente(id_activo):
         maquinaria=maquinaria,
         aduana=aduana,
         estado=estado,
-        documentos_map=documentos_map
+        documentos_map=documentos_map,
+        pagina="expediente",
+        id_activo=id_activo
     )
 
 @app.route("/qr/<id_activo>/documento/<tipo>")
@@ -1800,7 +1832,9 @@ def formulario_movimiento_mobile(id_activo, tipo):
         "maquinaria_qr/formulario_movimiento.html",
         maquina=maquina,
         tipo=tipo,
-        titulo=titulos[tipo]
+        titulo=titulos[tipo],
+        id_activo=id_activo,
+        pagina="movimientos"
     )
     
 @app.route("/m/maquinarias/<id_activo>/movimientos")
@@ -1811,7 +1845,7 @@ def movimientos_mobile(id_activo):
 
     if not maquina:
         flash("Activo no encontrado.", "danger")
-        return redirect(url_for("dashboard_mobile"))
+        return redirect(url_for("dashboard_mobil"))
 
     traslado_en_proceso = obtener_traslado_en_proceso(id_activo)
 
@@ -1824,7 +1858,9 @@ def movimientos_mobile(id_activo):
         maquina=maquina,
         traslado_en_proceso=traslado_en_proceso,
         mantenimiento_en_proceso=mantenimiento_en_proceso,
-        solicitud_pendiente=solicitud_pendiente
+        solicitud_pendiente=solicitud_pendiente,
+        id_activo=id_activo,
+        pagina="movimientos"
     )
 
 
@@ -1909,8 +1945,9 @@ def actividad_mobile(id_activo):
         "maquinaria_qr/actividad_mobile.html",
 
         maquinaria=maquinaria,
-
-        historial=historial_procesado
+        historial=historial_procesado,
+        pagina="actividad",
+        id_activo=id_activo
 
     )
 
@@ -1952,7 +1989,11 @@ def qr_evidencias(id_activo):
 
         maquinaria=maquinaria,
 
-        imagenes=imagenes
+        imagenes=imagenes,
+
+        id_activo=id_activo,
+
+        pagina="evidencias"
 
     )
     
@@ -2039,8 +2080,7 @@ def subir_evidencia(id_activo):
             modulo="Evidencias",
 
             referencia=id_activo
-
-        )
+)
 
         flash("Evidencia guardada correctamente.", "success")
 

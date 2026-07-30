@@ -1370,3 +1370,67 @@ body {
     background:#0d6efd;
 
 }
+
+.bottom-nav a{
+
+    color:#7d7d7d;
+
+    text-decoration:none;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex:1;
+
+    transition:.25s;
+
+}
+
+.bottom-nav a i{
+
+    font-size:22px;
+
+    transition:.25s;
+
+}
+
+.bottom-nav a span{
+
+    font-size:11px;
+
+    margin-top:4px;
+
+}
+
+.bottom-nav a.active{
+
+    color:#198754;
+
+}
+
+.bottom-nav a.active i{
+
+    transform:translateY(-2px) scale(1.15);
+
+}
+
+.bottom-nav a.active::before{
+
+    content:"";
+
+    width:6px;
+
+    height:6px;
+
+    border-radius:50%;
+
+    background:#198754;
+
+    margin-bottom:4px;
+
+}

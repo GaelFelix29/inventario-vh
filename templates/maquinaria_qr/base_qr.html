@@ -120,7 +120,8 @@
 
     <nav class="bottom-nav">
 
-        <a href="#">
+        <a href="{{ url_for('maquinaria_qr', id_activo=id_activo) }}"
+            class="{% if pagina=='inicio' %}active{% endif %}">
 
             <i class="bi bi-house-door-fill"></i>
 
@@ -128,7 +129,8 @@
 
         </a>
 
-        <a href="#">
+        <a href="{{ url_for('qr_expediente', id_activo=id_activo) }}"
+            class="{% if pagina=='expediente' %}active{% endif %}">
 
             <i class="bi bi-file-earmark-text"></i>
 
@@ -136,23 +138,26 @@
 
         </a>
 
-        <a href="#">
+        <a href="{{ url_for('qr_evidencias', id_activo=id_activo) }}"
+            class="{% if pagina=='evidencias' %}active{% endif %}">
 
-            <i class="bi bi-arrow-left-right"></i>
-
-            <span>Mov.</span>
-
-        </a>
-
-        <a href="#">
-
-            <i class="bi bi-camera"></i>
+            <i class="bi bi-camera-fill"></i>
 
             <span>Fotos</span>
 
         </a>
 
-        <a href="#">
+        <a href="{{ url_for('actividad_mobile', id_activo=id_activo) }}"
+            class="{% if pagina=='actividad' %}active{% endif %}">
+
+            <i class="bi bi-clock-history"></i>
+
+            <span>Actividad</span>
+
+        </a>
+
+        <a href="{{ url_for('movimientos_mobile', id_activo=id_activo) }}"
+            class="{% if pagina=='movimientos' %}active{% endif %}">
 
             <i class="bi bi-tools"></i>
 
