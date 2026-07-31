@@ -170,6 +170,9 @@ def prueba():
     {'CELULAR' if es_dispositivo_movil() else 'COMPUTADORA'}
     """
 
+from functools import wraps
+from flask import session, request, redirect, url_for
+
 def login_required(func):
 
     @wraps(func)
@@ -177,7 +180,6 @@ def login_required(func):
 
         if "usuario_id" not in session:
 
-            # Guardar únicamente la primera URL solicitada
             if (
                 "next_url" not in session
                 and not request.path.startswith("/static/")
@@ -267,8 +269,11 @@ def login():
 
             # Recuperar la URL original
             next_page = session.pop("next_url", None)
+            
+            print("NEXT PAGE:", next_page)
 
             if next_page:
+                session.pop("next_url", None)
                 return redirect(next_page)
 
             return redirect(url_for("inicio"))
@@ -597,11 +602,33 @@ def etiquetas():
             "expediente_maquinaria", id_activo=fila["id_activo"], _external=True
         )
 
-        qr = qrcode.make(url)
+        qr = qrcode.QRCode(
+
+            version=3,
+
+            error_correction=qrcode.constants.ERROR_CORRECT_M,
+
+            box_size=12,
+
+            border=4
+
+        )
+
+        qr.add_data(url)
+
+        qr.make(fit=True)
+
+        img = qr.make_image(
+
+            fill_color="black",
+
+            back_color="white"
+
+        )
 
         buffer = BytesIO()
 
-        qr.save(buffer, format="PNG")
+        img.save(buffer, format="PNG")
 
         qr64 = base64.b64encode(buffer.getvalue()).decode()
 
@@ -639,11 +666,33 @@ def fichas():
             _external=True
         )
 
-        qr = qrcode.make(url)
+        qr = qrcode.QRCode(
+
+            version=3,
+
+            error_correction=qrcode.constants.ERROR_CORRECT_M,
+
+            box_size=12,
+
+            border=4
+
+        )
+
+        qr.add_data(url)
+
+        qr.make(fit=True)
+
+        img = qr.make_image(
+
+            fill_color="black",
+
+            back_color="white"
+
+        )
 
         buffer = BytesIO()
 
-        qr.save(buffer, format="PNG")
+        img.save(buffer, format="PNG")
 
         qr64 = base64.b64encode(buffer.getvalue()).decode()
 

@@ -192,7 +192,7 @@ table td:first-child {
 
 .derecha{
 
-    width:110px;
+    width:140px;
 
     display:flex;
 
@@ -202,7 +202,7 @@ table td:first-child {
 
     justify-content:center;
 
-    gap:8px;
+    gap:12px;
 
 }
 
@@ -308,12 +308,12 @@ table td:first-child {
 
 .qr{
 
-    width:70px;
-    height:70px;
+    width:110px;
+    height:110px;
 
     border:2px solid #198754;
-    border-radius:6px;
-    padding:3px;
+    border-radius:8px;
+    padding:5px;
     background:white;
 
 }
