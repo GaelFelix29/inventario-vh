@@ -22,6 +22,37 @@ def obtener_maquinarias():
     return pd.read_sql(sql, engine)
 
 
+def obtener_maquinarias_mobile(limite=20, offset=0):
+
+    sql = text("""
+
+        SELECT *
+
+        FROM maquinarias
+
+        ORDER BY id_activo
+
+        LIMIT :limite OFFSET :offset
+
+    """)
+
+    return pd.read_sql(
+
+        sql,
+
+        engine,
+
+        params={
+
+            "limite": limite,
+
+            "offset": offset
+
+        }
+
+    )
+
+
 def obtener_maquinaria(codigo):
 
     sql = text("""
@@ -705,3 +736,137 @@ def obtener_mantenimiento_en_proceso(id_activo):
             sql,
             {"id_activo": id_activo}
         ).mappings().first()
+    
+
+def obtener_maquinarias_mobile_filtrado(
+    q="",
+    estado="",
+    ubicacion="",
+    tipo="",
+    limite=20,
+    offset=0
+):
+
+    sql = """
+    SELECT
+        m.*,
+        a.origen
+    FROM maquinarias m
+    LEFT JOIN aduanas a
+        ON m.id_activo = a.id_activo
+    WHERE 1=1
+    """
+
+    params = {}
+
+    # ===============================
+    # BUSCADOR
+    # ===============================
+
+    if q:
+
+        sql += """
+
+        AND (
+
+            m.id_activo LIKE :q
+            OR m.descripcion LIKE :q
+            OR m.marca LIKE :q
+            OR m.modelo LIKE :q
+            OR m.ubicacion LIKE :q
+
+        )
+
+        """
+
+        params["q"] = f"%{q}%"
+
+    # ===============================
+    # ESTADO
+    # ===============================
+
+    if estado:
+
+        sql += """
+
+        AND m.estado = :estado
+
+        """
+
+        params["estado"] = estado
+
+    # ===============================
+    # UBICACIÓN
+    # ===============================
+
+    if ubicacion:
+
+        sql += """
+
+        AND m.ubicacion = :ubicacion
+
+        """
+
+        params["ubicacion"] = ubicacion
+
+    # ===============================
+    # TIPO (NACIONAL / IMPORTADO)
+    # ===============================
+
+    if tipo:
+
+        if tipo == "Importado":
+
+            sql += """
+
+            AND (
+                a.origen IS NOT NULL
+                AND UPPER(a.origen) <> 'NACIONAL'
+            )
+
+            """
+
+        elif tipo == "Nacional":
+
+            sql += """
+
+            AND UPPER(a.origen) = 'NACIONAL'
+
+            """
+
+    # ===============================
+
+    sql += """
+
+    ORDER BY m.id_activo
+
+    LIMIT :limite OFFSET :offset
+
+    """
+
+    params["limite"] = limite
+    params["offset"] = offset
+
+    return pd.read_sql(
+        text(sql),
+        engine,
+        params=params
+    )
+
+def obtener_ubicaciones():
+    sql = text("""
+
+        SELECT DISTINCT ubicacion
+
+        FROM maquinarias
+
+        WHERE ubicacion IS NOT NULL
+        AND TRIM(ubicacion) <> ''
+
+        ORDER BY ubicacion
+
+    """)
+
+    with engine.connect() as conn:
+
+        return conn.execute(sql).scalars().all()

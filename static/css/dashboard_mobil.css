@@ -276,3 +276,265 @@ body{
     box-shadow:0 5px 15px rgba(0,0,0,.08);
 
 }
+
+/*=============================
+=      HEADER NUEVO          =
+=============================*/
+
+.header-top{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+.avatar-circle{
+
+    width:55px;
+
+    height:55px;
+
+    border-radius:50%;
+
+    background:#198754;
+
+    color:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:22px;
+
+    font-weight:bold;
+
+    box-shadow:0 6px 15px rgba(25,135,84,.30);
+
+}
+
+/*=============================
+=      ACCIONES RAPIDAS      =
+=============================*/
+
+.quick-actions{
+
+    margin-top:30px;
+
+}
+
+.quick-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:15px;
+
+}
+
+.quick-card{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:20px;
+
+    text-align:center;
+
+    text-decoration:none;
+
+    color:#333;
+
+    box-shadow:0 5px 18px rgba(0,0,0,.08);
+
+    transition:.25s;
+
+}
+
+.quick-card i{
+
+    font-size:34px;
+
+    color:#198754;
+
+    display:block;
+
+    margin-bottom:12px;
+
+}
+
+.quick-card span{
+
+    font-weight:600;
+
+}
+
+.quick-card:active{
+
+    transform:scale(.97);
+
+}
+
+/*=============================
+=     ACTIVIDAD RECIENTE      =
+=============================*/
+
+.recent-activity{
+
+    margin-top:30px;
+
+}
+
+.activity-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+}
+
+.activity-item{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:16px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+
+}
+
+.activity-icon{
+
+    width:46px;
+
+    height:46px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:white;
+
+    font-size:18px;
+
+    flex-shrink:0;
+
+}
+
+.activity-icon.success{
+
+    background:#198754;
+
+}
+
+.activity-icon.warning{
+
+    background:#ffc107;
+
+    color:#333;
+
+}
+
+.activity-icon.primary{
+
+    background:#0d6efd;
+
+}
+
+.activity-item strong{
+
+    display:block;
+
+    font-size:15px;
+
+}
+
+.activity-item small{
+
+    color:#6c757d;
+
+}
+
+.search-results{
+
+    position:absolute;
+
+    top:100%;
+
+    left:0;
+
+    right:0;
+
+    background:#fff;
+
+    border-radius:16px;
+
+    margin-top:8px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.12);
+
+    overflow:hidden;
+
+    display:none;
+
+    z-index:500;
+
+}
+
+.search-item{
+
+    padding:14px 16px;
+
+    border-bottom:1px solid #eee;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.search-item:last-child{
+
+    border:none;
+
+}
+
+.search-item:hover{
+
+    background:#f4fff8;
+
+}
+
+.search-item strong{
+
+    display:block;
+
+    color:#198754;
+
+}
+
+.search-item small{
+
+    color:#666;
+
+}

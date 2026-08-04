@@ -1,0 +1,412 @@
+{% extends "maquinaria_qr/base_mobile.html" %}
+
+{% block titulo %}
+Maquinarias
+{% endblock %}
+
+{% block estilos %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/maquinarias_mobile.css') }}">
+{% endblock %}
+
+{% block contenido %}
+
+<div class="hero-card">
+
+    <div class="hero-icon">
+
+        <i class="bi bi-box-seam"></i>
+
+    </div>
+
+    <div>
+
+        <h2>Maquinarias</h2>
+
+        <small>Consulta rápida de activos</small>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- BUSCADOR -->
+<!-- ========================= -->
+
+<section class="search-section">
+
+    <div class="position-relative">
+
+        <i class="bi bi-search search-icon"></i>
+
+        <input
+            type="search"
+            id="buscarActivo"
+            class="search-input"
+            placeholder="Buscar por activo, descripción, marca..."
+        >
+
+    </div>
+
+</section>
+
+<!-- ========================= -->
+<!-- FILTROS -->
+<!-- ========================= -->
+
+<div class="filter-card">
+
+    <div class="filter-title">
+
+        <i class="bi bi-funnel-fill"></i>
+
+        <span>Filtros</span>
+
+    </div>
+
+    <div class="filtros">
+
+        <!-- Tipo -->
+
+        <div class="filter-group">
+
+            <label>
+
+                <i class="bi bi-globe-americas"></i>
+
+                Tipo
+
+            </label>
+
+            <select id="filtroTipo" class="filtro-select">
+
+                <option value="">🌎 Todos</option>
+
+                <option value="Importado">
+
+                    🌍 Importados
+
+                </option>
+
+                <option value="Nacional">
+
+                    🇲🇽 Nacionales
+
+                </option>
+
+            </select>
+
+        </div>
+
+        <!-- Estado -->
+
+        <div class="filter-group">
+
+            <label>
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                Estado
+
+            </label>
+
+            <select id="filtroEstado" class="filtro-select">
+
+                <option value="">Todos</option>
+
+                <option value="ACTIVO">
+
+                    🟢 Activos
+
+                </option>
+
+                <option value="BAJA">
+
+                    🔴 Bajas
+
+                </option>
+
+            </select>
+
+        </div>
+
+        <!-- Ubicación -->
+
+        <div class="filter-group">
+
+            <label>
+
+                <i class="bi bi-geo-alt-fill"></i>
+
+                Ubicación
+
+            </label>
+
+            <select id="filtroUbicacion" class="filtro-select">
+
+                <option value="">
+
+                    📍 Todas las ubicaciones
+
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+</div><!-- Lista -->
+
+<div id="listaMaquinarias">
+
+
+
+</div>
+
+<div class="text-center mt-3 mb-4">
+
+    <button id="btnMostrarMas" class="btn-mostrar">
+
+        <i class="bi bi-chevron-down"></i>
+
+        Mostrar más
+
+    </button>
+
+</div>
+
+
+<script>
+
+let offset = 0;
+
+const filtroTipo = document.getElementById("filtroTipo");
+const lista = document.getElementById("listaMaquinarias");
+const btn = document.getElementById("btnMostrarMas");
+
+const txtBuscar = document.getElementById("buscarActivo");
+const filtroEstado = document.getElementById("filtroEstado");
+const filtroUbicacion = document.getElementById("filtroUbicacion");
+
+async function cargarMaquinarias(reset = false) {
+
+    try {
+
+        if (reset) {
+
+            offset = 0;
+            lista.innerHTML = "";
+
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Cargando...';
+
+        const params = new URLSearchParams({
+
+            offset: offset,
+            q: txtBuscar.value,
+            estado: filtroEstado.value,
+            ubicacion: filtroUbicacion.value,
+            tipo: filtroTipo.value
+
+        });
+
+        const respuesta = await fetch("/m/maquinarias/api?" + params);
+
+        if (!respuesta.ok) {
+
+            throw new Error("Error al consultar la API.");
+
+        }
+
+        const maquinas = await respuesta.json();
+
+        console.log(maquinas);
+
+        if (reset && maquinas.length === 0) {
+
+            lista.innerHTML = `
+
+                <div class="text-center py-5">
+
+                    <i class="bi bi-search" style="font-size:50px;color:#999"></i>
+
+                    <h5>No se encontraron resultados</h5>
+
+                </div>
+
+            `;
+
+        }
+
+        maquinas.forEach((m, i) => {
+
+            lista.insertAdjacentHTML("beforeend", `
+
+                <div class="card-maquina"
+                     style="animation-delay:${i * 60}ms">
+
+                    <div class="card-top">
+
+                        <div>
+
+                            <h4>${m.id_activo}</h4>
+
+                            <small>${m.descripcion ?? ""}</small>
+
+                        </div>
+
+                        <span class="estado">
+
+                            ${m.estado}
+
+                        </span>
+
+                    </div>
+
+                    <div class="expediente-box">
+
+                        <div class="barra">
+
+                            <div class="progreso ${m.expediente.color}"
+                                style="width:${m.expediente.porcentaje}%">
+
+                            </div>
+
+                        </div>
+
+                        <div class="expediente-info">
+
+                            <span>${m.expediente.estado}</span>
+
+                            <strong>${m.expediente.porcentaje}%</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="datos">
+
+                        <div>
+
+                            <strong>Marca</strong>
+
+                            ${m.marca ?? "-"}
+
+                        </div>
+
+                        <div>
+
+                            <strong>Modelo</strong>
+
+                            ${m.modelo ?? "-"}
+
+                        </div>
+
+                        <div>
+
+                            <strong>Ubicación</strong>
+
+                            ${m.ubicacion ?? "-"}
+
+                        </div>
+
+                    </div>
+
+                    <a href="/qr/${m.id_activo}" class="btn-ver">
+
+                        <i class="bi bi-eye"></i>
+
+                        Ver expediente
+
+                    </a>
+
+                </div>
+
+            `);
+
+        });
+
+        offset += maquinas.length;
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-chevron-down"></i> Mostrar más';
+
+        if (maquinas.length < 20) {
+
+            btn.style.display = "none";
+
+        } else {
+
+            btn.style.display = "inline-block";
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-chevron-down"></i> Mostrar más';
+
+    }
+
+}
+
+btn.addEventListener("click", () => {
+
+    cargarMaquinarias();
+
+});
+
+txtBuscar.addEventListener("input", () => {
+
+    cargarMaquinarias(true);
+
+});
+
+filtroEstado.addEventListener("change", () => {
+
+    cargarMaquinarias(true);
+
+});
+
+filtroUbicacion.addEventListener("change", () => {
+
+    cargarMaquinarias(true);
+
+});
+
+filtroTipo.addEventListener("change", () => {
+
+    cargarMaquinarias(true);
+
+});
+
+async function cargarUbicaciones() {
+
+    const respuesta = await fetch("/m/maquinarias/ubicaciones");
+
+    const ubicaciones = await respuesta.json();
+
+    ubicaciones.forEach(u => {
+
+        filtroUbicacion.insertAdjacentHTML(
+
+            "beforeend",
+
+            `<option value="${u}">${u}</option>`
+
+        );
+
+    });
+
+}
+
+cargarUbicaciones();
+cargarMaquinarias(true);
+
+</script>
+
+{% endblock %}

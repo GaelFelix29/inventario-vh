@@ -1,0 +1,376 @@
+.page-title{
+
+    font-size:28px;
+    font-weight:700;
+
+}
+
+.card-aduana{
+
+    background:#fff;
+
+    border-radius:22px;
+
+    padding:18px;
+
+    margin-bottom:18px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+.card-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:15px;
+
+    margin-bottom:15px;
+
+}
+
+.card-header h3{
+
+    color:#198754;
+
+    font-size:23px;
+
+    margin:0;
+
+    font-weight:700;
+
+}
+
+.card-header p{
+
+    margin-top:5px;
+
+    color:#666;
+
+    font-size:13px;
+
+    line-height:1.4;
+
+}
+
+.badge{
+
+    border-radius:30px;
+
+    padding:8px 14px;
+
+    color:white;
+
+    font-size:12px;
+
+    height:fit-content;
+
+}
+
+.badge.success{
+
+    background:#198754;
+
+}
+
+.badge.warning{
+
+    background:#ffc107;
+
+    color:#222;
+
+}
+
+.badge.danger{
+
+    background:#dc3545;
+
+}
+
+.barra-expediente{
+
+    margin:18px 0;
+
+}
+
+.barra-fondo{
+
+    height:10px;
+
+    background:#ececec;
+
+    border-radius:30px;
+
+    overflow:hidden;
+
+}
+
+.barra-progreso{
+
+    height:100%;
+
+    transition:.5s;
+
+}
+
+.barra-progreso.success{
+
+    background:#198754;
+
+}
+
+.barra-progreso.warning{
+
+    background:#ffc107;
+
+}
+
+.barra-progreso.danger{
+
+    background:#dc3545;
+
+}
+
+.porcentaje{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:8px;
+
+    font-size:13px;
+
+}
+
+.info-grid{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:12px;
+
+    margin:18px 0;
+
+}
+
+.info-card{
+
+    background:#f8f9fa;
+
+    border-radius:15px;
+
+    padding:12px;
+
+}
+
+.info-card i{
+
+    color:#198754;
+
+    font-size:18px;
+
+}
+
+.info-card small{
+
+    display:block;
+
+    margin-top:6px;
+
+    color:#777;
+
+}
+
+.info-card strong{
+
+    display:block;
+
+    margin-top:4px;
+
+    font-size:14px;
+
+}
+
+.btn-expediente{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:10px;
+
+    background:#198754;
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:14px;
+
+    border-radius:15px;
+
+    font-weight:600;
+
+}
+
+.btn-expediente:hover{
+
+    color:white;
+
+}
+
+/*======================================
+  TARJETA FILTROS
+======================================*/
+
+.filtro-card{
+
+    background:#fff;
+
+    border-radius:22px;
+
+    padding:18px;
+
+    margin:18px 0;
+
+    box-shadow:0 8px 22px rgba(0,0,0,.08);
+
+}
+
+.filtro-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    color:#198754;
+
+    font-weight:700;
+
+    font-size:16px;
+
+    margin-bottom:18px;
+
+}
+
+.filtro-title i{
+
+    font-size:18px;
+
+}
+
+.filtro-group{
+
+    margin-bottom:16px;
+
+}
+
+.filtro-group:last-child{
+
+    margin-bottom:0;
+
+}
+
+.filtro-group label{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:#6c757d;
+
+    margin-bottom:8px;
+
+}
+
+.filtro-group label i{
+
+    color:#198754;
+
+    font-size:13px;
+
+}
+
+.filtro-select{
+
+    width:100%;
+
+    height:44px;
+
+    border:1px solid #e5e7eb;
+
+    border-radius:14px;
+
+    background:#fff;
+
+    padding:0 14px;
+
+    font-size:14px;
+
+    transition:.25s;
+
+    outline:none;
+
+}
+
+.filtro-select:focus{
+
+    border-color:#198754;
+
+    box-shadow:0 0 0 4px rgba(25,135,84,.12);
+
+}
+
+.filtro-select:hover{
+
+    border-color:#198754;
+
+}
+
+.card-maquina{
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease;
+
+}
+
+.card-maquina:active{
+
+    transform:scale(.98);
+
+}
+
+@keyframes aparecer{
+
+from{
+
+opacity:0;
+
+transform:translateY(15px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:none;
+
+}
+
+}

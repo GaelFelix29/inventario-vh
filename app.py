@@ -9,6 +9,11 @@ from flask import (
     flash,
 )
 
+from database.dashboard import (
+    obtener_kpis_dashboard,
+    obtener_actividad_dashboard
+)
+
 from utils.responsive import render_responsive
 
 from datetime import datetime
@@ -88,7 +93,7 @@ from database.usuarios import (
     verificar_password,
 )
 
-from database.maquinarias import buscar_activos
+from database.maquinarias import buscar_activos, obtener_maquinarias_mobile
 
 from database.maquinarias import (
     obtener_todas_maquinas,
@@ -106,7 +111,9 @@ from database.maquinarias import (
     finalizar_mantenimiento,
     confirmar_recepcion_activo,
     finalizar_mantenimiento_activo,
-    obtener_mantenimiento_en_proceso
+    obtener_mantenimiento_en_proceso,
+    obtener_maquinarias_mobile_filtrado,
+    obtener_ubicaciones
     
 )
 
@@ -117,6 +124,8 @@ from database.aduanas import (
     guardar_aduana,
     actualizar_aduana,
     estado_expediente_aduanal,
+    obtener_origenes,
+    obtener_aduanas_mobile_filtrado
 )
 
 # ==========================================
@@ -1861,8 +1870,18 @@ def qr_documento(id_activo, tipo):
 @login_required
 def dashboard_mobil():
 
+    kpis = obtener_kpis_dashboard()
+
+    actividad = obtener_actividad_dashboard()
+
     return render_template(
-        "maquinaria_qr/dashboard_mobil.html"
+
+        "maquinaria_qr/dashboard_mobil.html",
+
+        **kpis,
+
+        actividad=actividad
+
     )
 
 @app.route("/m/maquinarias/<id_activo>/movimiento/<tipo>")
@@ -2208,6 +2227,130 @@ def eliminar_evidencia(id):
         flash(f"Error al eliminar evidencia: {e}", "danger")
 
         return redirect(request.referrer)
+
+@app.route("/m/maquinarias/cargar")
+@login_required
+def cargar_maquinarias_mobile():
+
+    offset = int(request.args.get("offset", 0))
+
+    maquinarias = (
+        obtener_maquinarias_mobile(
+            limite=20,
+            offset=offset
+        )
+        .fillna("")
+        .to_dict("records")
+    )
+
+    for maquina in maquinarias:
+
+        aduana = obtener_aduana(maquina["id_activo"])
+
+        maquina["expediente"] = estado_expediente_aduanal(aduana)
+
+    return jsonify(maquinarias)
+
+@app.route("/m/maquinarias")
+@login_required
+def maquinarias_mobile():
+
+    return render_template(
+        "maquinaria_qr/maquinarias_mobile.html"
+    )
+
+@app.route("/m/maquinarias/api")
+@login_required
+def api_maquinarias_mobile():
+
+    q = request.args.get("q", "").strip()
+    estado = request.args.get("estado", "")
+    ubicacion = request.args.get("ubicacion", "")
+    tipo = request.args.get("tipo", "")
+
+    offset = int(request.args.get("offset", 0))
+    limite = 20
+
+    maquinarias = obtener_maquinarias_mobile_filtrado(
+        q=q,
+        estado=estado,
+        ubicacion=ubicacion,
+        tipo=tipo,
+        limite=limite,
+        offset=offset
+    ).to_dict("records")
+
+    for maquina in maquinarias:
+
+        aduana = obtener_aduana(maquina["id_activo"])
+        maquina["expediente"] = estado_expediente_aduanal(aduana)
+
+        # Limpiar TODOS los campos de ESTA maquinaria
+        for key, value in list(maquina.items()):
+
+            try:
+                if pd.isna(value):
+                    maquina[key] = None
+                    continue
+            except TypeError:
+                pass
+
+            if isinstance(value, (datetime, date, pd.Timestamp)):
+                maquina[key] = value.strftime("%Y-%m-%d %H:%M:%S")
+
+    return jsonify(maquinarias)
+
+@app.route("/m/maquinarias/ubicaciones")
+@login_required
+def api_ubicaciones_mobile():
+
+    ubicaciones = obtener_ubicaciones()
+
+    return jsonify(ubicaciones)
+
+@app.route("/m/aduanas")
+@login_required
+def aduanas_mobile():
+
+    return render_template(
+        "maquinaria_qr/aduanas_mobile.html"
+    )
+
+@app.route("/m/aduanas/api")
+@login_required
+def api_aduanas_mobile():
+
+    q = request.args.get("q","").strip()
+    origen = request.args.get("origen","")
+    tipo = request.args.get("tipo","")
+
+    offset = int(request.args.get("offset",0))
+
+    limite = 20
+
+    aduanas = obtener_aduanas_mobile_filtrado(
+
+        q=q,
+        origen=origen,
+        tipo=tipo,
+        limite=limite,
+        offset=offset
+
+    ).fillna("").to_dict("records")
+
+    for aduana in aduanas:
+
+        aduana["expediente"] = estado_expediente_aduanal(aduana)
+
+    return jsonify(aduanas)
+
+@app.route("/m/aduanas/origenes")
+@login_required
+def api_origenes_mobile():
+
+    origenes = obtener_origenes()
+
+    return jsonify(origenes)
 # ==========================================================
 # SERVIDOR
 # ==========================================================

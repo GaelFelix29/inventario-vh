@@ -13,22 +13,37 @@ Dashboard
 <div class="dashboard-mobile">
 
     <!-- Header -->
-
     <section class="dashboard-header">
 
-        <div>
+        <div class="header-top">
 
-            <span class="dashboard-label">
-                PANEL DE CONTROL
-            </span>
+            <div>
 
-            <h2 class="fw-bold">
-                👋 Hola, {{ session["nombre"] }}
-            </h2>
+                <span class="dashboard-label">
 
-            <p class="text-muted">
-                Bienvenido nuevamente.
-            </p>
+                    PANEL DE CONTROL
+
+                </span>
+
+                <h2>
+
+                    ¡Hola, {{ session["nombre"] }}! 👋
+
+                </h2>
+
+                <p>
+
+                    Bienvenido a Vital Health
+
+                </p>
+
+            </div>
+
+            <div class="avatar-circle">
+
+                {{ session["nombre"][0] }}
+
+            </div>
 
         </div>
 
@@ -46,7 +61,14 @@ Dashboard
 
         </label>
 
-        <input type="search" class="search-input" placeholder="ACT-0001, Serie, Descripción...">
+        <div class="position-relative">
+
+            <input id="buscarActivo" type="search" class="search-input" placeholder="ACT-0001, Serie, Descripción..."
+                autocomplete="off">
+
+            <div id="resultadosBusqueda" class="search-results"></div>
+
+        </div>
 
     </section>
 
@@ -74,7 +96,7 @@ Dashboard
 
                 <div>
 
-                    <h3>217</h3>
+                    <h3>{{ total_activos }}</h3>
 
                     <span>Activos</span>
 
@@ -86,15 +108,16 @@ Dashboard
 
                 <div class="icon-box warning">
 
-                    <i class="bi bi-tools"></i>
+                    <i class="bi bi-globe-americas"></i>
 
                 </div>
 
                 <div>
 
-                    <h3>12</h3>
+                    <h3>{{ importados }}</h3>
 
-                    <span>Mantenimiento</span>
+                    <span>🌍
+                        Importados</span>
 
                 </div>
 
@@ -104,15 +127,16 @@ Dashboard
 
                 <div class="icon-box primary">
 
-                    <i class="bi bi-file-earmark-text"></i>
+                    <i class="bi bi-patch-check-fill"></i>
 
                 </div>
 
                 <div>
 
-                    <h3>5</h3>
+                    <h3>{{ expedientes_completos }}</h3>
 
-                    <span>Solicitudes</span>
+                    <span>✅
+                        Expedientes completos</span>
 
                 </div>
 
@@ -128,9 +152,10 @@ Dashboard
 
                 <div>
 
-                    <h3>84</h3>
+                    <h3>{{ expedientes_pendientes }}</h3>
 
-                    <span>Importados</span>
+                    <span>⚠️
+                        Pendientes</span>
 
                 </div>
 
@@ -140,6 +165,187 @@ Dashboard
 
     </section>
 
+    <section class="quick-actions">
+
+        <h3>
+
+            <i class="bi bi-lightning-charge-fill"></i>
+
+            Acciones rápidas
+
+        </h3>
+
+        <div class="quick-grid">
+
+            <a href="/" class="quick-card">
+
+                <i class="bi bi-qr-code-scan"></i>
+
+                <span>Escanear</span>
+
+            </a>
+
+            <a href="{{ url_for('maquinarias_mobile') }}" class="quick-card">
+
+                <i class="bi bi-box-seam"></i>
+
+                <span>Maquinarias</span>
+
+            </a>
+
+            <a href="/aduanas" class="quick-card">
+
+                <i class="bi bi-truck"></i>
+
+                <span>Aduanas</span>
+
+            </a>
+
+            <a href="/usuarios" class="quick-card">
+
+                <i class="bi bi-people"></i>
+
+                <span>Usuarios</span>
+
+            </a>
+
+        </div>
+
+    </section>
+
+    <section class="recent-activity">
+
+        <h3>
+
+            <i class="bi bi-clock-history"></i>
+
+            Actividad reciente
+
+        </h3>
+
+        <div class="activity-list">
+
+            {% for mov in actividad %}
+
+            <div class="activity-item">
+
+                <div class="activity-icon success">
+
+                    <i class="bi bi-clock-history"></i>
+
+                </div>
+
+                <div>
+
+                    <strong>
+
+                        {{ mov.usuario }}
+
+                    </strong>
+
+                    <div>
+
+                        {{ mov.accion }}
+
+                        {% if mov.referencia %}
+
+                        - {{ mov.referencia }}
+
+                        {% endif %}
+
+                    </div>
+
+                    <small>
+
+                        {{ mov.fecha.strftime("%d/%m/%Y %H:%M") }}
+
+                    </small>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
 </div>
+
+<script>
+
+const input = document.getElementById("buscarActivo");
+const resultados = document.getElementById("resultadosBusqueda");
+
+input.addEventListener("input", async function(){
+
+    const texto = this.value.trim();
+
+    if(texto.length < 2){
+
+        resultados.style.display = "none";
+        resultados.innerHTML = "";
+        return;
+
+    }
+
+    const resp = await fetch("/buscar-activos?q=" + encodeURIComponent(texto));
+
+    const datos = await resp.json();
+
+    resultados.innerHTML = "";
+
+    if(datos.length === 0){
+
+        resultados.style.display = "none";
+        return;
+
+    }
+
+    datos.forEach(activo=>{
+
+        resultados.innerHTML += `
+
+            <div class="search-item"
+                onclick="abrirActivo('${activo.id}')">
+
+                <strong>${activo.id}</strong>
+
+                <small>
+
+                    ${activo.descripcion}<br>
+
+                    ${activo.ubicacion || ""}
+
+                </small>
+
+            </div>
+
+        `;
+
+    });
+
+    resultados.style.display="block";
+
+});
+
+function abrirActivo(id){
+
+    window.location="/maquinarias/" + id;
+
+}
+
+document.addEventListener("click",function(e){
+
+    if(!e.target.closest(".search-section")){
+
+        resultados.style.display="none";
+
+    }
+
+});
+
+</script>
 
 {% endblock %}
