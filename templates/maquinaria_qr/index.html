@@ -41,43 +41,6 @@ Inicio
 
         <div class="card-body">
 
-            <label class="fw-semibold mb-2">
-
-                <i class="bi bi-search"></i>
-
-                Buscar activo
-
-            </label>
-            <h6 class="text-uppercase text-muted fw-bold mt-4">
-
-                <i class="bi bi-clock-history"></i>
-
-                Últimos activos
-
-            </h6>
-
-            <div class="list-group rounded-4 shadow-sm mb-4">
-
-                <a href="#" class="list-group-item list-group-item-action">
-
-                    🕒 ACT-0241
-
-                </a>
-
-                <a href="#" class="list-group-item list-group-item-action">
-
-                    🕒 ACT-0187
-
-                </a>
-
-                <a href="#" class="list-group-item list-group-item-action">
-
-                    🕒 ACT-0074
-
-                </a>
-
-            </div>
-
             <div class="position-relative">
 
                 <input type="text" id="buscarActivo" class="form-control form-control-lg rounded-4"
@@ -87,6 +50,26 @@ Inicio
                 </div>
 
             </div>
+
+            <h6 class="text-uppercase text-muted fw-bold mt-4">
+
+                <i class="bi bi-clock-history"></i>
+
+                Últimos activos
+
+            </h6>
+
+            <div class="list-group rounded-4 shadow-sm mb-4" id="ultimosActivos">
+
+                <div class="text-center py-2">
+
+                    Cargando...
+
+                </div>
+
+            </div>
+
+
 
         </div>
 
@@ -449,6 +432,96 @@ Inicio
         alert("QR no reconocido");
 
     }
+
+
+
+    async function cargarRecientes() {
+
+        const contenedor = document.getElementById("ultimosActivos");
+
+        try {
+
+            const r = await fetch("/m/recientes");
+
+            const datos = await r.json();
+
+            if (datos.length === 0) {
+
+                contenedor.innerHTML = `
+
+                <div class="text-center text-muted py-3">
+
+                    No has consultado activos.
+
+                </div>
+
+            `;
+
+                return;
+
+            }
+
+            contenedor.innerHTML = "";
+
+            datos.forEach(activo => {
+
+                contenedor.insertAdjacentHTML(
+
+                    "beforeend",
+
+                    `
+        <a href="/qr/${activo.id_activo}" class="recent-card">
+
+            <div class="recent-left">
+
+                <div class="recent-id">
+
+                    <i class="bi bi-clock-history"></i>
+
+                    ${activo.id_activo}
+
+                </div>
+
+                <div class="recent-desc">
+
+                    ${activo.descripcion}
+
+                </div>
+
+                <div class="recent-location">
+
+                    <i class="bi bi-geo-alt"></i>
+
+                    ${activo.ubicacion ?? "Sin ubicación"}
+
+                </div>
+
+            </div>
+
+            <div class="recent-arrow">
+
+                <i class="bi bi-chevron-right"></i>
+
+            </div>
+
+        </a>
+        `
+
+                );
+
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+        }
+
+    }
+
+    cargarRecientes();
 
 </script>
 

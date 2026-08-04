@@ -49,7 +49,9 @@ from datetime import date
 from models.auditoria_model import (
     registrar_movimiento,
     obtener_historial,
-    obtener_historial_activo
+    obtener_historial_activo,
+    registrar_activo_reciente,
+    obtener_activos_recientes
 )
 
 from database.documentos import (
@@ -814,6 +816,18 @@ def expediente_maquinaria(id_activo):
         flash("El activo no existe.", "danger")
 
         return redirect(url_for("lista_maquinarias"))
+    
+    # ==========================================
+    # Guardar activo reciente
+    # ==========================================
+
+    registrar_activo_reciente(
+
+        usuario=session["nombre"],
+
+        id_activo=id_activo
+
+    )
 
     aduana = obtener_aduana(id_activo)
 
@@ -1767,6 +1781,18 @@ def maquinaria_qr(id_activo):
     if not maquinaria:
         abort(404)
 
+    # ==========================================
+    # Guardar activo reciente
+    # ==========================================
+
+    registrar_activo_reciente(
+
+        usuario=session["nombre"],
+
+        id_activo=id_activo
+
+    )
+
     aduana = obtener_aduana(id_activo)
 
     estado = estado_expediente_aduanal(aduana)
@@ -2351,6 +2377,18 @@ def api_origenes_mobile():
     origenes = obtener_origenes()
 
     return jsonify(origenes)
+
+@app.route("/m/recientes")
+@login_required
+def api_activos_recientes():
+
+    recientes = obtener_activos_recientes(
+
+        session["nombre"]
+
+    )
+
+    return jsonify(recientes)
 # ==========================================================
 # SERVIDOR
 # ==========================================================
