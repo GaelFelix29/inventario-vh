@@ -13,41 +13,65 @@ Dashboard
 <div class="dashboard-mobile">
 
     <!-- Header -->
-    <section class="dashboard-header">
+<section class="hero-dashboard">
 
-        <div class="header-top">
+    <div class="hero-overlay"></div>
 
-            <div>
+    <div class="hero-content">
 
-                <span class="dashboard-label">
+        <div>
 
-                    PANEL DE CONTROL
+            <span class="hero-badge">
 
-                </span>
+                <i class="bi bi-stars"></i>
 
-                <h2>
+                Sistema Vital Health
 
-                    ¡Hola, {{ session["nombre"] }}! 👋
+            </span>
 
-                </h2>
+            <h1>
 
-                <p>
+                ¡Hola, {{ session["nombre"] }}! 👋
 
-                    Bienvenido a Vital Health
+            </h1>
 
-                </p>
+            <p>
 
-            </div>
+                Gestión Inteligente de Activos
 
-            <div class="avatar-circle">
+            </p>
 
-                {{ session["nombre"][0] }}
+            <div class="hero-stats">
+
+                <div>
+
+                    <strong>{{ total_activos }}</strong>
+
+                    <span>Activos</span>
+
+                </div>
+
+                <div>
+
+                    <strong>{{ expedientes_completos }}</strong>
+
+                    <span>Completos</span>
+
+                </div>
 
             </div>
 
         </div>
 
-    </section>
+        <div class="hero-avatar">
+
+            {{ session["nombre"][0] }}
+
+        </div>
+
+    </div>
+
+</section>
 
     <!-- Buscar -->
 
@@ -193,19 +217,11 @@ Dashboard
 
             </a>
 
-            <a href="/aduanas" class="quick-card">
+            <a href="{{ url_for('aduanas_mobile') }}" class="quick-card">
 
                 <i class="bi bi-truck"></i>
 
                 <span>Aduanas</span>
-
-            </a>
-
-            <a href="/usuarios" class="quick-card">
-
-                <i class="bi bi-people"></i>
-
-                <span>Usuarios</span>
 
             </a>
 
