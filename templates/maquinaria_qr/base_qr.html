@@ -65,17 +65,17 @@
             Inicio
         </a>
 
-        <a href="/dashboard">
+        <a href="{{ url_for('dashboard_mobil') }}">
             <i class="bi bi-speedometer2"></i>
             Dashboard
         </a>
 
-        <a href="/maquinarias">
+        <a href="{{ url_for('maquinarias_mobile') }}">
             <i class="bi bi-pc-display"></i>
             Maquinaria
         </a>
 
-        <a href="/aduanas">
+        <a href="{{ url_for('aduanas_mobile') }}">
             <i class="bi bi-truck"></i>
             Aduanas
         </a>
@@ -159,9 +159,9 @@
         <a href="{{ url_for('movimientos_mobile', id_activo=id_activo) }}"
             class="{% if pagina=='movimientos' %}active{% endif %}">
 
-            <i class="bi bi-tools"></i>
+            <i class="bi bi-arrow-left-right"></i>
 
-            <span>Manto.</span>
+            <span>Movimientos</span>
 
         </a>
 
