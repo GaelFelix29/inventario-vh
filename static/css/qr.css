@@ -2894,3 +2894,48 @@ body {
     color: #15965c;
 }
 
+
+/* Evita desplazamiento lateral al abrir secciones mediante enlaces # */
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.contenido {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+#accesorios-asignados {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    scroll-margin-top: 90px;
+}
+
+#accesorios-asignados .accesorio-asignado-mobile {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+#accesorios-asignados .accesorio-asignado-mobile__contenido {
+    min-width: 0;
+    overflow: hidden;
+}
+
+#accesorios-asignados .accesorio-asignado-mobile__contenido small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#accesorios-asignados .accesorio-asignado-mobile__flecha {
+    flex: 0 0 auto;
+}
