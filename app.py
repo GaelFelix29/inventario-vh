@@ -33,9 +33,14 @@ from flask import jsonify
 from respaldos import BASE_DIR, crear_respaldo
 
 import os
+import secrets
+import warnings
+from datetime import timedelta
+from urllib.parse import urljoin, urlparse
 from datetime import datetime
 
 from werkzeug.utils import secure_filename
+from flask_wtf.csrf import CSRFError, CSRFProtect
 from sqlalchemy import text
 from database.conexion import engine
 
@@ -148,7 +153,78 @@ from database.aduanas import (
 
 app = Flask(__name__)
 
-app.secret_key = "VitalHealth2026"
+secret_key = os.getenv("SECRET_KEY")
+
+if not secret_key:
+    if os.getenv("RENDER"):
+        raise RuntimeError(
+            "Falta la variable de entorno SECRET_KEY en Render."
+        )
+
+    secret_key = secrets.token_urlsafe(32)
+    warnings.warn(
+        "SECRET_KEY no está configurada; se usará una clave temporal local.",
+        RuntimeWarning,
+    )
+
+app.config.update(
+    SECRET_KEY=secret_key,
+    MAX_CONTENT_LENGTH=10 * 1024 * 1024,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=bool(os.getenv("RENDER")),
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+)
+
+csrf = CSRFProtect(app)
+
+
+@app.errorhandler(CSRFError)
+def manejar_error_csrf(error):
+    """Rechaza solicitudes modificadoras sin un token de sesión válido."""
+
+    if request.accept_mimetypes.best == "application/json":
+        return jsonify({"ok": False, "error": "Solicitud inválida o vencida."}), 400
+
+    flash(
+        "La sesión del formulario venció. Recarga la página e inténtalo nuevamente.",
+        "warning",
+    )
+    return redirect(request.referrer or url_for("inicio"))
+
+
+def es_url_interna(destino):
+    """Permite redirecciones únicamente dentro de esta aplicación."""
+
+    if not destino:
+        return False
+
+    host = urlparse(request.host_url)
+    url_destino = urlparse(urljoin(request.host_url, destino))
+
+    return (
+        url_destino.scheme in ("http", "https")
+        and url_destino.netloc == host.netloc
+    )
+
+
+@app.after_request
+def agregar_encabezados_seguridad(response):
+    """Añade protecciones del navegador sin alterar las vistas existentes."""
+
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = (
+        "camera=(), microphone=(), geolocation=()"
+    )
+
+    if request.is_secure:
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=31536000; includeSubDomains"
+        )
+
+    return response
 
 # ==========================================
 # DECORADORES
@@ -211,6 +287,24 @@ def login_required(func):
     return wrapper
 
 
+def roles_required(*roles_permitidos):
+    """Autoriza una operación únicamente a los roles indicados."""
+
+    def decorator(func):
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+
+            if session.get("rol") not in roles_permitidos:
+                abort(403)
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
 def admin_required(func):
 
     @wraps(func)
@@ -258,7 +352,7 @@ def login():
 
         next_page = session.pop("next_url", None)
 
-        if next_page:
+        if es_url_interna(next_page):
             return redirect(next_page)
 
         return redirect(url_for("inicio"))
@@ -272,6 +366,9 @@ def login():
 
         if datos and verificar_password(password, datos.password):
 
+            next_page = session.get("next_url")
+            session.clear()
+            session.permanent = True
             session["usuario_id"] = datos.id
             session["nombre"] = datos.nombre
             session["usuario"] = datos.usuario
@@ -283,13 +380,7 @@ def login():
                 usuario=session["nombre"], accion="Inició sesión", modulo="Login"
             )
 
-            # Recuperar la URL original
-            next_page = session.pop("next_url", None)
-
-            print("NEXT PAGE:", next_page)
-
-            if next_page:
-                session.pop("next_url", None)
+            if es_url_interna(next_page):
                 return redirect(next_page)
 
             return redirect(url_for("inicio"))
@@ -722,6 +813,7 @@ def lista_maquinarias():
 
 @app.route("/maquinarias/nuevo", methods=["GET", "POST"])
 @login_required
+@roles_required("Administrador")
 def nueva_maquinaria():
 
     if request.method == "POST":
@@ -1241,6 +1333,7 @@ def liberar_accesorio_maquinaria_route(id_accesorio):
 
 @app.route("/maquinarias/<id_activo>/revision-contenido/iniciar", methods=["POST"])
 @login_required
+@roles_required("Administrador", "Mantenimiento")
 def iniciar_revision_contenido_route(id_activo):
 
     try:
@@ -1255,6 +1348,7 @@ def iniciar_revision_contenido_route(id_activo):
 
 @app.route("/maquinarias/<id_activo>/revision-contenido/finalizar", methods=["POST"])
 @login_required
+@roles_required("Administrador", "Mantenimiento")
 def finalizar_revision_contenido_route(id_activo):
 
     try:
@@ -2467,11 +2561,8 @@ def dashboard_mobil():
 
 @app.route("/m/maquinarias/<id_activo>/movimiento/<tipo>")
 @login_required
+@roles_required("Administrador", "Mantenimiento")
 def formulario_movimiento_mobile(id_activo, tipo):
-
-    if session.get("rol") not in ["Administrador", "Mantenimiento"]:
-        flash("No tiene permisos.", "danger")
-        return redirect(url_for("dashboard_mobile"))
 
     maquina = obtener_maquinaria(id_activo)
 
@@ -2501,6 +2592,7 @@ def formulario_movimiento_mobile(id_activo, tipo):
 
 @app.route("/m/maquinarias/<id_activo>/movimientos")
 @login_required
+@roles_required("Administrador", "Mantenimiento")
 def movimientos_mobile(id_activo):
 
     maquina = obtener_maquinaria(id_activo)
@@ -2897,6 +2989,7 @@ def api_activos_recientes():
     methods=["POST"]
 )
 @login_required
+@roles_required("Administrador", "Mantenimiento")
 def vincular_contenido_route(id_activo):
 
     activo_relacionado = request.form.get(
@@ -2964,6 +3057,7 @@ def vincular_contenido_route(id_activo):
     methods=["POST"]
 )
 @login_required
+@roles_required("Administrador", "Mantenimiento")
 def retirar_contenido_route(id_activo, relacion_id):
 
     try:
@@ -2987,6 +3081,7 @@ def retirar_contenido_route(id_activo, relacion_id):
     methods=["POST"]
 )
 @login_required
+@roles_required("Administrador", "Mantenimiento")
 def registrar_accesorio_desde_contenido(id_activo):
 
     nuevo_id = siguiente_id_activo()

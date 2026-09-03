@@ -9,6 +9,10 @@
 
     <meta name="theme-color" content="#198754">
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <script src="{{ url_for('static', filename='js/csrf.js') }}" defer></script>
+
     <title>{% block titulo %}Vital Health{% endblock %}</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/qr.css') }}">
@@ -156,6 +160,8 @@
 
         </a>
 
+        {% if session.get("rol") in ["Administrador", "Mantenimiento"] %}
+
         <a href="{{ url_for('movimientos_mobile', id_activo=id_activo) }}"
             class="{% if pagina=='movimientos' %}active{% endif %}">
 
@@ -164,6 +170,8 @@
             <span>Movimientos</span>
 
         </a>
+
+        {% endif %}
 
     </nav>
 
