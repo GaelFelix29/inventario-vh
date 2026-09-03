@@ -653,6 +653,8 @@
 
     </a>
 
+    {% if session.get("rol") in ["Administrador", "Mantenimiento"] %}
+
     <a class="quick-card" href="{{ url_for('movimientos_mobile', id_activo=maquinaria.id_activo) }}">
 
         <i class="bi bi-arrow-left-right"></i>
@@ -660,6 +662,8 @@
         <span>Movimientos</span>
 
     </a>
+
+    {% endif %}
 
     <a class="quick-card" href="{{ url_for('actividad_mobile',
                     id_activo=maquinaria.id_activo) }}">
