@@ -238,11 +238,409 @@
 </div>
 {% endif %}
 
+
+{% if es_accesorio %}
+{% set categoria_actual_mobile = namespace(nombre="Por clasificar") %}
+
+{% for categoria_accesorio in categorias_accesorios %}
+{% if categoria_accesorio.id == maquinaria.categoria_accesorio_id %}
+{% set categoria_actual_mobile.nombre = categoria_accesorio.nombre %}
+{% endif %}
+{% endfor %}
+
+<section class="gestion-accesorio-mobile">
+
+    <div class="gestion-accesorio-mobile__header">
+        <div class="gestion-accesorio-mobile__icon">
+            <i class="bi bi-puzzle-fill"></i>
+        </div>
+
+        <div>
+            <span>Gestión del accesorio</span>
+            <strong>{{ maquinaria.id_activo }}</strong>
+        </div>
+    </div>
+
+    <div class="gestion-accesorio-mobile__dato">
+        <span>
+            <i class="bi bi-tag"></i>
+            Categoría técnica
+        </span>
+
+        <strong>{{ categoria_actual_mobile.nombre }}</strong>
+    </div>
+
+    {% if asignacion_activa %}
+    <div class="gestion-accesorio-mobile__dato">
+        <span>
+            <i class="bi bi-diagram-3"></i>
+            Maquinaria asignada
+        </span>
+
+        <strong>{{ asignacion_activa.id_maquinaria }}</strong>
+
+        {% if asignacion_activa.maquinaria_descripcion %}
+        <p>
+            {{ asignacion_activa.maquinaria_descripcion }}
+        </p>
+        {% endif %}
+
+        {% if asignacion_activa.maquinaria_ubicacion %}
+        <small>
+            <i class="bi bi-geo-alt"></i>
+            {{ asignacion_activa.maquinaria_ubicacion }}
+        </small>
+        {% endif %}
+    </div>
+
+    <a href="{{ url_for(
+                'maquinaria_qr',
+                id_activo=asignacion_activa.id_maquinaria
+            ) }}" class="gestion-accesorio-mobile__boton">
+        <i class="bi bi-box-arrow-up-right"></i>
+        Ver maquinaria asignada
+    </a>
+    {% else %}
+    <div class="gestion-accesorio-mobile__vacio">
+        <i class="bi bi-info-circle"></i>
+
+        <div>
+            <strong>Sin asignación activa</strong>
+            <p>
+                Este accesorio está disponible para
+                asignarse a una maquinaria.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if session.get("rol") in ["Administrador", "Mantenimiento"] %}
+
+    <button type="button" class="gestion-accesorio-mobile__administrar" data-bs-toggle="modal"
+        data-bs-target="#modalGestionAccesorioMobile">
+        <span>
+            <i class="bi bi-sliders"></i>
+            Gestionar accesorio
+        </span>
+
+        <i class="bi bi-chevron-right"></i>
+    </button>
+
+    <div class="modal fade gestion-accesorio-modal" id="modalGestionAccesorioMobile" tabindex="-1"
+        aria-labelledby="tituloGestionAccesorioMobile" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <div class="gestion-modal-header">
+                    <button type="button" class="gestion-modal-regresar" data-bs-dismiss="modal" aria-label="Cerrar">
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+
+                    <div>
+                        <span>Administración</span>
+
+                        <h2 id="tituloGestionAccesorioMobile">
+                            Gestionar accesorio
+                        </h2>
+
+                        <small>{{ maquinaria.id_activo }}</small>
+                    </div>
+
+                    <div class="gestion-modal-header__icon">
+                        <i class="bi bi-puzzle-fill"></i>
+                    </div>
+                </div>
+
+                <div class="modal-body gestion-modal-body">
+
+                    <div class="gestion-modal-resumen">
+                        <div>
+                            <span>Categoría actual</span>
+                            <strong>
+                                {{ categoria_actual_mobile.nombre }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Asignación actual</span>
+                            <strong>
+                                {% if asignacion_activa %}
+                                {{ asignacion_activa.id_maquinaria }}
+                                {% else %}
+                                Sin asignación
+                                {% endif %}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="gestion-accesorio-mobile__formularios">
+                        <!-- Cambiar categoría -->
+                        <form method="POST" action="{{ url_for(
+                        'actualizar_categoria_accesorio_route',
+                        id_accesorio=maquinaria.id_activo
+                    ) }}" class="gestion-mobile-form">
+                            <input type="hidden" name="origen" value="qr">
+                            <input type="hidden" name="retorno_id" value="{{ maquinaria.id_activo }}">
+
+                            <label for="categoriaAccesorioMobile">
+                                Categoría técnica
+                            </label>
+
+                            <select id="categoriaAccesorioMobile" name="categoria_accesorio_id" required>
+                                <option value="">
+                                    Seleccionar categoría
+                                </option>
+
+                                {% for categoria_accesorio in categorias_accesorios %}
+                                <option value="{{ categoria_accesorio.id }}" {% if
+                                    categoria_accesorio.id==maquinaria.categoria_accesorio_id %} selected {% endif %}>
+                                    {{ categoria_accesorio.nombre }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            <button type="submit">
+                                <i class="bi bi-check-circle"></i>
+                                Guardar categoría
+                            </button>
+                        </form>
+
+                        <!-- Crear categoría -->
+                        <details class="gestion-mobile-subpanel">
+                            <summary>
+                                <i class="bi bi-plus-circle"></i>
+                                Crear categoría nueva
+                            </summary>
+
+                            <form method="POST" action="{{ url_for(
+                            'crear_categoria_accesorio_route',
+                            id_accesorio=maquinaria.id_activo
+                        ) }}" class="gestion-mobile-form">
+                                <input type="hidden" name="origen" value="qr">
+                                <input type="hidden" name="retorno_id" value="{{ maquinaria.id_activo }}">
+
+                                <label for="nombreCategoriaMobile">
+                                    Nombre de la categoría
+                                </label>
+
+                                <input id="nombreCategoriaMobile" name="nombre_categoria" type="text" maxlength="100"
+                                    placeholder="Ej. Subidora de polvo" required>
+
+                                <label for="descripcionCategoriaMobile">
+                                    Descripción
+                                </label>
+
+                                <textarea id="descripcionCategoriaMobile" name="descripcion_categoria" maxlength="255"
+                                    rows="3" placeholder="Uso o características de esta categoría"></textarea>
+
+                                <button type="submit">
+                                    <i class="bi bi-plus-circle"></i>
+                                    Crear y clasificar
+                                </button>
+                            </form>
+                        </details>
+
+                        <!-- Asignar o cambiar maquinaria -->
+                        <form method="POST" action="{{ url_for(
+                        'asignar_accesorio_maquinaria_route',
+                        id_accesorio=maquinaria.id_activo
+                    ) }}" class="gestion-mobile-form" id="formAsignacionAccesorioMobile">
+                            <input type="hidden" name="origen" value="qr">
+                            <input type="hidden" name="retorno_id" value="{{ maquinaria.id_activo }}">
+
+                            <label for="buscadorMaquinariaMobile">
+                                {% if asignacion_activa %}
+                                Cambiar maquinaria
+                                {% else %}
+                                Asignar maquinaria
+                                {% endif %}
+                            </label>
+
+                            <input id="buscadorMaquinariaMobile" type="search" autocomplete="off"
+                                placeholder="Código, descripción, modelo o serie">
+                            <input id="idMaquinariaMobile" name="id_maquinaria" type="hidden" required>
+
+                            <div id="resultadosMaquinariaMobile" class="resultados-maquinaria-mobile" hidden></div>
+
+                            <label for="observacionesAsignacionMobile">
+                                Observaciones
+                            </label>
+
+                            <textarea id="observacionesAsignacionMobile" name="observaciones" maxlength="500" rows="3"
+                                placeholder="Información útil sobre esta asignación"></textarea>
+
+                            <button type="submit">
+                                <i class="bi bi-diagram-3"></i>
+
+                                {% if asignacion_activa %}
+                                Cambiar asignación
+                                {% else %}
+                                Asignar maquinaria
+                                {% endif %}
+                            </button>
+                        </form>
+
+                        {% if asignacion_activa %}
+                        <form method="POST" action="{{ url_for(
+                            'liberar_accesorio_maquinaria_route',
+                            id_accesorio=maquinaria.id_activo
+                        ) }}" class="gestion-mobile-form" onsubmit="return confirm(
+                            '¿Deseas liberar este accesorio de la maquinaria?'
+                        );">
+                            <input type="hidden" name="origen" value="qr">
+
+                            <input type="hidden" name="retorno_id" value="{{ maquinaria.id_activo }}">
+
+                            <button type="submit" class="gestion-mobile-btn-danger">
+                                <i class="bi bi-x-circle"></i>
+                                Liberar asignación
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    </details>
+                    {% endif %}
+
+                    {% if historial_asignaciones %}
+                    <details class="gestion-accesorio-mobile__historial">
+                        <summary>
+                            <i class="bi bi-clock-history"></i>
+                            Historial de asignaciones
+                            <span>{{ historial_asignaciones|length }}</span>
+                        </summary>
+
+                        <div class="historial-asignaciones-mobile">
+                            {% for asignacion in historial_asignaciones %}
+                            <article class="historial-asignacion-mobile">
+                                <div class="historial-asignacion-mobile__encabezado">
+                                    <strong>
+                                        {{ asignacion.id_maquinaria }}
+                                    </strong>
+
+                                    <span class="{{
+                                'historial-estado-activo'
+                                if asignacion.estado == 'ACTIVA'
+                                else 'historial-estado-finalizado'
+                            }}">
+                                        {{ asignacion.estado }}
+                                    </span>
+                                </div>
+
+                                {% if asignacion.maquinaria_descripcion %}
+                                <p>
+                                    {{ asignacion.maquinaria_descripcion }}
+                                </p>
+                                {% endif %}
+
+                                <small>
+                                    <i class="bi bi-calendar3"></i>
+                                    Asignado:
+                                    {{ asignacion.fecha_asignacion }}
+                                </small>
+
+                                {% if asignacion.fecha_fin %}
+                                <small>
+                                    <i class="bi bi-calendar-x"></i>
+                                    Finalizado:
+                                    {{ asignacion.fecha_fin }}
+                                </small>
+                                {% endif %}
+
+                                <small>
+                                    <i class="bi bi-person"></i>
+                                    Por: {{ asignacion.asignado_por }}
+                                </small>
+
+                                {% if asignacion.observaciones %}
+                                <p class="historial-asignacion-mobile__observaciones">
+                                    {{ asignacion.observaciones }}
+                                </p>
+                                {% endif %}
+                            </article>
+                            {% endfor %}
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endif %}
+</section>
+{% endif %}
+
+
+{% if accesorios_asignados %}
+<h3 class="section-title">
+    Accesorios asignados
+</h3>
+
+<section id="accesorios-asignados" class="accesorios-asignados-mobile">
+    {% for accesorio in accesorios_asignados %}
+    <a href="{{ url_for(
+                    'maquinaria_qr',
+                    id_activo=accesorio.id_accesorio
+                ) }}" class="accesorio-asignado-mobile">
+        <div class="accesorio-asignado-mobile__icon">
+            <i class="bi bi-puzzle"></i>
+        </div>
+
+        <div class="accesorio-asignado-mobile__contenido">
+            <span>Accesorio</span>
+
+            <strong>{{ accesorio.id_accesorio }}</strong>
+
+            <p>
+                {{ accesorio.accesorio_descripcion or
+                "Sin descripción registrada" }}
+            </p>
+
+            <small>
+                <i class="bi bi-tag"></i>
+                {{ accesorio.categoria_accesorio_nombre or "Por clasificar" }}
+            </small>
+        </div>
+
+        <i class="bi bi-chevron-right accesorio-asignado-mobile__flecha"></i>
+    </a>
+    {% endfor %}
+</section>
+{% endif %}
+
 <h3 class="section-title">
 
     Explorar el activo
 
 </h3>
+
+{% if maquinaria.es_contenedor == 1 %}
+
+<a class="contenido-resumen-mobile" href="{{ url_for('qr_contenido', id_activo=maquinaria.id_activo) }}">
+
+    <div class="contenido-resumen-icono">
+        <i class="bi bi-box-seam-fill"></i>
+    </div>
+
+    <div class="contenido-resumen-texto">
+        <strong>Contenido del activo</strong>
+        <small>
+            {{ contenido_activo|length }} elementos ·
+            {% if maquinaria.estado_revision_contenido == "PENDIENTE" %}
+            Pendiente
+            {% elif maquinaria.estado_revision_contenido == "EN_REVISION" %}
+            En revisión
+            {% elif maquinaria.estado_revision_contenido == "VERIFICADO" %}
+            Verificado
+            {% else %}
+            Sin estado
+            {% endif %}
+        </small>
+    </div>
+
+    <i class="bi bi-chevron-right contenido-resumen-flecha"></i>
+
+</a>
+
+{% endif %}
 
 <div class="quick-grid">
 
@@ -357,4 +755,317 @@
 
 {% endif %}
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const buscador = document.getElementById(
+            "buscadorMaquinariaMobile"
+        );
+
+        const idMaquinaria = document.getElementById(
+            "idMaquinariaMobile"
+        );
+
+        const resultados = document.getElementById(
+            "resultadosMaquinariaMobile"
+        );
+
+        const formulario = document.getElementById(
+            "formAsignacionAccesorioMobile"
+        );
+
+        if (
+            !buscador ||
+            !idMaquinaria ||
+            !resultados ||
+            !formulario
+        ) {
+            return;
+        }
+
+        const endpoint = "{{ url_for('buscar_maquinarias_asignables_ajax') }}";
+
+        const idAccesorio = "{{ maquinaria.id_activo }}";
+
+        let temporizador = null;
+        let controlador = null;
+
+        function ocultarResultados() {
+            resultados.replaceChildren();
+            resultados.setAttribute("hidden", "");
+            resultados.style.display = "none";
+        }
+
+        function mostrarMensaje(mensaje, tipo = "normal") {
+            resultados.replaceChildren();
+
+            const elemento = document.createElement("div");
+
+            elemento.className =
+                "resultado-maquinaria-mobile__mensaje";
+
+            if (tipo === "error") {
+                elemento.classList.add(
+                    "resultado-maquinaria-mobile__mensaje--error"
+                );
+            }
+
+            elemento.textContent = mensaje;
+
+            resultados.appendChild(elemento);
+            resultados.removeAttribute("hidden");
+            resultados.style.display = "grid";
+        }
+
+        function crearResultado(maquinaria) {
+
+            const boton = document.createElement("button");
+
+            boton.type = "button";
+            boton.className = "resultado-maquinaria-mobile";
+
+            const icono = document.createElement("span");
+
+            icono.className =
+                "resultado-maquinaria-mobile__icono";
+
+            const iconoInterno = document.createElement("i");
+
+            iconoInterno.className = "bi bi-gear-fill";
+
+            icono.appendChild(iconoInterno);
+
+            const contenido = document.createElement("span");
+
+            contenido.className =
+                "resultado-maquinaria-mobile__contenido";
+
+            const codigo = document.createElement("strong");
+
+            codigo.textContent = maquinaria.id;
+
+            const descripcion = document.createElement("span");
+
+            descripcion.textContent =
+                maquinaria.descripcion ||
+                "Sin descripción registrada";
+
+            const detalles = document.createElement("small");
+
+            const datosDetalle = [];
+
+            if (maquinaria.marca) {
+                datosDetalle.push(
+                    "Marca: " + maquinaria.marca
+                );
+            }
+
+            if (maquinaria.modelo) {
+                datosDetalle.push(
+                    "Modelo: " + maquinaria.modelo
+                );
+            }
+
+            if (maquinaria.serie) {
+                datosDetalle.push(
+                    "Serie: " + maquinaria.serie
+                );
+            }
+
+            if (maquinaria.ubicacion) {
+                datosDetalle.push(
+                    "Ubicación: " + maquinaria.ubicacion
+                );
+            }
+
+            detalles.textContent = datosDetalle.join(" · ");
+
+            contenido.appendChild(codigo);
+            contenido.appendChild(descripcion);
+
+            if (detalles.textContent) {
+                contenido.appendChild(detalles);
+            }
+
+            const flecha = document.createElement("i");
+
+            flecha.className = "bi bi-chevron-right";
+
+            boton.appendChild(icono);
+            boton.appendChild(contenido);
+            boton.appendChild(flecha);
+
+            boton.addEventListener("click", function () {
+
+                idMaquinaria.value = maquinaria.id;
+
+                buscador.value = [
+                    maquinaria.id,
+                    maquinaria.descripcion
+                ]
+                    .filter(Boolean)
+                    .join(" · ");
+
+                buscador.classList.add(
+                    "maquinaria-mobile-seleccionada"
+                );
+
+                ocultarResultados();
+            });
+
+            return boton;
+        }
+
+        async function buscarMaquinarias(texto) {
+
+            if (controlador) {
+                controlador.abort();
+            }
+
+            controlador = new AbortController();
+
+            mostrarMensaje("Buscando maquinaria...");
+
+            const parametros = new URLSearchParams({
+                q: texto,
+                id_accesorio: idAccesorio
+            });
+
+            try {
+
+                const respuesta = await fetch(
+                    endpoint + "?" + parametros.toString(),
+                    {
+                        signal: controlador.signal,
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    }
+                );
+
+                if (!respuesta.ok) {
+                    throw new Error(
+                        "No fue posible consultar las maquinarias."
+                    );
+                }
+
+                const maquinarias = await respuesta.json();
+
+                resultados.replaceChildren();
+
+                if (!maquinarias.length) {
+                    mostrarMensaje(
+                        "No se encontraron maquinarias disponibles."
+                    );
+
+                    return;
+                }
+
+                maquinarias.forEach(function (maquinaria) {
+                    resultados.appendChild(
+                        crearResultado(maquinaria)
+                    );
+                });
+
+                resultados.removeAttribute("hidden");
+                resultados.style.display = "grid";
+
+            } catch (error) {
+
+                if (error.name === "AbortError") {
+                    return;
+                }
+
+                console.error(
+                    "Error buscando maquinarias:",
+                    error
+                );
+
+                mostrarMensaje(
+                    "No fue posible cargar los resultados.",
+                    "error"
+                );
+            }
+        }
+
+        buscador.addEventListener("input", function () {
+
+            const texto = buscador.value.trim();
+
+            idMaquinaria.value = "";
+
+            buscador.classList.remove(
+                "maquinaria-mobile-seleccionada"
+            );
+
+            clearTimeout(temporizador);
+
+            if (texto.length < 2) {
+                ocultarResultados();
+                return;
+            }
+
+            temporizador = setTimeout(function () {
+                buscarMaquinarias(texto);
+            }, 300);
+        });
+
+        formulario.addEventListener("submit", function (evento) {
+
+            if (idMaquinaria.value) {
+                return;
+            }
+
+            let codigo = buscador.value
+                .split("·")[0]
+                .trim()
+                .toUpperCase();
+
+            /*
+             * Permitir escribir solamente el número:
+             * 70   -> ACT-0070
+             * 0070 -> ACT-0070
+             */
+            if (/^\d+$/.test(codigo)) {
+                codigo = "ACT-" + codigo.padStart(4, "0");
+            }
+
+            /*
+             * También aceptar directamente:
+             * ACT-0070
+             */
+            if (/^ACT-\d+$/.test(codigo)) {
+
+                idMaquinaria.value = codigo;
+                buscador.value = codigo;
+
+                return;
+            }
+
+            evento.preventDefault();
+
+            alert(
+                "Escribe un código válido, por ejemplo ACT-0070, " +
+                "o selecciona una maquinaria de los resultados."
+            );
+
+            buscador.focus();
+        });
+
+        document.addEventListener("click", function (evento) {
+
+            if (
+                evento.target === buscador ||
+                resultados.contains(evento.target)
+            ) {
+                return;
+            }
+
+            ocultarResultados();
+        });
+    });
+</script>
 {% endblock %}
