@@ -125,19 +125,13 @@ Nuevo Activo
                                     <option value="">Seleccione...</option>
 
                                     {% for c in [
-
                                     "LLENADORA",
-
                                     "ENCAPSULADORA",
-
                                     "LOTEADORA",
-
                                     "ETIQUETADORA",
-
                                     "CONTADORA DE CAPSULAS",
-
+                                    "ACCESORIO",
                                     "OTRA"
-
                                     ] %}
 
                                     <option value="{{ c }}" {% if editar and maquina.categoria==c %} selected {% endif

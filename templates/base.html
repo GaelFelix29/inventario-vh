@@ -46,136 +46,134 @@
 
 <body>
 
+<!-- ===================================== -->
+<!-- NAVBAR MÓVIL -->
+<!-- ===================================== -->
+
+<nav class="navbar navbar-dark bg-success d-lg-none sticky-top shadow-sm">
+
+    <div class="container-fluid">
+
+        <button
+            class="btn text-white border-0"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#menuMovil"
+            aria-label="Abrir menú"
+        >
+            <i class="bi bi-list fs-2"></i>
+        </button>
+
+        <span class="navbar-brand fw-bold mb-0">
+            <i class="bi bi-heart-pulse-fill"></i>
+            Vital Health
+        </span>
+
+    </div>
+
+</nav>
+
+<div class="d-flex">
+
     <!-- ===================================== -->
-    <!-- NAVBAR MÓVIL -->
+    <!-- SIDEBAR DE PC -->
     <!-- ===================================== -->
 
-    <nav class="navbar navbar-dark bg-success d-lg-none sticky-top shadow-sm">
+    <aside class="sidebar d-none d-lg-flex flex-column">
 
-        <div class="container-fluid">
+        <!-- Logo oficial -->
+        <a
+            href="{{ url_for('inicio') }}"
+            class="sidebar-brand--completo"
+            aria-label="Vital Health - Inicio"
+        >
+            <img
+                src="{{ url_for(
+                    'static',
+                    filename='img/logo.png'
+                ) }}"
+                alt="Vital Health"
+            >
+        </a>
 
-            <button class="btn text-white border-0" type="button" data-bs-toggle="offcanvas"
-                data-bs-target="#menuMovil">
+        <!-- Navegación -->
+        <a href="{{ url_for('inicio') }}">
+            <i class="bi bi-house-door"></i>
+            Inicio
+        </a>
 
-                <i class="bi bi-list fs-2"></i>
+        <a href="/dashboard">
+            <i class="bi bi-speedometer2"></i>
+            Dashboard
+        </a>
 
-            </button>
+        <a href="/imprimir">
+            <i class="bi bi-qr-code"></i>
+            Etiquetas QR
+        </a>
 
-            <span class="navbar-brand fw-bold mb-0">
+        <a href="/maquinarias">
+            <i class="bi bi-pc-display"></i>
+            Maquinaria
+        </a>
 
-                <i class="bi bi-heart-pulse-fill"></i>
+        {% if session.get("rol") == "Administrador" %}
 
-                Vital Health
-
-            </span>
-
-        </div>
-
-    </nav>
-
-    <div class="d-flex">
-
-        <!-- SIDEBAR -->
-
-        <aside class="sidebar d-none d-lg-flex flex-column">
-
-            <h3 class="text-center mb-4">
-
-                <i class="bi bi-heart-pulse-fill"></i>
-
-                VITAL HEALTH
-
-            </h3>
-
-            <a href="/">
-                <i class="bi bi-house-door"></i>
-                Inicio
-            </a>
-
-            <a href="/dashboard">
-                <i class="bi bi-speedometer2"></i>
-                Dashboard
-            </a>
-
-            <a href="/imprimir">
-                <i class="bi bi-qr-code"></i>
-                Etiquetas QR
-            </a>
-
-            <a href="/maquinarias">
-                <i class="bi bi-pc-display"></i>
-                Maquinaria
-            </a>
-
-            {% if session["rol"] == "Administrador" %}
-
-            <a href="{{ url_for('lista_solicitudes_baja') }}" class="nav-link">
-
+            <a href="{{ url_for('lista_solicitudes_baja') }}">
                 <i class="bi bi-clipboard-check"></i>
-
                 Solicitudes Baja
-
             </a>
 
-            {% endif %}
+        {% endif %}
 
-            <a href="{{ url_for('lista_aduanas') }}">
-                <i class="bi bi-truck"></i>
-                Aduanas
-            </a>
+        <a href="{{ url_for('lista_aduanas') }}">
+            <i class="bi bi-truck"></i>
+            Aduanas
+        </a>
 
-            {% if session.get("rol")=="Administrador" %}
+        {% if session.get("rol") == "Administrador" %}
 
             <a href="/usuarios">
-
                 <i class="bi bi-people"></i>
-
                 Usuarios
-
             </a>
 
-            <li class="nav-item">
+            <a href="{{ url_for('vista_respaldos') }}">
+                <i class="bi bi-database-fill-lock"></i>
+                Respaldos
+            </a>
 
-                <a class="nav-link" href="{{ url_for('vista_respaldos') }}">
+        {% endif %}
 
-                    <i class="bi bi-database-fill-lock"></i>
+        <!-- Usuario -->
+        <div class="mt-auto pt-5">
 
-                    Respaldos
+            <div class="sidebar-footer mt-auto">
 
+                <hr>
+
+                <strong>
+                    {{ session["nombre"] }}
+                </strong>
+
+                <br>
+
+                <small>
+                    {{ session["rol"] }}
+                </small>
+
+                <br><br>
+
+                <a href="/logout" class="text-danger">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Cerrar sesión
                 </a>
-
-            </li>
-
-            {% endif %}
-
-            <div class="mt-auto pt-5">
-
-                <div class="sidebar-footer mt-auto">
-
-                    <hr>
-
-                    <strong>
-                        {{ session["nombre"] }}
-                    </strong>
-
-                    <br>
-
-                    <small>
-                        {{ session["rol"] }}
-                    </small>
-
-                    <br><br>
-
-                    <a href="/logout" class="text-danger">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Cerrar sesión
-                    </a>
-
-                </div>
 
             </div>
 
-        </aside>
+        </div>
+
+    </aside>
 
         <!-- ===================================== -->
         <!-- MENÚ MÓVIL -->
