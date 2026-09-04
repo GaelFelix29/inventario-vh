@@ -216,7 +216,7 @@ def agregar_encabezados_seguridad(response):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = (
-        "camera=(), microphone=(), geolocation=()"
+        "camera=(self), microphone=(), geolocation=()"
     )
 
     if request.is_secure:
