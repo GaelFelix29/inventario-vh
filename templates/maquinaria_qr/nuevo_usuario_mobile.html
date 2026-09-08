@@ -1,0 +1,564 @@
+{% extends "maquinaria_qr/base_mobile.html" %}
+
+{% block titulo %}
+Nuevo usuario
+{% endblock %}
+
+{% block estilos %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/nuevo_usuario_mobile.css'
+    ) }}">
+
+{% endblock %}
+
+{% block contenido %}
+
+<section class="nuevo-usuario-mobile">
+
+    <header class="nuevo-usuario-portada">
+
+        <a
+            href="{{ url_for('usuarios_mobile') }}"
+            class="nuevo-usuario-volver"
+            aria-label="Regresar a usuarios">
+
+            <i class="bi bi-arrow-left"></i>
+
+        </a>
+
+        <div class="nuevo-usuario-portada__texto">
+
+            <span>
+                Administración
+            </span>
+
+            <h1>
+                Nuevo usuario
+            </h1>
+
+            <p>
+                Registra una nueva cuenta para el sistema.
+            </p>
+
+        </div>
+
+        <span class="nuevo-usuario-portada__icono">
+
+            <i class="bi bi-person-plus-fill"></i>
+
+        </span>
+
+    </header>
+
+    <section class="nuevo-usuario-aviso">
+
+        <span>
+
+            <i class="bi bi-shield-check"></i>
+
+        </span>
+
+        <div>
+
+            <h2>
+                Información de acceso
+            </h2>
+
+            <p>
+                Complete los datos y seleccione el nivel de acceso.
+            </p>
+
+        </div>
+
+    </section>
+
+    <form
+        method="POST"
+        action="{{ url_for('nuevo_usuario_mobile') }}"
+        class="nuevo-usuario-formulario"
+        id="formNuevoUsuario">
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}">
+
+        <div class="nuevo-usuario-seccion">
+
+            <div class="nuevo-usuario-seccion__titulo">
+
+                <span>
+
+                    <i class="bi bi-person-vcard-fill"></i>
+
+                </span>
+
+                <div>
+
+                    <small>
+                        Datos personales
+                    </small>
+
+                    <h2>
+                        Información del usuario
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <div class="nuevo-usuario-campo">
+
+                <label for="nombre">
+
+                    Nombre completo
+
+                </label>
+
+                <div class="nuevo-usuario-control">
+
+                    <i class="bi bi-person-fill"></i>
+
+                    <input
+                        id="nombre"
+                        name="nombre"
+                        type="text"
+                        placeholder="Nombre y apellidos"
+                        autocomplete="name"
+                        maxlength="150"
+                        required>
+
+                </div>
+
+            </div>
+
+            <div class="nuevo-usuario-campo">
+
+                <label for="usuario">
+
+                    Nombre de usuario
+
+                </label>
+
+                <div class="nuevo-usuario-control">
+
+                    <i class="bi bi-at"></i>
+
+                    <input
+                        id="usuario"
+                        name="usuario"
+                        type="text"
+                        placeholder="Ejemplo: oscar"
+                        autocomplete="username"
+                        maxlength="50"
+                        autocapitalize="none"
+                        spellcheck="false"
+                        required>
+
+                </div>
+
+                <small class="nuevo-usuario-ayuda">
+
+                    Se utilizará para iniciar sesión.
+
+                </small>
+
+            </div>
+
+            <div class="nuevo-usuario-campo">
+
+                <label for="correo">
+
+                    Correo electrónico
+
+                </label>
+
+                <div class="nuevo-usuario-control">
+
+                    <i class="bi bi-envelope-fill"></i>
+
+                    <input
+                        id="correo"
+                        name="correo"
+                        type="email"
+                        placeholder="nombre@empresa.com"
+                        autocomplete="email"
+                        maxlength="150"
+                        autocapitalize="none"
+                        required>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="nuevo-usuario-seccion">
+
+            <div class="nuevo-usuario-seccion__titulo">
+
+                <span>
+
+                    <i class="bi bi-key-fill"></i>
+
+                </span>
+
+                <div>
+
+                    <small>
+                        Seguridad
+                    </small>
+
+                    <h2>
+                        Contraseña temporal
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <div class="nuevo-usuario-campo">
+
+                <label for="password">
+
+                    Contraseña
+
+                </label>
+
+                <div class="nuevo-usuario-control">
+
+                    <i class="bi bi-lock-fill"></i>
+
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="Escriba una contraseña"
+                        autocomplete="new-password"
+                        minlength="8"
+                        required>
+
+                    <button
+                        type="button"
+                        class="mostrar-password"
+                        data-password="password"
+                        aria-label="Mostrar contraseña">
+
+                        <i class="bi bi-eye"></i>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="nuevo-usuario-campo">
+
+                <label for="confirmar">
+
+                    Confirmar contraseña
+
+                </label>
+
+                <div class="nuevo-usuario-control">
+
+                    <i class="bi bi-shield-lock-fill"></i>
+
+                    <input
+                        id="confirmar"
+                        name="confirmar"
+                        type="password"
+                        placeholder="Repita la contraseña"
+                        autocomplete="new-password"
+                        minlength="8"
+                        required>
+
+                    <button
+                        type="button"
+                        class="mostrar-password"
+                        data-password="confirmar"
+                        aria-label="Mostrar contraseña">
+
+                        <i class="bi bi-eye"></i>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div
+                class="password-validacion"
+                id="passwordValidacion"
+                hidden>
+
+                <i class="bi bi-exclamation-circle"></i>
+
+                <span>
+                    Las contraseñas no coinciden.
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="nuevo-usuario-seccion">
+
+            <div class="nuevo-usuario-seccion__titulo">
+
+                <span>
+
+                    <i class="bi bi-person-gear"></i>
+
+                </span>
+
+                <div>
+
+                    <small>
+                        Permisos
+                    </small>
+
+                    <h2>
+                        Nivel de acceso
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <div class="nuevo-usuario-campo">
+
+                <label for="rol">
+
+                    Rol del usuario
+
+                </label>
+
+                <div class="nuevo-usuario-control nuevo-usuario-control--select">
+
+                    <i class="bi bi-shield-check"></i>
+
+                    <select
+                        id="rol"
+                        name="rol"
+                        required>
+
+                        <option value="Administrador">
+                            Administrador
+                        </option>
+
+                        <option value="Mantenimiento">
+                            Mantenimiento
+                        </option>
+
+                        <option value="Visualizador">
+                            Visualizador
+                        </option>
+
+                    </select>
+
+                    <i class="bi bi-chevron-down"></i>
+
+                </div>
+
+            </div>
+
+            <div
+                class="rol-descripcion"
+                id="descripcionRol">
+
+                <span>
+
+                    <i class="bi bi-info-circle-fill"></i>
+
+                </span>
+
+                <p id="textoRol">
+                    Puede administrar usuarios y consultar todas las funciones.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="nuevo-usuario-acciones">
+
+            <a
+                href="{{ url_for('usuarios_mobile') }}"
+                class="nuevo-usuario-cancelar">
+
+                Cancelar
+
+            </a>
+
+            <button
+                type="submit"
+                class="nuevo-usuario-guardar"
+                id="guardarUsuario">
+
+                <i class="bi bi-person-check-fill"></i>
+
+                Crear usuario
+
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const formulario =
+        document.getElementById("formNuevoUsuario");
+
+    const password =
+        document.getElementById("password");
+
+    const confirmar =
+        document.getElementById("confirmar");
+
+    const validacion =
+        document.getElementById("passwordValidacion");
+
+    const botonGuardar =
+        document.getElementById("guardarUsuario");
+
+    const rol =
+        document.getElementById("rol");
+
+    const textoRol =
+        document.getElementById("textoRol");
+
+    const descripciones = {
+
+        Administrador:
+            "Puede administrar usuarios y consultar todas las funciones.",
+
+        Mantenimiento:
+            "Puede trabajar con maquinaria, accesorios, movimientos y solicitudes.",
+
+        Visualizador:
+            "Puede consultar la información autorizada sin administrar usuarios."
+
+    };
+
+    function actualizarDescripcionRol() {
+
+        textoRol.textContent =
+            descripciones[rol.value] ||
+            "Seleccione el nivel de acceso.";
+
+    }
+
+    function validarPasswords() {
+
+        const tienenContenido =
+            password.value.length > 0 &&
+            confirmar.value.length > 0;
+
+        const coinciden =
+            password.value === confirmar.value;
+
+        validacion.hidden =
+            !tienenContenido || coinciden;
+
+        confirmar.classList.toggle(
+            "campo-invalido",
+            tienenContenido && !coinciden
+        );
+
+        return coinciden;
+
+    }
+
+    document
+        .querySelectorAll(".mostrar-password")
+        .forEach(function (boton) {
+
+            boton.addEventListener(
+                "click",
+                function () {
+
+                    const campo =
+                        document.getElementById(
+                            boton.dataset.password
+                        );
+
+                    const oculto =
+                        campo.type === "password";
+
+                    campo.type =
+                        oculto ? "text" : "password";
+
+                    boton.innerHTML =
+                        oculto
+                            ? '<i class="bi bi-eye-slash"></i>'
+                            : '<i class="bi bi-eye"></i>';
+
+                    boton.setAttribute(
+                        "aria-label",
+                        oculto
+                            ? "Ocultar contraseña"
+                            : "Mostrar contraseña"
+                    );
+
+                }
+            );
+
+        });
+
+    password.addEventListener(
+        "input",
+        validarPasswords
+    );
+
+    confirmar.addEventListener(
+        "input",
+        validarPasswords
+    );
+
+    rol.addEventListener(
+        "change",
+        actualizarDescripcionRol
+    );
+
+    formulario.addEventListener(
+        "submit",
+        function (evento) {
+
+            if (!validarPasswords()) {
+
+                evento.preventDefault();
+
+                confirmar.focus();
+
+                return;
+
+            }
+
+            botonGuardar.disabled = true;
+
+            botonGuardar.innerHTML =
+                '<span class="spinner-border spinner-border-sm"></span>' +
+                ' Creando usuario...';
+
+        }
+    );
+
+    actualizarDescripcionRol();
+
+});
+</script>
+
+{% endblock %}

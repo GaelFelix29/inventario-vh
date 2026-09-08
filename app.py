@@ -940,7 +940,62 @@ def nuevo_usuario():
 
     return render_template("nuevo_usuario.html")
 
+# ==========================================================
+# NUEVO USUARIO MÓVIL
+# ==========================================================
 
+@app.route("/m/usuarios/nuevo", methods=["GET", "POST"])
+@admin_required
+def nuevo_usuario_mobile():
+
+    if request.method == "POST":
+
+        nombre = (request.form.get("nombre") or "").strip()
+        usuario = (request.form.get("usuario") or "").strip()
+        correo = (request.form.get("correo") or "").strip()
+        password = request.form.get("password") or ""
+        confirmar = request.form.get("confirmar") or ""
+        rol = (request.form.get("rol") or "").strip()
+
+        if password != confirmar:
+
+            flash(
+                "Las contraseñas no coinciden.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("nuevo_usuario_mobile")
+            )
+
+        crear_usuario(
+            nombre,
+            usuario,
+            correo,
+            password,
+            rol,
+        )
+
+        registrar_movimiento(
+            usuario=session["nombre"],
+            accion=f"Creó el usuario: {usuario}",
+            modulo="Usuarios",
+            referencia=usuario,
+        )
+
+        flash(
+            "Usuario creado correctamente.",
+            "success"
+        )
+
+        return redirect(
+            url_for("usuarios_mobile")
+        )
+
+    return render_template(
+        "maquinaria_qr/nuevo_usuario_mobile.html",
+        pagina="usuarios"
+    )
 # ==========================================================
 # EDITAR USUARIO
 # ==========================================================
