@@ -80,28 +80,76 @@ def obtener_historial():
         return resultado.mappings().all()
 
 
-def obtener_historial_activo(id_activo):
+def obtener_historial_activo(id_activo, limite=30):
+
+    try:
+        limite = int(limite)
+    except (TypeError, ValueError):
+        limite = 30
+
+    limite = max(1, min(limite, 100))
 
     sql = text("""
 
         SELECT
+            historial.fecha,
+            historial.usuario,
+            historial.accion,
+            historial.modulo
+        FROM (
 
-            fecha,
-            usuario,
-            accion,
-            modulo
+            SELECT
+                fecha,
+                usuario,
+                accion,
+                modulo
+            FROM auditoria
+            WHERE referencia = :id
 
-        FROM auditoria
+            UNION ALL
 
-        WHERE referencia = :id
+            SELECT
+                fecha_asignacion AS fecha,
+                asignado_por AS usuario,
+                CONCAT(
+                    'Se asignó el accesorio ',
+                    id_accesorio,
+                    ' a este activo'
+                ) AS accion,
+                'Accesorios' AS modulo
+            FROM asignaciones_accesorios
+            WHERE id_maquinaria = :id
 
-        ORDER BY fecha DESC
+            UNION ALL
+
+            SELECT
+                fecha_fin AS fecha,
+                COALESCE(finalizado_por, asignado_por) AS usuario,
+                CONCAT(
+                    'Se retiró el accesorio ',
+                    id_accesorio,
+                    ' de este activo'
+                ) AS accion,
+                'Accesorios' AS modulo
+            FROM asignaciones_accesorios
+            WHERE id_maquinaria = :id
+              AND fecha_fin IS NOT NULL
+
+        ) AS historial
+        ORDER BY historial.fecha DESC
+        LIMIT :limite
 
     """)
 
     with engine.connect() as conn:
 
-        resultado = conn.execute(sql, {"id": id_activo})
+        resultado = conn.execute(
+            sql,
+            {
+                "id": id_activo,
+                "limite": limite,
+            },
+        )
 
         return resultado.mappings().all()
 
