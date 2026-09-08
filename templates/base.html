@@ -50,92 +50,80 @@
 
 <body>
 
-<!-- ===================================== -->
-<!-- NAVBAR MÓVIL -->
-<!-- ===================================== -->
-
-<nav class="navbar navbar-dark bg-success d-lg-none sticky-top shadow-sm">
-
-    <div class="container-fluid">
-
-        <button
-            class="btn text-white border-0"
-            type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#menuMovil"
-            aria-label="Abrir menú"
-        >
-            <i class="bi bi-list fs-2"></i>
-        </button>
-
-        <span class="navbar-brand fw-bold mb-0">
-            <i class="bi bi-heart-pulse-fill"></i>
-            Vital Health
-        </span>
-
-    </div>
-
-</nav>
-
-<div class="d-flex">
-
     <!-- ===================================== -->
-    <!-- SIDEBAR DE PC -->
+    <!-- NAVBAR MÓVIL -->
     <!-- ===================================== -->
 
-    <aside class="sidebar d-none d-lg-flex flex-column">
+    <nav class="navbar navbar-dark bg-success d-lg-none sticky-top shadow-sm">
 
-        <!-- Logo oficial -->
-        <a
-            href="{{ url_for('inicio') }}"
-            class="sidebar-brand--completo"
-            aria-label="Vital Health - Inicio"
-        >
-            <img
-                src="{{ url_for(
+        <div class="container-fluid">
+
+            <button class="btn text-white border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuMovil"
+                aria-label="Abrir menú">
+                <i class="bi bi-list fs-2"></i>
+            </button>
+
+            <span class="navbar-brand fw-bold mb-0">
+                <i class="bi bi-heart-pulse-fill"></i>
+                Vital Health
+            </span>
+
+        </div>
+
+    </nav>
+
+    <div class="d-flex">
+
+        <!-- ===================================== -->
+        <!-- SIDEBAR DE PC -->
+        <!-- ===================================== -->
+
+        <aside class="sidebar d-none d-lg-flex flex-column">
+
+            <!-- Logo oficial -->
+            <a href="{{ url_for('inicio') }}" class="sidebar-brand--completo" aria-label="Vital Health - Inicio">
+                <img src="{{ url_for(
                     'static',
                     filename='img/logo.png'
-                ) }}"
-                alt="Vital Health"
-            >
-        </a>
+                ) }}" alt="Vital Health">
+            </a>
 
-        <!-- Navegación -->
-        <a href="{{ url_for('inicio') }}">
-            <i class="bi bi-house-door"></i>
-            Inicio
-        </a>
+            <!-- Navegación -->
+            <a href="{{ url_for('inicio') }}">
+                <i class="bi bi-house-door"></i>
+                Inicio
+            </a>
 
-        <a href="/dashboard">
-            <i class="bi bi-speedometer2"></i>
-            Dashboard
-        </a>
+            <a href="/dashboard">
+                <i class="bi bi-speedometer2"></i>
+                Dashboard
+            </a>
 
-        <a href="/imprimir">
-            <i class="bi bi-qr-code"></i>
-            Etiquetas QR
-        </a>
+            <a href="/imprimir">
+                <i class="bi bi-qr-code"></i>
+                Etiquetas QR
+            </a>
 
-        <a href="/maquinarias">
-            <i class="bi bi-pc-display"></i>
-            Maquinaria
-        </a>
+            <a href="/maquinarias">
+                <i class="bi bi-pc-display"></i>
+                Maquinaria
+            </a>
 
-        {% if session.get("rol") == "Administrador" %}
+            {% if session.get("rol") == "Administrador" %}
 
             <a href="{{ url_for('lista_solicitudes_baja') }}">
                 <i class="bi bi-clipboard-check"></i>
                 Solicitudes Baja
             </a>
 
-        {% endif %}
+            {% endif %}
 
-        <a href="{{ url_for('lista_aduanas') }}">
-            <i class="bi bi-truck"></i>
-            Aduanas
-        </a>
+            <a href="{{ url_for('lista_aduanas') }}">
+                <i class="bi bi-truck"></i>
+                Aduanas
+            </a>
 
-        {% if session.get("rol") == "Administrador" %}
+            {% if session.get("rol") == "Administrador" %}
 
             <a href="/usuarios">
                 <i class="bi bi-people"></i>
@@ -147,37 +135,47 @@
                 Respaldos
             </a>
 
-        {% endif %}
+            {% endif %}
 
-        <!-- Usuario -->
-        <div class="mt-auto pt-5">
+            <a href="{{ url_for('actividad_sistema') }}">
+                <i class="bi bi-clock-history"></i>
+                Actividad
+            </a>
 
-            <div class="sidebar-footer mt-auto">
+            <a href="{{ url_for('perfil') }}">
+                <i class="bi bi-person-circle"></i>
+                Mi perfil
+            </a>
 
-                <hr>
+            <!-- Usuario -->
+            <div class="mt-auto pt-5">
 
-                <strong>
-                    {{ session["nombre"] }}
-                </strong>
+                <div class="sidebar-footer mt-auto">
 
-                <br>
+                    <hr>
 
-                <small>
-                    {{ session["rol"] }}
-                </small>
+                    <strong>
+                        {{ session["nombre"] }}
+                    </strong>
 
-                <br><br>
+                    <br>
 
-                <a href="/logout" class="text-danger">
-                    <i class="bi bi-box-arrow-right"></i>
-                    Cerrar sesión
-                </a>
+                    <small>
+                        {{ session["rol"] }}
+                    </small>
+
+                    <br><br>
+
+                    <a href="/logout" class="text-danger">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Cerrar sesión
+                    </a>
+
+                </div>
 
             </div>
 
-        </div>
-
-    </aside>
+        </aside>
 
         <!-- ===================================== -->
         <!-- MENÚ MÓVIL -->
@@ -355,6 +353,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/maquinaria.css') }}">
+
+    {% block estilos %}
+    {% endblock %}
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 

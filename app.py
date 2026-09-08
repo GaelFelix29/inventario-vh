@@ -7,13 +7,12 @@ from flask import (
     url_for,
     session,
     flash,
+    make_response,
 )
 
 from database.dashboard import obtener_kpis_dashboard, obtener_actividad_dashboard
 
 from utils.responsive import render_responsive
-
-from datetime import datetime
 
 
 from user_agents import parse
@@ -35,9 +34,8 @@ from respaldos import BASE_DIR, crear_respaldo
 import os
 import secrets
 import warnings
-from datetime import timedelta
 from urllib.parse import urljoin, urlparse
-from datetime import datetime
+import string
 
 from werkzeug.utils import secure_filename
 from flask_wtf.csrf import CSRFError, CSRFProtect
@@ -45,7 +43,7 @@ from sqlalchemy import text
 from database.conexion import engine
 
 from functools import wraps
-from datetime import date
+from datetime import date, datetime, timedelta
 
 
 from models.auditoria_model import (
@@ -54,6 +52,8 @@ from models.auditoria_model import (
     obtener_historial_activo,
     registrar_activo_reciente,
     obtener_activos_recientes,
+    obtener_actividad_filtrada,
+    obtener_actividad_ultimos_7_dias,
 )
 
 from database.documentos import (
@@ -95,6 +95,8 @@ from database.usuarios import (
     desactivar_usuario,
     reactivar_usuario,
     verificar_password,
+    actualizar_perfil,
+    establecer_password_temporal
 )
 
 from database.maquinarias import buscar_activos, obtener_maquinarias_mobile
@@ -328,8 +330,6 @@ def admin_required(func):
 # ==========================================================
 # INICIO
 # ==========================================================
-
-
 @app.route("/")
 @login_required
 def inicio():
@@ -338,17 +338,18 @@ def inicio():
         return render_template("maquinaria_qr/index.html")
 
     return render_template("index.html")
-
-
 # ==========================================================
 # LOGIN
 # ==========================================================
 
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
-
     if "usuario_id" in session:
+
+        if session.get("debe_cambiar_password", False):
+            return redirect(
+                url_for("cambiar_password_obligatorio")
+            )
 
         next_page = session.pop("next_url", None)
 
@@ -358,26 +359,49 @@ def login():
         return redirect(url_for("inicio"))
 
     if request.method == "POST":
-
-        usuario = request.form["usuario"]
-        password = request.form["password"]
+        usuario = request.form.get("usuario", "").strip()
+        password = request.form.get("password", "")
 
         datos = obtener_usuario(usuario)
 
-        if datos and verificar_password(password, datos.password):
-
+        if datos and verificar_password(
+            password,
+            datos.password
+        ):
             next_page = session.get("next_url")
+
             session.clear()
             session.permanent = True
+
             session["usuario_id"] = datos.id
             session["nombre"] = datos.nombre
             session["usuario"] = datos.usuario
             session["rol"] = datos.rol
+            session["avatar"] = datos.avatar or "usuario"
 
-            flash(f"Bienvenido {datos.nombre}", "success")
+            session["debe_cambiar_password"] = bool(
+                datos.debe_cambiar_password
+            )
 
             registrar_movimiento(
-                usuario=session["nombre"], accion="Inició sesión", modulo="Login"
+                usuario=session["nombre"],
+                accion="Inició sesión",
+                modulo="Login"
+            )
+
+            if session["debe_cambiar_password"]:
+                flash(
+                    "Debes crear una contraseña nueva para continuar.",
+                    "warning"
+                )
+
+                return redirect(
+                    url_for("cambiar_password_obligatorio")
+                )
+
+            flash(
+                f"Bienvenido {datos.nombre}",
+                "success"
             )
 
             if es_url_interna(next_page):
@@ -385,11 +409,176 @@ def login():
 
             return redirect(url_for("inicio"))
 
-        flash("Usuario o contraseña incorrectos.", "danger")
+        flash(
+            "Usuario o contraseña incorrectos.",
+            "danger"
+        )
 
     return render_template("login.html")
 
 
+# ==========================================================
+# CAMBIO OBLIGATORIO DE CONTRASEÑA
+# ==========================================================
+
+@app.route(
+    "/cambiar-password-obligatorio",
+    methods=["GET", "POST"]
+)
+def cambiar_password_obligatorio():
+    if "usuario_id" not in session:
+        return redirect(url_for("login"))
+
+    if not session.get(
+        "debe_cambiar_password",
+        False
+    ):
+        return redirect(url_for("inicio"))
+
+    usuario_actual = obtener_usuario_id(
+        session["usuario_id"]
+    )
+
+    if not usuario_actual:
+        session.clear()
+
+        flash(
+            "No fue posible encontrar tu cuenta.",
+            "danger"
+        )
+
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        password_nuevo = request.form.get(
+            "password_nuevo",
+            ""
+        )
+
+        confirmar_password = request.form.get(
+            "confirmar_password",
+            ""
+        )
+
+        if len(password_nuevo) < 10:
+            flash(
+                "La contraseña debe tener al menos "
+                "10 caracteres.",
+                "danger"
+            )
+
+            return render_template(
+                "cambiar_password_obligatorio.html"
+            )
+
+        if password_nuevo != confirmar_password:
+            flash(
+                "Las contraseñas no coinciden.",
+                "danger"
+            )
+
+            return render_template(
+                "cambiar_password_obligatorio.html"
+            )
+
+        # Impide conservar la contraseña temporal
+        if verificar_password(
+            password_nuevo,
+            usuario_actual["password"]
+        ):
+            flash(
+                "La nueva contraseña debe ser diferente "
+                "a la contraseña temporal.",
+                "danger"
+            )
+
+            return render_template(
+                "cambiar_password_obligatorio.html"
+            )
+
+        try:
+            actualizar_password(
+                session["usuario_id"],
+                password_nuevo
+            )
+
+        except ValueError as error:
+            flash(
+                str(error),
+                "danger"
+            )
+
+            return render_template(
+                "cambiar_password_obligatorio.html"
+            )
+
+        session["debe_cambiar_password"] = False
+        session.modified = True
+
+        registrar_movimiento(
+            usuario=session["nombre"],
+            accion=(
+                "Cambió la contraseña temporal "
+                "por una contraseña personal"
+            ),
+            modulo="Seguridad",
+            referencia=str(
+                session["usuario_id"]
+            )
+        )
+
+        flash(
+            "Tu contraseña fue actualizada correctamente.",
+            "success"
+        )
+
+        return redirect(url_for("inicio"))
+
+    return render_template(
+        "cambiar_password_obligatorio.html"
+    )
+
+@app.before_request
+def verificar_cambio_password_obligatorio():
+    rutas_libres = {
+        "static",
+        "login",
+        "logout",
+        "cambiar_password_obligatorio",
+    }
+
+    if request.endpoint in rutas_libres:
+        return None
+
+    if "usuario_id" not in session:
+        return None
+
+    usuario_actual = obtener_usuario_id(
+        session["usuario_id"]
+    )
+
+    if not usuario_actual or not usuario_actual.activo:
+        session.clear()
+
+        flash(
+            "Tu cuenta ya no está disponible.",
+            "warning"
+        )
+
+        return redirect(url_for("login"))
+
+    debe_cambiar = bool(
+        usuario_actual.debe_cambiar_password
+    )
+
+    session["debe_cambiar_password"] = debe_cambiar
+
+    if debe_cambiar:
+        return redirect(
+            url_for("cambiar_password_obligatorio")
+        )
+
+    return None
 # ==========================================================
 # LOGOUT
 # ==========================================================
@@ -414,19 +603,50 @@ def logout():
 # PERFIL
 # ==========================================================
 
-
 @app.route("/perfil")
 @login_required
 def perfil():
 
+    usuario_actual = obtener_usuario_id(
+        session["usuario_id"]
+    )
+
+    if not usuario_actual:
+
+        session.clear()
+
+        flash(
+            "No fue posible encontrar tu cuenta.",
+            "danger"
+        )
+
+        return redirect(url_for("login"))
+
+    avatar_actual = next(
+        (
+            avatar
+            for avatar in AVATARES_PERFIL
+            if avatar["id"] == (
+                usuario_actual["avatar"]
+                or "usuario"
+            )
+        ),
+        AVATARES_PERFIL[0]
+    )
+
+    if es_dispositivo_movil():
+
+        return render_template(
+            "maquinaria_qr/perfil_mobile.html",
+            usuario=usuario_actual,
+            avatar_actual=avatar_actual,
+            pagina="perfil"
+        )
+
     return render_template(
         "perfil.html",
-        usuario={
-            "id": session["usuario_id"],
-            "nombre": session["nombre"],
-            "usuario": session["usuario"],
-            "rol": session["rol"],
-        },
+        usuario=usuario_actual,
+        avatar_actual=avatar_actual
     )
 
 
@@ -434,12 +654,220 @@ def perfil():
 # EDITAR PERFIL
 # ==========================================================
 
+AVATARES_PERFIL = [
+    {
+        "id": "usuario",
+        "nombre": "Clásico",
+        "icono": "bi-person-fill",
+        "clase": "avatar-verde"
+    },
+    {
+        "id": "finanzas",
+        "nombre": "Finanzas",
+        "icono": "bi-graph-up-arrow",
+        "clase": "avatar-azul"
+    },
+    {
+        "id": "mantenimiento",
+        "nombre": "Mantenimiento",
+        "icono": "bi-tools",
+        "clase": "avatar-naranja"
+    },
+    {
+        "id": "administracion",
+        "nombre": "Administración",
+        "icono": "bi-briefcase-fill",
+        "clase": "avatar-morado"
+    },
+    {
+        "id": "seguridad",
+        "nombre": "Seguridad",
+        "icono": "bi-shield-check",
+        "clase": "avatar-rojo"
+    },
+    {
+        "id": "inventario",
+        "nombre": "Inventario",
+        "icono": "bi-box-seam-fill",
+        "clase": "avatar-turquesa"
+    },
+    {
+        "id": "logistica",
+        "nombre": "Logística",
+        "icono": "bi-truck",
+        "clase": "avatar-amarillo"
+    },
+    {
+        "id": "ejecutivo",
+        "nombre": "Ejecutivo",
+        "icono": "bi-person-badge-fill",
+        "clase": "avatar-oscuro"
+    }
+]
 
 @app.route("/perfil/editar", methods=["GET", "POST"])
 @login_required
 def editar_perfil():
 
-    return render_template("editar_perfil.html")
+    usuario_actual = obtener_usuario_id(
+        session["usuario_id"]
+    )
+
+    if not usuario_actual:
+
+        session.clear()
+
+        flash(
+            "No fue posible encontrar tu cuenta.",
+            "danger"
+        )
+
+        return redirect(url_for("login"))
+
+    def mostrar_formulario():
+
+        plantilla_base = (
+            "maquinaria_qr/base_mobile.html"
+            if es_dispositivo_movil()
+            else "base.html"
+        )
+
+        return render_template(
+            "editar_perfil.html",
+            usuario=usuario_actual,
+            avatares=AVATARES_PERFIL,
+            plantilla_base=plantilla_base
+        )
+
+    if request.method == "POST":
+
+        nombre = (
+            request.form.get("nombre") or ""
+        ).strip()
+
+        avatar = (
+            request.form.get("avatar") or "usuario"
+        ).strip().lower()
+
+        password_actual = (
+            request.form.get("password_actual") or ""
+        )
+
+        password_nuevo = (
+            request.form.get("password_nuevo") or ""
+        )
+
+        confirmar_password = (
+            request.form.get("confirmar_password") or ""
+        )
+
+        if not nombre:
+
+            flash(
+                "El nombre es obligatorio.",
+                "warning"
+            )
+
+            return mostrar_formulario()
+
+        if len(nombre) > 150:
+
+            flash(
+                "El nombre es demasiado largo.",
+                "warning"
+            )
+
+            return mostrar_formulario()
+
+        if not verificar_password(
+            password_actual,
+            usuario_actual["password"]
+        ):
+
+            flash(
+                "La contraseña actual no es correcta.",
+                "danger"
+            )
+
+            return mostrar_formulario()
+
+        if password_nuevo:
+
+            if len(password_nuevo) < 10:
+
+                flash(
+                    "La contraseña nueva debe tener "
+                    "al menos 10 caracteres.",
+                    "warning"
+                )
+
+                return mostrar_formulario()
+
+            if password_nuevo != confirmar_password:
+
+                flash(
+                    "Las contraseñas nuevas no coinciden.",
+                    "warning"
+                )
+
+                return mostrar_formulario()
+
+        try:
+
+            actualizar_perfil(
+                id_usuario=session["usuario_id"],
+                nombre=nombre,
+                avatar=avatar
+            )
+
+            if password_nuevo:
+
+                actualizar_password(
+                    session["usuario_id"],
+                    password_nuevo
+                )
+
+        except ValueError as error:
+
+            flash(
+                str(error),
+                "warning"
+            )
+
+            return mostrar_formulario()
+
+        except Exception as error:
+
+            print(
+                "ERROR ACTUALIZANDO PERFIL:",
+                error
+            )
+
+            flash(
+                "No fue posible actualizar el perfil.",
+                "danger"
+            )
+
+            return mostrar_formulario()
+
+        session["nombre"] = nombre
+        session["avatar"] = avatar
+
+        registrar_movimiento(
+            usuario=nombre,
+            accion="Actualizó su perfil",
+            modulo="Usuarios",
+            referencia=str(session["usuario_id"])
+        )
+
+        flash(
+            "Tu perfil fue actualizado correctamente.",
+            "success"
+        )
+
+        return redirect(url_for("perfil"))
+
+    return mostrar_formulario()
 
 
 # ==========================================================
@@ -530,22 +958,88 @@ def editar_usuario(id):
             referencia=str(id),
         )
 
-        if request.form["password"] != "":
-
-            actualizar_password(id, request.form["password"])
-
-        registrar_movimiento(
-            usuario=session["nombre"],
-            accion=f"Cambió la contraseña del usuario: {request.form['usuario']}",
-            modulo="Usuarios",
-            referencia=str(id),
-        )
-
         flash("Usuario actualizado correctamente.", "success")
 
         return redirect(url_for("usuarios"))
 
     return render_template("editar_usuario.html", usuario=usuario)
+
+def generar_password_temporal(longitud=14):
+    caracteres = (
+        string.ascii_letters
+        + string.digits
+        + "!@#$%*-_"
+    )
+
+    password = [
+        secrets.choice(string.ascii_uppercase),
+        secrets.choice(string.ascii_lowercase),
+        secrets.choice(string.digits),
+        secrets.choice("!@#$%*-_"),
+    ]
+
+    password.extend(
+        secrets.choice(caracteres)
+        for _ in range(longitud - len(password))
+    )
+
+    secrets.SystemRandom().shuffle(password)
+
+    return "".join(password)
+
+
+@app.route(
+    "/usuarios/<int:id>/restablecer-password",
+    methods=["POST"]
+)
+@admin_required
+def restablecer_password_usuario(id):
+    usuario = obtener_usuario_id(id)
+
+    if not usuario:
+        flash("Usuario no encontrado.", "danger")
+        return redirect(url_for("usuarios"))
+
+    try:
+        password_temporal = generar_password_temporal()
+
+        establecer_password_temporal(
+            id,
+            password_temporal
+        )
+
+        registrar_movimiento(
+            usuario=session["nombre"],
+            accion=(
+                "Restableció la contraseña del usuario: "
+                f"{usuario.usuario}"
+            ),
+            modulo="Usuarios",
+            referencia=str(id),
+        )
+
+        respuesta = make_response(
+            render_template(
+                "password_temporal.html",
+                usuario=usuario,
+                password_temporal=password_temporal
+            )
+        )
+
+        respuesta.headers["Cache-Control"] = (
+            "no-store, no-cache, must-revalidate, private"
+        )
+        respuesta.headers["Pragma"] = "no-cache"
+        respuesta.headers["Expires"] = "0"
+
+        return respuesta
+
+    except ValueError as error:
+        flash(str(error), "danger")
+        return redirect(
+            url_for("editar_usuario", id=id)
+        )
+
 
 
 # ==========================================================
@@ -571,6 +1065,224 @@ def desactivar(id):
     flash("Usuario desactivado correctamente.", "warning")
 
     return redirect(url_for("usuarios"))
+
+
+# ==========================================================
+# ACTIVIDAD DEL SISTEMA
+# ==========================================================
+
+def mostrar_actividad_sistema(plantilla):
+    rol = session.get("rol")
+    usuario_actual = session.get("nombre")
+
+    modulos_generales = [
+        "Accesorios",
+        "Aduanas",
+        "Documentación",
+        "Evidencias",
+        "Login",
+        "Maquinaria",
+        "Movimientos",
+        "Respaldos",
+        "Seguridad",
+        "Solicitudes",
+        "Usuarios",
+    ]
+
+    if rol == "Administrador":
+        modulos_disponibles = modulos_generales
+
+    elif rol == "Mantenimiento":
+        modulos_disponibles = [
+            "Accesorios",
+            "Maquinaria",
+            "Movimientos",
+            "Solicitudes",
+        ]
+
+    elif rol == "Visualizador":
+        # Puede filtrar sus movimientos,
+        # pero únicamente verá los realizados por él.
+        modulos_disponibles = modulos_generales
+
+    else:
+        flash(
+            "No tienes permiso para consultar la actividad.",
+            "danger"
+        )
+
+        return redirect(url_for("inicio"))
+
+    fecha_desde = (
+        request.args.get("fecha_desde") or ""
+    ).strip()
+
+    fecha_hasta = (
+        request.args.get("fecha_hasta") or ""
+    ).strip()
+
+    hora_desde = (
+        request.args.get("hora_desde") or ""
+    ).strip()
+
+    hora_hasta = (
+        request.args.get("hora_hasta") or ""
+    ).strip()
+
+    modulo = (
+        request.args.get("modulo") or ""
+    ).strip()
+
+    # ======================================
+    # VALIDAR FECHAS
+    # ======================================
+
+    if fecha_desde:
+        try:
+            datetime.strptime(
+                fecha_desde,
+                "%Y-%m-%d"
+            )
+
+        except ValueError:
+            fecha_desde = ""
+
+            flash(
+                "La fecha inicial no es válida.",
+                "warning"
+            )
+
+    if fecha_hasta:
+        try:
+            datetime.strptime(
+                fecha_hasta,
+                "%Y-%m-%d"
+            )
+
+        except ValueError:
+            fecha_hasta = ""
+
+            flash(
+                "La fecha final no es válida.",
+                "warning"
+            )
+
+    if (
+        fecha_desde
+        and fecha_hasta
+        and fecha_desde > fecha_hasta
+    ):
+        flash(
+            "La fecha inicial no puede ser posterior "
+            "a la fecha final.",
+            "warning"
+        )
+
+        fecha_desde = ""
+        fecha_hasta = ""
+
+    # ======================================
+    # VALIDAR HORAS
+    # ======================================
+
+    if hora_desde:
+        try:
+            datetime.strptime(
+                hora_desde,
+                "%H:%M"
+            )
+
+        except ValueError:
+            hora_desde = ""
+
+            flash(
+                "La hora inicial no es válida.",
+                "warning"
+            )
+
+    if hora_hasta:
+        try:
+            datetime.strptime(
+                hora_hasta,
+                "%H:%M"
+            )
+
+        except ValueError:
+            hora_hasta = ""
+
+            flash(
+                "La hora final no es válida.",
+                "warning"
+            )
+
+    if (
+        hora_desde
+        and hora_hasta
+        and hora_desde > hora_hasta
+    ):
+        flash(
+            "La hora inicial no puede ser posterior "
+            "a la hora final.",
+            "warning"
+        )
+
+        hora_desde = ""
+        hora_hasta = ""
+
+    # El módulo debe estar autorizado para el rol.
+    if modulo not in modulos_disponibles:
+        modulo = ""
+
+    actividad = obtener_actividad_filtrada(
+        rol=rol,
+        usuario_actual=usuario_actual,
+        fecha_desde=fecha_desde or None,
+        fecha_hasta=fecha_hasta or None,
+        hora_desde=hora_desde or None,
+        hora_hasta=hora_hasta or None,
+        modulo=modulo or None,
+        limite=100
+    )
+
+    filtros = {
+        "fecha_desde": fecha_desde,
+        "fecha_hasta": fecha_hasta,
+        "hora_desde": hora_desde,
+        "hora_hasta": hora_hasta,
+        "modulo": modulo,
+    }
+
+    return render_template(
+        plantilla,
+        actividad=actividad,
+        filtros=filtros,
+        modulos=modulos_disponibles,
+        pagina="actividad"
+    )
+
+
+# ==========================================================
+# ACTIVIDAD DE ESCRITORIO
+# ==========================================================
+
+@app.route("/actividad")
+@login_required
+def actividad_sistema():
+    return mostrar_actividad_sistema(
+        "actividad_escritorio.html"
+    )
+
+
+# ==========================================================
+# ACTIVIDAD MÓVIL
+# ==========================================================
+
+@app.route("/m/actividad")
+@login_required
+def actividad_sistema_mobile():
+    return mostrar_actividad_sistema(
+        "maquinaria_qr/actividad.html"
+    )
 
 
 # ==========================================================
@@ -2549,15 +3261,30 @@ def qr_documento(id_activo, tipo):
 @app.route("/m/dashboard")
 @login_required
 def dashboard_mobil():
+    rol_actual = session.get("rol")
+    nombre_actual = session.get("nombre")
 
     kpis = obtener_kpis_dashboard()
 
-    actividad = obtener_actividad_dashboard()
-
-    return render_template(
-        "maquinaria_qr/dashboard_mobil.html", **kpis, actividad=actividad
+    actividad = obtener_actividad_filtrada(
+        rol=rol_actual,
+        usuario_actual=nombre_actual,
+        limite=3
     )
 
+    grafica_actividad = (
+        obtener_actividad_ultimos_7_dias(
+            rol=rol_actual,
+            usuario_actual=nombre_actual
+        )
+    )
+
+    return render_template(
+        "maquinaria_qr/dashboard_mobil.html",
+        **kpis,
+        actividad=actividad,
+        grafica_actividad=grafica_actividad
+    )
 
 @app.route("/m/maquinarias/<id_activo>/movimiento/<tipo>")
 @login_required
@@ -2568,7 +3295,7 @@ def formulario_movimiento_mobile(id_activo, tipo):
 
     if not maquina:
         flash("Activo no encontrado.", "danger")
-        return redirect(url_for("dashboard_mobile"))
+        return redirect(url_for("dashboard_mobil"))
 
     titulos = {
         "TRASLADO": "Solicitud de Traslado",

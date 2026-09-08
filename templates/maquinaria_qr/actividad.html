@@ -1,0 +1,688 @@
+{% extends "maquinaria_qr/base_mobile.html" %}
+
+{% block titulo %}
+Actividad
+{% endblock %}
+
+{% block estilos %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/actividad_mobile.css'
+    ) }}">
+
+{% endblock %}
+
+{% block contenido %}
+
+{% set iconos_modulo = {
+    "Accesorios": "bi-puzzle-fill",
+    "Aduanas": "bi-truck",
+    "Documentación": "bi-file-earmark-text-fill",
+    "Evidencias": "bi-images",
+    "Login": "bi-box-arrow-in-right",
+    "Maquinaria": "bi-pc-display",
+    "Movimientos": "bi-arrow-left-right",
+    "Respaldos": "bi-database-fill-lock",
+    "Seguridad": "bi-shield-lock-fill",
+    "Solicitudes": "bi-clipboard-check-fill",
+    "Usuarios": "bi-people-fill"
+} %}
+
+<section class="actividad-page">
+
+    <!-- Encabezado -->
+    <header class="actividad-header">
+
+        <a
+            href="{{ url_for('dashboard_mobil') }}"
+            class="actividad-volver"
+            aria-label="Regresar al dashboard">
+
+            <i class="bi bi-arrow-left"></i>
+
+        </a>
+
+        <div>
+
+            <span>Control y seguimiento</span>
+
+            <h1>Actividad</h1>
+
+            <p>
+                Consulta los movimientos recientes del sistema.
+            </p>
+
+        </div>
+
+    </header>
+
+    <!-- Alcance según el rol -->
+    <div class="actividad-alcance">
+
+        <i class="bi bi-shield-check"></i>
+
+        <div>
+
+            <strong>Información autorizada</strong>
+
+            <small>
+
+                {% if session.get("rol") == "Administrador" %}
+
+                    Puedes consultar toda la actividad del sistema.
+
+                {% elif session.get("rol") == "Mantenimiento" %}
+
+                    Puedes consultar mantenimientos, traslados,
+                    bajas y cambios de accesorios.
+
+                {% else %}
+
+                    Solamente puedes consultar tu propia actividad.
+
+                {% endif %}
+
+            </small>
+
+        </div>
+
+    </div>
+
+    <!-- Accesos rápidos -->
+    <div class="actividad-rapidos">
+
+        <button
+            type="button"
+            class="actividad-rapido"
+            id="filtroHoy">
+
+            <i class="bi bi-calendar-event"></i>
+            Hoy
+
+        </button>
+
+        <button
+            type="button"
+            class="actividad-rapido"
+            id="filtroSemana">
+
+            <i class="bi bi-calendar-week"></i>
+            7 días
+
+        </button>
+
+        <button
+            type="button"
+            class="actividad-rapido actividad-rapido--limpiar"
+            id="limpiarFiltros">
+
+            <i class="bi bi-arrow-counterclockwise"></i>
+            Limpiar
+
+        </button>
+
+    </div>
+
+    <!-- Filtros -->
+    <details
+        class="actividad-filtros"
+        {% if
+            filtros.fecha_desde
+            or filtros.fecha_hasta
+            or filtros.hora_desde
+            or filtros.hora_hasta
+            or filtros.modulo
+        %}
+            open
+        {% endif %}>
+
+        <summary>
+
+            <span>
+                <i class="bi bi-funnel-fill"></i>
+                Filtrar actividad
+            </span>
+
+            <i class="bi bi-chevron-down"></i>
+
+        </summary>
+
+        <form
+            method="GET"
+            action="{{ url_for('actividad_sistema_mobile') }}"
+            id="formActividad">
+
+            <div class="actividad-filtro-grid">
+
+                <div class="actividad-campo">
+
+                    <label for="fecha_desde">
+                        Fecha inicial
+                    </label>
+
+                    <input
+                        type="date"
+                        id="fecha_desde"
+                        name="fecha_desde"
+                        value="{{ filtros.fecha_desde }}">
+
+                </div>
+
+                <div class="actividad-campo">
+
+                    <label for="fecha_hasta">
+                        Fecha final
+                    </label>
+
+                    <input
+                        type="date"
+                        id="fecha_hasta"
+                        name="fecha_hasta"
+                        value="{{ filtros.fecha_hasta }}">
+
+                </div>
+
+                <div class="actividad-campo">
+
+                    <label for="hora_desde">
+                        Hora inicial
+                    </label>
+
+                    <input
+                        type="time"
+                        id="hora_desde"
+                        name="hora_desde"
+                        value="{{ filtros.hora_desde }}">
+
+                </div>
+
+                <div class="actividad-campo">
+
+                    <label for="hora_hasta">
+                        Hora final
+                    </label>
+
+                    <input
+                        type="time"
+                        id="hora_hasta"
+                        name="hora_hasta"
+                        value="{{ filtros.hora_hasta }}">
+
+                </div>
+
+            </div>
+
+            <div class="actividad-campo">
+
+                <label for="modulo">
+                    Módulo
+                </label>
+
+                <select
+                    id="modulo"
+                    name="modulo">
+
+                    <option value="">
+                        Todos los módulos autorizados
+                    </option>
+
+                    {% for modulo in modulos %}
+
+                        <option
+                            value="{{ modulo }}"
+                            {% if filtros.modulo == modulo %}
+                                selected
+                            {% endif %}>
+
+                            {{ modulo }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <button
+                type="submit"
+                class="actividad-filtrar-btn">
+
+                <i class="bi bi-search"></i>
+                Aplicar filtros
+
+            </button>
+
+        </form>
+
+    </details>
+
+    <!-- Resultados -->
+    <div class="actividad-resultados-header">
+
+        <div>
+
+            <span>Resultados</span>
+
+            <h2>
+                Actividad encontrada
+            </h2>
+
+        </div>
+
+        <strong>
+            {{ actividad|length }}
+        </strong>
+
+    </div>
+
+    {% if actividad %}
+
+        <div class="actividad-lista">
+
+            {% for movimiento in actividad %}
+
+                <article class="actividad-item actividad-paginada">
+
+                    <div class="actividad-item-icono">
+
+                        <i class="bi {{
+                            iconos_modulo.get(
+                                movimiento.modulo,
+                                'bi-clock-history'
+                            )
+                        }}"></i>
+
+                    </div>
+
+                    <div class="actividad-item-contenido">
+
+                        <div class="actividad-item-superior">
+
+                            <span>
+                                {{ movimiento.modulo }}
+                            </span>
+
+                            <time datetime="{{ movimiento.fecha }}">
+
+                                {{ movimiento.fecha.strftime(
+                                    "%d/%m/%Y · %H:%M"
+                                ) }}
+
+                            </time>
+
+                        </div>
+
+                        <h3>
+                            {{ movimiento.accion }}
+                        </h3>
+
+                        <div class="actividad-item-meta">
+
+                            <span>
+
+                                <i class="bi bi-person"></i>
+
+                                {{ movimiento.usuario }}
+
+                            </span>
+
+                            {% if movimiento.referencia %}
+
+                                <span>
+
+                                    <i class="bi bi-link-45deg"></i>
+
+                                    {{ movimiento.referencia }}
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+        <!-- Paginación sin recargar -->
+        <nav
+            class="paginacion-actividad"
+            id="paginacionActividad"
+            aria-label="Paginación de actividad">
+
+            <button
+                type="button"
+                class="paginacion-boton"
+                id="paginaAnterior">
+
+                <i class="bi bi-chevron-left"></i>
+                Anterior
+
+            </button>
+
+            <div class="paginacion-centro">
+
+                <span id="paginaActual">1</span>
+                <span>de</span>
+                <span id="totalPaginas">1</span>
+
+            </div>
+
+            <button
+                type="button"
+                class="paginacion-boton"
+                id="paginaSiguiente">
+
+                Siguiente
+                <i class="bi bi-chevron-right"></i>
+
+            </button>
+
+        </nav>
+
+        <p
+            class="paginacion-resumen"
+            id="resumenPaginacion">
+        </p>
+
+    {% else %}
+
+        <div class="actividad-vacia">
+
+            <div>
+                <i class="bi bi-search"></i>
+            </div>
+
+            <h2>
+                No encontramos actividad
+            </h2>
+
+            <p>
+                Prueba con otro periodo o elimina los filtros.
+            </p>
+
+            <a href="{{ url_for('actividad_sistema_mobile') }}">
+                Limpiar filtros
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ==========================================
+    // FILTROS
+    // ==========================================
+
+    const formulario =
+        document.getElementById("formActividad");
+
+    const fechaDesde =
+        document.getElementById("fecha_desde");
+
+    const fechaHasta =
+        document.getElementById("fecha_hasta");
+
+    const horaDesde =
+        document.getElementById("hora_desde");
+
+    const horaHasta =
+        document.getElementById("hora_hasta");
+
+    const modulo =
+        document.getElementById("modulo");
+
+    function formatoFecha(fecha) {
+
+        const anio = fecha.getFullYear();
+
+        const mes = String(
+            fecha.getMonth() + 1
+        ).padStart(2, "0");
+
+        const dia = String(
+            fecha.getDate()
+        ).padStart(2, "0");
+
+        return `${anio}-${mes}-${dia}`;
+
+    }
+
+    const botonHoy =
+        document.getElementById("filtroHoy");
+
+    const botonSemana =
+        document.getElementById("filtroSemana");
+
+    const botonLimpiar =
+        document.getElementById("limpiarFiltros");
+
+    if (botonHoy) {
+
+        botonHoy.addEventListener("click", function () {
+
+            const hoy = new Date();
+            const fecha = formatoFecha(hoy);
+
+            fechaDesde.value = fecha;
+            fechaHasta.value = fecha;
+
+            formulario.submit();
+
+        });
+
+    }
+
+    if (botonSemana) {
+
+        botonSemana.addEventListener("click", function () {
+
+            const hoy = new Date();
+            const inicio = new Date();
+
+            inicio.setDate(
+                hoy.getDate() - 6
+            );
+
+            fechaDesde.value =
+                formatoFecha(inicio);
+
+            fechaHasta.value =
+                formatoFecha(hoy);
+
+            formulario.submit();
+
+        });
+
+    }
+
+    if (botonLimpiar) {
+
+        botonLimpiar.addEventListener("click", function () {
+
+            fechaDesde.value = "";
+            fechaHasta.value = "";
+            horaDesde.value = "";
+            horaHasta.value = "";
+            modulo.value = "";
+
+            window.location.href =
+                "{{ url_for('actividad_sistema_mobile') }}";
+
+        });
+
+    }
+
+    // ==========================================
+    // PAGINACIÓN SIN RECARGAR
+    // ==========================================
+
+    const actividades = Array.from(
+        document.querySelectorAll(
+            ".actividad-paginada"
+        )
+    );
+
+    const paginacion =
+        document.getElementById(
+            "paginacionActividad"
+        );
+
+    const botonAnterior =
+        document.getElementById(
+            "paginaAnterior"
+        );
+
+    const botonSiguiente =
+        document.getElementById(
+            "paginaSiguiente"
+        );
+
+    const paginaActualTexto =
+        document.getElementById(
+            "paginaActual"
+        );
+
+    const totalPaginasTexto =
+        document.getElementById(
+            "totalPaginas"
+        );
+
+    const resumen =
+        document.getElementById(
+            "resumenPaginacion"
+        );
+
+    if (
+        actividades.length === 0 ||
+        !botonAnterior ||
+        !botonSiguiente
+    ) {
+        return;
+    }
+
+    const elementosPorPagina = 10;
+
+    const totalPaginas = Math.ceil(
+        actividades.length / elementosPorPagina
+    );
+
+    let paginaActual = 1;
+
+    function mostrarPagina(
+        numeroPagina,
+        desplazar = false
+    ) {
+
+        paginaActual = Math.min(
+            Math.max(numeroPagina, 1),
+            totalPaginas
+        );
+
+        const inicio =
+            (paginaActual - 1) *
+            elementosPorPagina;
+
+        const final = Math.min(
+            inicio + elementosPorPagina,
+            actividades.length
+        );
+
+        actividades.forEach(
+            function (actividad, indice) {
+
+                actividad.hidden = !(
+                    indice >= inicio &&
+                    indice < final
+                );
+
+            }
+        );
+
+        paginaActualTexto.textContent =
+            paginaActual;
+
+        totalPaginasTexto.textContent =
+            totalPaginas;
+
+        resumen.textContent =
+            "Mostrando " +
+            (inicio + 1) +
+            "–" +
+            final +
+            " de " +
+            actividades.length +
+            " actividades";
+
+        botonAnterior.disabled =
+            paginaActual === 1;
+
+        botonSiguiente.disabled =
+            paginaActual === totalPaginas;
+
+        if (paginacion) {
+
+            paginacion.hidden =
+                totalPaginas <= 1;
+
+        }
+
+        if (desplazar) {
+
+            document.querySelector(
+                ".actividad-resultados-header"
+            )?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        }
+
+    }
+
+    botonAnterior.addEventListener(
+        "click",
+        function () {
+
+            mostrarPagina(
+                paginaActual - 1,
+                true
+            );
+
+        }
+    );
+
+    botonSiguiente.addEventListener(
+        "click",
+        function () {
+
+            mostrarPagina(
+                paginaActual + 1,
+                true
+            );
+
+        }
+    );
+
+    mostrarPagina(1);
+
+});
+</script>
+
+{% endblock %}

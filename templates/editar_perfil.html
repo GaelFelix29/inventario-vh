@@ -1,0 +1,450 @@
+{% extends plantilla_base %}
+
+{% block titulo %}
+Personalizar mi perfil
+{% endblock %}
+
+{% block estilos %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/perfil.css') }}">
+
+{% endblock %}
+
+{% block contenido %}
+
+{% set avatar_actual = request.form.get(
+    "avatar",
+    usuario.avatar or "usuario"
+) %}
+
+<div class="perfil-edicion-page">
+
+    <div class="perfil-edicion-container">
+
+        <header class="perfil-edicion-header">
+
+            <a
+                href="{{ url_for('perfil') }}"
+                class="perfil-volver"
+                aria-label="Volver al perfil">
+
+                <i class="bi bi-arrow-left"></i>
+
+            </a>
+
+            <div>
+
+                <span>Cuenta personal</span>
+
+                <h1>Personalizar mi perfil</h1>
+
+                <p>
+                    Elige cómo quieres aparecer dentro del sistema.
+                </p>
+
+            </div>
+
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+                {% for categoria, mensaje in messages %}
+
+                    <div
+                        class="alert alert-{{ categoria }}
+                               alert-dismissible fade show"
+                        role="alert">
+
+                        {{ mensaje }}
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert">
+                        </button>
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+        <form method="POST" class="perfil-edicion-form">
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}">
+
+            <section class="perfil-panel perfil-presentacion">
+
+                <div
+                    class="perfil-avatar-preview"
+                    id="avatarPreview">
+
+                    <i
+                        class="bi bi-person-fill"
+                        id="avatarPreviewIcon">
+                    </i>
+
+                </div>
+
+                <div class="perfil-presentacion-info">
+
+                    <span>Vista previa</span>
+
+                    <strong id="nombrePreview">
+                        {{ request.form.get(
+                            "nombre",
+                            usuario.nombre
+                        ) }}
+                    </strong>
+
+                    <small>
+                        {{ usuario.rol }}
+                    </small>
+
+                </div>
+
+            </section>
+
+            <section class="perfil-panel">
+
+                <div class="perfil-seccion-titulo">
+
+                    <div class="perfil-seccion-icono">
+                        <i class="bi bi-person-lines-fill"></i>
+                    </div>
+
+                    <div>
+                        <h2>Información personal</h2>
+                        <p>Solamente puedes modificar tu nombre.</p>
+                    </div>
+
+                </div>
+
+                <div class="perfil-campo">
+
+                    <label for="nombre">
+                        Nombre completo
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nombre"
+                        name="nombre"
+                        maxlength="150"
+                        value="{{ request.form.get(
+                            'nombre',
+                            usuario.nombre
+                        ) }}"
+                        autocomplete="name"
+                        required>
+
+                </div>
+
+                <div class="perfil-campos-bloqueados">
+
+                    <div class="perfil-campo">
+
+                        <label for="usuario">
+                            Nombre de usuario
+                        </label>
+
+                        <div class="perfil-input-bloqueado">
+
+                            <i class="bi bi-at"></i>
+
+                            <input
+                                type="text"
+                                id="usuario"
+                                value="{{ usuario.usuario }}"
+                                disabled>
+
+                            <i class="bi bi-lock-fill"></i>
+
+                        </div>
+
+                    </div>
+
+                    <div class="perfil-campo">
+
+                        <label for="correo">
+                            Correo electrónico
+                        </label>
+
+                        <div class="perfil-input-bloqueado">
+
+                            <i class="bi bi-envelope"></i>
+
+                            <input
+                                type="email"
+                                id="correo"
+                                value="{{ usuario.correo }}"
+                                disabled>
+
+                            <i class="bi bi-lock-fill"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="perfil-dato-protegido">
+
+                    <i class="bi bi-info-circle"></i>
+
+                    <span>
+                        Para cambiar el usuario o correo, comunícate
+                        con un administrador.
+                    </span>
+
+                </div>
+
+            </section>
+
+            <section class="perfil-panel">
+
+                <div class="perfil-seccion-titulo">
+
+                    <div class="perfil-seccion-icono">
+                        <i class="bi bi-stars"></i>
+                    </div>
+
+                    <div>
+                        <h2>Selecciona un avatar</h2>
+                        <p>Elige el estilo que mejor te represente.</p>
+                    </div>
+
+                </div>
+
+                <div class="perfil-avatares">
+
+                    {% for avatar in avatares %}
+
+                        <label class="perfil-avatar-opcion">
+
+                            <input
+                                type="radio"
+                                name="avatar"
+                                value="{{ avatar.id }}"
+                                data-icono="{{ avatar.icono }}"
+                                data-clase="{{ avatar.clase }}"
+                                {% if avatar.id == avatar_actual %}
+                                    checked
+                                {% endif %}>
+
+                            <span
+                                class="perfil-avatar-imagen
+                                       {{ avatar.clase }}">
+
+                                <i class="bi {{ avatar.icono }}"></i>
+
+                                <span class="perfil-avatar-check">
+                                    <i class="bi bi-check"></i>
+                                </span>
+
+                            </span>
+
+                            <strong>
+                                {{ avatar.nombre }}
+                            </strong>
+
+                        </label>
+
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+            <section class="perfil-panel">
+
+                <div class="perfil-seccion-titulo">
+
+                    <div class="perfil-seccion-icono">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+
+                    <div>
+                        <h2>Seguridad</h2>
+                        <p>La contraseña nueva es opcional.</p>
+                    </div>
+
+                </div>
+
+                <div class="perfil-campo">
+
+                    <label for="password_actual">
+                        Contraseña actual
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password_actual"
+                        name="password_actual"
+                        autocomplete="current-password"
+                        placeholder="Confirma tu identidad"
+                        required>
+
+                </div>
+
+                <div class="perfil-password-grid">
+
+                    <div class="perfil-campo">
+
+                        <label for="password_nuevo">
+                            Nueva contraseña
+                        </label>
+
+                        <input
+                            type="password"
+                            id="password_nuevo"
+                            name="password_nuevo"
+                            minlength="10"
+                            autocomplete="new-password"
+                            placeholder="Mínimo 10 caracteres">
+
+                    </div>
+
+                    <div class="perfil-campo">
+
+                        <label for="confirmar_password">
+                            Confirmar contraseña
+                        </label>
+
+                        <input
+                            type="password"
+                            id="confirmar_password"
+                            name="confirmar_password"
+                            minlength="10"
+                            autocomplete="new-password"
+                            placeholder="Repite la contraseña">
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <div class="perfil-acciones">
+
+                <a
+                    href="{{ url_for('perfil') }}"
+                    class="perfil-btn perfil-btn-secundario">
+
+                    Cancelar
+
+                </a>
+
+                <button
+                    type="submit"
+                    class="perfil-btn perfil-btn-principal">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    Guardar cambios
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const nombreInput =
+        document.getElementById("nombre");
+
+    const nombrePreview =
+        document.getElementById("nombrePreview");
+
+    const avatarPreview =
+        document.getElementById("avatarPreview");
+
+    const avatarPreviewIcon =
+        document.getElementById("avatarPreviewIcon");
+
+    const opciones =
+        document.querySelectorAll(
+            'input[name="avatar"]'
+        );
+
+    const clasesAvatar = [
+        "avatar-verde",
+        "avatar-azul",
+        "avatar-naranja",
+        "avatar-morado",
+        "avatar-rojo",
+        "avatar-turquesa",
+        "avatar-amarillo",
+        "avatar-oscuro"
+    ];
+
+    function actualizarAvatar(radio) {
+
+        avatarPreview.classList.remove(
+            ...clasesAvatar
+        );
+
+        avatarPreview.classList.add(
+            radio.dataset.clase
+        );
+
+        avatarPreviewIcon.className =
+            "bi " + radio.dataset.icono;
+
+    }
+
+    nombreInput.addEventListener(
+        "input",
+        function () {
+
+            nombrePreview.textContent =
+                nombreInput.value.trim()
+                || "Tu nombre";
+
+        }
+    );
+
+    opciones.forEach(function (radio) {
+
+        radio.addEventListener(
+            "change",
+            function () {
+
+                actualizarAvatar(radio);
+
+            }
+        );
+
+        if (radio.checked) {
+
+            actualizarAvatar(radio);
+
+        }
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

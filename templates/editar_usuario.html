@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block titulo %}
-Editar Usuario
+Editar usuario
 {% endblock %}
 
 {% block contenido %}
@@ -10,96 +10,92 @@ Editar Usuario
 
     <div class="col-lg-8">
 
-        <div class="card shadow">
+        <div class="card border-0 shadow">
 
-            <div class="card-header bg-success text-white">
+            <div class="card-header bg-success text-white p-4">
 
-                <h3 class="mb-0">
-                    Editar Usuario
-                </h3>
+                <h1 class="h3 mb-1">
+                    <i class="bi bi-person-gear"></i>
+                    Editar usuario
+                </h1>
+
+                <p class="mb-0 opacity-75">
+                    Administra la información y los permisos del colaborador.
+                </p>
 
             </div>
 
-            <div class="card-body">
+            <div class="card-body p-4">
 
+                <!-- Formulario principal -->
                 <form method="POST">
 
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
                     <div class="mb-3">
 
-                        <label class="form-label">
+                        <label for="nombre" class="form-label fw-bold">
 
-                            Nombre
+                            Nombre completo
 
                         </label>
 
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="nombre"
-                            value="{{ usuario.nombre }}"
+                        <input type="text" class="form-control" id="nombre" name="nombre" maxlength="150"
+                            value="{{ usuario.nombre }}" required>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label for="usuario" class="form-label fw-bold">
+
+                            Nombre de usuario
+
+                        </label>
+
+                        <input type="text" class="form-control" id="usuario" name="usuario"
+                            value="{{ usuario.usuario }}" required>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label for="correo" class="form-label fw-bold">
+
+                            Correo electrónico
+
+                        </label>
+
+                        <input type="email" class="form-control" id="correo" name="correo" value="{{ usuario.correo }}"
                             required>
 
                     </div>
 
                     <div class="mb-3">
 
-                        <label class="form-label">
+                        <label for="rol" class="form-label fw-bold">
 
-                            Usuario
-
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="usuario"
-                            value="{{ usuario.usuario }}"
-                            required>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Correo
+                            Rol del usuario
 
                         </label>
 
-                        <input
-                            type="email"
-                            class="form-control"
-                            name="correo"
-                            value="{{ usuario.correo }}"
-                            required>
+                        <select name="rol" id="rol" class="form-select" required>
 
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Rol
-
-                        </label>
-
-                        <select
-                            name="rol"
-                            class="form-select">
-
-                            <option
-                                value="Administrador"
-                                {% if usuario.rol=="Administrador" %}selected{% endif %}>
+                            <option value="Administrador" {% if usuario.rol=="Administrador" %} selected {% endif %}>
 
                                 Administrador
 
                             </option>
 
-                            <option
-                                value="Visualizador"
-                                {% if usuario.rol=="Visualizador" %}selected{% endif %}>
+                            <option value="Visualizador" {% if usuario.rol=="Visualizador" %} selected {% endif %}>
 
                                 Visualizador
+
+                            </option>
+
+                            <option value="Mantenimiento" {% if usuario.rol=="Mantenimiento" %} selected {% endif %}>
+
+                                Mantenimiento
 
                             </option>
 
@@ -109,27 +105,21 @@ Editar Usuario
 
                     <div class="mb-4">
 
-                        <label class="form-label">
+                        <label for="activo" class="form-label fw-bold">
 
-                            Estado
+                            Estado de la cuenta
 
                         </label>
 
-                        <select
-                            name="activo"
-                            class="form-select">
+                        <select name="activo" id="activo" class="form-select" required>
 
-                            <option
-                                value="1"
-                                {% if usuario.activo %}selected{% endif %}>
+                            <option value="1" {% if usuario.activo %} selected {% endif %}>
 
                                 Activo
 
                             </option>
 
-                            <option
-                                value="0"
-                                {% if not usuario.activo %}selected{% endif %}>
+                            <option value="0" {% if not usuario.activo %} selected {% endif %}>
 
                                 Inactivo
 
@@ -139,62 +129,87 @@ Editar Usuario
 
                     </div>
 
-                    <hr>
+                    <div class="d-flex flex-column flex-sm-row
+                            justify-content-between gap-3">
 
-<h5 class="mb-3">
-    Cambiar contraseña
-</h5>
+                        <a href="/usuarios/desactivar/{{ usuario.id }}" class="btn btn-outline-danger" onclick="return confirm(
+                                '¿Deseas desactivar este usuario?'
+                            );">
 
-<div class="mb-3">
+                            <i class="bi bi-person-x"></i>
+                            Desactivar usuario
 
-    <label class="form-label">
-        Nueva contraseña
-    </label>
+                        </a>
 
-    <div class="input-group">
+                        <button type="submit" class="btn btn-success">
 
-        <input
-            type="password"
-            class="form-control"
-            id="password"
-            name="password"
-            placeholder="Dejar vacío para no cambiar">
+                            <i class="bi bi-check-circle"></i>
+                            Guardar cambios
 
-        <button
-            class="btn btn-outline-secondary"
-            type="button"
-            onclick="mostrarPassword()">
-
-            <i
-                class="bi bi-eye"
-                id="iconoPassword">
-            </i>
-
-        </button>
-
-    </div>
-
-</div>
-
-                    <div class="d-flex justify-content-between">
-
-                        <a href="/usuarios/desactivar/{{ usuario.id }}"
-   class="btn btn-danger btn-sm"
-   onclick="return confirm('¿Deseas desactivar este usuario?')">
-
-    <i class="bi bi-trash"></i>
-
-</a>
-                
-
-                        <button
-                            class="btn btn-success">
-                            Guardar Cambios
                         </button>
 
                     </div>
 
                 </form>
+
+                <!-- Restablecimiento de contraseña -->
+                <div class="card border-warning mt-4">
+
+                    <div class="card-body">
+
+                        <div class="d-flex align-items-start gap-3">
+
+                            <div class="d-flex align-items-center
+                                    justify-content-center
+                                    text-warning
+                                    bg-warning bg-opacity-10
+                                    rounded-circle" style="
+                                    width: 48px;
+                                    height: 48px;
+                                    flex: 0 0 48px;
+                                ">
+
+                                <i class="bi bi-key-fill fs-5"></i>
+
+                            </div>
+
+                            <div class="flex-grow-1">
+
+                                <h2 class="h6 fw-bold mb-1">
+                                    Restablecer contraseña
+                                </h2>
+
+                                <p class="small text-muted mb-3">
+                                    Genera una contraseña temporal. El
+                                    colaborador deberá reemplazarla cuando
+                                    vuelva a iniciar sesión.
+                                </p>
+
+                                <form method="POST" action="{{ url_for(
+                                        'restablecer_password_usuario',
+                                        id=usuario.id
+                                    ) }}" onsubmit="return confirm(
+                                        '¿Deseas restablecer la contraseña de este usuario?'
+                                    );">
+
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                    <button type="submit" class="btn btn-outline-warning fw-bold">
+
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                        Generar contraseña temporal
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -203,36 +218,5 @@ Editar Usuario
     </div>
 
 </div>
-
-{% endblock %}
-
-{% block scripts %}
-
-<script>
-
-function mostrarPassword(){
-
-    let input = document.getElementById("password");
-    let icono = document.getElementById("iconoPassword");
-
-    if(input.type==="password"){
-
-        input.type="text";
-
-        icono.classList.remove("bi-eye");
-        icono.classList.add("bi-eye-slash");
-
-    }else{
-
-        input.type="password";
-
-        icono.classList.remove("bi-eye-slash");
-        icono.classList.add("bi-eye");
-
-    }
-
-}
-
-</script>
 
 {% endblock %}

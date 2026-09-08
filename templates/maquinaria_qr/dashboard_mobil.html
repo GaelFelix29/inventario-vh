@@ -5,57 +5,507 @@ Dashboard
 {% endblock %}
 
 {% block estilos %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_mobil.css') }}">
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/dashboard_mobil.css'
+    ) }}">
+
+<style>
+    .hero-dashboard {
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 20px;
+        color: #fff;
+        background: linear-gradient(145deg, #1ba765, #0b7443);
+        border-radius: 24px;
+        box-shadow: 0 14px 32px rgba(17, 115, 67, .22);
+    }
+
+    .hero-dashboard::before,
+    .hero-dashboard::after {
+        position: absolute;
+        content: "";
+        background: rgba(255, 255, 255, .07);
+        border-radius: 50%;
+    }
+
+    .hero-dashboard::before {
+        width: 170px;
+        height: 170px;
+        top: -90px;
+        right: -45px;
+    }
+
+    .hero-dashboard::after {
+        width: 120px;
+        height: 120px;
+        right: -35px;
+        bottom: -65px;
+    }
+
+    .hero-dashboard__contenido {
+        position: relative;
+        z-index: 2;
+        padding: 20px;
+    }
+
+    .hero-dashboard__superior {
+        display: grid;
+        grid-template-columns: 62px minmax(0, 1fr) 34px;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .hero-avatar {
+        width: 62px;
+        height: 62px;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-size: 25px;
+        text-decoration: none;
+        border: 3px solid rgba(255, 255, 255, .9);
+        border-radius: 20px;
+        box-shadow: 0 9px 20px rgba(0, 55, 30, .2);
+    }
+
+    .hero-avatar:hover,
+    .hero-avatar:active {
+        color: #fff;
+    }
+
+    .hero-avatar-verde {
+        background: linear-gradient(145deg, #27ad70, #117847);
+    }
+
+    .hero-avatar-azul {
+        background: linear-gradient(145deg, #468cff, #225ac4);
+    }
+
+    .hero-avatar-naranja {
+        background: linear-gradient(145deg, #ff963f, #e46716);
+    }
+
+    .hero-avatar-morado {
+        background: linear-gradient(145deg, #a25aea, #7131be);
+    }
+
+    .hero-avatar-rojo {
+        background: linear-gradient(145deg, #f25c61, #c9343a);
+    }
+
+    .hero-avatar-turquesa {
+        background: linear-gradient(145deg, #20b8b0, #087f79);
+    }
+
+    .hero-avatar-amarillo {
+        background: linear-gradient(145deg, #f6bd3c, #d88c0c);
+    }
+
+    .hero-avatar-oscuro {
+        background: linear-gradient(145deg, #48625a, #223630);
+    }
+
+    .hero-dashboard__identidad {
+        min-width: 0;
+    }
+
+    .hero-dashboard__etiqueta {
+        display: block;
+        margin-bottom: 2px;
+        color: rgba(255, 255, 255, .72);
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+    }
+
+    .hero-dashboard__identidad h1 {
+        margin: 0 0 6px;
+        overflow: hidden;
+        color: #fff;
+        font-size: 23px;
+        font-weight: 800;
+        line-height: 1.1;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .hero-dashboard__rol {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 9px;
+        color: #fff;
+        font-size: 9px;
+        font-weight: 800;
+        background: rgba(255, 255, 255, .15);
+        border: 1px solid rgba(255, 255, 255, .15);
+        border-radius: 999px;
+    }
+
+    .hero-dashboard__perfil {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        text-decoration: none;
+        background: rgba(255, 255, 255, .13);
+        border-radius: 11px;
+    }
+
+    .hero-dashboard__mensaje {
+        margin: 16px 0 13px;
+        color: rgba(255, 255, 255, .82);
+        font-size: 12px;
+    }
+
+    .hero-dashboard__indicadores {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        overflow: hidden;
+        background: rgba(0, 74, 40, .2);
+        border: 1px solid rgba(255, 255, 255, .1);
+        border-radius: 15px;
+    }
+
+    .hero-dashboard__indicadores > div {
+        min-width: 0;
+        padding: 11px 8px;
+        text-align: center;
+    }
+
+    .hero-dashboard__indicadores > div + div {
+        border-left: 1px solid rgba(255, 255, 255, .12);
+    }
+
+    .hero-dashboard__indicadores span,
+    .hero-dashboard__indicadores strong {
+        display: block;
+    }
+
+    .hero-dashboard__indicadores span {
+        margin-bottom: 3px;
+        color: rgba(255, 255, 255, .7);
+        font-size: 9px;
+    }
+
+    .hero-dashboard__indicadores strong {
+        color: #fff;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .dashboard-seccion-titulo {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 22px 0 13px;
+    }
+
+    .dashboard-seccion-titulo h2 {
+        margin: 0;
+        color: #26352d;
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .dashboard-seccion-titulo h2 i {
+        margin-right: 5px;
+        color: #198754;
+    }
+
+    .dashboard-seccion-titulo span {
+        color: #859089;
+        font-size: 10px;
+    }
+
+    .dashboard-charts {
+        display: grid;
+        gap: 14px;
+    }
+
+    .dashboard-chart-card {
+        padding: 17px;
+        background: #fff;
+        border: 1px solid #e5ebe7;
+        border-radius: 19px;
+        box-shadow: 0 7px 20px rgba(35, 75, 54, .07);
+    }
+
+    .dashboard-chart-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .dashboard-chart-header span {
+        display: block;
+        margin-bottom: 2px;
+        color: #8b958f;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .6px;
+        text-transform: uppercase;
+    }
+
+    .dashboard-chart-header h3 {
+        margin: 0;
+        color: #29382f;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .dashboard-chart-icon {
+        width: 37px;
+        height: 37px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 37px;
+        color: #198754;
+        background: #e6f5ed;
+        border-radius: 12px;
+    }
+
+    .dashboard-donut-layout {
+        display: grid;
+        grid-template-columns: 140px minmax(0, 1fr);
+        align-items: center;
+        gap: 12px;
+    }
+
+    .dashboard-donut {
+        position: relative;
+        width: 140px;
+        height: 140px;
+    }
+
+    .dashboard-donut-centro {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        pointer-events: none;
+        text-align: center;
+    }
+
+    .dashboard-donut-centro strong {
+        color: #26372e;
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+    .dashboard-donut-centro span {
+        color: #8a958f;
+        font-size: 9px;
+    }
+
+    .dashboard-leyenda {
+        display: grid;
+        gap: 10px;
+    }
+
+    .dashboard-leyenda-item {
+        display: grid;
+        grid-template-columns: 9px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .dashboard-leyenda-color {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+    }
+
+    .dashboard-leyenda-color.completo {
+        background: #198754;
+    }
+
+    .dashboard-leyenda-color.pendiente {
+        background: #dfe7e2;
+    }
+
+    .dashboard-leyenda-item span {
+        color: #6f7b74;
+        font-size: 10px;
+    }
+
+    .dashboard-leyenda-item strong {
+        color: #26372e;
+        font-size: 12px;
+    }
+
+    .dashboard-importados {
+        margin-top: 12px;
+        padding: 10px;
+        color: #596860;
+        font-size: 10px;
+        text-align: center;
+        background: #f4f8f6;
+        border-radius: 11px;
+    }
+
+    .dashboard-importados strong {
+        color: #198754;
+    }
+
+    .dashboard-barras {
+        position: relative;
+        width: 100%;
+        height: 205px;
+    }
+
+    @media (max-width: 350px) {
+        .dashboard-donut-layout {
+            grid-template-columns: 1fr;
+            justify-items: center;
+        }
+
+        .dashboard-leyenda {
+            width: 100%;
+        }
+    }
+</style>
+
 {% endblock %}
 
 {% block contenido %}
 
+{% set avatares_dashboard = {
+    "usuario": {
+        "icono": "bi-person-fill",
+        "clase": "hero-avatar-verde"
+    },
+    "finanzas": {
+        "icono": "bi-graph-up-arrow",
+        "clase": "hero-avatar-azul"
+    },
+    "mantenimiento": {
+        "icono": "bi-tools",
+        "clase": "hero-avatar-naranja"
+    },
+    "administracion": {
+        "icono": "bi-briefcase-fill",
+        "clase": "hero-avatar-morado"
+    },
+    "seguridad": {
+        "icono": "bi-shield-check",
+        "clase": "hero-avatar-rojo"
+    },
+    "inventario": {
+        "icono": "bi-box-seam-fill",
+        "clase": "hero-avatar-turquesa"
+    },
+    "logistica": {
+        "icono": "bi-truck",
+        "clase": "hero-avatar-amarillo"
+    },
+    "ejecutivo": {
+        "icono": "bi-person-badge-fill",
+        "clase": "hero-avatar-oscuro"
+    }
+} %}
+
+{% set avatar_dashboard = avatares_dashboard.get(
+    session.get("avatar", "usuario"),
+    avatares_dashboard["usuario"]
+) %}
+
 <div class="dashboard-mobile">
 
-    <!-- Header -->
-<section class="hero-dashboard">
+    <section class="hero-dashboard">
 
-    <div class="hero-overlay"></div>
+        <div class="hero-dashboard__contenido">
 
-    <div class="hero-content">
+            <div class="hero-dashboard__superior">
 
-        <div>
+                <a
+                    href="{{ url_for('perfil') }}"
+                    class="hero-avatar {{ avatar_dashboard.clase }}"
+                    aria-label="Abrir mi perfil">
 
-            <span class="hero-badge">
+                    <i class="bi {{ avatar_dashboard.icono }}"></i>
 
-                <i class="bi bi-stars"></i>
+                </a>
 
-                Sistema Vital Health
+                <div class="hero-dashboard__identidad">
 
-            </span>
+                    <span class="hero-dashboard__etiqueta">
+                        Mi panel
+                    </span>
 
-            <h1>
+                    <h1>
+                        Hola, {{ session["nombre"].split()[0] }}
+                    </h1>
 
-                ¡Hola, {{ session["nombre"] }}! 👋
+                    <span class="hero-dashboard__rol">
 
-            </h1>
+                        <i class="bi bi-shield-check"></i>
 
-            <p>
+                        {{ session["rol"] }}
 
-                Gestión Inteligente de Activos
+                    </span>
 
+                </div>
+
+                <a
+                    href="{{ url_for('perfil') }}"
+                    class="hero-dashboard__perfil"
+                    aria-label="Abrir mi perfil">
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+            </div>
+
+            <p class="hero-dashboard__mensaje">
+                Aquí tienes el resumen más reciente del sistema.
             </p>
 
-            <div class="hero-stats">
+            <div class="hero-dashboard__indicadores">
 
                 <div>
-
-                    <strong>{{ total_activos }}</strong>
-
                     <span>Activos</span>
+                    <strong>{{ total_activos }}</strong>
+                </div>
 
+                <div>
+                    <span>Completos</span>
+                    <strong>{{ expedientes_completos }}</strong>
                 </div>
 
                 <div>
 
-                    <strong>{{ expedientes_completos }}</strong>
+                    <span>Avance</span>
 
-                    <span>Completos</span>
+                    <strong>
+
+                        {% if total_activos %}
+
+                            {{
+                                (
+                                    expedientes_completos
+                                    * 100
+                                    / total_activos
+                                )|round|int
+                            }}%
+
+                        {% else %}
+
+                            0%
+
+                        {% endif %}
+
+                    </strong>
 
                 </div>
 
@@ -63,138 +513,180 @@ Dashboard
 
         </div>
 
-        <div class="hero-avatar">
-
-            {{ session["nombre"][0] }}
-
-        </div>
-
-    </div>
-
-</section>
-
-    <!-- Buscar -->
+    </section>
 
     <section class="search-section">
 
-        <label>
+        <label for="buscarActivo">
 
             <i class="bi bi-search"></i>
-
             Buscar activo
 
         </label>
 
         <div class="position-relative">
 
-            <input id="buscarActivo" type="search" class="search-input" placeholder="ACT-0001, Serie, Descripción..."
+            <input
+                id="buscarActivo"
+                type="search"
+                class="search-input"
+                placeholder="ACT-0001, serie, descripción..."
                 autocomplete="off">
 
-            <div id="resultadosBusqueda" class="search-results"></div>
-
-        </div>
-
-    </section>
-
-    <!-- Resumen -->
-
-    <section class="summary">
-
-        <h3>
-
-            <i class="bi bi-bar-chart"></i>
-
-            Resumen
-
-        </h3>
-
-        <div class="stats-grid">
-
-            <div class="stat-card">
-
-                <div class="icon-box">
-
-                    <i class="bi bi-box-seam"></i>
-
-                </div>
-
-                <div>
-
-                    <h3>{{ total_activos }}</h3>
-
-                    <span>Activos</span>
-
-                </div>
-
-            </div>
-
-            <div class="stat-card">
-
-                <div class="icon-box warning">
-
-                    <i class="bi bi-globe-americas"></i>
-
-                </div>
-
-                <div>
-
-                    <h3>{{ importados }}</h3>
-
-                    <span>🌍
-                        Importados</span>
-
-                </div>
-
-            </div>
-
-            <div class="stat-card">
-
-                <div class="icon-box primary">
-
-                    <i class="bi bi-patch-check-fill"></i>
-
-                </div>
-
-                <div>
-
-                    <h3>{{ expedientes_completos }}</h3>
-
-                    <span>✅
-                        Expedientes completos</span>
-
-                </div>
-
-            </div>
-
-            <div class="stat-card">
-
-                <div class="icon-box secondary">
-
-                    <i class="bi bi-truck"></i>
-
-                </div>
-
-                <div>
-
-                    <h3>{{ expedientes_pendientes }}</h3>
-
-                    <span>⚠️
-                        Pendientes</span>
-
-                </div>
-
+            <div
+                id="resultadosBusqueda"
+                class="search-results">
             </div>
 
         </div>
 
     </section>
 
+    <!-- Gráficas -->
+    <div class="dashboard-seccion-titulo">
+
+        <h2>
+            <i class="bi bi-bar-chart-fill"></i>
+            Panorama
+        </h2>
+
+        <span>Actualizado ahora</span>
+
+    </div>
+
+    <section class="dashboard-charts">
+
+        <!-- Gráfica circular -->
+        <article class="dashboard-chart-card">
+
+            <div class="dashboard-chart-header">
+
+                <div>
+
+                    <span>Estado documental</span>
+
+                    <h3>
+                        Expedientes de activos
+                    </h3>
+
+                </div>
+
+                <div class="dashboard-chart-icon">
+
+                    <i class="bi bi-pie-chart-fill"></i>
+
+                </div>
+
+            </div>
+
+            <div class="dashboard-donut-layout">
+
+                <div class="dashboard-donut">
+
+                    <canvas
+                        id="graficaExpedientes">
+                    </canvas>
+
+                    <div class="dashboard-donut-centro">
+
+                        <strong>
+                            {{ total_activos }}
+                        </strong>
+
+                        <span>
+                            activos
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="dashboard-leyenda">
+
+                    <div class="dashboard-leyenda-item">
+
+                        <span
+                            class="dashboard-leyenda-color completo">
+                        </span>
+
+                        <span>Completos</span>
+
+                        <strong>
+                            {{ expedientes_completos }}
+                        </strong>
+
+                    </div>
+
+                    <div class="dashboard-leyenda-item">
+
+                        <span
+                            class="dashboard-leyenda-color pendiente">
+                        </span>
+
+                        <span>Pendientes</span>
+
+                        <strong>
+                            {{ expedientes_pendientes }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="dashboard-importados">
+
+                <i class="bi bi-globe-americas"></i>
+
+                <strong>{{ importados }}</strong>
+                activos importados
+
+            </div>
+
+        </article>
+
+        <!-- Actividad de siete días -->
+        <article class="dashboard-chart-card">
+
+            <div class="dashboard-chart-header">
+
+                <div>
+
+                    <span>Últimos siete días</span>
+
+                    <h3>
+                        Movimientos registrados
+                    </h3>
+
+                </div>
+
+                <div class="dashboard-chart-icon">
+
+                    <i class="bi bi-activity"></i>
+
+                </div>
+
+            </div>
+
+            <div class="dashboard-barras">
+
+                <canvas
+                    id="graficaActividad">
+                </canvas>
+
+            </div>
+
+        </article>
+
+    </section>
+
+    <!-- Acciones rápidas -->
     <section class="quick-actions">
 
         <h3>
 
             <i class="bi bi-lightning-charge-fill"></i>
-
             Acciones rápidas
 
         </h3>
@@ -209,7 +701,9 @@ Dashboard
 
             </a>
 
-            <a href="{{ url_for('maquinarias_mobile') }}" class="quick-card">
+            <a
+                href="{{ url_for('maquinarias_mobile') }}"
+                class="quick-card">
 
                 <i class="bi bi-box-seam"></i>
 
@@ -217,7 +711,9 @@ Dashboard
 
             </a>
 
-            <a href="{{ url_for('aduanas_mobile') }}" class="quick-card">
+            <a
+                href="{{ url_for('aduanas_mobile') }}"
+                class="quick-card">
 
                 <i class="bi bi-truck"></i>
 
@@ -225,63 +721,117 @@ Dashboard
 
             </a>
 
+            <a
+                href="{{ url_for('actividad_sistema_mobile') }}"
+                class="quick-card">
+
+                <i class="bi bi-clock-history"></i>
+
+                <span>Actividad</span>
+
+            </a>
+
         </div>
 
     </section>
 
+    <!-- Actividad reciente -->
     <section class="recent-activity">
 
-        <h3>
+        <div
+            class="d-flex align-items-center
+                   justify-content-between gap-3 mb-3">
 
-            <i class="bi bi-clock-history"></i>
+            <h3 class="mb-0">
 
-            Actividad reciente
+                <i class="bi bi-clock-history"></i>
+                Actividad reciente
 
-        </h3>
+            </h3>
+
+            <a
+                href="{{ url_for('actividad_sistema_mobile') }}"
+                class="text-success fw-bold
+                       text-decoration-none small">
+
+                Ver todo
+                <i class="bi bi-arrow-right"></i>
+
+            </a>
+
+        </div>
 
         <div class="activity-list">
 
-            {% for mov in actividad %}
+            {% if actividad %}
 
-            <div class="activity-item">
+                {% for mov in actividad[:3] %}
 
-                <div class="activity-icon success">
+                    <div class="activity-item">
 
-                    <i class="bi bi-clock-history"></i>
+                        <div class="activity-icon success">
 
-                </div>
+                            <i class="bi bi-clock-history"></i>
 
-                <div>
+                        </div>
 
-                    <strong>
+                        <div>
 
-                        {{ mov.usuario }}
+                            <strong>
+                                {{ mov.usuario }}
+                            </strong>
 
-                    </strong>
+                            <div>
 
-                    <div>
+                                {{ mov.accion }}
 
-                        {{ mov.accion }}
+                                {% if mov.referencia %}
 
-                        {% if mov.referencia %}
+                                    - {{ mov.referencia }}
 
-                        - {{ mov.referencia }}
+                                {% endif %}
 
-                        {% endif %}
+                            </div>
+
+                            <small>
+
+                                {{ mov.fecha.strftime(
+                                    "%d/%m/%Y %H:%M"
+                                ) }}
+
+                            </small>
+
+                        </div>
 
                     </div>
 
-                    <small>
+                {% endfor %}
 
-                        {{ mov.fecha.strftime("%d/%m/%Y %H:%M") }}
+            {% else %}
 
-                    </small>
+                <div class="activity-item">
+
+                    <div class="activity-icon secondary">
+
+                        <i class="bi bi-inbox"></i>
+
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Sin actividad reciente
+                        </strong>
+
+                        <div>
+                            No hay movimientos disponibles.
+                        </div>
+
+                    </div>
 
                 </div>
 
-            </div>
-
-            {% endfor %}
+            {% endif %}
 
         </div>
 
@@ -289,79 +839,302 @@ Dashboard
 
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+
+<script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
+</script>
+
 <script>
+document.addEventListener("DOMContentLoaded", function () {
 
-const input = document.getElementById("buscarActivo");
-const resultados = document.getElementById("resultadosBusqueda");
+    const completos =
+        {{ expedientes_completos | int }};
 
-input.addEventListener("input", async function(){
+    const pendientes =
+        {{ expedientes_pendientes | int }};
 
-    const texto = this.value.trim();
+    const etiquetasActividad =
+        {{ grafica_actividad.etiquetas | tojson }};
 
-    if(texto.length < 2){
+    const valoresActividad =
+        {{ grafica_actividad.valores | tojson }};
 
-        resultados.style.display = "none";
-        resultados.innerHTML = "";
-        return;
+    const canvasExpedientes =
+        document.getElementById("graficaExpedientes");
 
+    const canvasActividad =
+        document.getElementById("graficaActividad");
+
+    if (
+        typeof Chart !== "undefined"
+        && canvasExpedientes
+    ) {
+        new Chart(
+            canvasExpedientes,
+            {
+                type: "doughnut",
+
+                data: {
+                    labels: [
+                        "Completos",
+                        "Pendientes"
+                    ],
+
+                    datasets: [
+                        {
+                            data: [
+                                completos,
+                                pendientes
+                            ],
+
+                            backgroundColor: [
+                                "#198754",
+                                "#dfe7e2"
+                            ],
+
+                            borderWidth: 0,
+                            hoverOffset: 3
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "72%",
+
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+
+                        tooltip: {
+                            callbacks: {
+                                label: function (contexto) {
+                                    return (
+                                        contexto.label
+                                        + ": "
+                                        + contexto.raw
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        );
     }
 
-    const resp = await fetch("/buscar-activos?q=" + encodeURIComponent(texto));
+    if (
+        typeof Chart !== "undefined"
+        && canvasActividad
+    ) {
+        new Chart(
+            canvasActividad,
+            {
+                type: "bar",
 
-    const datos = await resp.json();
+                data: {
+                    labels: etiquetasActividad,
 
-    resultados.innerHTML = "";
+                    datasets: [
+                        {
+                            label: "Movimientos",
+                            data: valoresActividad,
+                            backgroundColor:
+                                "rgba(25, 135, 84, .82)",
+                            borderColor:
+                                "#198754",
+                            borderWidth: 1,
+                            borderRadius: 7,
+                            borderSkipped: false,
+                            maxBarThickness: 27
+                        }
+                    ]
+                },
 
-    if(datos.length === 0){
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
 
-        resultados.style.display = "none";
-        return;
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
 
+                            ticks: {
+                                color: "#78847d",
+                                font: {
+                                    size: 9
+                                }
+                            },
+
+                            border: {
+                                display: false
+                            }
+                        },
+
+                        y: {
+                            beginAtZero: true,
+
+                            ticks: {
+                                precision: 0,
+                                color: "#78847d",
+                                font: {
+                                    size: 9
+                                }
+                            },
+
+                            grid: {
+                                color:
+                                    "rgba(42, 73, 56, .07)"
+                            },
+
+                            border: {
+                                display: false
+                            }
+                        }
+                    },
+
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        );
     }
 
-    datos.forEach(activo=>{
+    const input =
+        document.getElementById("buscarActivo");
 
-        resultados.innerHTML += `
+    const resultados =
+        document.getElementById(
+            "resultadosBusqueda"
+        );
 
-            <div class="search-item"
-                onclick="abrirActivo('${activo.id}')">
+    if (!input || !resultados) {
+        return;
+    }
 
-                <strong>${activo.id}</strong>
+    let controladorBusqueda = null;
 
-                <small>
+    input.addEventListener(
+        "input",
+        async function () {
 
-                    ${activo.descripcion}<br>
+            const texto = input.value.trim();
 
-                    ${activo.ubicacion || ""}
+            if (texto.length < 2) {
+                resultados.style.display = "none";
+                resultados.replaceChildren();
+                return;
+            }
 
-                </small>
+            if (controladorBusqueda) {
+                controladorBusqueda.abort();
+            }
 
-            </div>
+            controladorBusqueda =
+                new AbortController();
 
-        `;
+            try {
+                const respuesta = await fetch(
+                    "/buscar-activos?q="
+                    + encodeURIComponent(texto),
+                    {
+                        signal:
+                            controladorBusqueda.signal
+                    }
+                );
 
-    });
+                if (!respuesta.ok) {
+                    throw new Error(
+                        "Error de búsqueda"
+                    );
+                }
 
-    resultados.style.display="block";
+                const datos =
+                    await respuesta.json();
 
+                resultados.replaceChildren();
+
+                if (datos.length === 0) {
+                    resultados.style.display = "none";
+                    return;
+                }
+
+                datos.forEach(function (activo) {
+                    const elemento =
+                        document.createElement("button");
+
+                    elemento.type = "button";
+                    elemento.className = "search-item";
+
+                    const codigo =
+                        document.createElement("strong");
+
+                    codigo.textContent = activo.id;
+
+                    const informacion =
+                        document.createElement("small");
+
+                    informacion.textContent = [
+                        activo.descripcion,
+                        activo.ubicacion
+                    ]
+                    .filter(Boolean)
+                    .join(" · ");
+
+                    elemento.append(
+                        codigo,
+                        informacion
+                    );
+
+                    elemento.addEventListener(
+                        "click",
+                        function () {
+                            abrirActivo(activo.id);
+                        }
+                    );
+
+                    resultados.appendChild(elemento);
+                });
+
+                resultados.style.display = "block";
+
+            } catch (error) {
+                if (error.name !== "AbortError") {
+                    resultados.style.display = "none";
+                }
+            }
+        }
+    );
+
+    document.addEventListener(
+        "click",
+        function (evento) {
+            if (
+                !evento.target.closest(
+                    ".search-section"
+                )
+            ) {
+                resultados.style.display = "none";
+            }
+        }
+    );
 });
 
-function abrirActivo(id){
-
-    window.location="/maquinarias/" + id;
-
+function abrirActivo(id) {
+    window.location.href =
+        "/maquinarias/"
+        + encodeURIComponent(id);
 }
-
-document.addEventListener("click",function(e){
-
-    if(!e.target.closest(".search-section")){
-
-        resultados.style.display="none";
-
-    }
-
-});
-
 </script>
 
 {% endblock %}

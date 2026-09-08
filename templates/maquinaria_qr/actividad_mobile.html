@@ -1,90 +1,403 @@
-{% extends "maquinaria_qr/base_qr.html" %}
+{% extends "maquinaria_qr/base_mobile.html" %}
 
 {% block titulo %}
-Actividad
+Actividad del activo
 {% endblock %}
 
 {% block estilos %}
 
-<link rel="stylesheet" href="{{ url_for('static',
-    filename='css/actividad_mobile.css') }}">
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/actividad_mobile.css'
+    ) }}">
 
 {% endblock %}
 
 {% block contenido %}
 
-<div class="timeline-page">
+<section class="timeline-page">
 
-    <div class="timeline-header">
+    <!-- Encabezado -->
+    <header class="actividad-header">
 
-        <span class="timeline-label">
-            ACTIVIDAD
-        </span>
+        <button
+            type="button"
+            class="actividad-volver"
+            id="volverAnterior"
+            aria-label="Regresar">
 
-        <h2>
-            {{ maquinaria.id_activo }}
-        </h2>
+            <i class="bi bi-arrow-left"></i>
 
-        <p>
-            {{ maquinaria.descripcion }}
-        </p>
+        </button>
 
-    </div>
+        <div>
 
-    <div class="activity-feed">
+            <span>Historial del activo</span>
 
-        {% for evento in historial %}
+            <h1>
+                {{ maquinaria.id_activo }}
+            </h1>
 
-        <div class="activity-item">
-
-            <div class="activity-card">
-
-                <div class="activity-header">
-
-                    <div class="activity-icon {{ evento.color }}">
-
-                        <i class="bi {{ evento.icono }}"></i>
-
-                    </div>
-
-                    <div class="activity-info">
-
-                        <h5>
-
-                            {{ evento.accion }}
-
-                        </h5>
-
-                        <span>
-
-                            {{ evento.fecha_formato }}
-
-                        </span>
-
-                    </div>
-
-                </div>
-
-                <div class="activity-footer">
-
-                    <div class="activity-user">
-
-                        <i class="bi bi-person-circle"></i>
-
-                        {{ evento.usuario }}
-
-                    </div>
-
-                </div>
-
-            </div>
+            <p>
+                {{ maquinaria.descripcion }}
+            </p>
 
         </div>
 
-        {% endfor %}
+    </header>
+
+    <!-- Información -->
+    <div class="actividad-alcance">
+
+        <i class="bi bi-clock-history"></i>
+
+        <div>
+
+            <strong>
+                Seguimiento del activo
+            </strong>
+
+            <small>
+                Consulta los movimientos registrados para esta maquinaria.
+            </small>
+
+        </div>
 
     </div>
 
-</div>
+    <!-- Encabezado de resultados -->
+    <div class="actividad-resultados-header">
+
+        <div>
+
+            <span>Resultados</span>
+
+            <h2>
+                Actividad encontrada
+            </h2>
+
+        </div>
+
+        <strong>
+            {{ historial|length }}
+        </strong>
+
+    </div>
+
+    {% if historial %}
+
+        <!-- Actividad -->
+        <div class="activity-feed">
+
+            {% for evento in historial %}
+
+                <article class="activity-item actividad-paginada">
+
+                    <div class="activity-card">
+
+                        <div class="activity-header">
+
+                            <div class="activity-icon {{ evento.color }}">
+
+                                <i class="bi {{ evento.icono }}"></i>
+
+                            </div>
+
+                            <div class="activity-info">
+
+                                <h5>
+                                    {{ evento.accion }}
+                                </h5>
+
+                                <span>
+                                    {{ evento.fecha_formato }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="activity-footer">
+
+                            <div class="activity-user">
+
+                                <i class="bi bi-person-circle"></i>
+
+                                {{ evento.usuario }}
+
+                            </div>
+
+                            {% if evento.modulo %}
+
+                                <div class="activity-user">
+
+                                    <i class="bi bi-grid"></i>
+
+                                    {{ evento.modulo }}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+        <!-- Paginación -->
+        <nav
+            class="paginacion-actividad"
+            id="paginacionActividad"
+            aria-label="Paginación de actividad">
+
+            <button
+                type="button"
+                class="paginacion-boton"
+                id="paginaAnterior">
+
+                <i class="bi bi-chevron-left"></i>
+                Anterior
+
+            </button>
+
+            <div class="paginacion-centro">
+
+                <span id="paginaActual">1</span>
+                <span>de</span>
+                <span id="totalPaginas">1</span>
+
+            </div>
+
+            <button
+                type="button"
+                class="paginacion-boton"
+                id="paginaSiguiente">
+
+                Siguiente
+                <i class="bi bi-chevron-right"></i>
+
+            </button>
+
+        </nav>
+
+        <p
+            class="paginacion-resumen"
+            id="resumenPaginacion">
+        </p>
+
+    {% else %}
+
+        <!-- Sin resultados -->
+        <div class="actividad-vacia">
+
+            <div>
+                <i class="bi bi-clock-history"></i>
+            </div>
+
+            <h2>
+                Sin actividad registrada
+            </h2>
+
+            <p>
+                Este activo todavía no tiene movimientos en su historial.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ==========================================
+    // BOTÓN PARA REGRESAR
+    // ==========================================
+
+    const botonVolver =
+        document.getElementById("volverAnterior");
+
+    if (botonVolver) {
+
+        botonVolver.addEventListener("click", function () {
+
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href =
+                    "{{ url_for('dashboard_mobil') }}";
+            }
+
+        });
+
+    }
+
+    // ==========================================
+    // PAGINACIÓN
+    // ==========================================
+
+    const actividades = Array.from(
+        document.querySelectorAll(
+            ".actividad-paginada"
+        )
+    );
+
+    const paginacion =
+        document.getElementById(
+            "paginacionActividad"
+        );
+
+    const botonAnterior =
+        document.getElementById(
+            "paginaAnterior"
+        );
+
+    const botonSiguiente =
+        document.getElementById(
+            "paginaSiguiente"
+        );
+
+    const paginaActualTexto =
+        document.getElementById(
+            "paginaActual"
+        );
+
+    const totalPaginasTexto =
+        document.getElementById(
+            "totalPaginas"
+        );
+
+    const resumen =
+        document.getElementById(
+            "resumenPaginacion"
+        );
+
+    if (
+        actividades.length === 0 ||
+        !botonAnterior ||
+        !botonSiguiente
+    ) {
+        return;
+    }
+
+    const elementosPorPagina = 10;
+
+    const totalPaginas = Math.ceil(
+        actividades.length / elementosPorPagina
+    );
+
+    let paginaActual = 1;
+
+    function mostrarPagina(
+        numeroPagina,
+        desplazar = false
+    ) {
+
+        paginaActual = Math.min(
+            Math.max(numeroPagina, 1),
+            totalPaginas
+        );
+
+        const inicio =
+            (paginaActual - 1) *
+            elementosPorPagina;
+
+        const final = Math.min(
+            inicio + elementosPorPagina,
+            actividades.length
+        );
+
+        actividades.forEach(
+            function (actividad, indice) {
+
+                actividad.hidden = !(
+                    indice >= inicio &&
+                    indice < final
+                );
+
+            }
+        );
+
+        paginaActualTexto.textContent =
+            paginaActual;
+
+        totalPaginasTexto.textContent =
+            totalPaginas;
+
+        resumen.textContent =
+            "Mostrando " +
+            (inicio + 1) +
+            "–" +
+            final +
+            " de " +
+            actividades.length +
+            " actividades";
+
+        botonAnterior.disabled =
+            paginaActual === 1;
+
+        botonSiguiente.disabled =
+            paginaActual === totalPaginas;
+
+        if (paginacion) {
+
+            paginacion.hidden =
+                totalPaginas <= 1;
+
+        }
+
+        if (desplazar) {
+
+            document.querySelector(
+                ".actividad-resultados-header"
+            )?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        }
+
+    }
+
+    botonAnterior.addEventListener(
+        "click",
+        function () {
+
+            mostrarPagina(
+                paginaActual - 1,
+                true
+            );
+
+        }
+    );
+
+    botonSiguiente.addEventListener(
+        "click",
+        function () {
+
+            mostrarPagina(
+                paginaActual + 1,
+                true
+            );
+
+        }
+    );
+
+    mostrarPagina(1);
+
+});
+</script>
 
 {% endblock %}
