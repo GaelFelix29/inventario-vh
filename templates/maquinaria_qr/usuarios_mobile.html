@@ -1,0 +1,741 @@
+{% extends "maquinaria_qr/base_mobile.html" %}
+
+{% block titulo %}
+Usuarios
+{% endblock %}
+
+{% block estilos %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/usuarios_mobile.css'
+    ) }}">
+
+{% endblock %}
+
+{% block contenido %}
+
+{% set avatares = {
+    "usuario": {
+        "icono": "bi-person-fill",
+        "clase": "usuario-avatar--usuario"
+    },
+    "finanzas": {
+        "icono": "bi-graph-up-arrow",
+        "clase": "usuario-avatar--finanzas"
+    },
+    "mantenimiento": {
+        "icono": "bi-tools",
+        "clase": "usuario-avatar--mantenimiento"
+    },
+    "administracion": {
+        "icono": "bi-briefcase-fill",
+        "clase": "usuario-avatar--administracion"
+    },
+    "seguridad": {
+        "icono": "bi-shield-check",
+        "clase": "usuario-avatar--seguridad"
+    },
+    "inventario": {
+        "icono": "bi-box-seam-fill",
+        "clase": "usuario-avatar--inventario"
+    },
+    "logistica": {
+        "icono": "bi-truck",
+        "clase": "usuario-avatar--logistica"
+    },
+    "ejecutivo": {
+        "icono": "bi-person-badge-fill",
+        "clase": "usuario-avatar--ejecutivo"
+    }
+} %}
+
+{% set conteo = namespace(
+    activos=0,
+    inactivos=0
+) %}
+
+{% for usuario in usuarios %}
+
+    {% if usuario.activo %}
+
+        {% set conteo.activos =
+            conteo.activos + 1 %}
+
+    {% else %}
+
+        {% set conteo.inactivos =
+            conteo.inactivos + 1 %}
+
+    {% endif %}
+
+{% endfor %}
+
+<section class="usuarios-mobile">
+
+    <!-- Portada -->
+    <header class="usuarios-portada">
+
+        <a
+            href="{{ url_for('dashboard_mobil') }}"
+            class="usuarios-volver"
+            aria-label="Regresar al dashboard">
+
+            <i class="bi bi-arrow-left"></i>
+
+        </a>
+
+        <div class="usuarios-portada-texto">
+
+            <span>
+                Administración
+            </span>
+
+            <h1>
+                Usuarios
+            </h1>
+
+            <p>
+                Gestiona las cuentas y permisos del sistema.
+            </p>
+
+        </div>
+
+        <a
+            href="{{ url_for('nuevo_usuario') }}"
+            class="usuarios-nuevo"
+            aria-label="Registrar un nuevo usuario">
+
+            <i class="bi bi-person-plus-fill"></i>
+
+        </a>
+
+    </header>
+
+    <!-- Resumen -->
+    <section class="usuarios-resumen">
+
+        <article>
+
+            <span class="usuarios-resumen-icono">
+                <i class="bi bi-people-fill"></i>
+            </span>
+
+            <div>
+
+                <strong>
+                    {{ usuarios|length }}
+                </strong>
+
+                <small>
+                    Total
+                </small>
+
+            </div>
+
+        </article>
+
+        <article>
+
+            <span class="usuarios-resumen-icono usuarios-resumen-icono--activo">
+                <i class="bi bi-person-check-fill"></i>
+            </span>
+
+            <div>
+
+                <strong>
+                    {{ conteo.activos }}
+                </strong>
+
+                <small>
+                    Activos
+                </small>
+
+            </div>
+
+        </article>
+
+        <article>
+
+            <span class="usuarios-resumen-icono usuarios-resumen-icono--inactivo">
+                <i class="bi bi-person-x-fill"></i>
+            </span>
+
+            <div>
+
+                <strong>
+                    {{ conteo.inactivos }}
+                </strong>
+
+                <small>
+                    Inactivos
+                </small>
+
+            </div>
+
+        </article>
+
+    </section>
+
+    <!-- Búsqueda -->
+    <section class="usuarios-herramientas">
+
+        <div class="usuarios-buscador">
+
+            <i class="bi bi-search"></i>
+
+            <input
+                type="search"
+                id="buscarUsuario"
+                placeholder="Buscar nombre, usuario o correo..."
+                autocomplete="off">
+
+        </div>
+
+        <div class="usuarios-filtros">
+
+            <select
+                id="filtroRol"
+                aria-label="Filtrar por rol">
+
+                <option value="">
+                    Todos los roles
+                </option>
+
+                <option value="Administrador">
+                    Administrador
+                </option>
+
+                <option value="Mantenimiento">
+                    Mantenimiento
+                </option>
+
+                <option value="Visualizador">
+                    Visualizador
+                </option>
+
+            </select>
+
+            <select
+                id="filtroEstado"
+                aria-label="Filtrar por estado">
+
+                <option value="">
+                    Todos
+                </option>
+
+                <option value="1">
+                    Activos
+                </option>
+
+                <option value="0">
+                    Inactivos
+                </option>
+
+            </select>
+
+        </div>
+
+    </section>
+
+    <!-- Resultados -->
+    <div class="usuarios-resultados-header">
+
+        <div>
+
+            <span>
+                Colaboradores
+            </span>
+
+            <h2>
+                Usuarios registrados
+            </h2>
+
+        </div>
+
+        <strong id="cantidadResultados">
+            {{ usuarios|length }}
+        </strong>
+
+    </div>
+
+    <!-- Lista -->
+    <div
+        class="usuarios-lista"
+        id="listaUsuarios">
+
+        {% for usuario in usuarios %}
+
+            {% set avatar = avatares.get(
+                usuario.avatar or "usuario",
+                avatares["usuario"]
+            ) %}
+
+            <article
+                class="usuario-card"
+                data-rol="{{ usuario.rol }}"
+                data-activo="{{ 1 if usuario.activo else 0 }}">
+
+                <div class="usuario-card-superior">
+
+                    <div class="usuario-avatar {{ avatar.clase }}">
+
+                        <i class="bi {{ avatar.icono }}"></i>
+
+                        <span class="usuario-estado-punto
+                            {% if usuario.activo %}
+                                usuario-estado-punto--activo
+                            {% else %}
+                                usuario-estado-punto--inactivo
+                            {% endif %}">
+                        </span>
+
+                    </div>
+
+                    <div class="usuario-identidad">
+
+                        <span>
+                            @{{ usuario.usuario }}
+                        </span>
+
+                        <h3>
+                            {{ usuario.nombre }}
+                        </h3>
+
+                        <p>
+                            <i class="bi bi-envelope"></i>
+                            {{ usuario.correo }}
+                        </p>
+
+                    </div>
+
+                    <a
+                        href="{{ url_for(
+                            'editar_usuario',
+                            id=usuario.id
+                        ) }}"
+                        class="usuario-editar"
+                        aria-label="Editar a {{ usuario.nombre }}">
+
+                        <i class="bi bi-pencil"></i>
+
+                    </a>
+
+                </div>
+
+                <div class="usuario-card-footer">
+
+                    <span class="usuario-rol">
+
+                        <i class="bi bi-shield-check"></i>
+
+                        {{ usuario.rol }}
+
+                    </span>
+
+                    {% if usuario.activo %}
+
+                        <span class="usuario-estado usuario-estado--activo">
+
+                            <i class="bi bi-check-circle-fill"></i>
+                            Activo
+
+                        </span>
+
+                    {% else %}
+
+                        <span class="usuario-estado usuario-estado--inactivo">
+
+                            <i class="bi bi-x-circle-fill"></i>
+                            Inactivo
+
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+                <div class="usuario-card-acciones">
+
+                    <a
+                        href="{{ url_for(
+                            'editar_usuario',
+                            id=usuario.id
+                        ) }}"
+                        class="usuario-accion usuario-accion--editar">
+
+                        <i class="bi bi-sliders"></i>
+                        Administrar usuario
+
+                    </a>
+
+                    {% if usuario.activo %}
+
+                        <a
+                            href="/usuarios/desactivar/{{ usuario.id }}"
+                            class="usuario-accion usuario-accion--desactivar"
+                            onclick="return confirm(
+                                '¿Deseas desactivar este usuario?'
+                            )">
+
+                            <i class="bi bi-person-dash"></i>
+
+                        </a>
+
+                    {% else %}
+
+                        <a
+                            href="/usuarios/reactivar/{{ usuario.id }}"
+                            class="usuario-accion usuario-accion--reactivar"
+                            onclick="return confirm(
+                                '¿Deseas reactivar este usuario?'
+                            )">
+
+                            <i class="bi bi-arrow-clockwise"></i>
+
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            </article>
+
+        {% endfor %}
+
+    </div>
+
+    <!-- Sin coincidencias -->
+    <div
+        class="usuarios-vacio"
+        id="usuariosVacio"
+        hidden>
+
+        <span>
+            <i class="bi bi-search"></i>
+        </span>
+
+        <h3>
+            No encontramos usuarios
+        </h3>
+
+        <p>
+            Cambia la búsqueda o elimina los filtros.
+        </p>
+
+        <button
+            type="button"
+            id="limpiarFiltros">
+
+            Limpiar filtros
+
+        </button>
+
+    </div>
+
+    <!-- Paginación -->
+    <nav
+        class="usuarios-paginacion"
+        id="usuariosPaginacion"
+        aria-label="Paginación de usuarios">
+
+        <button
+            type="button"
+            id="paginaAnterior">
+
+            <i class="bi bi-chevron-left"></i>
+            Anterior
+
+        </button>
+
+        <div>
+
+            <span id="paginaActual">
+                1
+            </span>
+
+            <small>
+                de
+                <span id="totalPaginas">1</span>
+            </small>
+
+        </div>
+
+        <button
+            type="button"
+            id="paginaSiguiente">
+
+            Siguiente
+            <i class="bi bi-chevron-right"></i>
+
+        </button>
+
+    </nav>
+
+    <p
+        class="usuarios-paginacion-resumen"
+        id="resumenPaginacion">
+    </p>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const tarjetas = Array.from(
+        document.querySelectorAll(
+            ".usuario-card"
+        )
+    );
+
+    const buscador =
+        document.getElementById(
+            "buscarUsuario"
+        );
+
+    const filtroRol =
+        document.getElementById(
+            "filtroRol"
+        );
+
+    const filtroEstado =
+        document.getElementById(
+            "filtroEstado"
+        );
+
+    const cantidadResultados =
+        document.getElementById(
+            "cantidadResultados"
+        );
+
+    const contenedorVacio =
+        document.getElementById(
+            "usuariosVacio"
+        );
+
+    const limpiarFiltros =
+        document.getElementById(
+            "limpiarFiltros"
+        );
+
+    const paginacion =
+        document.getElementById(
+            "usuariosPaginacion"
+        );
+
+    const botonAnterior =
+        document.getElementById(
+            "paginaAnterior"
+        );
+
+    const botonSiguiente =
+        document.getElementById(
+            "paginaSiguiente"
+        );
+
+    const paginaActualTexto =
+        document.getElementById(
+            "paginaActual"
+        );
+
+    const totalPaginasTexto =
+        document.getElementById(
+            "totalPaginas"
+        );
+
+    const resumen =
+        document.getElementById(
+            "resumenPaginacion"
+        );
+
+    const ELEMENTOS_POR_PAGINA = 10;
+
+    let tarjetasFiltradas = [...tarjetas];
+    let paginaActual = 1;
+
+    function normalizar(texto) {
+
+        return String(texto || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+
+    }
+
+    function mostrarPagina(numeroPagina) {
+
+        const totalPaginas = Math.max(
+            1,
+            Math.ceil(
+                tarjetasFiltradas.length /
+                ELEMENTOS_POR_PAGINA
+            )
+        );
+
+        paginaActual = Math.min(
+            Math.max(numeroPagina, 1),
+            totalPaginas
+        );
+
+        const inicio =
+            (paginaActual - 1) *
+            ELEMENTOS_POR_PAGINA;
+
+        const final = Math.min(
+            inicio + ELEMENTOS_POR_PAGINA,
+            tarjetasFiltradas.length
+        );
+
+        tarjetas.forEach(function (tarjeta) {
+            tarjeta.hidden = true;
+        });
+
+        tarjetasFiltradas
+            .slice(inicio, final)
+            .forEach(function (tarjeta) {
+                tarjeta.hidden = false;
+            });
+
+        cantidadResultados.textContent =
+            tarjetasFiltradas.length;
+
+        paginaActualTexto.textContent =
+            paginaActual;
+
+        totalPaginasTexto.textContent =
+            totalPaginas;
+
+        botonAnterior.disabled =
+            paginaActual === 1;
+
+        botonSiguiente.disabled =
+            paginaActual === totalPaginas;
+
+        contenedorVacio.hidden =
+            tarjetasFiltradas.length !== 0;
+
+        paginacion.hidden =
+            tarjetasFiltradas.length <=
+            ELEMENTOS_POR_PAGINA;
+
+        if (tarjetasFiltradas.length === 0) {
+
+            resumen.textContent = "";
+
+        } else {
+
+            resumen.textContent =
+                "Mostrando " +
+                (inicio + 1) +
+                "–" +
+                final +
+                " de " +
+                tarjetasFiltradas.length +
+                " usuarios";
+
+        }
+
+    }
+
+    function aplicarFiltros() {
+
+        const busqueda =
+            normalizar(buscador.value);
+
+        const rol =
+            filtroRol.value;
+
+        const estado =
+            filtroEstado.value;
+
+        tarjetasFiltradas =
+            tarjetas.filter(function (tarjeta) {
+
+                const coincideBusqueda =
+                    !busqueda ||
+                    normalizar(
+                        tarjeta.textContent
+                    ).includes(busqueda);
+
+                const coincideRol =
+                    !rol ||
+                    tarjeta.dataset.rol === rol;
+
+                const coincideEstado =
+                    estado === "" ||
+                    tarjeta.dataset.activo === estado;
+
+                return (
+                    coincideBusqueda &&
+                    coincideRol &&
+                    coincideEstado
+                );
+
+            });
+
+        mostrarPagina(1);
+
+    }
+
+    buscador.addEventListener(
+        "input",
+        aplicarFiltros
+    );
+
+    filtroRol.addEventListener(
+        "change",
+        aplicarFiltros
+    );
+
+    filtroEstado.addEventListener(
+        "change",
+        aplicarFiltros
+    );
+
+    limpiarFiltros.addEventListener(
+        "click",
+        function () {
+
+            buscador.value = "";
+            filtroRol.value = "";
+            filtroEstado.value = "";
+
+            aplicarFiltros();
+
+        }
+    );
+
+    botonAnterior.addEventListener(
+        "click",
+        function () {
+
+            mostrarPagina(
+                paginaActual - 1
+            );
+
+        }
+    );
+
+    botonSiguiente.addEventListener(
+        "click",
+        function () {
+
+            mostrarPagina(
+                paginaActual + 1
+            );
+
+        }
+    );
+
+    mostrarPagina(1);
+
+});
+</script>
+
+{% endblock %}

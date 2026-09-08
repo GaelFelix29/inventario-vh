@@ -1,124 +1,535 @@
-
 {% extends "base.html" %}
 
-{% block titulo %}Dashboard | Vital Health{% endblock %}
+{% block titulo %}
+Dashboard | Vital Health
+{% endblock %}
+
+{% block estilos %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/dashboard.css'
+    ) }}">
+
+{% endblock %}
 
 {% block contenido %}
 
-<div class="container-fluid">
+{% set avatares = {
+    "usuario": {
+        "icono": "bi-person-fill",
+        "clase": "avatar-usuario"
+    },
+    "finanzas": {
+        "icono": "bi-graph-up-arrow",
+        "clase": "avatar-finanzas"
+    },
+    "mantenimiento": {
+        "icono": "bi-tools",
+        "clase": "avatar-mantenimiento"
+    },
+    "administracion": {
+        "icono": "bi-briefcase-fill",
+        "clase": "avatar-administracion"
+    },
+    "seguridad": {
+        "icono": "bi-shield-check",
+        "clase": "avatar-seguridad"
+    },
+    "inventario": {
+        "icono": "bi-box-seam-fill",
+        "clase": "avatar-inventario"
+    },
+    "logistica": {
+        "icono": "bi-truck",
+        "clase": "avatar-logistica"
+    },
+    "ejecutivo": {
+        "icono": "bi-person-badge-fill",
+        "clase": "avatar-ejecutivo"
+    }
+} %}
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+{% set avatar_actual = avatares.get(
+    session.get("avatar", "usuario"),
+    avatares["usuario"]
+) %}
+
+<div class="dashboard-moderno">
+
+    <!-- Presentación -->
+    <header class="dashboard-portada">
+
+        <div class="dashboard-portada-contenido">
+
+            <a
+                href="{{ url_for('perfil') }}"
+                class="dashboard-avatar {{ avatar_actual.clase }}"
+                aria-label="Abrir mi perfil">
+
+                <i class="bi {{ avatar_actual.icono }}"></i>
+
+            </a>
+
+            <div class="dashboard-bienvenida">
+
+                <span class="dashboard-etiqueta">
+                    Mi panel
+                </span>
+
+                <h1>
+                    Hola,
+                    {{ session.get("nombre", "Usuario").split()[0] }}
+                    <span>👋</span>
+                </h1>
+
+                <div class="dashboard-rol">
+
+                    <i class="bi bi-shield-check"></i>
+
+                    {{ session.get("rol", "Usuario") }}
+
+                </div>
+
+                <p>
+                    Aquí tienes el panorama más reciente del inventario.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="dashboard-portada-acciones">
+
+            <a
+                href="/"
+                class="dashboard-accion dashboard-accion--clara">
+
+                <i class="bi bi-house-door"></i>
+                Ir al inicio
+
+            </a>
+
+            <a
+                href="/imprimir"
+                class="dashboard-accion dashboard-accion--blanca">
+
+                <i class="bi bi-qr-code"></i>
+                Generar etiquetas
+
+            </a>
+
+        </div>
+
+    </header>
+
+    <!-- Encabezado de sección -->
+    <div class="dashboard-seccion-titulo">
 
         <div>
-            <h2 class="fw-bold mb-1">Dashboard</h2>
-            <p class="text-muted mb-0">
-                Bienvenido de nuevo,
-                <strong>{{ session["nombre"] }}</strong> 👋
+
+            <span>Resumen general</span>
+
+            <h2>
+                Estado del inventario
+            </h2>
+
+        </div>
+
+        <small>
+
+            <i class="bi bi-clock"></i>
+            Información actualizada
+
+        </small>
+
+    </div>
+
+    <!-- Indicadores -->
+    <section class="dashboard-kpis">
+
+        <article class="dashboard-kpi dashboard-kpi--verde">
+
+            <div class="dashboard-kpi-superior">
+
+                <div class="dashboard-kpi-icono">
+                    <i class="bi bi-box-seam-fill"></i>
+                </div>
+
+                <span class="dashboard-kpi-tendencia">
+                    Inventario
+                </span>
+
+            </div>
+
+            <span class="dashboard-kpi-label">
+                Total de activos
+            </span>
+
+            <strong id="totalActivos">
+                0
+            </strong>
+
+            <p>
+                Equipos registrados en el sistema
             </p>
-        </div>
 
-        <div class="mt-3 mt-md-0">
-            <a href="/" class="btn btn-outline-success rounded-pill px-4">
-                <i class="bi bi-house-door"></i> Inicio
+        </article>
+
+        <article class="dashboard-kpi dashboard-kpi--azul">
+
+            <div class="dashboard-kpi-superior">
+
+                <div class="dashboard-kpi-icono">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+
+                <span class="dashboard-kpi-tendencia">
+                    Disponibles
+                </span>
+
+            </div>
+
+            <span class="dashboard-kpi-label">
+                Activos en servicio
+            </span>
+
+            <strong id="activos">
+                0
+            </strong>
+
+            <p>
+                Equipos disponibles actualmente
+            </p>
+
+        </article>
+
+        <article class="dashboard-kpi dashboard-kpi--rojo">
+
+            <div class="dashboard-kpi-superior">
+
+                <div class="dashboard-kpi-icono">
+                    <i class="bi bi-x-circle-fill"></i>
+                </div>
+
+                <span class="dashboard-kpi-tendencia">
+                    Fuera de servicio
+                </span>
+
+            </div>
+
+            <span class="dashboard-kpi-label">
+                Activos dados de baja
+            </span>
+
+            <strong id="bajas">
+                0
+            </strong>
+
+            <p>
+                Equipos retirados del inventario activo
+            </p>
+
+        </article>
+
+        <article class="dashboard-kpi dashboard-kpi--dorado">
+
+            <div class="dashboard-kpi-superior">
+
+                <div class="dashboard-kpi-icono">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+
+                <span class="dashboard-kpi-tendencia">
+                    MXN
+                </span>
+
+            </div>
+
+            <span class="dashboard-kpi-label">
+                Valor del inventario
+            </span>
+
+            <strong
+                id="valor"
+                class="dashboard-kpi-valor">
+
+                $0
+
+            </strong>
+
+            <p>
+                Valor registrado en pesos mexicanos
+            </p>
+
+        </article>
+
+    </section>
+
+    <!-- Gráficas principales -->
+    <section class="dashboard-graficas-grid">
+
+        <article class="dashboard-grafica-card">
+
+            <header class="dashboard-grafica-header">
+
+                <div class="dashboard-grafica-titulo">
+
+                    <span class="dashboard-grafica-icono">
+                        <i class="bi bi-globe-americas"></i>
+                    </span>
+
+                    <div>
+
+                        <small>Distribución</small>
+
+                        <h3>
+                            Activos por origen
+                        </h3>
+
+                    </div>
+
+                </div>
+
+                <span class="dashboard-grafica-badge">
+                    Origen
+                </span>
+
+            </header>
+
+            <div class="dashboard-grafica dashboard-grafica--circular">
+
+                <canvas id="graficaOrigen"></canvas>
+
+            </div>
+
+        </article>
+
+        <article class="dashboard-grafica-card">
+
+            <header class="dashboard-grafica-header">
+
+                <div class="dashboard-grafica-titulo">
+
+                    <span class="dashboard-grafica-icono">
+                        <i class="bi bi-file-earmark-check"></i>
+                    </span>
+
+                    <div>
+
+                        <small>Seguimiento</small>
+
+                        <h3>
+                            Estado documental
+                        </h3>
+
+                    </div>
+
+                </div>
+
+                <span class="dashboard-grafica-badge">
+                    Expedientes
+                </span>
+
+            </header>
+
+            <div class="dashboard-grafica">
+
+                <canvas id="graficaEstado"></canvas>
+
+            </div>
+
+        </article>
+
+    </section>
+
+    <!-- Top maquinarias -->
+    <section class="dashboard-grafica-card dashboard-grafica-card--ancha">
+
+        <header class="dashboard-grafica-header">
+
+            <div class="dashboard-grafica-titulo">
+
+                <span class="dashboard-grafica-icono">
+                    <i class="bi bi-bar-chart-fill"></i>
+                </span>
+
+                <div>
+
+                    <small>Análisis</small>
+
+                    <h3>
+                        Top 10 maquinarias
+                    </h3>
+
+                    <p>
+                        Maquinarias con mayor presencia en el inventario.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <a
+                href="/maquinarias"
+                class="dashboard-ver-detalle">
+
+                Ver maquinaria
+                <i class="bi bi-arrow-right"></i>
+
             </a>
 
-            <a href="/imprimir" class="btn btn-success rounded-pill px-4 ms-2">
-                <i class="bi bi-qr-code"></i> Etiquetas
-            </a>
-        </div>
+        </header>
 
-    </div>
+        <div class="dashboard-grafica dashboard-grafica--horizontal">
 
-    <div class="row g-4 mb-5">
-
-        <div class="col-xl-3 col-md-6">
-            <div class="card dashboard-card h-100">
-                <div class="card-body">
-                    <div class="dashboard-icon bg-success-subtle text-success">
-                        <i class="bi bi-box-seam-fill"></i>
-                    </div>
-                    <small class="text-uppercase text-muted">Total Activos</small>
-                    <h2 id="totalActivos">0</h2>
-                    <span class="text-muted">Inventario registrado</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-            <div class="card dashboard-card h-100">
-                <div class="card-body">
-                    <div class="dashboard-icon bg-primary-subtle text-primary">
-                        <i class="bi bi-check-circle-fill"></i>
-                    </div>
-                    <small class="text-uppercase text-muted">Activos</small>
-                    <h2 id="activos">0</h2>
-                    <span class="text-muted">Disponibles</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-            <div class="card dashboard-card h-100">
-                <div class="card-body">
-                    <div class="dashboard-icon bg-danger-subtle text-danger">
-                        <i class="bi bi-x-circle-fill"></i>
-                    </div>
-                    <small class="text-uppercase text-muted">Bajas</small>
-                    <h2 id="bajas">0</h2>
-                    <span class="text-muted">Fuera de servicio</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-            <div class="card dashboard-card h-100">
-                <div class="card-body">
-                    <div class="dashboard-icon bg-warning-subtle text-warning">
-                        <i class="bi bi-cash-stack"></i>
-                    </div>
-                    <small class="text-uppercase text-muted">Valor Inventario</small>
-                    <h2 id="valor">$0</h2>
-                    <span class="text-muted">Pesos Mexicanos</span>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="card dashboard-card mb-4">
-        <div class="card-header bg-white border-0">
-            <h5 class="fw-bold mb-0">Análisis del Inventario</h5>
-        </div>
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-lg-6">
-                    <h6 class="fw-bold mb-3">🌎 Origen</h6>
-                    <canvas id="graficaOrigen"></canvas>
-                </div>
-                <div class="col-lg-6">
-                    <h6 class="fw-bold mb-3">📄 Estado de Documentación</h6>
-                    <canvas id="graficaEstado"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card dashboard-card mb-4">
-        <div class="card-header bg-white border-0">
-            <h5 class="fw-bold mb-0">🏆 Top 10 Maquinarias</h5>
-        </div>
-        <div class="card-body">
             <canvas id="graficaTop"></canvas>
-        </div>
-    </div>
 
-    <div class="card dashboard-card">
-        <div class="card-header bg-white border-0">
-            <h5 class="fw-bold mb-0">💰 Valor por Origen</h5>
         </div>
-        <div class="card-body">
-            <canvas id="graficaValorOrigen"></canvas>
+
+    </section>
+
+    <!-- Valor y accesos -->
+    <section class="dashboard-inferior-grid">
+
+        <article class="dashboard-grafica-card">
+
+            <header class="dashboard-grafica-header">
+
+                <div class="dashboard-grafica-titulo">
+
+                    <span class="dashboard-grafica-icono">
+                        <i class="bi bi-pie-chart-fill"></i>
+                    </span>
+
+                    <div>
+
+                        <small>Valor patrimonial</small>
+
+                        <h3>
+                            Valor por origen
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+            <div class="dashboard-grafica dashboard-grafica--circular">
+
+                <canvas id="graficaValorOrigen"></canvas>
+
+            </div>
+
+        </article>
+
+        <article class="dashboard-accesos">
+
+            <header>
+
+                <small>Herramientas</small>
+
+                <h3>
+                    Acciones rápidas
+                </h3>
+
+                <p>
+                    Accede a las funciones principales del sistema.
+                </p>
+
+            </header>
+
+            <div class="dashboard-accesos-grid">
+
+                <a href="/" class="dashboard-acceso">
+
+                    <span>
+                        <i class="bi bi-search"></i>
+                    </span>
+
+                    <div>
+                        <strong>Buscar activo</strong>
+                        <small>Consulta el inventario</small>
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+                <a href="/imprimir" class="dashboard-acceso">
+
+                    <span>
+                        <i class="bi bi-qr-code"></i>
+                    </span>
+
+                    <div>
+                        <strong>Etiquetas QR</strong>
+                        <small>Genera e imprime códigos</small>
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+                <a href="/actividad" class="dashboard-acceso">
+
+                    <span>
+                        <i class="bi bi-activity"></i>
+                    </span>
+
+                    <div>
+                        <strong>Actividad</strong>
+                        <small>Consulta los movimientos</small>
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+                <a href="/perfil" class="dashboard-acceso">
+
+                    <span>
+                        <i class="bi bi-person-circle"></i>
+                    </span>
+
+                    <div>
+                        <strong>Mi perfil</strong>
+                        <small>Personaliza tu cuenta</small>
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+            </div>
+
+        </article>
+
+    </section>
+
+    <!-- Mensaje de error -->
+    <div
+        class="dashboard-error"
+        id="dashboardError"
+        hidden>
+
+        <i class="bi bi-exclamation-triangle-fill"></i>
+
+        <div>
+
+            <strong>
+                No fue posible cargar el dashboard
+            </strong>
+
+            <span>
+                Actualiza la página o inténtalo nuevamente.
+            </span>
+
         </div>
+
     </div>
 
 </div>
@@ -126,6 +537,12 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+<script src="{{ url_for(
+    'static',
+    filename='js/dashboard.js'
+) }}"></script>
+
 {% endblock %}

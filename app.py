@@ -10,6 +10,8 @@ from flask import (
     make_response,
 )
 
+from uuid import uuid4
+
 from database.dashboard import obtener_kpis_dashboard, obtener_actividad_dashboard
 
 from utils.responsive import render_responsive
@@ -882,6 +884,22 @@ def usuarios():
     lista = obtener_usuarios()
 
     return render_template("usuarios.html", usuarios=lista)
+
+# ==========================================================
+# USUARIOS MÓVIL
+# ==========================================================
+
+@app.route("/m/usuarios")
+@admin_required
+def usuarios_mobile():
+
+    lista = obtener_usuarios()
+
+    return render_template(
+        "maquinaria_qr/usuarios_mobile.html",
+        usuarios=lista,
+        pagina="usuarios"
+    )
 
 
 # ==========================================================
@@ -3464,81 +3482,324 @@ def qr_evidencias(id_activo):
     )
 
 
-@app.route("/qr/<id_activo>/evidencias", methods=["POST"])
+@app.route(
+    "/qr/<id_activo>/evidencias",
+    methods=["POST"]
+)
 @login_required
 def subir_evidencia(id_activo):
 
     if session.get("rol") != "Administrador":
 
-        flash("No tiene permisos para subir evidencias.", "danger")
+        flash(
+            "No tiene permisos para subir evidencias.",
+            "danger"
+        )
 
-        return redirect(url_for("qr_evidencias", id_activo=id_activo))
+        return redirect(
+            url_for(
+                "qr_evidencias",
+                id_activo=id_activo
+            )
+        )
 
-    archivo = request.files.get("documento")
+    # Recibe tanto las fotografías de cámara
+    # como las seleccionadas desde la galería.
+    archivos = request.files.getlist("documentos")
 
-    if not archivo or archivo.filename == "":
+    archivos = [
+        archivo
+        for archivo in archivos
+        if archivo and archivo.filename
+    ]
 
-        flash("Seleccione una imagen.", "warning")
+    if not archivos:
 
-        return redirect(url_for("qr_evidencias", id_activo=id_activo))
+        flash(
+            "Seleccione al menos una imagen.",
+            "warning"
+        )
 
-    try:
+        return redirect(
+            url_for(
+                "qr_evidencias",
+                id_activo=id_activo
+            )
+        )
+
+    # Máximo de imágenes por envío.
+    if len(archivos) > 10:
+
+        flash(
+            "Puede subir un máximo de 10 imágenes por envío.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "qr_evidencias",
+                id_activo=id_activo
+            )
+        )
+
+    extensiones_permitidas = {
+        "jpg",
+        "jpeg",
+        "png",
+        "webp"
+    }
+
+    tamanio_maximo = 8 * 1024 * 1024
+
+    archivos_preparados = []
+
+    # ==========================================
+    # VALIDAR TODAS LAS IMÁGENES
+    # ==========================================
+
+    for archivo in archivos:
 
         nombre_original = archivo.filename
 
-        nombre_seguro = secure_filename(nombre_original)
+        nombre_seguro = secure_filename(
+            nombre_original
+        )
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        if not nombre_seguro:
 
-        nombre_archivo = f"{id_activo}_{timestamp}_{nombre_seguro}"
+            flash(
+                "Una de las imágenes no tiene "
+                "un nombre válido.",
+                "warning"
+            )
+
+            return redirect(
+                url_for(
+                    "qr_evidencias",
+                    id_activo=id_activo
+                )
+            )
+
+        if "." not in nombre_seguro:
+
+            flash(
+                f"El archivo {nombre_original} "
+                "no tiene una extensión válida.",
+                "warning"
+            )
+
+            return redirect(
+                url_for(
+                    "qr_evidencias",
+                    id_activo=id_activo
+                )
+            )
+
+        extension = (
+            nombre_seguro
+            .rsplit(".", 1)[1]
+            .lower()
+        )
+
+        if extension not in extensiones_permitidas:
+
+            flash(
+                f"El archivo {nombre_original} no es "
+                "una imagen JPG, PNG o WEBP.",
+                "warning"
+            )
+
+            return redirect(
+                url_for(
+                    "qr_evidencias",
+                    id_activo=id_activo
+                )
+            )
+
+        if not (
+            archivo.content_type
+            and archivo.content_type.startswith("image/")
+        ):
+
+            flash(
+                f"El archivo {nombre_original} "
+                "no fue reconocido como imagen.",
+                "warning"
+            )
+
+            return redirect(
+                url_for(
+                    "qr_evidencias",
+                    id_activo=id_activo
+                )
+            )
 
         archivo_bytes = archivo.read()
 
-        ruta = f"{id_activo}/{nombre_archivo}"
+        if not archivo_bytes:
 
-        supabase.storage.from_("documentos").upload(
-            path=ruta,
-            file=archivo_bytes,
-            file_options={"content-type": archivo.content_type, "upsert": False},
+            flash(
+                f"El archivo {nombre_original} está vacío.",
+                "warning"
+            )
+
+            return redirect(
+                url_for(
+                    "qr_evidencias",
+                    id_activo=id_activo
+                )
+            )
+
+        if len(archivo_bytes) > tamanio_maximo:
+
+            flash(
+                f"La imagen {nombre_original} supera "
+                "el límite de 8 MB.",
+                "warning"
+            )
+
+            return redirect(
+                url_for(
+                    "qr_evidencias",
+                    id_activo=id_activo
+                )
+            )
+
+        identificador = uuid4().hex
+
+        nombre_archivo = (
+            f"{id_activo}_"
+            f"{identificador}_"
+            f"{nombre_seguro}"
         )
 
-        url_publica = supabase.storage.from_("documentos").get_public_url(ruta)
+        ruta = (
+            f"{id_activo}/"
+            f"{nombre_archivo}"
+        )
 
-        if isinstance(url_publica, dict):
+        archivos_preparados.append({
+            "nombre_original": nombre_original,
+            "nombre_archivo": nombre_archivo,
+            "contenido": archivo_bytes,
+            "content_type": archivo.content_type,
+            "ruta": ruta
+        })
 
-            url_guardar = url_publica.get("publicUrl") or url_publica.get("public_url")
+    # ==========================================
+    # SUBIR Y REGISTRAR LAS IMÁGENES
+    # ==========================================
+
+    cantidad_guardada = 0
+
+    try:
+
+        for imagen in archivos_preparados:
+
+            supabase.storage.from_(
+                "documentos"
+            ).upload(
+                path=imagen["ruta"],
+                file=imagen["contenido"],
+                file_options={
+                    "content-type": imagen["content_type"],
+                    "upsert": False
+                }
+            )
+
+            url_publica = (
+                supabase.storage
+                .from_("documentos")
+                .get_public_url(
+                    imagen["ruta"]
+                )
+            )
+
+            if isinstance(url_publica, dict):
+
+                url_guardar = (
+                    url_publica.get("publicUrl")
+                    or url_publica.get("public_url")
+                )
+
+            else:
+
+                url_guardar = url_publica
+
+            if not url_guardar:
+
+                raise ValueError(
+                    "No fue posible obtener la URL "
+                    "de una evidencia."
+                )
+
+            guardar_documento_bd(
+                id_activo=id_activo,
+                nombre_original=imagen["nombre_original"],
+                nombre_archivo=imagen["nombre_archivo"],
+                tipo="General",
+                tipo_archivo="IMAGEN",
+                descripcion=None,
+                url=url_guardar,
+                public_id=imagen["ruta"],
+                usuario=session["nombre"],
+            )
+
+            registrar_movimiento(
+                usuario=session["nombre"],
+                accion=(
+                    "Subió evidencia: "
+                    + imagen["nombre_original"]
+                ),
+                modulo="Evidencias",
+                referencia=id_activo,
+            )
+
+            cantidad_guardada += 1
+
+        if cantidad_guardada == 1:
+
+            flash(
+                "Evidencia guardada correctamente.",
+                "success"
+            )
 
         else:
 
-            url_guardar = url_publica
+            flash(
+                f"{cantidad_guardada} evidencias "
+                "guardadas correctamente.",
+                "success"
+            )
 
-        guardar_documento_bd(
-            id_activo=id_activo,
-            nombre_original=nombre_original,
-            nombre_archivo=nombre_archivo,
-            tipo="General",
-            tipo_archivo="IMAGEN",
-            descripcion=None,
-            url=url_guardar,
-            public_id=ruta,
-            usuario=session["nombre"],
+    except Exception as error:
+
+        print(
+            "ERROR SUBIENDO EVIDENCIAS:",
+            error
         )
 
-        registrar_movimiento(
-            usuario=session["nombre"],
-            accion=f"Subió evidencia: {nombre_original}",
-            modulo="Evidencias",
-            referencia=id_activo,
+        if cantidad_guardada:
+
+            flash(
+                f"Se guardaron {cantidad_guardada} imágenes, "
+                "pero ocurrió un error con las restantes.",
+                "warning"
+            )
+
+        else:
+
+            flash(
+                "No fue posible guardar las evidencias.",
+                "danger"
+            )
+
+    return redirect(
+        url_for(
+            "qr_evidencias",
+            id_activo=id_activo
         )
-
-        flash("Evidencia guardada correctamente.", "success")
-
-    except Exception as e:
-
-        flash(str(e), "danger")
-
-    return redirect(url_for("qr_evidencias", id_activo=id_activo))
-
+    )
 
 @app.route("/evidencias/<int:id>/eliminar")
 @login_required

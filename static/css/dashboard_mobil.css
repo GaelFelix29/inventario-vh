@@ -191,7 +191,6 @@ body {
 }
 
 .inicio-bienvenida__icono {
-
     display: grid;
     place-items: center;
     width: 52px;
@@ -202,7 +201,6 @@ body {
     background: linear-gradient(145deg, #25a96c, #138451);
     border-radius: 16px;
     box-shadow: 0 7px 15px rgba(25, 135, 84, .22);
-
 }
 
 .inicio-bienvenida__contenido {
@@ -752,4 +750,36 @@ body {
 
     background: rgba(255, 255, 255, .05);
 
+}
+
+.inicio-bienvenida__icono.avatar-usuario {
+    background: linear-gradient(145deg, #25a96c, #138451);
+}
+
+.inicio-bienvenida__icono.avatar-finanzas {
+    background: linear-gradient(145deg, #5b8cff, #3466df);
+}
+
+.inicio-bienvenida__icono.avatar-mantenimiento {
+    background: linear-gradient(145deg, #ffad42, #df7c16);
+}
+
+.inicio-bienvenida__icono.avatar-administracion {
+    background: linear-gradient(145deg, #8c6ff7, #6444d8);
+}
+
+.inicio-bienvenida__icono.avatar-seguridad {
+    background: linear-gradient(145deg, #ef6672, #c83d4b);
+}
+
+.inicio-bienvenida__icono.avatar-inventario {
+    background: linear-gradient(145deg, #23b7ad, #11877f);
+}
+
+.inicio-bienvenida__icono.avatar-logistica {
+    background: linear-gradient(145deg, #24a7d8, #1678aa);
+}
+
+.inicio-bienvenida__icono.avatar-ejecutivo {
+    background: linear-gradient(145deg, #687581, #3d4852);
 }

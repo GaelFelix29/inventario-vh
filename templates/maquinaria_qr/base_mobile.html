@@ -84,12 +84,11 @@
             Aduanas
         </a>
 
-        {% if session.get("rol")=="Administrador" %}
+        {% if session.get("rol") == "Administrador" %}
 
-        <a href="/usuarios">
+        <a href="{{ url_for('usuarios_mobile') }}" class="{% if pagina == 'usuarios' %}active{% endif %}">
 
-            <i class="bi bi-people"></i>
-
+            <i class="bi bi-people-fill"></i>
             Usuarios
 
         </a>

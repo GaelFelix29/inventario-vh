@@ -1,248 +1,390 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", async function () {
 
-    const respuesta = await fetch("/dashboard/datos");
+    const errorDashboard =
+        document.getElementById("dashboardError");
 
-    const datos = await respuesta.json();
+    function establecerTexto(id, valor) {
 
-    // ==============================
-    // TARJETAS
-    // ==============================
+        const elemento =
+            document.getElementById(id);
 
-    document.getElementById("totalActivos").textContent =
-        datos.kpi.total.toLocaleString();
+        if (elemento) {
+            elemento.textContent = valor;
+        }
 
-    document.getElementById("activos").textContent =
-        datos.kpi.activos.toLocaleString();
+    }
 
-    document.getElementById("bajas").textContent =
-        datos.kpi.bajas.toLocaleString();
+    function formatearNumero(valor) {
 
-    document.getElementById("valor").textContent =
-        "$ " + datos.kpi.valor.toLocaleString();
+        return Number(valor || 0).toLocaleString(
+            "es-MX"
+        );
 
-    // ==============================
-    // ORIGEN
-    // ==============================
+    }
 
-    new Chart(
-        document.getElementById("graficaOrigen"),
-        {
+    function formatearMoneda(valor) {
 
-            type:"pie",
-
-            data:{
-
-                labels:datos.origen.labels,
-
-                datasets:[{
-
-                    data:datos.origen.values,
-
-                    backgroundColor:[
-                        "#198754",
-                        "#0dcaf0",
-                        "#ffc107",
-                        "#dc3545",
-                        "#6f42c1",
-                        "#fd7e14",
-                        "#20c997"
-                    ]
-
-                }]
-
-            },
-
-            options:{
-
-                responsive:true,
-
-                plugins:{
-
-                    legend:{
-
-                        position:"bottom"
-
-                    }
-
-                }
-
+        return new Intl.NumberFormat(
+            "es-MX",
+            {
+                style: "currency",
+                currency: "MXN",
+                maximumFractionDigits: 0
             }
+        ).format(
+            Number(valor || 0)
+        );
+
+    }
+
+    function opcionesGenerales() {
+
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 800
+            },
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: "circle",
+                        padding: 18,
+                        color: "#607068",
+                        font: {
+                            size: 11,
+                            weight: "600"
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: "#173c2a",
+                    padding: 12,
+                    cornerRadius: 10,
+                    titleFont: {
+                        size: 12,
+                        weight: "700"
+                    },
+                    bodyFont: {
+                        size: 11
+                    }
+                }
+            }
+        };
+
+    }
+
+    try {
+
+        const respuesta = await fetch(
+            "/dashboard/datos",
+            {
+                headers: {
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                "No fue posible consultar el dashboard."
+            );
 
         }
 
-    );
+        const datos = await respuesta.json();
 
-    // ==============================
-    // DOCUMENTACION
-    // ==============================
+        // ======================================
+        // INDICADORES
+        // ======================================
 
-    new Chart(
-        document.getElementById("graficaEstado"),
-        {
+        establecerTexto(
+            "totalActivos",
+            formatearNumero(datos.kpi.total)
+        );
 
-            type:"bar",
+        establecerTexto(
+            "activos",
+            formatearNumero(datos.kpi.activos)
+        );
 
-            data:{
+        establecerTexto(
+            "bajas",
+            formatearNumero(datos.kpi.bajas)
+        );
 
-                labels:datos.documentacion.labels,
+        establecerTexto(
+            "valor",
+            formatearMoneda(datos.kpi.valor)
+        );
 
-                datasets:[{
+        // ======================================
+        // GRÁFICA POR ORIGEN
+        // ======================================
 
-                    label:"Documentación",
+        const opcionesOrigen =
+            opcionesGenerales();
 
-                    data:datos.documentacion.values,
+        opcionesOrigen.cutout = "62%";
 
-                    backgroundColor:"#198754"
+        new Chart(
+            document.getElementById("graficaOrigen"),
+            {
+                type: "doughnut",
 
-                }]
+                data: {
+                    labels:
+                        datos.origen.labels,
 
-            },
+                    datasets: [{
+                        data:
+                            datos.origen.values,
 
-            options:{
+                        backgroundColor: [
+                            "#15945a",
+                            "#32a9d6",
+                            "#f2b638",
+                            "#e65460",
+                            "#8a5bd1",
+                            "#f1843d",
+                            "#21b4a4",
+                            "#465f54"
+                        ],
 
-                responsive:true,
-
-                plugins:{
-
-                    legend:{
-
-                        display:false
-
-                    }
-
-                }
-
-            }
-
-        }
-
-    );
-
-        // ==============================
-    // TOP 10 MAQUINARIAS
-    // ==============================
-
-    new Chart(
-        document.getElementById("graficaTop"),
-        {
-
-            type:"bar",
-
-            data:{
-
-                labels:datos.top.labels,
-
-                datasets:[{
-
-                    label:"Cantidad",
-
-                    data:datos.top.values,
-
-                    backgroundColor:"#0d6efd",
-
-                    borderRadius:8
-
-                }]
-
-            },
-
-            options:{
-
-                indexAxis:"y",
-
-                responsive:true,
-
-                plugins:{
-
-                    legend:{
-                        display:false
-                    }
-
+                        borderColor: "#ffffff",
+                        borderWidth: 4,
+                        hoverOffset: 7
+                    }]
                 },
 
-                scales:{
-
-                    x:{
-                        beginAtZero:true
-                    }
-
-                }
-
+                options: opcionesOrigen
             }
+        );
 
-        }
+        // ======================================
+        // ESTADO DOCUMENTAL
+        // ======================================
 
-    );
+        const opcionesEstado =
+            opcionesGenerales();
 
-    // ==============================
-    // VALOR POR ORIGEN
-    // ==============================
+        opcionesEstado.plugins.legend.display =
+            false;
 
-    new Chart(
-        document.getElementById("graficaValorOrigen"),
-        {
-
-            type:"doughnut",
-
-            data:{
-
-                labels:datos.valorOrigen.labels,
-
-                datasets:[{
-
-                    data:datos.valorOrigen.values,
-
-                    backgroundColor:[
-
-                        "#198754",
-                        "#0dcaf0",
-                        "#ffc107",
-                        "#dc3545",
-                        "#6f42c1",
-                        "#fd7e14",
-                        "#20c997",
-                        "#6610f2"
-
-                    ]
-
-                }]
-
+        opcionesEstado.scales = {
+            x: {
+                grid: {
+                    display: false
+                },
+                border: {
+                    display: false
+                },
+                ticks: {
+                    color: "#78877f",
+                    font: {
+                        size: 10
+                    }
+                }
             },
-
-            options:{
-
-                responsive:true,
-
-                plugins:{
-
-                    legend:{
-
-                        position:"bottom"
-
-                    }
-
+            y: {
+                beginAtZero: true,
+                border: {
+                    display: false
+                },
+                grid: {
+                    color: "#edf2ef"
+                },
+                ticks: {
+                    precision: 0,
+                    color: "#87948d"
                 }
+            }
+        };
+
+        new Chart(
+            document.getElementById("graficaEstado"),
+            {
+                type: "bar",
+
+                data: {
+                    labels:
+                        datos.documentacion.labels,
+
+                    datasets: [{
+                        label: "Documentación",
+
+                        data:
+                            datos.documentacion.values,
+
+                        backgroundColor: "#16965b",
+                        hoverBackgroundColor: "#0c7f4a",
+                        borderRadius: 9,
+                        borderSkipped: false,
+                        maxBarThickness: 42
+                    }]
+                },
+
+                options: opcionesEstado
+            }
+        );
+
+        // ======================================
+        // TOP 10 MAQUINARIAS
+        // ======================================
+
+        const opcionesTop =
+            opcionesGenerales();
+
+        opcionesTop.indexAxis = "y";
+        opcionesTop.plugins.legend.display =
+            false;
+
+        opcionesTop.scales = {
+            x: {
+                beginAtZero: true,
+                border: {
+                    display: false
+                },
+                grid: {
+                    color: "#edf2ef"
+                },
+                ticks: {
+                    precision: 0,
+                    color: "#87948d"
+                }
+            },
+            y: {
+                border: {
+                    display: false
+                },
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    color: "#53645b",
+                    font: {
+                        size: 10,
+                        weight: "600"
+                    }
+                }
+            }
+        };
+
+        new Chart(
+            document.getElementById("graficaTop"),
+            {
+                type: "bar",
+
+                data: {
+                    labels:
+                        datos.top.labels,
+
+                    datasets: [{
+                        label: "Cantidad",
+
+                        data:
+                            datos.top.values,
+
+                        backgroundColor: [
+                            "#15945a",
+                            "#239f65",
+                            "#31aa70",
+                            "#45b47d",
+                            "#59be89",
+                            "#6dc896",
+                            "#81d1a3",
+                            "#96dab0",
+                            "#abe3bd",
+                            "#c0ebcb"
+                        ],
+
+                        hoverBackgroundColor:
+                            "#087c48",
+
+                        borderRadius: 8,
+                        borderSkipped: false,
+                        maxBarThickness: 28
+                    }]
+                },
+
+                options: opcionesTop
+            }
+        );
+
+        // ======================================
+        // VALOR POR ORIGEN
+        // ======================================
+
+        const opcionesValor =
+            opcionesGenerales();
+
+        opcionesValor.cutout = "65%";
+
+        opcionesValor.plugins.tooltip.callbacks = {
+            label: function (contexto) {
+
+                const valor =
+                    contexto.parsed || 0;
+
+                return (
+                    contexto.label +
+                    ": " +
+                    formatearMoneda(valor)
+                );
 
             }
+        };
 
+        new Chart(
+            document.getElementById(
+                "graficaValorOrigen"
+            ),
+            {
+                type: "doughnut",
+
+                data: {
+                    labels:
+                        datos.valorOrigen.labels,
+
+                    datasets: [{
+                        data:
+                            datos.valorOrigen.values,
+
+                        backgroundColor: [
+                            "#15945a",
+                            "#32a9d6",
+                            "#f2b638",
+                            "#e65460",
+                            "#8a5bd1",
+                            "#f1843d",
+                            "#21b4a4",
+                            "#465f54"
+                        ],
+
+                        borderColor: "#ffffff",
+                        borderWidth: 4,
+                        hoverOffset: 7
+                    }]
+                },
+
+                options: opcionesValor
+            }
+        );
+
+    } catch (error) {
+
+        console.error(
+            "ERROR CARGANDO DASHBOARD:",
+            error
+        );
+
+        if (errorDashboard) {
+            errorDashboard.hidden = false;
         }
 
-    );
-
-    // ==============================
-// TABLA RESUMEN
-// ==============================
-
-document.getElementById("tblTotal").textContent =
-    datos.kpi.total.toLocaleString();
-
-document.getElementById("tblActivos").textContent =
-    datos.kpi.activos.toLocaleString();
-
-document.getElementById("tblBajas").textContent =
-    datos.kpi.bajas.toLocaleString();
-
-document.getElementById("tblValor").textContent =
-    "$ " + datos.kpi.valor.toLocaleString();
+    }
 
 });

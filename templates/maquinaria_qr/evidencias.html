@@ -2,7 +2,10 @@
 
 {% block estilos %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/evidencias.css') }}">
+<link rel="stylesheet" href="{{ url_for(
+        'static',
+        filename='css/evidencias.css'
+    ) }}">
 
 {% endblock %}
 
@@ -10,103 +13,298 @@
 
 <div class="evidencias-page">
 
-    <div class="evidencias-header">
+    <!-- Portada -->
+    <header class="evidencias-portada">
 
-        <div class="icono">
-            <i class="bi bi-images"></i>
+        <button type="button" class="evidencias-volver" onclick="history.back()" aria-label="Regresar">
+
+            <i class="bi bi-arrow-left"></i>
+
+        </button>
+
+        <div class="evidencias-portada-texto">
+
+            <span>
+                Evidencias del activo
+            </span>
+
+            <h1>
+                {{ maquinaria.id_activo }}
+            </h1>
+
+            <p>
+                {{ maquinaria.descripcion }}
+            </p>
+
         </div>
 
-        <h2>Evidencias</h2>
+    </header>
 
-        <span>{{ maquinaria.id_activo }}</span>
+    <!-- Información -->
+    <section class="evidencias-alcance">
 
-        <p>{{ maquinaria.descripcion }}</p>
-
-    </div>
-
-    {% if session.get("rol") == "Administrador" %}
-
-    <form id="formEvidencia" method="POST" enctype="multipart/form-data" action="{{ url_for('subir_evidencia',
-                            id_activo=maquinaria.id_activo) }}">
-
-        <div class="capturar-card">
+        <div class="evidencias-alcance-icono">
 
             <i class="bi bi-camera-fill"></i>
 
-            <h5>Capturar evidencia</h5>
+        </div>
 
-            <p>
+        <div>
 
-                Agrega fotografías para documentar
-                el estado del activo.
+            <strong>
+                Registro fotográfico
+            </strong>
 
-            </p>
-
-            <label class="btn-capturar" for="inputImagen">
-
-                <i class="bi bi-camera-fill"></i>
-
-                Agregar evidencia
-
-            </label>
+            <small>
+                Documenta visualmente el estado actual del activo.
+            </small>
 
         </div>
 
-        <input id="inputImagen" name="documento" type="file" accept="image/*" capture="environment" hidden>
+    </section>
+
+    {% if session.get("rol") == "Administrador" %}
+
+    <form id="formEvidencia" method="POST" enctype="multipart/form-data" action="{{ url_for(
+                'subir_evidencia',
+                id_activo=maquinaria.id_activo
+            ) }}">
+
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- Opciones para agregar -->
+        <section class="capturar-card">
+
+            <div class="capturar-card-header">
+
+                <div class="capturar-card-icono">
+
+                    <i class="bi bi-plus-lg"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        Nueva evidencia
+                    </span>
+
+                    <h2>
+                        Agregar fotografías
+                    </h2>
+
+                    <p>
+                        Selecciona cómo deseas agregar las imágenes.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="evidencias-opciones">
+
+                <label class="evidencia-opcion" for="inputCamara">
+
+                    <span class="evidencia-opcion-icono">
+
+                        <i class="bi bi-camera-fill icono-camara-pequeno"></i>
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Tomar fotografía
+                        </strong>
+
+                        <small>
+                            Utilizar la cámara trasera
+                        </small>
+
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </label>
+
+                <label class="evidencia-opcion" for="inputGaleria">
+
+                    <span class="evidencia-opcion-icono">
+
+                        <i class="bi bi-images"></i>
+
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Elegir de galería
+                        </strong>
+
+                        <small>
+                            Seleccionar una o varias imágenes
+                        </small>
+
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </label>
+
+            </div>
+
+            <div class="evidencias-limite">
+
+                <i class="bi bi-info-circle"></i>
+
+                <span>
+                    Máximo 10 imágenes por envío y 8 MB por imagen.
+                </span>
+
+            </div>
+
+        </section>
+
+        <!-- Cámara -->
+        <input id="inputCamara" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden>
+
+        <!-- Galería -->
+        <input id="inputGaleria" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
+
+        <!-- Archivos enviados al servidor -->
+        <input id="inputDocumentos" name="documentos" type="file" multiple hidden>
+
+        <!-- Vista previa -->
+        <section class="evidencias-seleccion" id="seccionSeleccion" hidden>
+
+            <div class="evidencias-seleccion-header">
+
+                <div>
+
+                    <span>
+                        Antes de guardar
+                    </span>
+
+                    <h3>
+                        Vista previa
+                    </h3>
+
+                </div>
+
+                <strong id="contadorSeleccion">
+                    0 / 10
+                </strong>
+
+            </div>
+
+            <div class="evidencias-preview" id="contenedorPreview">
+            </div>
+
+            <div class="evidencias-envio">
+
+                <button type="button" class="btn-cancelar-evidencias" id="cancelarSeleccion">
+
+                    <i class="bi bi-x-circle"></i>
+                    Cancelar
+
+                </button>
+
+                <button type="submit" class="btn-guardar-evidencias" id="guardarEvidencias">
+
+                    <i class="bi bi-cloud-arrow-up-fill"></i>
+
+                    <span id="textoGuardar">
+                        Guardar evidencias
+                    </span>
+
+                </button>
+
+            </div>
+
+        </section>
 
     </form>
 
     {% endif %}
 
+    <!-- Galería guardada -->
     {% if imagenes %}
+
+    <div class="evidencias-galeria-header">
+
+        <div>
+
+            <span>Historial fotográfico</span>
+
+            <h3>
+                Evidencias guardadas
+            </h3>
+
+        </div>
+
+        <strong>
+            {{ imagenes|length }}
+        </strong>
+
+    </div>
 
     <div class="galeria">
 
         {% for imagen in imagenes %}
 
-        <div class="foto-card">
+        <article class="foto-card">
 
-            <img src="{{ imagen.url }}" class="foto-galeria" onclick="abrirVisor({{ loop.index0 }})">
+            <button type="button" class="foto-abrir" onclick="abrirVisor({{ loop.index0 }})"
+                aria-label="Abrir evidencia">
+
+                <img src="{{ imagen.url }}" class="foto-galeria" alt="Evidencia de {{ maquinaria.id_activo }}"
+                    loading="lazy">
+
+            </button>
 
             <div class="foto-footer">
 
+                <i class="bi bi-calendar3"></i>
+
                 <small>
-
-                    {{ imagen.fecha_subida.strftime("%d/%m/%Y %H:%M") }}
-
+                    {{ imagen.fecha_subida.strftime(
+                    "%d/%m/%Y %H:%M"
+                    ) }}
                 </small>
 
             </div>
 
-        </div>
+        </article>
 
         {% endfor %}
 
     </div>
 
-    <div id="visor" class="visor">
+    <!-- Visor -->
+    <div id="visor" class="visor" role="dialog" aria-modal="true" aria-label="Visor de evidencia">
 
         <div class="visor-header">
 
-            <button type="button" onclick="cerrarVisor()">
-                ✕
+            <button type="button" onclick="cerrarVisor()" aria-label="Cerrar visor">
+
+                <i class="bi bi-x-lg"></i>
+
             </button>
 
             <span id="contador"></span>
 
         </div>
 
-        <button type="button" class="flecha izquierda" onclick="anterior()">
+        <button type="button" class="flecha izquierda" onclick="anterior()" aria-label="Evidencia anterior">
 
-            ❮
+            <i class="bi bi-chevron-left"></i>
 
         </button>
 
-        <img id="imagenGrande" alt="Evidencia">
+        <img id="imagenGrande" alt="Evidencia ampliada">
 
-        <button type="button" class="flecha derecha" onclick="siguiente()">
+        <button type="button" class="flecha derecha" onclick="siguiente()" aria-label="Evidencia siguiente">
 
-            ❯
+            <i class="bi bi-chevron-right"></i>
 
         </button>
 
@@ -129,7 +327,9 @@
 
         <i class="bi bi-image"></i>
 
-        <h4>Sin evidencias</h4>
+        <h4>
+            Sin evidencias
+        </h4>
 
         <p>
             Todavía no existen fotografías
@@ -143,21 +343,26 @@
 </div>
 
 <script>
-
     const imagenes = [
 
         {% for imagen in imagenes %}
-    {
-        id: {{ imagen.id }},
-        url: "{{ imagen.url }}",
-            public_id: "{{ imagen.public_id }}"
-    },
-    {% endfor %}
 
-];
+        {
+            id: {{ imagen.id | int }},
+            url: {{ imagen.url | tojson }},
+            public_id: {{ imagen.public_id | tojson }}
+        }
 
+        {% if not loop.last %},{% endif %}
+
+        {% endfor %}
+
+    ];
 </script>
 
-<script src="{{ url_for('static', filename='js/evidencias.js') }}"></script>
+<script src="{{ url_for(
+    'static',
+    filename='js/evidencias.js'
+) }}"></script>
 
 {% endblock %}

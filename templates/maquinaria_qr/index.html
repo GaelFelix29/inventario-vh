@@ -10,16 +10,57 @@ Inicio
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_mobil.css') }}">
 {% endblock %}
 
+{% set avatares = {
+"usuario": {
+"icono": "bi-person-fill",
+"clase": "avatar-usuario"
+},
+"finanzas": {
+"icono": "bi-graph-up-arrow",
+"clase": "avatar-finanzas"
+},
+"mantenimiento": {
+"icono": "bi-tools",
+"clase": "avatar-mantenimiento"
+},
+"administracion": {
+"icono": "bi-clipboard-data-fill",
+"clase": "avatar-administracion"
+},
+"seguridad": {
+"icono": "bi-shield-lock-fill",
+"clase": "avatar-seguridad"
+},
+"inventario": {
+"icono": "bi-box-seam-fill",
+"clase": "avatar-inventario"
+},
+"logistica": {
+"icono": "bi-truck",
+"clase": "avatar-logistica"
+},
+"ejecutivo": {
+"icono": "bi-briefcase-fill",
+"clase": "avatar-ejecutivo"
+}
+} %}
+
+{% set avatar_seleccionado =
+session.get("avatar", "usuario") | lower
+%}
+
+{% set avatar_actual =
+avatares.get(avatar_seleccionado, avatares["usuario"])
+%}
+
 <div class="container py-4">
 
     <!-- Bienvenida -->
 
-    <a
-    href="{{ url_for('perfil') }}"
-    class="inicio-bienvenida">
+    <a href="{{ url_for('perfil') }}" class="inicio-bienvenida">
 
-        <div class="inicio-bienvenida__icono">
-            <i class="bi bi-person-fill"></i>
+        <div class="inicio-bienvenida__icono {{ avatar_actual.clase }}">
+            <i class="bi {{ avatar_actual.icono }}"></i>
         </div>
 
         <div class="inicio-bienvenida__contenido">
