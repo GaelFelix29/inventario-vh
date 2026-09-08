@@ -2,9 +2,13 @@
 
 {% block titulo %}Expediente del Activo{% endblock %}
 
+{% block estilos %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/expediente_moderno.css') }}">
+{% endblock %}
+
 {% block contenido %}
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 expediente-page">
     <div class="card shadow-lg border-0 rounded-4 mb-4">
 
         <div class="card-body p-4">
@@ -1233,7 +1237,7 @@
 
                         <div class="col-lg-6">
 
-                            <div class="border rounded-4 p-4 h-100">
+                            <div class="border rounded-4 p-4 h-100 accessory-panel accessory-category-panel">
 
                                 <div class="d-flex align-items-start gap-3 mb-3">
 
@@ -1325,7 +1329,7 @@
 
                                         <summary class="text-success fw-bold" style="cursor:pointer;">
                                             <i class="bi bi-plus-circle me-1"></i>
-                                            Crear categoría nueva
+                                            ¿No encuentra la categoría? Agregar nueva
                                         </summary>
 
                                         <form method="POST" action="{{ url_for(
@@ -1378,10 +1382,7 @@
 
                         <div class="col-lg-6">
 
-                            <div class="border rounded-4 p-4 h-100" {% if asignacion_activa %} style="
-        background:#4fd661;
-        border-color:#14914a !important;
-    " {% endif %}>
+                            <div class="border rounded-4 p-4 h-100 accessory-panel accessory-assignment-panel{% if asignacion_activa %} is-assigned{% endif %}">
 
                                 <div class="d-flex align-items-start gap-3 mb-3">
 

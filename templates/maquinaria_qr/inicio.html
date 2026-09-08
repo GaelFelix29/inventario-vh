@@ -409,7 +409,7 @@
                         <details class="gestion-mobile-subpanel">
                             <summary>
                                 <i class="bi bi-plus-circle"></i>
-                                Crear categoría nueva
+                                ¿No encuentra la categoría? Agregar nueva
                             </summary>
 
                             <form method="POST" action="{{ url_for(
@@ -933,8 +933,20 @@
 
             mostrarMensaje("Buscando maquinaria...");
 
+            let terminoBusqueda = texto;
+
+            /*
+             * Interpretar un número escrito solo como código de activo:
+             * 20   -> ACT-0020
+             * 0070 -> ACT-0070
+             */
+            if (/^\d+$/.test(terminoBusqueda)) {
+                terminoBusqueda =
+                    "ACT-" + terminoBusqueda.padStart(4, "0");
+            }
+
             const parametros = new URLSearchParams({
-                q: texto,
+                q: terminoBusqueda,
                 id_accesorio: idAccesorio
             });
 

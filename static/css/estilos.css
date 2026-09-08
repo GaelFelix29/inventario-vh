@@ -245,7 +245,13 @@ body{
 
     max-width: 260px;
 
-    min-height:100vh;
+    height:100vh;
+
+    min-height:0;
+
+    position:sticky;
+
+    top:0;
 
     background:#198754;
 
@@ -307,6 +313,44 @@ body{
 .sidebar-footer{
     margin-top:auto;
     padding-top:25px;
+}
+
+.sidebar-account{
+    flex:0 0 auto;
+}
+
+.sidebar-account .sidebar-footer{
+    padding:16px;
+    background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:16px;
+}
+
+.sidebar-account .sidebar-footer hr{
+    margin:0 0 14px;
+    border-color:rgba(255,255,255,.25);
+    opacity:1;
+}
+
+.sidebar-account .sidebar-footer small{
+    color:rgba(255,255,255,.78);
+}
+
+.sidebar-account .sidebar-footer .sidebar-logout{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    margin:14px 0 0;
+    padding:10px 12px;
+    color:#fff !important;
+    background:rgba(99,24,35,.30);
+    border:1px solid rgba(255,255,255,.20);
+    border-radius:12px;
+}
+
+.sidebar-account .sidebar-footer .sidebar-logout:hover{
+    background:#b83243;
 }
 
 .card{
