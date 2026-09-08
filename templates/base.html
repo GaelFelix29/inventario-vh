@@ -7,6 +7,10 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <script src="{{ url_for('static', filename='js/csrf.js') }}" defer></script>
+
     <title>
 
         {% block titulo %}
@@ -54,19 +58,14 @@
 
         <div class="container-fluid">
 
-            <button class="btn text-white border-0" type="button" data-bs-toggle="offcanvas"
-                data-bs-target="#menuMovil">
-
+            <button class="btn text-white border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuMovil"
+                aria-label="Abrir menú">
                 <i class="bi bi-list fs-2"></i>
-
             </button>
 
             <span class="navbar-brand fw-bold mb-0">
-
                 <i class="bi bi-heart-pulse-fill"></i>
-
                 Vital Health
-
             </span>
 
         </div>
@@ -75,19 +74,22 @@
 
     <div class="d-flex">
 
-        <!-- SIDEBAR -->
+        <!-- ===================================== -->
+        <!-- SIDEBAR DE PC -->
+        <!-- ===================================== -->
 
         <aside class="sidebar d-none d-lg-flex flex-column">
 
-            <h3 class="text-center mb-4">
+            <!-- Logo oficial -->
+            <a href="{{ url_for('inicio') }}" class="sidebar-brand--completo" aria-label="Vital Health - Inicio">
+                <img src="{{ url_for(
+                    'static',
+                    filename='img/logo.png'
+                ) }}" alt="Vital Health">
+            </a>
 
-                <i class="bi bi-heart-pulse-fill"></i>
-
-                VITAL HEALTH
-
-            </h3>
-
-            <a href="/">
+            <!-- Navegación -->
+            <a href="{{ url_for('inicio') }}">
                 <i class="bi bi-house-door"></i>
                 Inicio
             </a>
@@ -107,14 +109,11 @@
                 Maquinaria
             </a>
 
-            {% if session["rol"] == "Administrador" %}
+            {% if session.get("rol") == "Administrador" %}
 
-            <a href="{{ url_for('lista_solicitudes_baja') }}" class="nav-link">
-
+            <a href="{{ url_for('lista_solicitudes_baja') }}">
                 <i class="bi bi-clipboard-check"></i>
-
                 Solicitudes Baja
-
             </a>
 
             {% endif %}
@@ -124,30 +123,31 @@
                 Aduanas
             </a>
 
-            {% if session.get("rol")=="Administrador" %}
+            {% if session.get("rol") == "Administrador" %}
 
             <a href="/usuarios">
-
                 <i class="bi bi-people"></i>
-
                 Usuarios
-
             </a>
 
-            <li class="nav-item">
-
-                <a class="nav-link" href="{{ url_for('vista_respaldos') }}">
-
-                    <i class="bi bi-database-fill-lock"></i>
-
-                    Respaldos
-
-                </a>
-
-            </li>
+            <a href="{{ url_for('vista_respaldos') }}">
+                <i class="bi bi-database-fill-lock"></i>
+                Respaldos
+            </a>
 
             {% endif %}
 
+            <a href="{{ url_for('actividad_sistema') }}">
+                <i class="bi bi-clock-history"></i>
+                Actividad
+            </a>
+
+            <a href="{{ url_for('perfil') }}">
+                <i class="bi bi-person-circle"></i>
+                Mi perfil
+            </a>
+
+            <!-- Usuario -->
             <div class="mt-auto pt-5">
 
                 <div class="sidebar-footer mt-auto">
@@ -353,6 +353,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/maquinaria.css') }}">
+
+    {% block estilos %}
+    {% endblock %}
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 

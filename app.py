@@ -7,16 +7,12 @@ from flask import (
     url_for,
     session,
     flash,
+    make_response,
 )
 
-from database.dashboard import (
-    obtener_kpis_dashboard,
-    obtener_actividad_dashboard
-)
+from database.dashboard import obtener_kpis_dashboard, obtener_actividad_dashboard
 
 from utils.responsive import render_responsive
-
-from datetime import datetime
 
 
 from user_agents import parse
@@ -36,14 +32,18 @@ from flask import jsonify
 from respaldos import BASE_DIR, crear_respaldo
 
 import os
-from datetime import datetime
+import secrets
+import warnings
+from urllib.parse import urljoin, urlparse
+import string
 
 from werkzeug.utils import secure_filename
+from flask_wtf.csrf import CSRFError, CSRFProtect
 from sqlalchemy import text
 from database.conexion import engine
 
 from functools import wraps
-from datetime import date
+from datetime import date, datetime, timedelta
 
 
 from models.auditoria_model import (
@@ -51,7 +51,9 @@ from models.auditoria_model import (
     obtener_historial,
     obtener_historial_activo,
     registrar_activo_reciente,
-    obtener_activos_recientes
+    obtener_activos_recientes,
+    obtener_actividad_filtrada,
+    obtener_actividad_ultimos_7_dias,
 )
 
 from database.documentos import (
@@ -70,7 +72,7 @@ from database.solicitudes_baja import (
     aprobar_solicitud,
     rechazar_solicitud,
     existe_solicitud_pendiente,
-    obtener_traslado_en_proceso
+    obtener_traslado_en_proceso,
 )
 
 import pandas as pd
@@ -93,6 +95,8 @@ from database.usuarios import (
     desactivar_usuario,
     reactivar_usuario,
     verificar_password,
+    actualizar_perfil,
+    establecer_password_temporal
 )
 
 from database.maquinarias import buscar_activos, obtener_maquinarias_mobile
@@ -115,8 +119,23 @@ from database.maquinarias import (
     finalizar_mantenimiento_activo,
     obtener_mantenimiento_en_proceso,
     obtener_maquinarias_mobile_filtrado,
-    obtener_ubicaciones
-    
+    obtener_ubicaciones,
+    obtener_contenido_activo,
+    vincular_contenido_activo,
+    retirar_contenido_activo,
+    iniciar_revision_contenido,
+    finalizar_revision_contenido,
+    obtener_categorias_accesorios,
+    actualizar_categoria_accesorio,
+    asignar_accesorio_maquinaria,
+    liberar_accesorio_maquinaria,
+    obtener_asignacion_activa_accesorio,
+    obtener_accesorios_asignados_maquinaria,
+    obtener_historial_asignaciones_accesorio,
+    crear_categoria_y_clasificar_accesorio,
+    buscar_maquinarias_asignables,
+    reabrir_revision_contenido,
+
 )
 
 from database.aduanas import (
@@ -127,7 +146,7 @@ from database.aduanas import (
     actualizar_aduana,
     estado_expediente_aduanal,
     obtener_origenes,
-    obtener_aduanas_mobile_filtrado
+    obtener_aduanas_mobile_filtrado,
 )
 
 # ==========================================
@@ -136,11 +155,83 @@ from database.aduanas import (
 
 app = Flask(__name__)
 
-app.secret_key = "VitalHealth2026"
+secret_key = os.getenv("SECRET_KEY")
+
+if not secret_key:
+    if os.getenv("RENDER"):
+        raise RuntimeError(
+            "Falta la variable de entorno SECRET_KEY en Render."
+        )
+
+    secret_key = secrets.token_urlsafe(32)
+    warnings.warn(
+        "SECRET_KEY no está configurada; se usará una clave temporal local.",
+        RuntimeWarning,
+    )
+
+app.config.update(
+    SECRET_KEY=secret_key,
+    MAX_CONTENT_LENGTH=10 * 1024 * 1024,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=bool(os.getenv("RENDER")),
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+)
+
+csrf = CSRFProtect(app)
+
+
+@app.errorhandler(CSRFError)
+def manejar_error_csrf(error):
+    """Rechaza solicitudes modificadoras sin un token de sesión válido."""
+
+    if request.accept_mimetypes.best == "application/json":
+        return jsonify({"ok": False, "error": "Solicitud inválida o vencida."}), 400
+
+    flash(
+        "La sesión del formulario venció. Recarga la página e inténtalo nuevamente.",
+        "warning",
+    )
+    return redirect(request.referrer or url_for("inicio"))
+
+
+def es_url_interna(destino):
+    """Permite redirecciones únicamente dentro de esta aplicación."""
+
+    if not destino:
+        return False
+
+    host = urlparse(request.host_url)
+    url_destino = urlparse(urljoin(request.host_url, destino))
+
+    return (
+        url_destino.scheme in ("http", "https")
+        and url_destino.netloc == host.netloc
+    )
+
+
+@app.after_request
+def agregar_encabezados_seguridad(response):
+    """Añade protecciones del navegador sin alterar las vistas existentes."""
+
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = (
+        "camera=(self), microphone=(), geolocation=()"
+    )
+
+    if request.is_secure:
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=31536000; includeSubDomains"
+        )
+
+    return response
 
 # ==========================================
 # DECORADORES
 # ==========================================
+
 
 def es_dispositivo_movil():
 
@@ -150,23 +241,14 @@ def es_dispositivo_movil():
 
     return ua.is_mobile or ua.is_tablet
 
+
 def abrir_activo(id_activo):
 
     if es_dispositivo_movil():
 
-        return redirect(
-            url_for(
-                "maquinaria_qr",
-                id_activo=id_activo
-            )
-        )
+        return redirect(url_for("maquinaria_qr", id_activo=id_activo))
 
-    return redirect(
-        url_for(
-            "expediente_maquinaria",
-            id_activo=id_activo
-        )
-    )
+    return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
 
 @app.route("/prueba")
@@ -181,8 +263,10 @@ def prueba():
     {'CELULAR' if es_dispositivo_movil() else 'COMPUTADORA'}
     """
 
+
 from functools import wraps
 from flask import session, request, redirect, url_for
+
 
 def login_required(func):
 
@@ -203,6 +287,24 @@ def login_required(func):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def roles_required(*roles_permitidos):
+    """Autoriza una operación únicamente a los roles indicados."""
+
+    def decorator(func):
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+
+            if session.get("rol") not in roles_permitidos:
+                abort(403)
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 def admin_required(func):
@@ -228,8 +330,6 @@ def admin_required(func):
 # ==========================================================
 # INICIO
 # ==========================================================
-
-
 @app.route("/")
 @login_required
 def inicio():
@@ -238,39 +338,50 @@ def inicio():
         return render_template("maquinaria_qr/index.html")
 
     return render_template("index.html")
-
 # ==========================================================
 # LOGIN
 # ==========================================================
 
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
-
     if "usuario_id" in session:
+
+        if session.get("debe_cambiar_password", False):
+            return redirect(
+                url_for("cambiar_password_obligatorio")
+            )
 
         next_page = session.pop("next_url", None)
 
-        if next_page:
+        if es_url_interna(next_page):
             return redirect(next_page)
 
         return redirect(url_for("inicio"))
 
     if request.method == "POST":
-
-        usuario = request.form["usuario"]
-        password = request.form["password"]
+        usuario = request.form.get("usuario", "").strip()
+        password = request.form.get("password", "")
 
         datos = obtener_usuario(usuario)
 
-        if datos and verificar_password(password, datos.password):
+        if datos and verificar_password(
+            password,
+            datos.password
+        ):
+            next_page = session.get("next_url")
+
+            session.clear()
+            session.permanent = True
 
             session["usuario_id"] = datos.id
             session["nombre"] = datos.nombre
             session["usuario"] = datos.usuario
             session["rol"] = datos.rol
+            session["avatar"] = datos.avatar or "usuario"
 
-            flash(f"Bienvenido {datos.nombre}", "success")
+            session["debe_cambiar_password"] = bool(
+                datos.debe_cambiar_password
+            )
 
             registrar_movimiento(
                 usuario=session["nombre"],
@@ -278,13 +389,22 @@ def login():
                 modulo="Login"
             )
 
-            # Recuperar la URL original
-            next_page = session.pop("next_url", None)
-            
-            print("NEXT PAGE:", next_page)
+            if session["debe_cambiar_password"]:
+                flash(
+                    "Debes crear una contraseña nueva para continuar.",
+                    "warning"
+                )
 
-            if next_page:
-                session.pop("next_url", None)
+                return redirect(
+                    url_for("cambiar_password_obligatorio")
+                )
+
+            flash(
+                f"Bienvenido {datos.nombre}",
+                "success"
+            )
+
+            if es_url_interna(next_page):
                 return redirect(next_page)
 
             return redirect(url_for("inicio"))
@@ -297,6 +417,168 @@ def login():
     return render_template("login.html")
 
 
+# ==========================================================
+# CAMBIO OBLIGATORIO DE CONTRASEÑA
+# ==========================================================
+
+@app.route(
+    "/cambiar-password-obligatorio",
+    methods=["GET", "POST"]
+)
+def cambiar_password_obligatorio():
+    if "usuario_id" not in session:
+        return redirect(url_for("login"))
+
+    if not session.get(
+        "debe_cambiar_password",
+        False
+    ):
+        return redirect(url_for("inicio"))
+
+    usuario_actual = obtener_usuario_id(
+        session["usuario_id"]
+    )
+
+    if not usuario_actual:
+        session.clear()
+
+        flash(
+            "No fue posible encontrar tu cuenta.",
+            "danger"
+        )
+
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        password_nuevo = request.form.get(
+            "password_nuevo",
+            ""
+        )
+
+        confirmar_password = request.form.get(
+            "confirmar_password",
+            ""
+        )
+
+        if len(password_nuevo) < 10:
+            flash(
+                "La contraseña debe tener al menos "
+                "10 caracteres.",
+                "danger"
+            )
+
+            return render_template(
+                "cambiar_password_obligatorio.html"
+            )
+
+        if password_nuevo != confirmar_password:
+            flash(
+                "Las contraseñas no coinciden.",
+                "danger"
+            )
+
+            return render_template(
+                "cambiar_password_obligatorio.html"
+            )
+
+        # Impide conservar la contraseña temporal
+        if verificar_password(
+            password_nuevo,
+            usuario_actual["password"]
+        ):
+            flash(
+                "La nueva contraseña debe ser diferente "
+                "a la contraseña temporal.",
+                "danger"
+            )
+
+            return render_template(
+                "cambiar_password_obligatorio.html"
+            )
+
+        try:
+            actualizar_password(
+                session["usuario_id"],
+                password_nuevo
+            )
+
+        except ValueError as error:
+            flash(
+                str(error),
+                "danger"
+            )
+
+            return render_template(
+                "cambiar_password_obligatorio.html"
+            )
+
+        session["debe_cambiar_password"] = False
+        session.modified = True
+
+        registrar_movimiento(
+            usuario=session["nombre"],
+            accion=(
+                "Cambió la contraseña temporal "
+                "por una contraseña personal"
+            ),
+            modulo="Seguridad",
+            referencia=str(
+                session["usuario_id"]
+            )
+        )
+
+        flash(
+            "Tu contraseña fue actualizada correctamente.",
+            "success"
+        )
+
+        return redirect(url_for("inicio"))
+
+    return render_template(
+        "cambiar_password_obligatorio.html"
+    )
+
+@app.before_request
+def verificar_cambio_password_obligatorio():
+    rutas_libres = {
+        "static",
+        "login",
+        "logout",
+        "cambiar_password_obligatorio",
+    }
+
+    if request.endpoint in rutas_libres:
+        return None
+
+    if "usuario_id" not in session:
+        return None
+
+    usuario_actual = obtener_usuario_id(
+        session["usuario_id"]
+    )
+
+    if not usuario_actual or not usuario_actual.activo:
+        session.clear()
+
+        flash(
+            "Tu cuenta ya no está disponible.",
+            "warning"
+        )
+
+        return redirect(url_for("login"))
+
+    debe_cambiar = bool(
+        usuario_actual.debe_cambiar_password
+    )
+
+    session["debe_cambiar_password"] = debe_cambiar
+
+    if debe_cambiar:
+        return redirect(
+            url_for("cambiar_password_obligatorio")
+        )
+
+    return None
 # ==========================================================
 # LOGOUT
 # ==========================================================
@@ -321,19 +603,50 @@ def logout():
 # PERFIL
 # ==========================================================
 
-
 @app.route("/perfil")
 @login_required
 def perfil():
 
+    usuario_actual = obtener_usuario_id(
+        session["usuario_id"]
+    )
+
+    if not usuario_actual:
+
+        session.clear()
+
+        flash(
+            "No fue posible encontrar tu cuenta.",
+            "danger"
+        )
+
+        return redirect(url_for("login"))
+
+    avatar_actual = next(
+        (
+            avatar
+            for avatar in AVATARES_PERFIL
+            if avatar["id"] == (
+                usuario_actual["avatar"]
+                or "usuario"
+            )
+        ),
+        AVATARES_PERFIL[0]
+    )
+
+    if es_dispositivo_movil():
+
+        return render_template(
+            "maquinaria_qr/perfil_mobile.html",
+            usuario=usuario_actual,
+            avatar_actual=avatar_actual,
+            pagina="perfil"
+        )
+
     return render_template(
         "perfil.html",
-        usuario={
-            "id": session["usuario_id"],
-            "nombre": session["nombre"],
-            "usuario": session["usuario"],
-            "rol": session["rol"],
-        },
+        usuario=usuario_actual,
+        avatar_actual=avatar_actual
     )
 
 
@@ -341,12 +654,220 @@ def perfil():
 # EDITAR PERFIL
 # ==========================================================
 
+AVATARES_PERFIL = [
+    {
+        "id": "usuario",
+        "nombre": "Clásico",
+        "icono": "bi-person-fill",
+        "clase": "avatar-verde"
+    },
+    {
+        "id": "finanzas",
+        "nombre": "Finanzas",
+        "icono": "bi-graph-up-arrow",
+        "clase": "avatar-azul"
+    },
+    {
+        "id": "mantenimiento",
+        "nombre": "Mantenimiento",
+        "icono": "bi-tools",
+        "clase": "avatar-naranja"
+    },
+    {
+        "id": "administracion",
+        "nombre": "Administración",
+        "icono": "bi-briefcase-fill",
+        "clase": "avatar-morado"
+    },
+    {
+        "id": "seguridad",
+        "nombre": "Seguridad",
+        "icono": "bi-shield-check",
+        "clase": "avatar-rojo"
+    },
+    {
+        "id": "inventario",
+        "nombre": "Inventario",
+        "icono": "bi-box-seam-fill",
+        "clase": "avatar-turquesa"
+    },
+    {
+        "id": "logistica",
+        "nombre": "Logística",
+        "icono": "bi-truck",
+        "clase": "avatar-amarillo"
+    },
+    {
+        "id": "ejecutivo",
+        "nombre": "Ejecutivo",
+        "icono": "bi-person-badge-fill",
+        "clase": "avatar-oscuro"
+    }
+]
 
 @app.route("/perfil/editar", methods=["GET", "POST"])
 @login_required
 def editar_perfil():
 
-    return render_template("editar_perfil.html")
+    usuario_actual = obtener_usuario_id(
+        session["usuario_id"]
+    )
+
+    if not usuario_actual:
+
+        session.clear()
+
+        flash(
+            "No fue posible encontrar tu cuenta.",
+            "danger"
+        )
+
+        return redirect(url_for("login"))
+
+    def mostrar_formulario():
+
+        plantilla_base = (
+            "maquinaria_qr/base_mobile.html"
+            if es_dispositivo_movil()
+            else "base.html"
+        )
+
+        return render_template(
+            "editar_perfil.html",
+            usuario=usuario_actual,
+            avatares=AVATARES_PERFIL,
+            plantilla_base=plantilla_base
+        )
+
+    if request.method == "POST":
+
+        nombre = (
+            request.form.get("nombre") or ""
+        ).strip()
+
+        avatar = (
+            request.form.get("avatar") or "usuario"
+        ).strip().lower()
+
+        password_actual = (
+            request.form.get("password_actual") or ""
+        )
+
+        password_nuevo = (
+            request.form.get("password_nuevo") or ""
+        )
+
+        confirmar_password = (
+            request.form.get("confirmar_password") or ""
+        )
+
+        if not nombre:
+
+            flash(
+                "El nombre es obligatorio.",
+                "warning"
+            )
+
+            return mostrar_formulario()
+
+        if len(nombre) > 150:
+
+            flash(
+                "El nombre es demasiado largo.",
+                "warning"
+            )
+
+            return mostrar_formulario()
+
+        if not verificar_password(
+            password_actual,
+            usuario_actual["password"]
+        ):
+
+            flash(
+                "La contraseña actual no es correcta.",
+                "danger"
+            )
+
+            return mostrar_formulario()
+
+        if password_nuevo:
+
+            if len(password_nuevo) < 10:
+
+                flash(
+                    "La contraseña nueva debe tener "
+                    "al menos 10 caracteres.",
+                    "warning"
+                )
+
+                return mostrar_formulario()
+
+            if password_nuevo != confirmar_password:
+
+                flash(
+                    "Las contraseñas nuevas no coinciden.",
+                    "warning"
+                )
+
+                return mostrar_formulario()
+
+        try:
+
+            actualizar_perfil(
+                id_usuario=session["usuario_id"],
+                nombre=nombre,
+                avatar=avatar
+            )
+
+            if password_nuevo:
+
+                actualizar_password(
+                    session["usuario_id"],
+                    password_nuevo
+                )
+
+        except ValueError as error:
+
+            flash(
+                str(error),
+                "warning"
+            )
+
+            return mostrar_formulario()
+
+        except Exception as error:
+
+            print(
+                "ERROR ACTUALIZANDO PERFIL:",
+                error
+            )
+
+            flash(
+                "No fue posible actualizar el perfil.",
+                "danger"
+            )
+
+            return mostrar_formulario()
+
+        session["nombre"] = nombre
+        session["avatar"] = avatar
+
+        registrar_movimiento(
+            usuario=nombre,
+            accion="Actualizó su perfil",
+            modulo="Usuarios",
+            referencia=str(session["usuario_id"])
+        )
+
+        flash(
+            "Tu perfil fue actualizado correctamente.",
+            "success"
+        )
+
+        return redirect(url_for("perfil"))
+
+    return mostrar_formulario()
 
 
 # ==========================================================
@@ -437,22 +958,88 @@ def editar_usuario(id):
             referencia=str(id),
         )
 
-        if request.form["password"] != "":
-
-            actualizar_password(id, request.form["password"])
-
-        registrar_movimiento(
-            usuario=session["nombre"],
-            accion=f"Cambió la contraseña del usuario: {request.form['usuario']}",
-            modulo="Usuarios",
-            referencia=str(id),
-        )
-
         flash("Usuario actualizado correctamente.", "success")
 
         return redirect(url_for("usuarios"))
 
     return render_template("editar_usuario.html", usuario=usuario)
+
+def generar_password_temporal(longitud=14):
+    caracteres = (
+        string.ascii_letters
+        + string.digits
+        + "!@#$%*-_"
+    )
+
+    password = [
+        secrets.choice(string.ascii_uppercase),
+        secrets.choice(string.ascii_lowercase),
+        secrets.choice(string.digits),
+        secrets.choice("!@#$%*-_"),
+    ]
+
+    password.extend(
+        secrets.choice(caracteres)
+        for _ in range(longitud - len(password))
+    )
+
+    secrets.SystemRandom().shuffle(password)
+
+    return "".join(password)
+
+
+@app.route(
+    "/usuarios/<int:id>/restablecer-password",
+    methods=["POST"]
+)
+@admin_required
+def restablecer_password_usuario(id):
+    usuario = obtener_usuario_id(id)
+
+    if not usuario:
+        flash("Usuario no encontrado.", "danger")
+        return redirect(url_for("usuarios"))
+
+    try:
+        password_temporal = generar_password_temporal()
+
+        establecer_password_temporal(
+            id,
+            password_temporal
+        )
+
+        registrar_movimiento(
+            usuario=session["nombre"],
+            accion=(
+                "Restableció la contraseña del usuario: "
+                f"{usuario.usuario}"
+            ),
+            modulo="Usuarios",
+            referencia=str(id),
+        )
+
+        respuesta = make_response(
+            render_template(
+                "password_temporal.html",
+                usuario=usuario,
+                password_temporal=password_temporal
+            )
+        )
+
+        respuesta.headers["Cache-Control"] = (
+            "no-store, no-cache, must-revalidate, private"
+        )
+        respuesta.headers["Pragma"] = "no-cache"
+        respuesta.headers["Expires"] = "0"
+
+        return respuesta
+
+    except ValueError as error:
+        flash(str(error), "danger")
+        return redirect(
+            url_for("editar_usuario", id=id)
+        )
+
 
 
 # ==========================================================
@@ -478,6 +1065,224 @@ def desactivar(id):
     flash("Usuario desactivado correctamente.", "warning")
 
     return redirect(url_for("usuarios"))
+
+
+# ==========================================================
+# ACTIVIDAD DEL SISTEMA
+# ==========================================================
+
+def mostrar_actividad_sistema(plantilla):
+    rol = session.get("rol")
+    usuario_actual = session.get("nombre")
+
+    modulos_generales = [
+        "Accesorios",
+        "Aduanas",
+        "Documentación",
+        "Evidencias",
+        "Login",
+        "Maquinaria",
+        "Movimientos",
+        "Respaldos",
+        "Seguridad",
+        "Solicitudes",
+        "Usuarios",
+    ]
+
+    if rol == "Administrador":
+        modulos_disponibles = modulos_generales
+
+    elif rol == "Mantenimiento":
+        modulos_disponibles = [
+            "Accesorios",
+            "Maquinaria",
+            "Movimientos",
+            "Solicitudes",
+        ]
+
+    elif rol == "Visualizador":
+        # Puede filtrar sus movimientos,
+        # pero únicamente verá los realizados por él.
+        modulos_disponibles = modulos_generales
+
+    else:
+        flash(
+            "No tienes permiso para consultar la actividad.",
+            "danger"
+        )
+
+        return redirect(url_for("inicio"))
+
+    fecha_desde = (
+        request.args.get("fecha_desde") or ""
+    ).strip()
+
+    fecha_hasta = (
+        request.args.get("fecha_hasta") or ""
+    ).strip()
+
+    hora_desde = (
+        request.args.get("hora_desde") or ""
+    ).strip()
+
+    hora_hasta = (
+        request.args.get("hora_hasta") or ""
+    ).strip()
+
+    modulo = (
+        request.args.get("modulo") or ""
+    ).strip()
+
+    # ======================================
+    # VALIDAR FECHAS
+    # ======================================
+
+    if fecha_desde:
+        try:
+            datetime.strptime(
+                fecha_desde,
+                "%Y-%m-%d"
+            )
+
+        except ValueError:
+            fecha_desde = ""
+
+            flash(
+                "La fecha inicial no es válida.",
+                "warning"
+            )
+
+    if fecha_hasta:
+        try:
+            datetime.strptime(
+                fecha_hasta,
+                "%Y-%m-%d"
+            )
+
+        except ValueError:
+            fecha_hasta = ""
+
+            flash(
+                "La fecha final no es válida.",
+                "warning"
+            )
+
+    if (
+        fecha_desde
+        and fecha_hasta
+        and fecha_desde > fecha_hasta
+    ):
+        flash(
+            "La fecha inicial no puede ser posterior "
+            "a la fecha final.",
+            "warning"
+        )
+
+        fecha_desde = ""
+        fecha_hasta = ""
+
+    # ======================================
+    # VALIDAR HORAS
+    # ======================================
+
+    if hora_desde:
+        try:
+            datetime.strptime(
+                hora_desde,
+                "%H:%M"
+            )
+
+        except ValueError:
+            hora_desde = ""
+
+            flash(
+                "La hora inicial no es válida.",
+                "warning"
+            )
+
+    if hora_hasta:
+        try:
+            datetime.strptime(
+                hora_hasta,
+                "%H:%M"
+            )
+
+        except ValueError:
+            hora_hasta = ""
+
+            flash(
+                "La hora final no es válida.",
+                "warning"
+            )
+
+    if (
+        hora_desde
+        and hora_hasta
+        and hora_desde > hora_hasta
+    ):
+        flash(
+            "La hora inicial no puede ser posterior "
+            "a la hora final.",
+            "warning"
+        )
+
+        hora_desde = ""
+        hora_hasta = ""
+
+    # El módulo debe estar autorizado para el rol.
+    if modulo not in modulos_disponibles:
+        modulo = ""
+
+    actividad = obtener_actividad_filtrada(
+        rol=rol,
+        usuario_actual=usuario_actual,
+        fecha_desde=fecha_desde or None,
+        fecha_hasta=fecha_hasta or None,
+        hora_desde=hora_desde or None,
+        hora_hasta=hora_hasta or None,
+        modulo=modulo or None,
+        limite=100
+    )
+
+    filtros = {
+        "fecha_desde": fecha_desde,
+        "fecha_hasta": fecha_hasta,
+        "hora_desde": hora_desde,
+        "hora_hasta": hora_hasta,
+        "modulo": modulo,
+    }
+
+    return render_template(
+        plantilla,
+        actividad=actividad,
+        filtros=filtros,
+        modulos=modulos_disponibles,
+        pagina="actividad"
+    )
+
+
+# ==========================================================
+# ACTIVIDAD DE ESCRITORIO
+# ==========================================================
+
+@app.route("/actividad")
+@login_required
+def actividad_sistema():
+    return mostrar_actividad_sistema(
+        "actividad_escritorio.html"
+    )
+
+
+# ==========================================================
+# ACTIVIDAD MÓVIL
+# ==========================================================
+
+@app.route("/m/actividad")
+@login_required
+def actividad_sistema_mobile():
+    return mostrar_actividad_sistema(
+        "maquinaria_qr/actividad.html"
+    )
 
 
 # ==========================================================
@@ -534,7 +1339,7 @@ def dashboard_datos():
     bajas = (maq["estado"] == "BAJA").sum()
 
     activos = (maq["estado"] == "ACTIVO").sum()
-    
+
     valor = maq["valor_mx"].fillna(0).sum()
 
     origen = aduana["origen"].fillna("SIN DATO").value_counts()
@@ -614,28 +1419,17 @@ def etiquetas():
         )
 
         qr = qrcode.QRCode(
-
             version=3,
-
             error_correction=qrcode.constants.ERROR_CORRECT_M,
-
             box_size=12,
-
-            border=4
-
+            border=4,
         )
 
         qr.add_data(url)
 
         qr.make(fit=True)
 
-        img = qr.make_image(
-
-            fill_color="black",
-
-            back_color="white"
-
-        )
+        img = qr.make_image(fill_color="black", back_color="white")
 
         buffer = BytesIO()
 
@@ -655,6 +1449,7 @@ def etiquetas():
 
     return render_template("etiquetas.html", etiquetas=etiquetas)
 
+
 @app.route("/fichas", methods=["POST"])
 @login_required
 def fichas():
@@ -672,34 +1467,21 @@ def fichas():
     for _, fila in maquinas.iterrows():
 
         url = url_for(
-            "expediente_maquinaria",
-            id_activo=fila["id_activo"],
-            _external=True
+            "expediente_maquinaria", id_activo=fila["id_activo"], _external=True
         )
 
         qr = qrcode.QRCode(
-
             version=3,
-
             error_correction=qrcode.constants.ERROR_CORRECT_M,
-
             box_size=12,
-
-            border=4
-
+            border=4,
         )
 
         qr.add_data(url)
 
         qr.make(fit=True)
 
-        img = qr.make_image(
-
-            fill_color="black",
-
-            back_color="white"
-
-        )
+        img = qr.make_image(fill_color="black", back_color="white")
 
         buffer = BytesIO()
 
@@ -707,30 +1489,20 @@ def fichas():
 
         qr64 = base64.b64encode(buffer.getvalue()).decode()
 
-        fichas.append({
+        fichas.append(
+            {
+                "codigo": fila["id_activo"],
+                "nombre": fila["descripcion"],
+                "marca": fila["marca"],
+                "modelo": fila["modelo"],
+                "serie": fila["numero_serie"],
+                "estado": "BAJA" if pd.notna(fila["fecha_baja"]) else "ACTIVO",
+                "url": url,
+                "qr": qr64,
+            }
+        )
 
-            "codigo": fila["id_activo"],
-
-            "nombre": fila["descripcion"],
-
-            "marca": fila["marca"],
-
-            "modelo": fila["modelo"],
-
-            "serie": fila["numero_serie"],
-
-            "estado": "BAJA" if pd.notna(fila["fecha_baja"]) else "ACTIVO",
-
-            "url": url,
-
-            "qr": qr64
-
-        })
-
-    return render_template(
-        "fichas.html",
-        fichas=fichas
-    )
+    return render_template("fichas.html", fichas=fichas)
 
 
 @app.route("/maquinarias")
@@ -753,6 +1525,7 @@ def lista_maquinarias():
 
 @app.route("/maquinarias/nuevo", methods=["GET", "POST"])
 @login_required
+@roles_required("Administrador")
 def nueva_maquinaria():
 
     if request.method == "POST":
@@ -802,38 +1575,89 @@ def expediente_maquinaria(id_activo):
     # Si el usuario entra desde un celular o tablet,
     # mostrar automáticamente la interfaz móvil.
     if es_dispositivo_movil():
-        return redirect(
-            url_for(
-                "maquinaria_qr",
-                id_activo=id_activo
-            )
-        )
+        return redirect(url_for("maquinaria_qr", id_activo=id_activo))
 
     maquina = obtener_maquinaria_detalle(id_activo)
 
     if not maquina:
-
         flash("El activo no existe.", "danger")
-
         return redirect(url_for("lista_maquinarias"))
+
+    # ==========================================
+    # Contenido / relaciones del activo
+    # ==========================================
+
+    contenido_activo = obtener_contenido_activo(id_activo)
+
+    # Prueba temporal
+    print("=" * 60)
+    print("CONTENIDO DEL ACTIVO:", id_activo)
+    print(contenido_activo)
+    print("=" * 60)
     
+        # ==========================================
+    # Categorías y asignaciones de accesorios
+    # ==========================================
+
+    es_contenedor = bool(
+        maquina.get("es_contenedor")
+    )
+
+    es_accesorio = (
+        not es_contenedor
+        and
+        (maquina.get("categoria") or "").strip().upper()
+        == "ACCESORIO"
+    )
+
+    categorias_accesorios = []
+    asignacion_activa = None
+    historial_asignaciones = []
+    accesorios_asignados = []
+
+    if es_contenedor or es_accesorio:
+
+        categorias_accesorios = (
+            obtener_categorias_accesorios()
+        )
+
+    if es_accesorio:
+
+        asignacion_activa = (
+            obtener_asignacion_activa_accesorio(
+                id_activo
+            )
+        )
+
+        historial_asignaciones = (
+            obtener_historial_asignaciones_accesorio(
+                id_activo
+            )
+        )
+
+    elif not es_contenedor:
+
+        accesorios_asignados = (
+            obtener_accesorios_asignados_maquinaria(
+                id_activo
+            )
+        )
+
     # ==========================================
     # Guardar activo reciente
     # ==========================================
 
-    registrar_activo_reciente(
+    registrar_activo_reciente(usuario=session["nombre"], id_activo=id_activo)
 
-        usuario=session["nombre"],
-
-        id_activo=id_activo
-
-    )
+    # ==========================================
+    # Aduana
+    # ==========================================
 
     aduana = obtener_aduana(id_activo)
 
-    # ======================================
+    # ==========================================
     # Tipo de expediente
-    # ======================================
+    # ==========================================
 
     es_nacional = False
     es_importado = False
@@ -846,41 +1670,68 @@ def expediente_maquinaria(id_activo):
         origen = (aduana.get("origen") or "").strip().upper()
 
         if origen in ["NACIONAL", "MEXICO"]:
-
             es_nacional = True
 
         elif origen == "PENDIENTE":
-
             es_pendiente = True
 
         elif origen == "NA":
-
             es_sin_clasificar = True
 
         elif origen == "REINGRESO":
-
             es_reingreso = True
 
         else:
-
             es_importado = True
+
+    # ==========================================
+    # Estado del expediente aduanal
+    # ==========================================
 
     estado_aduana = estado_expediente_aduanal(aduana)
 
+    # ==========================================
+    # Historial
+    # ==========================================
+
     historial = obtener_historial_activo(id_activo)
+
+    # ==========================================
+    # Navegación anterior / siguiente
+    # ==========================================
 
     vecinos = obtener_activos_vecinos(id_activo)
 
+    # ==========================================
+    # Documentos
+    # ==========================================
+
     documentos = listar_documentos(id_activo)
+
+    # ==========================================
+    # Traslados
+    # ==========================================
 
     traslado_en_proceso = obtener_traslado_en_proceso(id_activo)
 
+    # ==========================================
+    # Mantenimiento
+    # ==========================================
+
     mantenimiento_en_proceso = obtener_mantenimiento_en_proceso(id_activo)
+
+    # ==========================================
+    # Debug temporal
+    # ==========================================
 
     print("=" * 60)
     print("ACTIVO:", id_activo)
     print("TRASLADO:", traslado_en_proceso)
     print("=" * 60)
+
+    # ==========================================
+    # Render
+    # ==========================================
 
     return render_template(
         "expediente_maquinaria.html",
@@ -890,6 +1741,8 @@ def expediente_maquinaria(id_activo):
         historial=historial,
         documentos=documentos,
         traslado_en_proceso=traslado_en_proceso,
+        mantenimiento_en_proceso=mantenimiento_en_proceso,
+        contenido_activo=contenido_activo,
         anterior=vecinos["anterior"],
         siguiente=vecinos["siguiente"],
         es_nacional=es_nacional,
@@ -897,8 +1750,327 @@ def expediente_maquinaria(id_activo):
         es_pendiente=es_pendiente,
         es_sin_clasificar=es_sin_clasificar,
         es_reingreso=es_reingreso,
-        mantenimiento_en_proceso=mantenimiento_en_proceso,
+        es_accesorio=es_accesorio,
+        categorias_accesorios=categorias_accesorios,
+        asignacion_activa=asignacion_activa,
+        historial_asignaciones=historial_asignaciones,
+        accesorios_asignados=accesorios_asignados,
     )
+
+
+def redirigir_despues_de_contenido(id_activo):
+
+    if request.form.get("origen") == "qr":
+        return redirect(url_for("qr_contenido", id_activo=id_activo))
+
+    return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
+
+def redirigir_despues_de_gestionar_accesorio(id_accesorio):
+
+    retorno_id = (
+        request.form.get("retorno_id")
+        or id_accesorio
+    ).strip().upper()
+
+    origen = request.form.get("origen")
+    retorno_vista = request.form.get("retorno_vista")
+
+    if origen == "qr":
+
+        if retorno_vista == "contenido":
+            return redirect(
+                url_for(
+                    "qr_contenido",
+                    id_activo=retorno_id
+                )
+            )
+
+        return redirect(
+            url_for(
+                "maquinaria_qr",
+                id_activo=retorno_id
+            )
+        )
+
+    return redirect(
+        url_for(
+            "expediente_maquinaria",
+            id_activo=retorno_id
+        )
+    )
+
+
+def usuario_puede_gestionar_accesorios():
+
+    return session.get("rol") in [
+        "Administrador",
+        "Mantenimiento"
+    ]
+
+
+@app.route(
+    "/accesorios/<id_accesorio>/categoria",
+    methods=["POST"]
+)
+@login_required
+def actualizar_categoria_accesorio_route(id_accesorio):
+
+    if not usuario_puede_gestionar_accesorios():
+
+        flash(
+            "No tiene permisos para clasificar accesorios.",
+            "danger"
+        )
+
+        return redirigir_despues_de_gestionar_accesorio(
+            id_accesorio
+        )
+
+    categoria_id = request.form.get(
+        "categoria_accesorio_id"
+    )
+
+    try:
+
+        categoria = actualizar_categoria_accesorio(
+            id_activo=id_accesorio,
+            categoria_accesorio_id=categoria_id,
+            usuario=session["nombre"]
+        )
+
+    except ValueError as error:
+
+        flash(str(error), "warning")
+
+    except Exception as error:
+
+        print(
+            "ERROR ACTUALIZANDO CATEGORÍA "
+            "DEL ACCESORIO:",
+            error
+        )
+
+        flash(
+            "No fue posible actualizar la categoría.",
+            "danger"
+        )
+
+    else:
+
+        flash(
+            f"{id_accesorio} fue clasificado como "
+            f"{categoria['nombre']}.",
+            "success"
+        )
+
+    return redirigir_despues_de_gestionar_accesorio(
+        id_accesorio
+    )
+
+
+@app.route(
+    "/accesorios/<id_accesorio>/asignacion",
+    methods=["POST"]
+)
+@login_required
+def asignar_accesorio_maquinaria_route(id_accesorio):
+
+    if not usuario_puede_gestionar_accesorios():
+
+        flash(
+            "No tiene permisos para asignar accesorios.",
+            "danger"
+        )
+
+        return redirigir_despues_de_gestionar_accesorio(
+            id_accesorio
+        )
+
+    id_maquinaria = request.form.get("id_maquinaria")
+    observaciones = request.form.get("observaciones")
+
+    try:
+
+        resultado = asignar_accesorio_maquinaria(
+            id_accesorio=id_accesorio,
+            id_maquinaria=id_maquinaria,
+            usuario=session["nombre"],
+            observaciones=observaciones
+        )
+
+    except ValueError as error:
+
+        flash(str(error), "warning")
+
+    except Exception as error:
+
+        print(
+            "ERROR ASIGNANDO ACCESORIO:",
+            error
+        )
+
+        flash(
+            "No fue posible guardar la asignación.",
+            "danger"
+        )
+
+    else:
+
+        if resultado["maquinaria_anterior"]:
+
+            flash(
+                f"{id_accesorio} cambió de "
+                f"{resultado['maquinaria_anterior']} a "
+                f"{resultado['id_maquinaria']}.",
+                "success"
+            )
+
+        else:
+
+            flash(
+                f"{id_accesorio} fue asignado a "
+                f"{resultado['id_maquinaria']}.",
+                "success"
+            )
+
+    return redirigir_despues_de_gestionar_accesorio(
+        id_accesorio
+    )
+
+@app.route(
+    "/maquinarias/<id_activo>/revision-contenido/reabrir",
+    methods=["POST"]
+)
+@login_required
+def reabrir_revision_contenido_route(id_activo):
+
+    if session.get("rol") not in [
+        "Administrador",
+        "Mantenimiento"
+    ]:
+
+        flash(
+            "No tiene permisos para iniciar una nueva revisión.",
+            "danger"
+        )
+
+        return redirigir_despues_de_contenido(id_activo)
+
+    try:
+
+        reabrir_revision_contenido(
+            id_activo=id_activo,
+            usuario=session["nombre"]
+        )
+
+    except ValueError as error:
+
+        flash(str(error), "warning")
+
+    except Exception as error:
+
+        print(
+            "ERROR REABRIENDO REVISIÓN:",
+            error
+        )
+
+        flash(
+            "No fue posible iniciar una nueva revisión.",
+            "danger"
+        )
+
+    else:
+
+        flash(
+            "Se inició una nueva revisión de contenido.",
+            "success"
+        )
+
+    return redirigir_despues_de_contenido(id_activo)
+
+
+@app.route(
+    "/accesorios/<id_accesorio>/asignacion/liberar",
+    methods=["POST"]
+)
+@login_required
+def liberar_accesorio_maquinaria_route(id_accesorio):
+
+    if not usuario_puede_gestionar_accesorios():
+
+        flash(
+            "No tiene permisos para liberar accesorios.",
+            "danger"
+        )
+
+        return redirigir_despues_de_gestionar_accesorio(
+            id_accesorio
+        )
+
+    try:
+
+        id_maquinaria = liberar_accesorio_maquinaria(
+            id_accesorio=id_accesorio,
+            usuario=session["nombre"]
+        )
+
+    except ValueError as error:
+
+        flash(str(error), "warning")
+
+    except Exception as error:
+
+        print(
+            "ERROR LIBERANDO ACCESORIO:",
+            error
+        )
+
+        flash(
+            "No fue posible liberar el accesorio.",
+            "danger"
+        )
+
+    else:
+
+        flash(
+            f"{id_accesorio} fue liberado de "
+            f"{id_maquinaria}.",
+            "success"
+        )
+
+    return redirigir_despues_de_gestionar_accesorio(
+        id_accesorio
+    )
+
+
+@app.route("/maquinarias/<id_activo>/revision-contenido/iniciar", methods=["POST"])
+@login_required
+@roles_required("Administrador", "Mantenimiento")
+def iniciar_revision_contenido_route(id_activo):
+
+    try:
+        iniciar_revision_contenido(id_activo, session["nombre"])
+    except ValueError as error:
+        flash(str(error), "warning")
+    else:
+        flash("La revisión de contenido fue iniciada correctamente.", "success")
+
+    return redirigir_despues_de_contenido(id_activo)
+
+
+@app.route("/maquinarias/<id_activo>/revision-contenido/finalizar", methods=["POST"])
+@login_required
+@roles_required("Administrador", "Mantenimiento")
+def finalizar_revision_contenido_route(id_activo):
+
+    try:
+        finalizar_revision_contenido(id_activo, session["nombre"])
+    except ValueError as error:
+        flash(str(error), "warning")
+    else:
+        flash("La revisión de contenido fue finalizada correctamente.", "success")
+
+    return redirigir_despues_de_contenido(id_activo)
 
 
 @app.route("/maquinarias/<id_activo>/imprimir")
@@ -1036,21 +2208,11 @@ def solicitud_baja(id_activo):
 
             print(">>> REDIRECCIÓN A MÓVIL")
 
-            return redirect(
-                url_for(
-                    "maquinaria_qr",
-                    id_activo=id_activo
-                )
-            )
+            return redirect(url_for("maquinaria_qr", id_activo=id_activo))
 
         print(">>> REDIRECCIÓN A ESCRITORIO")
 
-        return redirect(
-            url_for(
-                "expediente_maquinaria",
-                id_activo=id_activo
-            )
-        )
+        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
     # ==================================================
     # VALIDACIÓN 1
@@ -1073,10 +2235,7 @@ def solicitud_baja(id_activo):
 
     if existe_solicitud_pendiente(id_activo):
 
-        flash(
-            "Este activo ya cuenta con una solicitud pendiente.",
-            "warning"
-        )
+        flash("Este activo ya cuenta con una solicitud pendiente.", "warning")
 
         return regresar()
 
@@ -1114,7 +2273,6 @@ def solicitud_baja(id_activo):
     )
 
     return regresar()
-
 
 
 @app.route("/solicitudes-baja")
@@ -1411,7 +2569,7 @@ def subir_documento(id_activo):
         return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
     archivo = request.files.get("documento")
-    
+
     tipo_documento = request.form.get("tipo_documento")
 
     if not archivo or archivo.filename == "":
@@ -1523,6 +2681,106 @@ def buscar_activos_ajax():
             }
             for a in activos
         ]
+    )
+
+@app.route("/buscar-maquinarias-asignables")
+@login_required
+def buscar_maquinarias_asignables_ajax():
+
+    if not usuario_puede_gestionar_accesorios():
+        return jsonify([]), 403
+
+    texto = request.args.get("q", "").strip()
+
+    id_accesorio = request.args.get(
+        "id_accesorio",
+        ""
+    ).strip().upper()
+
+    if len(texto) < 2:
+        return jsonify([])
+
+    maquinarias = buscar_maquinarias_asignables(
+        texto=texto,
+        id_accesorio=id_accesorio
+    )
+
+    return jsonify(
+        [
+            {
+                "id": maquinaria["id_activo"],
+                "descripcion": maquinaria["descripcion"],
+                "categoria": maquinaria["categoria"],
+                "marca": maquinaria["marca"],
+                "modelo": maquinaria["modelo"],
+                "serie": maquinaria["numero_serie"],
+                "ubicacion": maquinaria["ubicacion"],
+            }
+            for maquinaria in maquinarias
+        ]
+    )
+
+@app.route(
+    "/accesorios/<id_accesorio>/categoria/crear",
+    methods=["POST"]
+)
+@login_required
+def crear_categoria_accesorio_route(id_accesorio):
+
+    if not usuario_puede_gestionar_accesorios():
+
+        flash(
+            "No tiene permisos para crear categorías.",
+            "danger"
+        )
+
+        return redirigir_despues_de_gestionar_accesorio(
+            id_accesorio
+        )
+
+    nombre = request.form.get("nombre_categoria")
+    descripcion = request.form.get(
+        "descripcion_categoria"
+    )
+
+    try:
+
+        categoria = (
+            crear_categoria_y_clasificar_accesorio(
+                id_activo=id_accesorio,
+                nombre=nombre,
+                descripcion=descripcion,
+                usuario=session["nombre"]
+            )
+        )
+
+    except ValueError as error:
+
+        flash(str(error), "warning")
+
+    except Exception as error:
+
+        print(
+            "ERROR CREANDO CATEGORÍA DE ACCESORIO:",
+            error
+        )
+
+        flash(
+            "No fue posible crear la categoría.",
+            "danger"
+        )
+
+    else:
+
+        flash(
+            f"Se creó la categoría "
+            f"{categoria['nombre']} y se asignó a "
+            f"{id_accesorio}.",
+            "success"
+        )
+
+    return redirigir_despues_de_gestionar_accesorio(
+        id_accesorio
     )
 
 
@@ -1786,45 +3044,116 @@ def maquinaria_qr(id_activo):
     # ==========================================
 
     registrar_activo_reciente(
-
         usuario=session["nombre"],
-
-        id_activo=id_activo
-
+        id_activo=id_activo,
     )
+
+    # ==========================================
+    # Información general
+    # ==========================================
 
     aduana = obtener_aduana(id_activo)
 
     estado = estado_expediente_aduanal(aduana)
 
-    traslado_en_proceso = obtener_traslado_en_proceso(id_activo)
+    traslado_en_proceso = (
+        obtener_traslado_en_proceso(id_activo)
+    )
 
-    mantenimiento_en_proceso = obtener_mantenimiento_en_proceso(id_activo)
+    mantenimiento_en_proceso = (
+        obtener_mantenimiento_en_proceso(id_activo)
+    )
+
+    # ==========================================
+    # Contenido y gestión de accesorios
+    # ==========================================
+
+    contenido_activo = []
+
+    es_contenedor = bool(
+        maquinaria.get("es_contenedor")
+    )
+
+    es_accesorio = (
+        not es_contenedor
+        and
+        (maquinaria.get("categoria") or "")
+        .strip()
+        .upper()
+        == "ACCESORIO"
+    )
+
+    categorias_accesorios = []
+    asignacion_activa = None
+    historial_asignaciones = []
+    accesorios_asignados = []
+
+    # Obtener contenido cuando el activo sea contenedor
+    if es_contenedor:
+        contenido_activo = (
+            obtener_contenido_activo(id_activo)
+        )
+
+    # Obtener catálogo de categorías
+    if es_contenedor or es_accesorio:
+        categorias_accesorios = (
+            obtener_categorias_accesorios()
+        )
+
+    # Obtener la asignación y el historial del accesorio
+    if es_accesorio:
+        asignacion_activa = (
+            obtener_asignacion_activa_accesorio(
+                id_activo
+            )
+        )
+
+        historial_asignaciones = (
+            obtener_historial_asignaciones_accesorio(
+                id_activo
+            )
+        )
+
+    # Obtener accesorios asignados a una maquinaria
+    elif not es_contenedor:
+        accesorios_asignados = (
+            obtener_accesorios_asignados_maquinaria(
+                id_activo
+            )
+        )
+
+    # ==========================================
+    # Estado visual
+    # ==========================================
 
     estado_ui = {
         "ACTIVO": {
             "clase": "activo",
-            "icono": "bi-check-circle-fill"
+            "icono": "bi-check-circle-fill",
         },
         "BAJA": {
             "clase": "baja",
-            "icono": "bi-x-circle-fill"
+            "icono": "bi-x-circle-fill",
         },
         "MANTENIMIENTO": {
             "clase": "mantenimiento",
-            "icono": "bi-tools"
+            "icono": "bi-tools",
         },
         "EN TRASLADO": {
             "clase": "traslado",
-            "icono": "bi-truck"
-        }
+            "icono": "bi-truck",
+        },
     }.get(
         maquinaria["estado"],
         {
             "clase": "activo",
-            "icono": "bi-circle-fill"
-        }
+            "icono": "bi-circle-fill",
+        },
     )
+
+    # ==========================================
+    # Render
+    # ==========================================
 
     return render_template(
         "maquinaria_qr/inicio.html",
@@ -1833,10 +3162,47 @@ def maquinaria_qr(id_activo):
         estado=estado,
         traslado_en_proceso=traslado_en_proceso,
         mantenimiento_en_proceso=mantenimiento_en_proceso,
+        contenido_activo=contenido_activo,
         estado_ui=estado_ui,
         id_activo=id_activo,
-        pagina="inicio"
+        pagina="inicio",
+        es_contenedor=es_contenedor,
+        es_accesorio=es_accesorio,
+        categorias_accesorios=categorias_accesorios,
+        asignacion_activa=asignacion_activa,
+        historial_asignaciones=historial_asignaciones,
+        accesorios_asignados=accesorios_asignados,
     )
+
+
+@app.route("/qr/<id_activo>/contenido")
+@login_required
+def qr_contenido(id_activo):
+
+    maquinaria = obtener_maquinaria(id_activo)
+
+    if not maquinaria:
+        abort(404)
+
+    if maquinaria.get("es_contenedor") != 1:
+        flash("Este activo no está marcado como contenedor.", "warning")
+        return redirect(url_for("maquinaria_qr", id_activo=id_activo))
+
+    contenido_activo = obtener_contenido_activo(id_activo)
+    
+    categorias_accesorios = (
+        obtener_categorias_accesorios()
+    )
+
+    return render_template(
+        "maquinaria_qr/contenido.html",
+        maquinaria=maquinaria,
+        contenido_activo=contenido_activo,
+        categorias_accesorios=categorias_accesorios,
+        id_activo=id_activo,
+        pagina="contenido",
+    )
+
 
 @app.route("/qr/<id_activo>/expediente")
 @login_required
@@ -1862,8 +3228,9 @@ def qr_expediente(id_activo):
         estado=estado,
         documentos_map=documentos_map,
         pagina="expediente",
-        id_activo=id_activo
+        id_activo=id_activo,
     )
+
 
 @app.route("/qr/<id_activo>/documento/<tipo>")
 @login_required
@@ -1887,48 +3254,54 @@ def qr_documento(id_activo, tipo):
         abort(404)
 
     return render_template(
-        "maquinaria_qr/documento.html",
-        documento=documento,
-        id_activo=id_activo
+        "maquinaria_qr/documento.html", documento=documento, id_activo=id_activo
     )
+
 
 @app.route("/m/dashboard")
 @login_required
 def dashboard_mobil():
+    rol_actual = session.get("rol")
+    nombre_actual = session.get("nombre")
 
     kpis = obtener_kpis_dashboard()
 
-    actividad = obtener_actividad_dashboard()
+    actividad = obtener_actividad_filtrada(
+        rol=rol_actual,
+        usuario_actual=nombre_actual,
+        limite=3
+    )
+
+    grafica_actividad = (
+        obtener_actividad_ultimos_7_dias(
+            rol=rol_actual,
+            usuario_actual=nombre_actual
+        )
+    )
 
     return render_template(
-
         "maquinaria_qr/dashboard_mobil.html",
-
         **kpis,
-
-        actividad=actividad
-
+        actividad=actividad,
+        grafica_actividad=grafica_actividad
     )
 
 @app.route("/m/maquinarias/<id_activo>/movimiento/<tipo>")
 @login_required
+@roles_required("Administrador", "Mantenimiento")
 def formulario_movimiento_mobile(id_activo, tipo):
-
-    if session.get("rol") not in ["Administrador", "Mantenimiento"]:
-        flash("No tiene permisos.", "danger")
-        return redirect(url_for("dashboard_mobile"))
 
     maquina = obtener_maquinaria(id_activo)
 
     if not maquina:
         flash("Activo no encontrado.", "danger")
-        return redirect(url_for("dashboard_mobile"))
+        return redirect(url_for("dashboard_mobil"))
 
     titulos = {
         "TRASLADO": "Solicitud de Traslado",
         "MANTENIMIENTO": "Solicitud de Mantenimiento",
         "BAJA": "Solicitud de Baja",
-        "REINCORPORACION": "Solicitud de Reactivación"
+        "REINCORPORACION": "Solicitud de Reactivación",
     }
 
     if tipo not in titulos:
@@ -1940,11 +3313,13 @@ def formulario_movimiento_mobile(id_activo, tipo):
         tipo=tipo,
         titulo=titulos[tipo],
         id_activo=id_activo,
-        pagina="movimientos"
+        pagina="movimientos",
     )
-    
+
+
 @app.route("/m/maquinarias/<id_activo>/movimientos")
 @login_required
+@roles_required("Administrador", "Mantenimiento")
 def movimientos_mobile(id_activo):
 
     maquina = obtener_maquinaria(id_activo)
@@ -1966,7 +3341,7 @@ def movimientos_mobile(id_activo):
         mantenimiento_en_proceso=mantenimiento_en_proceso,
         solicitud_pendiente=solicitud_pendiente,
         id_activo=id_activo,
-        pagina="movimientos"
+        pagina="movimientos",
     )
 
 
@@ -2047,28 +3422,22 @@ def actividad_mobile(id_activo):
         historial_procesado.append(nuevo)
 
     return render_template(
-
         "maquinaria_qr/actividad_mobile.html",
-
         maquinaria=maquinaria,
         historial=historial_procesado,
         pagina="actividad",
-        id_activo=id_activo
-
+        id_activo=id_activo,
     )
 
+
 from flask import request
+
 
 def es_movil():
 
     user_agent = request.user_agent.string.lower()
 
-    palabras = [
-        "android",
-        "iphone",
-        "ipad",
-        "mobile"
-    ]
+    palabras = ["android", "iphone", "ipad", "mobile"]
 
     return any(p in user_agent for p in palabras)
 
@@ -2079,30 +3448,22 @@ def qr_evidencias(id_activo):
 
     maquinaria = obtener_maquinaria(id_activo)
 
-    imagenes = listar_documentos(
-        id_activo,
-        "IMAGEN"
-    )
-    
+    imagenes = listar_documentos(id_activo, "IMAGEN")
+
     print("=" * 60)
     print(imagenes)
     print(type(imagenes))
     print("=" * 60)
 
     return render_template(
-
         "maquinaria_qr/evidencias.html",
-
         maquinaria=maquinaria,
-
         imagenes=imagenes,
-
         id_activo=id_activo,
-
-        pagina="evidencias"
-
+        pagina="evidencias",
     )
-    
+
+
 @app.route("/qr/<id_activo>/evidencias", methods=["POST"])
 @login_required
 def subir_evidencia(id_activo):
@@ -2111,9 +3472,7 @@ def subir_evidencia(id_activo):
 
         flash("No tiene permisos para subir evidencias.", "danger")
 
-        return redirect(
-            url_for("qr_evidencias", id_activo=id_activo)
-        )
+        return redirect(url_for("qr_evidencias", id_activo=id_activo))
 
     archivo = request.files.get("documento")
 
@@ -2121,9 +3480,7 @@ def subir_evidencia(id_activo):
 
         flash("Seleccione una imagen.", "warning")
 
-        return redirect(
-            url_for("qr_evidencias", id_activo=id_activo)
-        )
+        return redirect(url_for("qr_evidencias", id_activo=id_activo))
 
     try:
 
@@ -2140,26 +3497,16 @@ def subir_evidencia(id_activo):
         ruta = f"{id_activo}/{nombre_archivo}"
 
         supabase.storage.from_("documentos").upload(
-
             path=ruta,
-
             file=archivo_bytes,
-
-            file_options={
-                "content-type": archivo.content_type,
-                "upsert": False
-            }
-
+            file_options={"content-type": archivo.content_type, "upsert": False},
         )
 
         url_publica = supabase.storage.from_("documentos").get_public_url(ruta)
 
         if isinstance(url_publica, dict):
 
-            url_guardar = (
-                url_publica.get("publicUrl")
-                or url_publica.get("public_url")
-            )
+            url_guardar = url_publica.get("publicUrl") or url_publica.get("public_url")
 
         else:
 
@@ -2178,15 +3525,11 @@ def subir_evidencia(id_activo):
         )
 
         registrar_movimiento(
-
             usuario=session["nombre"],
-
             accion=f"Subió evidencia: {nombre_original}",
-
             modulo="Evidencias",
-
-            referencia=id_activo
-)
+            referencia=id_activo,
+        )
 
         flash("Evidencia guardada correctamente.", "success")
 
@@ -2194,9 +3537,8 @@ def subir_evidencia(id_activo):
 
         flash(str(e), "danger")
 
-    return redirect(
-        url_for("qr_evidencias", id_activo=id_activo)
-    )
+    return redirect(url_for("qr_evidencias", id_activo=id_activo))
+
 
 @app.route("/evidencias/<int:id>/eliminar")
 @login_required
@@ -2219,40 +3561,29 @@ def eliminar_evidencia(id):
             return redirect(request.referrer)
 
         # Eliminar archivo de Supabase
-        supabase.storage.from_("documentos").remove(
-            [documento["public_id"]]
-        )
+        supabase.storage.from_("documentos").remove([documento["public_id"]])
 
         # Eliminar registro de MySQL
         eliminar_documento(id)
 
         # Registrar auditoría
         registrar_movimiento(
-
             usuario=session["nombre"],
-
             accion=f"Eliminó evidencia: {documento['nombre_original']}",
-
             modulo="Evidencias",
-
-            referencia=documento["id_activo"]
-
+            referencia=documento["id_activo"],
         )
 
         flash("Evidencia eliminada correctamente.", "success")
 
-        return redirect(
-            url_for(
-                "qr_evidencias",
-                id_activo=documento["id_activo"]
-            )
-        )
+        return redirect(url_for("qr_evidencias", id_activo=documento["id_activo"]))
 
     except Exception as e:
 
         flash(f"Error al eliminar evidencia: {e}", "danger")
 
         return redirect(request.referrer)
+
 
 @app.route("/m/maquinarias/cargar")
 @login_required
@@ -2261,10 +3592,7 @@ def cargar_maquinarias_mobile():
     offset = int(request.args.get("offset", 0))
 
     maquinarias = (
-        obtener_maquinarias_mobile(
-            limite=20,
-            offset=offset
-        )
+        obtener_maquinarias_mobile(limite=20, offset=offset)
         .fillna("")
         .to_dict("records")
     )
@@ -2277,13 +3605,13 @@ def cargar_maquinarias_mobile():
 
     return jsonify(maquinarias)
 
+
 @app.route("/m/maquinarias")
 @login_required
 def maquinarias_mobile():
 
-    return render_template(
-        "maquinaria_qr/maquinarias_mobile.html"
-    )
+    return render_template("maquinaria_qr/maquinarias_mobile.html")
+
 
 @app.route("/m/maquinarias/api")
 @login_required
@@ -2298,12 +3626,7 @@ def api_maquinarias_mobile():
     limite = 20
 
     maquinarias = obtener_maquinarias_mobile_filtrado(
-        q=q,
-        estado=estado,
-        ubicacion=ubicacion,
-        tipo=tipo,
-        limite=limite,
-        offset=offset
+        q=q, estado=estado, ubicacion=ubicacion, tipo=tipo, limite=limite, offset=offset
     ).to_dict("records")
 
     for maquina in maquinarias:
@@ -2326,6 +3649,7 @@ def api_maquinarias_mobile():
 
     return jsonify(maquinarias)
 
+
 @app.route("/m/maquinarias/ubicaciones")
 @login_required
 def api_ubicaciones_mobile():
@@ -2334,41 +3658,40 @@ def api_ubicaciones_mobile():
 
     return jsonify(ubicaciones)
 
+
 @app.route("/m/aduanas")
 @login_required
 def aduanas_mobile():
 
-    return render_template(
-        "maquinaria_qr/aduanas_mobile.html"
-    )
+    return render_template("maquinaria_qr/aduanas_mobile.html")
+
 
 @app.route("/m/aduanas/api")
 @login_required
 def api_aduanas_mobile():
 
-    q = request.args.get("q","").strip()
-    origen = request.args.get("origen","")
-    tipo = request.args.get("tipo","")
+    q = request.args.get("q", "").strip()
+    origen = request.args.get("origen", "")
+    tipo = request.args.get("tipo", "")
 
-    offset = int(request.args.get("offset",0))
+    offset = int(request.args.get("offset", 0))
 
     limite = 20
 
-    aduanas = obtener_aduanas_mobile_filtrado(
-
-        q=q,
-        origen=origen,
-        tipo=tipo,
-        limite=limite,
-        offset=offset
-
-    ).fillna("").to_dict("records")
+    aduanas = (
+        obtener_aduanas_mobile_filtrado(
+            q=q, origen=origen, tipo=tipo, limite=limite, offset=offset
+        )
+        .fillna("")
+        .to_dict("records")
+    )
 
     for aduana in aduanas:
 
         aduana["expediente"] = estado_expediente_aduanal(aduana)
 
     return jsonify(aduanas)
+
 
 @app.route("/m/aduanas/origenes")
 @login_required
@@ -2378,17 +3701,199 @@ def api_origenes_mobile():
 
     return jsonify(origenes)
 
+
 @app.route("/m/recientes")
 @login_required
 def api_activos_recientes():
 
-    recientes = obtener_activos_recientes(
-
-        session["nombre"]
-
-    )
+    recientes = obtener_activos_recientes(session["nombre"])
 
     return jsonify(recientes)
+
+
+@app.route(
+    "/maquinarias/<id_activo>/contenido/vincular",
+    methods=["POST"]
+)
+@login_required
+@roles_required("Administrador", "Mantenimiento")
+def vincular_contenido_route(id_activo):
+
+    activo_relacionado = request.form.get(
+        "activo_relacionado"
+    )
+
+    observaciones = request.form.get(
+        "observaciones"
+    )
+
+    if not activo_relacionado:
+
+        flash(
+            "Debe seleccionar un activo.",
+            "warning"
+        )
+
+        return redirigir_despues_de_contenido(id_activo)
+
+    if activo_relacionado == id_activo:
+
+        flash(
+            "Un activo no puede contenerse a sí mismo.",
+            "danger"
+        )
+
+        return redirigir_despues_de_contenido(id_activo)
+
+    try:
+
+        vincular_contenido_activo(
+            activo_origen=id_activo,
+            activo_relacionado=activo_relacionado,
+            usuario=session["nombre"],
+            observaciones=observaciones
+        )
+
+        registrar_movimiento(
+            usuario=session["nombre"],
+            accion=f"Vinculó el activo {activo_relacionado} como contenido",
+            modulo="Accesorios",
+            referencia=id_activo
+        )
+
+        flash(
+            f"{activo_relacionado} fue agregado al contenido de {id_activo}.",
+            "success"
+        )
+
+    except Exception as e:
+
+        print("ERROR VINCULANDO CONTENIDO:", e)
+
+        flash(
+            "No fue posible vincular el activo. "
+            "Verifique que no esté relacionado previamente.",
+            "danger"
+        )
+
+    return redirigir_despues_de_contenido(id_activo)
+
+
+@app.route(
+    "/maquinarias/<id_activo>/contenido/<int:relacion_id>/retirar",
+    methods=["POST"]
+)
+@login_required
+@roles_required("Administrador", "Mantenimiento")
+def retirar_contenido_route(id_activo, relacion_id):
+
+    try:
+        activo_retirado = retirar_contenido_activo(
+            activo_origen=id_activo,
+            relacion_id=relacion_id,
+            usuario=session["nombre"]
+        )
+    except ValueError as error:
+        flash(str(error), "warning")
+    else:
+        flash(
+            f"{activo_retirado} fue retirado del contenido de {id_activo}.",
+            "success"
+        )
+
+    return redirigir_despues_de_contenido(id_activo)
+
+@app.route(
+    "/maquinarias/<id_activo>/contenido/registrar",
+    methods=["POST"]
+)
+@login_required
+@roles_required("Administrador", "Mantenimiento")
+def registrar_accesorio_desde_contenido(id_activo):
+
+    nuevo_id = siguiente_id_activo()
+
+    descripcion = (request.form.get("descripcion") or "").strip()
+    marca = (request.form.get("marca") or "").strip()
+    modelo = (request.form.get("modelo") or "").strip()
+    numero_serie = (request.form.get("numero_serie") or "").strip()
+    ubicacion = (request.form.get("ubicacion") or "").strip()
+    observaciones = (request.form.get("observaciones") or "").strip()
+
+    if not descripcion:
+        flash("La descripción del accesorio es obligatoria.", "warning")
+        return redirigir_despues_de_contenido(id_activo)
+
+    # Si no escriben ubicación, heredamos la ubicación del activo origen
+    activo_origen = obtener_maquinaria_detalle(id_activo)
+
+    if not activo_origen:
+        flash("El activo origen no existe.", "danger")
+        return redirigir_despues_de_contenido(id_activo)
+
+    if not ubicacion:
+        ubicacion = activo_origen.get("ubicacion") or ""
+
+    datos = {
+        "id_activo": nuevo_id,
+        "categoria": "ACCESORIO",
+        "descripcion": descripcion,
+        "cantidad": 1,
+        "marca": marca,
+        "modelo": modelo,
+        "numero_serie": numero_serie,
+        "serie_interna": "",
+        "proveedor": "",
+        "ubicacion": ubicacion,
+        "precio_unitario_us": 0,
+        "total_us": 0,
+        "valor_mx": 0,
+        "fecha_alta": None,
+        "observaciones": observaciones,
+    }
+
+    try:
+
+        insertar_maquinaria(datos)
+
+        vincular_contenido_activo(
+            activo_origen=id_activo,
+            activo_relacionado=nuevo_id,
+            usuario=session["nombre"],
+            observaciones=f"Accesorio registrado desde {id_activo}. {observaciones}"
+        )
+
+        registrar_movimiento(
+            usuario=session["nombre"],
+            accion=f"Registró el accesorio {nuevo_id} desde {id_activo}",
+            modulo="Accesorios",
+            referencia=nuevo_id
+        )
+
+        registrar_movimiento(
+            usuario=session["nombre"],
+            accion=f"Vinculó {nuevo_id} como contenido",
+            modulo="Accesorios",
+            referencia=id_activo
+        )
+
+        flash(
+            f"Accesorio {nuevo_id} registrado y vinculado correctamente.",
+            "success"
+        )
+
+    except Exception as e:
+
+        print("ERROR REGISTRANDO ACCESORIO:", e)
+
+        flash(
+            "No fue posible registrar el accesorio.",
+            "danger"
+        )
+
+    return redirigir_despues_de_contenido(id_activo)
+
+
 # ==========================================================
 # SERVIDOR
 # ==========================================================

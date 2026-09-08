@@ -65,7 +65,7 @@ Movimientos
 
 <!-- Solicitar Movimiento -->
 
-{% if not solicitud_pendiente %}
+{% if session.get("rol") in ["Administrador", "Mantenimiento"] and not solicitud_pendiente %}
 
 <section class="nuevo-movimiento">
 

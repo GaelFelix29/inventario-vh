@@ -9,82 +9,190 @@
     <!-- ENCABEZADO -->
 
     <!-- ========================================= -->
-<!-- ENCABEZADO -->
-<!-- ========================================= -->
+    <!-- ENCABEZADO -->
+    <!-- ========================================= -->
 
-<div class="row align-items-center gy-3 mb-4">
+    <div class="row align-items-center gy-3 mb-4">
 
-    <div class="col-12 col-lg-6">
+        <div class="col-12 col-lg-6">
 
-        <h2 class="fw-bold text-success mb-1">
+            <h2 class="fw-bold text-success mb-1">
 
-            <i class="bi bi-pc-display"></i>
+                <i class="bi bi-pc-display"></i>
 
-            Gestión de Maquinaria
+                Gestión de Maquinaria
 
-        </h2>
+            </h2>
 
-        <p class="text-muted mb-0">
+            <p class="text-muted mb-0">
 
-            Administración de todos los activos registrados.
+                Administración de todos los activos registrados.
 
-        </p>
+            </p>
+
+        </div>
+
+        {% if session["rol"]=="Administrador" %}
+
+        <div class="col-12 col-lg-6 text-lg-end">
+
+            <a href="/maquinarias/nuevo" class="btn btn-success rounded-pill px-4">
+
+                <i class="bi bi-plus-circle"></i>
+
+                Nuevo Activo
+
+            </a>
+
+        </div>
+
+        {% endif %}
 
     </div>
 
-    {% if session["rol"]=="Administrador" %}
+    <!-- ========================================= -->
+    <!-- TARJETAS -->
+    <!-- ========================================= -->
 
-    <div class="col-12 col-lg-6 text-lg-end">
+    <div class="row g-3 mb-4">
 
-        <a href="/maquinarias/nuevo"
-            class="btn btn-success rounded-pill px-4">
+        <!-- TOTAL -->
 
-            <i class="bi bi-plus-circle"></i>
+        <div class="col-12 col-sm-6 col-xl-3">
 
-            Nuevo Activo
+            <div class="card card-resumen shadow-sm border-0 rounded-4 h-100" id="filtroTodos">
 
-        </a>
+                <div class="card-body d-flex justify-content-between align-items-center">
 
-    </div>
+                    <div>
 
-    {% endif %}
+                        <small class="text-muted">
 
-</div>
+                            Total Activos
 
-<!-- ========================================= -->
-<!-- TARJETAS -->
-<!-- ========================================= -->
+                        </small>
 
-<div class="row g-3 mb-4">
+                        <h2 class="fw-bold mb-0">
 
-    <!-- TOTAL -->
+                            {{ estadisticas.total }}
 
-    <div class="col-12 col-sm-6 col-xl-3">
+                        </h2>
 
-        <div class="card card-resumen shadow-sm border-0 rounded-4 h-100"
-            id="filtroTodos">
+                    </div>
 
-            <div class="card-body d-flex justify-content-between align-items-center">
+                    <div class="icono-resumen bg-primary">
 
-                <div>
+                        <i class="bi bi-box-seam"></i>
 
-                    <small class="text-muted">
-
-                        Total Activos
-
-                    </small>
-
-                    <h2 class="fw-bold mb-0">
-
-                        {{ estadisticas.total }}
-
-                    </h2>
+                    </div>
 
                 </div>
 
-                <div class="icono-resumen bg-primary">
+            </div>
 
-                    <i class="bi bi-box-seam"></i>
+        </div>
+
+        <!-- IMPORTADOS -->
+
+        <div class="col-12 col-sm-6 col-xl-3">
+
+            <div class="card card-resumen shadow-sm border-0 rounded-4 h-100" id="filtroImportados">
+
+                <div class="card-body d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted">
+
+                            Importados
+
+                        </small>
+
+                        <h2 class="fw-bold mb-0">
+
+                            {{ estadisticas.importados }}
+
+                        </h2>
+
+                    </div>
+
+                    <div class="icono-resumen bg-primary">
+
+                        <i class="bi bi-globe-americas"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- NACIONALES -->
+
+        <div class="col-12 col-sm-6 col-xl-3">
+
+            <div class="card card-resumen shadow-sm border-0 rounded-4 h-100" id="filtroNacionales">
+
+                <div class="card-body d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted">
+
+                            Nacionales
+
+                        </small>
+
+                        <h2 class="fw-bold mb-0">
+
+                            {{ estadisticas.nacionales }}
+
+                        </h2>
+
+                    </div>
+
+                    <div class="icono-resumen bg-success">
+
+                        <i class="bi bi-flag-fill"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- PENDIENTES -->
+
+        <div class="col-12 col-sm-6 col-xl-3">
+
+            <div class="card card-resumen shadow-sm border-0 rounded-4 h-100" id="filtroPendientes">
+
+                <div class="card-body d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-muted">
+
+                            Pendientes
+
+                        </small>
+
+                        <h2 class="fw-bold mb-0">
+
+                            {{ estadisticas.pendientes }}
+
+                        </h2>
+
+                    </div>
+
+                    <div class="icono-resumen bg-warning">
+
+                        <i class="bi bi-clock-history"></i>
+
+                    </div>
 
                 </div>
 
@@ -93,119 +201,6 @@
         </div>
 
     </div>
-
-    <!-- IMPORTADOS -->
-
-    <div class="col-12 col-sm-6 col-xl-3">
-
-        <div class="card card-resumen shadow-sm border-0 rounded-4 h-100"
-            id="filtroImportados">
-
-            <div class="card-body d-flex justify-content-between align-items-center">
-
-                <div>
-
-                    <small class="text-muted">
-
-                        Importados
-
-                    </small>
-
-                    <h2 class="fw-bold mb-0">
-
-                        {{ estadisticas.importados }}
-
-                    </h2>
-
-                </div>
-
-                <div class="icono-resumen bg-primary">
-
-                    <i class="bi bi-globe-americas"></i>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- NACIONALES -->
-
-    <div class="col-12 col-sm-6 col-xl-3">
-
-        <div class="card card-resumen shadow-sm border-0 rounded-4 h-100"
-            id="filtroNacionales">
-
-            <div class="card-body d-flex justify-content-between align-items-center">
-
-                <div>
-
-                    <small class="text-muted">
-
-                        Nacionales
-
-                    </small>
-
-                    <h2 class="fw-bold mb-0">
-
-                        {{ estadisticas.nacionales }}
-
-                    </h2>
-
-                </div>
-
-                <div class="icono-resumen bg-success">
-
-                    <i class="bi bi-flag-fill"></i>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- PENDIENTES -->
-
-    <div class="col-12 col-sm-6 col-xl-3">
-
-        <div class="card card-resumen shadow-sm border-0 rounded-4 h-100"
-            id="filtroPendientes">
-
-            <div class="card-body d-flex justify-content-between align-items-center">
-
-                <div>
-
-                    <small class="text-muted">
-
-                        Pendientes
-
-                    </small>
-
-                    <h2 class="fw-bold mb-0">
-
-                        {{ estadisticas.pendientes }}
-
-                    </h2>
-
-                </div>
-
-                <div class="icono-resumen bg-warning">
-
-                    <i class="bi bi-clock-history"></i>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
 
     <div class="card shadow border-0 rounded-4">
 
@@ -291,6 +286,10 @@
 
                             <th>Estado</th>
 
+                            <th class="text-center">
+                                Accesorios
+                            </th>
+
                             <th width="220">
                                 Acciones
                             </th>
@@ -371,6 +370,41 @@
                                     BAJA
 
                                 </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td class="text-center">
+
+                                {% set cantidad_accesorios =
+                                maquina.cantidad_accesorios or 0
+                                %}
+
+                                {% if cantidad_accesorios > 0 %}
+
+                                <a href="{{ url_for(
+                'expediente_maquinaria',
+                id_activo=maquina.id_activo
+            ) }}" class="badge rounded-pill text-decoration-none" style="
+                color:#087847;
+                background:#dff4e8;
+                border:1px solid #bfe5d0;
+            " title="Consultar accesorios asignados">
+                                    <i class="bi bi-puzzle-fill"></i>
+
+                                    {{ cantidad_accesorios }}
+
+                                    {% if cantidad_accesorios == 1 %}
+                                    accesorio
+                                    {% else %}
+                                    accesorios
+                                    {% endif %}
+                                </a>
+
+                                {% else %}
+
+                                <span class="text-muted">—</span>
 
                                 {% endif %}
 

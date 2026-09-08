@@ -1,32 +1,222 @@
 {% extends "base.html" %}
 
+{% block titulo %}
+Mi perfil
+{% endblock %}
+
+{% block estilos %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/perfil.css') }}">
+
+{% endblock %}
+
 {% block contenido %}
 
-<div class="container mt-5">
+<div class="perfil-page">
 
-    <div class="card">
+    <div class="perfil-container">
 
-        <div class="card-header">
+        {% with messages = get_flashed_messages(with_categories=true) %}
 
-            <h3>Mi Perfil</h3>
+            {% if messages %}
 
-        </div>
+                {% for categoria, mensaje in messages %}
 
-        <div class="card-body">
+                    <div
+                        class="alert alert-{{ categoria }}
+                               alert-dismissible fade show"
+                        role="alert">
 
-            <p><b>Nombre:</b> {{ usuario.nombre }}</p>
+                        {{ mensaje }}
 
-            <p><b>Usuario:</b> {{ usuario.usuario }}</p>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert">
+                        </button>
 
-            <p><b>Rol:</b> {{ usuario.rol }}</p>
+                    </div>
 
-            <a
-                href="/perfil/editar"
-                class="btn btn-success">
+                {% endfor %}
 
-                Editar perfil
+            {% endif %}
 
-            </a>
+        {% endwith %}
+
+        <section class="perfil-portada">
+
+            <div class="perfil-portada__fondo">
+
+                <span class="perfil-portada__circulo perfil-circulo-1"></span>
+                <span class="perfil-portada__circulo perfil-circulo-2"></span>
+
+            </div>
+
+            <div class="perfil-portada__contenido">
+
+                <div
+                    class="perfil-avatar-principal
+                           {{ avatar_actual.clase }}">
+
+                    <i class="bi {{ avatar_actual.icono }}"></i>
+
+                </div>
+
+                <div class="perfil-portada__identidad">
+
+                    <span>Mi cuenta</span>
+
+                    <h1>{{ usuario.nombre }}</h1>
+
+                    <div class="perfil-portada__etiquetas">
+
+                        <span>
+                            <i class="bi bi-person-badge"></i>
+                            {{ usuario.rol }}
+                        </span>
+
+                        <span>
+                            <i class="bi bi-palette-fill"></i>
+                            {{ avatar_actual.nombre }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <a
+                    href="{{ url_for('editar_perfil') }}"
+                    class="perfil-editar-btn">
+
+                    <i class="bi bi-pencil-square"></i>
+                    Personalizar perfil
+
+                </a>
+
+            </div>
+
+        </section>
+
+        <div class="perfil-contenido-grid">
+
+            <section class="perfil-datos-card">
+
+                <div class="perfil-card-titulo">
+
+                    <div>
+                        <i class="bi bi-person-lines-fill"></i>
+                    </div>
+
+                    <span>
+                        <strong>Información de la cuenta</strong>
+                        <small>Tus datos registrados en el sistema</small>
+                    </span>
+
+                </div>
+
+                <div class="perfil-datos-lista">
+
+                    <div class="perfil-dato">
+
+                        <div class="perfil-dato__icono">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+
+                        <div>
+                            <span>Nombre completo</span>
+                            <strong>{{ usuario.nombre }}</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="perfil-dato">
+
+                        <div class="perfil-dato__icono">
+                            <i class="bi bi-at"></i>
+                        </div>
+
+                        <div>
+                            <span>Nombre de usuario</span>
+                            <strong>{{ usuario.usuario }}</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="perfil-dato">
+
+                        <div class="perfil-dato__icono">
+                            <i class="bi bi-envelope-fill"></i>
+                        </div>
+
+                        <div>
+                            <span>Correo electrónico</span>
+                            <strong>{{ usuario.correo }}</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="perfil-dato">
+
+                        <div class="perfil-dato__icono">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+
+                        <div>
+                            <span>Nivel de acceso</span>
+                            <strong>{{ usuario.rol }}</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <aside class="perfil-seguridad-card">
+
+                <div class="perfil-seguridad-icono">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+
+                <h2>Cuenta protegida</h2>
+
+                <p>
+                    Tu contraseña está almacenada de forma segura.
+                    Nunca compartas tus credenciales de acceso.
+                </p>
+
+                <ul>
+
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        Sesión protegida
+                    </li>
+
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        Perfil personal
+                    </li>
+
+                    <li>
+                        <i class="bi bi-check-circle-fill"></i>
+                        Acceso según tu rol
+                    </li>
+
+                </ul>
+
+                <a
+                    href="{{ url_for('editar_perfil') }}"
+                    class="perfil-seguridad-enlace">
+
+                    Cambiar mi contraseña
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </aside>
 
         </div>
 

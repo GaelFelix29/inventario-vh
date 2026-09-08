@@ -14,27 +14,34 @@ Inicio
 
     <!-- Bienvenida -->
 
-    <div class="mb-4">
+    <a
+    href="{{ url_for('perfil') }}"
+    class="inicio-bienvenida">
 
-        <small class="text-uppercase text-muted fw-semibold">
+        <div class="inicio-bienvenida__icono">
+            <i class="bi bi-person-fill"></i>
+        </div>
 
-            PANEL DE CONTROL
+        <div class="inicio-bienvenida__contenido">
 
-        </small>
+            <span class="inicio-bienvenida__etiqueta">
+                Panel de control
+            </span>
 
-        <h2 class="fw-bold mt-2">
+            <h1>
+                Hola, {{ session["nombre"].split()[0] }}
+            </h1>
 
-            👋 Hola, {{ session["nombre"] }}
+            <div class="inicio-bienvenida__detalle">
+                <p>Bienvenido nuevamente</p>
+                <span>{{ session["rol"] }}</span>
+            </div>
 
-        </h2>
+        </div>
 
-        <p class="text-muted">
+        <i class="bi bi-chevron-right inicio-bienvenida__flecha"></i>
 
-            Bienvenido nuevamente.
-
-        </p>
-
-    </div>
+    </a>
 
     <!-- Buscador -->
     <div class="card shadow-sm border-0 rounded-4 mb-4">

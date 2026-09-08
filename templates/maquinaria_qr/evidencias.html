@@ -24,6 +24,8 @@
 
     </div>
 
+    {% if session.get("rol") == "Administrador" %}
+
     <form id="formEvidencia" method="POST" enctype="multipart/form-data" action="{{ url_for('subir_evidencia',
                             id_activo=maquinaria.id_activo) }}">
 
@@ -53,6 +55,8 @@
         <input id="inputImagen" name="documento" type="file" accept="image/*" capture="environment" hidden>
 
     </form>
+
+    {% endif %}
 
     {% if imagenes %}
 

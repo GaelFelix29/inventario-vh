@@ -1,0 +1,1163 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Actividad del sistema
+{% endblock %}
+
+{% block estilos %}
+
+<style>
+    .actividad-desktop {
+        max-width: 1450px;
+        margin: 0 auto;
+        padding: 8px 6px 30px;
+    }
+
+    .actividad-portada {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 30px 34px;
+        margin-bottom: 22px;
+        border-radius: 24px;
+        color: #ffffff;
+        background:
+            linear-gradient(
+                135deg,
+                #18aa69 0%,
+                #07844d 100%
+            );
+        box-shadow:
+            0 16px 40px rgba(9, 132, 77, 0.18);
+    }
+
+    .actividad-portada::before,
+    .actividad-portada::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .actividad-portada::before {
+        width: 210px;
+        height: 210px;
+        right: 80px;
+        top: -130px;
+    }
+
+    .actividad-portada::after {
+        width: 170px;
+        height: 170px;
+        right: -45px;
+        bottom: -95px;
+    }
+
+    .actividad-portada-contenido {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .actividad-portada-icono {
+        display: grid;
+        place-items: center;
+        width: 62px;
+        height: 62px;
+        flex-shrink: 0;
+        border-radius: 18px;
+        font-size: 1.55rem;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .actividad-portada small {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
+        opacity: 0.82;
+    }
+
+    .actividad-portada h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .actividad-portada p {
+        margin: 5px 0 0;
+        opacity: 0.88;
+    }
+
+    .actividad-portada-dato {
+        position: relative;
+        z-index: 1;
+        min-width: 145px;
+        padding: 14px 20px;
+        border-radius: 17px;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .actividad-portada-dato strong {
+        display: block;
+        font-size: 1.7rem;
+        line-height: 1;
+    }
+
+    .actividad-portada-dato span {
+        display: block;
+        margin-top: 6px;
+        font-size: 0.76rem;
+        opacity: 0.85;
+    }
+
+    .actividad-panel {
+        margin-bottom: 22px;
+        padding: 24px;
+        border: 1px solid #e8efeb;
+        border-radius: 22px;
+        background: #ffffff;
+        box-shadow: 0 8px 28px rgba(31, 75, 53, 0.07);
+    }
+
+    .actividad-panel-titulo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .actividad-panel-titulo-icono {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+        color: #0a9658;
+        background: #e8f7ef;
+    }
+
+    .actividad-panel-titulo h2 {
+        margin: 0;
+        color: #1d3026;
+        font-size: 1.05rem;
+        font-weight: 800;
+    }
+
+    .actividad-panel-titulo p {
+        margin: 2px 0 0;
+        color: #819087;
+        font-size: 0.78rem;
+    }
+
+    .actividad-filtros-grid {
+        display: grid;
+        grid-template-columns:
+            repeat(2, minmax(145px, 0.8fr))
+            repeat(2, minmax(125px, 0.65fr))
+            minmax(210px, 1.2fr);
+        gap: 14px;
+        align-items: end;
+    }
+
+    .actividad-campo label {
+        display: block;
+        margin-bottom: 7px;
+        color: #34483d;
+        font-size: 0.75rem;
+        font-weight: 750;
+    }
+
+    .actividad-campo input,
+    .actividad-campo select,
+    .actividad-busqueda input {
+        width: 100%;
+        min-height: 44px;
+        padding: 10px 13px;
+        border: 1px solid #dfe9e3;
+        border-radius: 12px;
+        color: #263b30;
+        background: #fbfdfc;
+        outline: none;
+        transition: 0.2s ease;
+    }
+
+    .actividad-campo input:focus,
+    .actividad-campo select:focus,
+    .actividad-busqueda input:focus {
+        border-color: #16a363;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(22, 163, 99, 0.11);
+    }
+
+    .actividad-filtros-acciones {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .actividad-rapidos {
+        display: flex;
+        gap: 9px;
+    }
+
+    .actividad-btn {
+        min-height: 42px;
+        padding: 10px 16px;
+        border: 0;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 750;
+        text-decoration: none;
+        transition: 0.2s ease;
+    }
+
+    .actividad-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .actividad-btn--suave {
+        color: #14784b;
+        background: #eef8f2;
+        border: 1px solid #dceee4;
+    }
+
+    .actividad-btn--principal {
+        color: #ffffff;
+        background: #10975a;
+        box-shadow: 0 7px 16px rgba(16, 151, 90, 0.2);
+    }
+
+    .actividad-tabla-panel {
+        overflow: hidden;
+        border: 1px solid #e6eee9;
+        border-radius: 22px;
+        background: #ffffff;
+        box-shadow: 0 8px 28px rgba(31, 75, 53, 0.07);
+    }
+
+    .actividad-tabla-encabezado {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 20px 22px;
+        border-bottom: 1px solid #edf2ef;
+    }
+
+    .actividad-tabla-encabezado h2 {
+        margin: 0;
+        color: #1b3024;
+        font-size: 1.08rem;
+        font-weight: 800;
+    }
+
+    .actividad-tabla-encabezado p {
+        margin: 3px 0 0;
+        color: #87928c;
+        font-size: 0.76rem;
+    }
+
+    .actividad-busqueda {
+        position: relative;
+        width: min(360px, 100%);
+    }
+
+    .actividad-busqueda i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        color: #7d8c84;
+        transform: translateY(-50%);
+    }
+
+    .actividad-busqueda input {
+        padding-left: 40px;
+    }
+
+    .actividad-tabla-contenedor {
+        overflow-x: auto;
+    }
+
+    .actividad-tabla {
+        width: 100%;
+        min-width: 950px;
+        border-collapse: collapse;
+    }
+
+    .actividad-tabla th {
+        padding: 13px 16px;
+        color: #718078;
+        background: #f6faf8;
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.55px;
+        text-align: left;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .actividad-tabla td {
+        padding: 15px 16px;
+        border-top: 1px solid #f0f3f1;
+        color: #36473e;
+        font-size: 0.8rem;
+        vertical-align: middle;
+    }
+
+    .actividad-tabla tbody tr {
+        transition: background 0.2s ease;
+    }
+
+    .actividad-tabla tbody tr:hover {
+        background: #f9fcfa;
+    }
+
+    .actividad-fecha {
+        white-space: nowrap;
+    }
+
+    .actividad-fecha strong {
+        display: block;
+        color: #273b30;
+        font-size: 0.78rem;
+    }
+
+    .actividad-fecha span {
+        display: block;
+        margin-top: 3px;
+        color: #8b9790;
+        font-size: 0.69rem;
+    }
+
+    .actividad-modulo {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 10px;
+        border-radius: 10px;
+        color: #087c49;
+        background: #eaf7f0;
+        font-size: 0.7rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .actividad-accion {
+        max-width: 420px;
+        color: #22362b;
+        font-weight: 650;
+    }
+
+    .actividad-usuario {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        white-space: nowrap;
+    }
+
+    .actividad-usuario-icono {
+        display: grid;
+        place-items: center;
+        width: 31px;
+        height: 31px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        color: #15945a;
+        background: #edf8f2;
+    }
+
+    .actividad-referencia {
+        color: #697970;
+        white-space: nowrap;
+    }
+
+    .actividad-referencia--vacia {
+        color: #a4afa9;
+    }
+
+    .actividad-pie {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 16px 22px;
+        border-top: 1px solid #edf2ef;
+        background: #fbfdfc;
+    }
+
+    .actividad-pie-resumen {
+        margin: 0;
+        color: #7a8981;
+        font-size: 0.75rem;
+    }
+
+    .actividad-paginacion {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .actividad-paginacion button {
+        min-height: 38px;
+        padding: 8px 13px;
+        border: 1px solid #dce8e1;
+        border-radius: 10px;
+        color: #107f4d;
+        background: #ffffff;
+        font-size: 0.75rem;
+        font-weight: 750;
+    }
+
+    .actividad-paginacion button:disabled {
+        color: #aab4ae;
+        background: #f1f4f2;
+        cursor: not-allowed;
+    }
+
+    .actividad-pagina-actual {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        color: #ffffff;
+        background: #11955a;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+
+    .actividad-vacia {
+        padding: 60px 20px;
+        text-align: center;
+        color: #738178;
+    }
+
+    .actividad-vacia i {
+        display: block;
+        margin-bottom: 12px;
+        color: #14965a;
+        font-size: 2rem;
+    }
+
+    .actividad-vacia h3 {
+        color: #23372c;
+        font-weight: 800;
+    }
+
+    @media (max-width: 1100px) {
+        .actividad-filtros-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .actividad-portada {
+            padding: 25px;
+        }
+    }
+</style>
+
+{% endblock %}
+
+{% block contenido %}
+
+{% set iconos_modulo = {
+    "Accesorios": "bi-puzzle-fill",
+    "Aduanas": "bi-truck",
+    "Documentación": "bi-file-earmark-text-fill",
+    "Evidencias": "bi-images",
+    "Login": "bi-box-arrow-in-right",
+    "Maquinaria": "bi-pc-display",
+    "Movimientos": "bi-arrow-left-right",
+    "Respaldos": "bi-database-fill-lock",
+    "Seguridad": "bi-shield-lock-fill",
+    "Solicitudes": "bi-clipboard-check-fill",
+    "Usuarios": "bi-people-fill"
+} %}
+
+<section class="actividad-desktop">
+
+    <!-- Portada -->
+    <header class="actividad-portada">
+
+        <div class="actividad-portada-contenido">
+
+            <div class="actividad-portada-icono">
+                <i class="bi bi-activity"></i>
+            </div>
+
+            <div>
+
+                <small>
+                    Control y seguimiento
+                </small>
+
+                <h1>
+                    Actividad del sistema
+                </h1>
+
+                <p>
+                    Consulta y analiza los movimientos recientes.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="actividad-portada-dato">
+
+            <strong>
+                {{ actividad|length }}
+            </strong>
+
+            <span>
+                movimientos encontrados
+            </span>
+
+        </div>
+
+    </header>
+
+    <!-- Filtros -->
+    <section class="actividad-panel">
+
+        <div class="actividad-panel-titulo">
+
+            <div class="actividad-panel-titulo-icono">
+                <i class="bi bi-funnel-fill"></i>
+            </div>
+
+            <div>
+
+                <h2>
+                    Filtros de actividad
+                </h2>
+
+                <p>
+                    Selecciona el periodo, horario o módulo.
+                </p>
+
+            </div>
+
+        </div>
+
+        <form
+            method="GET"
+            action="{{ url_for('actividad_sistema') }}"
+            id="formActividad">
+
+            <div class="actividad-filtros-grid">
+
+                <div class="actividad-campo">
+
+                    <label for="fecha_desde">
+                        Fecha inicial
+                    </label>
+
+                    <input
+                        type="date"
+                        id="fecha_desde"
+                        name="fecha_desde"
+                        value="{{ filtros.fecha_desde }}">
+
+                </div>
+
+                <div class="actividad-campo">
+
+                    <label for="fecha_hasta">
+                        Fecha final
+                    </label>
+
+                    <input
+                        type="date"
+                        id="fecha_hasta"
+                        name="fecha_hasta"
+                        value="{{ filtros.fecha_hasta }}">
+
+                </div>
+
+                <div class="actividad-campo">
+
+                    <label for="hora_desde">
+                        Hora inicial
+                    </label>
+
+                    <input
+                        type="time"
+                        id="hora_desde"
+                        name="hora_desde"
+                        value="{{ filtros.hora_desde }}">
+
+                </div>
+
+                <div class="actividad-campo">
+
+                    <label for="hora_hasta">
+                        Hora final
+                    </label>
+
+                    <input
+                        type="time"
+                        id="hora_hasta"
+                        name="hora_hasta"
+                        value="{{ filtros.hora_hasta }}">
+
+                </div>
+
+                <div class="actividad-campo">
+
+                    <label for="modulo">
+                        Módulo
+                    </label>
+
+                    <select
+                        id="modulo"
+                        name="modulo">
+
+                        <option value="">
+                            Todos los módulos autorizados
+                        </option>
+
+                        {% for modulo in modulos %}
+
+                            <option
+                                value="{{ modulo }}"
+                                {% if filtros.modulo == modulo %}
+                                    selected
+                                {% endif %}>
+
+                                {{ modulo }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="actividad-filtros-acciones">
+
+                <div class="actividad-rapidos">
+
+                    <button
+                        type="button"
+                        class="actividad-btn actividad-btn--suave"
+                        id="filtroHoy">
+
+                        <i class="bi bi-calendar-event"></i>
+                        Hoy
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="actividad-btn actividad-btn--suave"
+                        id="filtroSemana">
+
+                        <i class="bi bi-calendar-week"></i>
+                        Últimos 7 días
+
+                    </button>
+
+                    <a
+                        href="{{ url_for('actividad_sistema') }}"
+                        class="actividad-btn actividad-btn--suave">
+
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        Limpiar
+
+                    </a>
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="actividad-btn actividad-btn--principal">
+
+                    <i class="bi bi-search"></i>
+                    Aplicar filtros
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+    <!-- Tabla -->
+    <section class="actividad-tabla-panel">
+
+        <div class="actividad-tabla-encabezado">
+
+            <div>
+
+                <h2>
+                    Registro de actividad
+                </h2>
+
+                <p>
+                    Se muestran 10 movimientos por página.
+                </p>
+
+            </div>
+
+            <div class="actividad-busqueda">
+
+                <i class="bi bi-search"></i>
+
+                <input
+                    type="search"
+                    id="buscarActividad"
+                    placeholder="Buscar en los resultados..."
+                    autocomplete="off">
+
+            </div>
+
+        </div>
+
+        {% if actividad %}
+
+            <div class="actividad-tabla-contenedor">
+
+                <table class="actividad-tabla">
+
+                    <thead>
+
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Módulo</th>
+                            <th>Movimiento</th>
+                            <th>Colaborador</th>
+                            <th>Referencia</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tablaActividad">
+
+                        {% for movimiento in actividad %}
+
+                            <tr class="actividad-fila">
+
+                                <td class="actividad-fecha">
+
+                                    <strong>
+                                        {{ movimiento.fecha.strftime(
+                                            "%d/%m/%Y"
+                                        ) }}
+                                    </strong>
+
+                                    <span>
+                                        {{ movimiento.fecha.strftime(
+                                            "%H:%M"
+                                        ) }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="actividad-modulo">
+
+                                        <i class="bi {{
+                                            iconos_modulo.get(
+                                                movimiento.modulo,
+                                                'bi-clock-history'
+                                            )
+                                        }}"></i>
+
+                                        {{ movimiento.modulo }}
+
+                                    </span>
+
+                                </td>
+
+                                <td class="actividad-accion">
+                                    {{ movimiento.accion }}
+                                </td>
+
+                                <td>
+
+                                    <div class="actividad-usuario">
+
+                                        <span class="actividad-usuario-icono">
+
+                                            <i class="bi bi-person"></i>
+
+                                        </span>
+
+                                        {{ movimiento.usuario }}
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    {% if movimiento.referencia %}
+
+                                        <span class="actividad-referencia">
+
+                                            <i class="bi bi-link-45deg"></i>
+
+                                            {{ movimiento.referencia }}
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="actividad-referencia--vacia">
+                                            Sin referencia
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <footer class="actividad-pie">
+
+                <p
+                    class="actividad-pie-resumen"
+                    id="resumenPaginacion">
+                </p>
+
+                <div
+                    class="actividad-paginacion"
+                    id="paginacionActividad">
+
+                    <button
+                        type="button"
+                        id="paginaAnterior">
+
+                        <i class="bi bi-chevron-left"></i>
+                        Anterior
+
+                    </button>
+
+                    <span class="actividad-pagina-actual">
+                        <span id="paginaActual">1</span>
+                    </span>
+
+                    <span>
+                        de
+                        <span id="totalPaginas">1</span>
+                    </span>
+
+                    <button
+                        type="button"
+                        id="paginaSiguiente">
+
+                        Siguiente
+                        <i class="bi bi-chevron-right"></i>
+
+                    </button>
+
+                </div>
+
+            </footer>
+
+        {% else %}
+
+            <div class="actividad-vacia">
+
+                <i class="bi bi-search"></i>
+
+                <h3>
+                    No encontramos actividad
+                </h3>
+
+                <p>
+                    Prueba con otro periodo o elimina los filtros.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ==========================================
+    // FILTROS RÁPIDOS
+    // ==========================================
+
+    const formulario =
+        document.getElementById("formActividad");
+
+    const fechaDesde =
+        document.getElementById("fecha_desde");
+
+    const fechaHasta =
+        document.getElementById("fecha_hasta");
+
+    function formatoFecha(fecha) {
+
+        const anio = fecha.getFullYear();
+
+        const mes = String(
+            fecha.getMonth() + 1
+        ).padStart(2, "0");
+
+        const dia = String(
+            fecha.getDate()
+        ).padStart(2, "0");
+
+        return `${anio}-${mes}-${dia}`;
+
+    }
+
+    document.getElementById(
+        "filtroHoy"
+    )?.addEventListener("click", function () {
+
+        const hoy = new Date();
+        const fecha = formatoFecha(hoy);
+
+        fechaDesde.value = fecha;
+        fechaHasta.value = fecha;
+
+        formulario.submit();
+
+    });
+
+    document.getElementById(
+        "filtroSemana"
+    )?.addEventListener("click", function () {
+
+        const hoy = new Date();
+        const inicio = new Date();
+
+        inicio.setDate(
+            hoy.getDate() - 6
+        );
+
+        fechaDesde.value =
+            formatoFecha(inicio);
+
+        fechaHasta.value =
+            formatoFecha(hoy);
+
+        formulario.submit();
+
+    });
+
+    // ==========================================
+    // BÚSQUEDA Y PAGINACIÓN LOCAL
+    // ==========================================
+
+    const todasLasFilas = Array.from(
+        document.querySelectorAll(
+            ".actividad-fila"
+        )
+    );
+
+    const buscador =
+        document.getElementById(
+            "buscarActividad"
+        );
+
+    const botonAnterior =
+        document.getElementById(
+            "paginaAnterior"
+        );
+
+    const botonSiguiente =
+        document.getElementById(
+            "paginaSiguiente"
+        );
+
+    const paginaActualTexto =
+        document.getElementById(
+            "paginaActual"
+        );
+
+    const totalPaginasTexto =
+        document.getElementById(
+            "totalPaginas"
+        );
+
+    const resumen =
+        document.getElementById(
+            "resumenPaginacion"
+        );
+
+    const paginacion =
+        document.getElementById(
+            "paginacionActividad"
+        );
+
+    if (
+        todasLasFilas.length === 0 ||
+        !botonAnterior ||
+        !botonSiguiente
+    ) {
+        return;
+    }
+
+    const elementosPorPagina = 10;
+
+    let filasFiltradas = [
+        ...todasLasFilas
+    ];
+
+    let paginaActual = 1;
+
+    function mostrarPagina(numeroPagina) {
+
+        const totalPaginas = Math.max(
+            1,
+            Math.ceil(
+                filasFiltradas.length /
+                elementosPorPagina
+            )
+        );
+
+        paginaActual = Math.min(
+            Math.max(numeroPagina, 1),
+            totalPaginas
+        );
+
+        const inicio =
+            (paginaActual - 1) *
+            elementosPorPagina;
+
+        const final = Math.min(
+            inicio + elementosPorPagina,
+            filasFiltradas.length
+        );
+
+        todasLasFilas.forEach(function (fila) {
+            fila.hidden = true;
+        });
+
+        filasFiltradas
+            .slice(inicio, final)
+            .forEach(function (fila) {
+                fila.hidden = false;
+            });
+
+        paginaActualTexto.textContent =
+            paginaActual;
+
+        totalPaginasTexto.textContent =
+            totalPaginas;
+
+        botonAnterior.disabled =
+            paginaActual === 1;
+
+        botonSiguiente.disabled =
+            paginaActual === totalPaginas;
+
+        if (filasFiltradas.length === 0) {
+
+            resumen.textContent =
+                "No hay coincidencias";
+
+        } else {
+
+            resumen.textContent =
+                "Mostrando " +
+                (inicio + 1) +
+                "–" +
+                final +
+                " de " +
+                filasFiltradas.length +
+                " movimientos";
+
+        }
+
+        if (paginacion) {
+
+            paginacion.hidden =
+                filasFiltradas.length <=
+                elementosPorPagina;
+
+        }
+
+    }
+
+    botonAnterior.addEventListener(
+        "click",
+        function () {
+
+            mostrarPagina(
+                paginaActual - 1
+            );
+
+        }
+    );
+
+    botonSiguiente.addEventListener(
+        "click",
+        function () {
+
+            mostrarPagina(
+                paginaActual + 1
+            );
+
+        }
+    );
+
+    buscador?.addEventListener(
+        "input",
+        function () {
+
+            const texto = buscador.value
+                .trim()
+                .toLowerCase();
+
+            filasFiltradas =
+                todasLasFilas.filter(
+                    function (fila) {
+
+                        return fila.textContent
+                            .toLowerCase()
+                            .includes(texto);
+
+                    }
+                );
+
+            mostrarPagina(1);
+
+        }
+    );
+
+    mostrarPagina(1);
+
+});
+</script>
+
+{% endblock %}

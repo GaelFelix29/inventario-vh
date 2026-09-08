@@ -38,12 +38,8 @@ Maquinarias
 
         <i class="bi bi-search search-icon"></i>
 
-        <input
-            type="search"
-            id="buscarActivo"
-            class="search-input"
-            placeholder="Buscar por activo, descripción, marca..."
-        >
+        <input type="search" id="buscarActivo" class="search-input"
+            placeholder="Buscar por activo, descripción, marca...">
 
     </div>
 
@@ -178,55 +174,55 @@ Maquinarias
 
 <script>
 
-let offset = 0;
+    let offset = 0;
 
-const filtroTipo = document.getElementById("filtroTipo");
-const lista = document.getElementById("listaMaquinarias");
-const btn = document.getElementById("btnMostrarMas");
+    const filtroTipo = document.getElementById("filtroTipo");
+    const lista = document.getElementById("listaMaquinarias");
+    const btn = document.getElementById("btnMostrarMas");
 
-const txtBuscar = document.getElementById("buscarActivo");
-const filtroEstado = document.getElementById("filtroEstado");
-const filtroUbicacion = document.getElementById("filtroUbicacion");
+    const txtBuscar = document.getElementById("buscarActivo");
+    const filtroEstado = document.getElementById("filtroEstado");
+    const filtroUbicacion = document.getElementById("filtroUbicacion");
 
-async function cargarMaquinarias(reset = false) {
+    async function cargarMaquinarias(reset = false) {
 
-    try {
+        try {
 
-        if (reset) {
+            if (reset) {
 
-            offset = 0;
-            lista.innerHTML = "";
+                offset = 0;
+                lista.innerHTML = "";
 
-        }
+            }
 
-        btn.disabled = true;
-        btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Cargando...';
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Cargando...';
 
-        const params = new URLSearchParams({
+            const params = new URLSearchParams({
 
-            offset: offset,
-            q: txtBuscar.value,
-            estado: filtroEstado.value,
-            ubicacion: filtroUbicacion.value,
-            tipo: filtroTipo.value
+                offset: offset,
+                q: txtBuscar.value,
+                estado: filtroEstado.value,
+                ubicacion: filtroUbicacion.value,
+                tipo: filtroTipo.value
 
-        });
+            });
 
-        const respuesta = await fetch("/m/maquinarias/api?" + params);
+            const respuesta = await fetch("/m/maquinarias/api?" + params);
 
-        if (!respuesta.ok) {
+            if (!respuesta.ok) {
 
-            throw new Error("Error al consultar la API.");
+                throw new Error("Error al consultar la API.");
 
-        }
+            }
 
-        const maquinas = await respuesta.json();
+            const maquinas = await respuesta.json();
 
-        console.log(maquinas);
+            console.log(maquinas);
 
-        if (reset && maquinas.length === 0) {
+            if (reset && maquinas.length === 0) {
 
-            lista.innerHTML = `
+                lista.innerHTML = `
 
                 <div class="text-center py-5">
 
@@ -238,11 +234,41 @@ async function cargarMaquinarias(reset = false) {
 
             `;
 
-        }
+            }
 
-        maquinas.forEach((m, i) => {
+            maquinas.forEach((m, i) => {
 
-            lista.insertAdjacentHTML("beforeend", `
+                const cantidadAccesorios = Number(
+                    m.cantidad_accesorios || 0
+                );
+
+                const textoAccesorios =
+                    cantidadAccesorios === 1
+                        ? "1 accesorio asignado"
+                        : cantidadAccesorios + " accesorios asignados";
+
+                const distintivoAccesorios =
+                    cantidadAccesorios > 0
+                        ? `
+                <a
+                    href="/qr/${m.id_activo}#accesorios-asignados"
+                    class="accesorios-listado-mobile"
+                >
+                    <span class="accesorios-listado-mobile__icono">
+                        <i class="bi bi-puzzle-fill"></i>
+                    </span>
+
+                    <span>
+                        <small>Equipamiento relacionado</small>
+                        <strong>${textoAccesorios}</strong>
+                    </span>
+
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            `
+                        : "";
+
+                lista.insertAdjacentHTML("beforeend", `
 
                 <div class="card-maquina"
                      style="animation-delay:${i * 60}ms">
@@ -264,6 +290,8 @@ async function cargarMaquinarias(reset = false) {
                         </span>
 
                     </div>
+
+                    ${distintivoAccesorios}
 
                     <div class="expediente-box">
 
@@ -326,86 +354,86 @@ async function cargarMaquinarias(reset = false) {
 
             `);
 
-        });
+            });
 
-        offset += maquinas.length;
+            offset += maquinas.length;
 
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-chevron-down"></i> Mostrar más';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-chevron-down"></i> Mostrar más';
 
-        if (maquinas.length < 20) {
+            if (maquinas.length < 20) {
 
-            btn.style.display = "none";
+                btn.style.display = "none";
 
-        } else {
+            } else {
 
-            btn.style.display = "inline-block";
+                btn.style.display = "inline-block";
+
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-chevron-down"></i> Mostrar más';
 
         }
 
-    } catch (error) {
-
-        console.error(error);
-
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-chevron-down"></i> Mostrar más';
-
     }
 
-}
+    btn.addEventListener("click", () => {
 
-btn.addEventListener("click", () => {
-
-    cargarMaquinarias();
-
-});
-
-txtBuscar.addEventListener("input", () => {
-
-    cargarMaquinarias(true);
-
-});
-
-filtroEstado.addEventListener("change", () => {
-
-    cargarMaquinarias(true);
-
-});
-
-filtroUbicacion.addEventListener("change", () => {
-
-    cargarMaquinarias(true);
-
-});
-
-filtroTipo.addEventListener("change", () => {
-
-    cargarMaquinarias(true);
-
-});
-
-async function cargarUbicaciones() {
-
-    const respuesta = await fetch("/m/maquinarias/ubicaciones");
-
-    const ubicaciones = await respuesta.json();
-
-    ubicaciones.forEach(u => {
-
-        filtroUbicacion.insertAdjacentHTML(
-
-            "beforeend",
-
-            `<option value="${u}">${u}</option>`
-
-        );
+        cargarMaquinarias();
 
     });
 
-}
+    txtBuscar.addEventListener("input", () => {
 
-cargarUbicaciones();
-cargarMaquinarias(true);
+        cargarMaquinarias(true);
+
+    });
+
+    filtroEstado.addEventListener("change", () => {
+
+        cargarMaquinarias(true);
+
+    });
+
+    filtroUbicacion.addEventListener("change", () => {
+
+        cargarMaquinarias(true);
+
+    });
+
+    filtroTipo.addEventListener("change", () => {
+
+        cargarMaquinarias(true);
+
+    });
+
+    async function cargarUbicaciones() {
+
+        const respuesta = await fetch("/m/maquinarias/ubicaciones");
+
+        const ubicaciones = await respuesta.json();
+
+        ubicaciones.forEach(u => {
+
+            filtroUbicacion.insertAdjacentHTML(
+
+                "beforeend",
+
+                `<option value="${u}">${u}</option>`
+
+            );
+
+        });
+
+    }
+
+    cargarUbicaciones();
+    cargarMaquinarias(true);
 
 </script>
 
