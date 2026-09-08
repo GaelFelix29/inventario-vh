@@ -2,19 +2,15 @@ from sqlalchemy import text
 from database.conexion import engine
 from datetime import date, datetime, timedelta
 
+ZONA_HORARIA_LOCAL = "-07:00"
 
 
 # ==========================================
 # REGISTRAR MOVIMIENTO
 # ==========================================
 
-def registrar_movimiento(
-    usuario,
-    accion,
-    modulo,
-    referencia="",
-    conn=None
-):
+
+def registrar_movimiento(usuario, accion, modulo, referencia="", conn=None):
 
     sql = text("""
 
@@ -41,12 +37,10 @@ def registrar_movimiento(
     """)
 
     parametros = {
-
         "usuario": usuario,
         "accion": accion,
         "modulo": modulo,
-        "referencia": referencia
-
+        "referencia": referencia,
     }
 
     # Si ya existe una transacción, usarla
@@ -62,10 +56,10 @@ def registrar_movimiento(
             conexion.execute(sql, parametros)
 
 
-
 # ==========================================
 # OBTENER HISTORIAL
 # ==========================================
+
 
 def obtener_historial():
 
@@ -84,7 +78,8 @@ def obtener_historial():
         resultado = conn.execute(sql)
 
         return resultado.mappings().all()
-    
+
+
 def obtener_historial_activo(id_activo):
 
     sql = text("""
@@ -106,16 +101,15 @@ def obtener_historial_activo(id_activo):
 
     with engine.connect() as conn:
 
-        resultado = conn.execute(
-            sql,
-            {"id": id_activo}
-        )
+        resultado = conn.execute(sql, {"id": id_activo})
 
         return resultado.mappings().all()
+
 
 # ==========================================
 # OBTENER ACTIVIDAD FILTRADA
 # ==========================================
+
 
 def obtener_actividad_filtrada(
     rol,
@@ -125,7 +119,7 @@ def obtener_actividad_filtrada(
     hora_desde=None,
     hora_hasta=None,
     modulo=None,
-    limite=100
+    limite=100,
 ):
     condiciones = []
     parametros = {}
@@ -165,9 +159,7 @@ def obtener_actividad_filtrada(
         """)
 
     elif rol == "Visualizador":
-        condiciones.append(
-            "usuario = :usuario_actual"
-        )
+        condiciones.append("usuario = :usuario_actual")
 
         parametros["usuario_actual"] = usuario_actual
 
@@ -180,34 +172,52 @@ def obtener_actividad_filtrada(
     # ======================================
 
     if fecha_desde:
-        condiciones.append(
-            "DATE(fecha) >= :fecha_desde"
-        )
+        condiciones.append("""
+            DATE(
+                CONVERT_TZ(
+                    fecha,
+                    '+00:00',
+                    :zona_horaria
+                )
+            ) >= :fecha_desde
+        """)
         parametros["fecha_desde"] = fecha_desde
 
     if fecha_hasta:
-        condiciones.append(
-            "DATE(fecha) <= :fecha_hasta"
-        )
+        condiciones.append("""
+            DATE(
+                CONVERT_TZ(
+                    fecha,
+                    '+00:00',
+                    :zona_horaria
+                )
+            ) <= :fecha_hasta
+        """)
         parametros["fecha_hasta"] = fecha_hasta
 
     if hora_desde:
-        condiciones.append(
-            "TIME(fecha) >= :hora_desde"
-        )
+        condiciones.append("""
+            TIME(
+                CONVERT_TZ(
+                    fecha,
+                    '+00:00',
+                    :zona_horaria
+                )
+            ) >= :hora_desde
+        """)
         parametros["hora_desde"] = hora_desde
 
     if hora_hasta:
-        condiciones.append(
-            "TIME(fecha) <= :hora_hasta"
-        )
+        condiciones.append("""
+            TIME(
+                CONVERT_TZ(
+                    fecha,
+                    '+00:00',
+                    :zona_horaria
+                )
+            ) <= :hora_hasta
+        """)
         parametros["hora_hasta"] = hora_hasta
-
-    if modulo:
-        condiciones.append(
-            "modulo = :modulo"
-        )
-        parametros["modulo"] = modulo
 
     # ======================================
     # CONSTRUIR CONSULTA
@@ -216,10 +226,7 @@ def obtener_actividad_filtrada(
     where_sql = ""
 
     if condiciones:
-        where_sql = (
-            "WHERE "
-            + " AND ".join(condiciones)
-        )
+        where_sql = "WHERE " + " AND ".join(condiciones)
 
     try:
         limite = int(limite)
@@ -228,11 +235,15 @@ def obtener_actividad_filtrada(
 
     limite = max(1, min(limite, 200))
     parametros["limite"] = limite
-
+    parametros["zona_horaria"] = ZONA_HORARIA_LOCAL
     sql = text(f"""
         SELECT
             id,
+            CONVERT_TZ(
             fecha,
+            '+00:00',
+            :zona_horaria
+            ) AS fecha,
             usuario,
             accion,
             modulo,
@@ -248,10 +259,7 @@ def obtener_actividad_filtrada(
     """)
 
     with engine.connect() as conn:
-        resultado = conn.execute(
-            sql,
-            parametros
-        )
+        resultado = conn.execute(sql, parametros)
 
         return resultado.mappings().all()
 
@@ -260,13 +268,9 @@ def obtener_actividad_filtrada(
 # ACTIVIDAD DE LOS ÚLTIMOS SIETE DÍAS
 # ==========================================
 
-def obtener_actividad_ultimos_7_dias(
-    rol,
-    usuario_actual
-):
-    condiciones = [
-        "fecha >= CURDATE() - INTERVAL 6 DAY"
-    ]
+
+def obtener_actividad_ultimos_7_dias(rol, usuario_actual):
+    condiciones = ["fecha >= CURDATE() - INTERVAL 6 DAY"]
 
     parametros = {}
 
@@ -304,19 +308,14 @@ def obtener_actividad_ultimos_7_dias(
         """)
 
     elif rol == "Visualizador":
-        condiciones.append(
-            "usuario = :usuario_actual"
-        )
+        condiciones.append("usuario = :usuario_actual")
 
         parametros["usuario_actual"] = usuario_actual
 
     else:
         condiciones.append("1 = 0")
 
-    where_sql = (
-        "WHERE "
-        + " AND ".join(condiciones)
-    )
+    where_sql = "WHERE " + " AND ".join(condiciones)
 
     sql = text(f"""
         SELECT
@@ -333,14 +332,10 @@ def obtener_actividad_ultimos_7_dias(
     """)
 
     with engine.connect() as conn:
-        resultado = conn.execute(
-            sql,
-            parametros
-        ).mappings().all()
+        resultado = conn.execute(sql, parametros).mappings().all()
 
     cantidades_por_fecha = {
-        str(fila["fecha_dia"]): int(fila["total"])
-        for fila in resultado
+        str(fila["fecha_dia"]): int(fila["total"]) for fila in resultado
     }
 
     etiquetas = []
@@ -349,24 +344,16 @@ def obtener_actividad_ultimos_7_dias(
     hoy = date.today()
 
     for dias_atras in range(6, -1, -1):
-        fecha_actual = (
-            hoy - timedelta(days=dias_atras)
-        )
+        fecha_actual = hoy - timedelta(days=dias_atras)
 
         clave = fecha_actual.isoformat()
 
-        etiquetas.append(
-            fecha_actual.strftime("%d/%m")
-        )
+        etiquetas.append(fecha_actual.strftime("%d/%m"))
 
-        valores.append(
-            cantidades_por_fecha.get(clave, 0)
-        )
+        valores.append(cantidades_por_fecha.get(clave, 0))
 
-    return {
-        "etiquetas": etiquetas,
-        "valores": valores
-    }
+    return {"etiquetas": etiquetas, "valores": valores}
+
 
 def registrar_activo_reciente(usuario, id_activo):
 
@@ -391,13 +378,9 @@ def registrar_activo_reciente(usuario, id_activo):
 
     with engine.begin() as conn:
 
-        conn.execute(sql, {
-
-            "usuario": usuario,
-            "id_activo": id_activo
-
-        })
+        conn.execute(sql, {"usuario": usuario, "id_activo": id_activo})
     print("INSERT REALIZADO")
+
 
 def obtener_activos_recientes(usuario):
 
@@ -428,9 +411,6 @@ def obtener_activos_recientes(usuario):
 
     with engine.connect() as conn:
 
-        resultado = conn.execute(
-            sql,
-            {"usuario": usuario}
-        ).mappings().all()
+        resultado = conn.execute(sql, {"usuario": usuario}).mappings().all()
 
         return [dict(r) for r in resultado]
