@@ -12,8 +12,6 @@ from flask import (
 
 from uuid import uuid4
 
-from database.dashboard import obtener_kpis_dashboard, obtener_actividad_dashboard
-
 from utils.responsive import render_responsive
 
 
@@ -53,8 +51,6 @@ from models.auditoria_model import (
     obtener_historial_activo,
     registrar_activo_reciente,
     obtener_activos_recientes,
-    obtener_actividad_filtrada,
-    obtener_actividad_ultimos_7_dias,
 )
 
 from database.documentos import (
@@ -96,6 +92,7 @@ from database.usuarios import (
 
 from routes.usuarios import registrar_rutas_usuarios
 from routes.actividad import registrar_rutas_actividad
+from routes.dashboard import registrar_rutas_dashboard
 
 from database.maquinarias import buscar_activos, obtener_maquinarias_mobile
 
@@ -866,75 +863,6 @@ def editar_perfil():
         return redirect(url_for("perfil"))
 
     return mostrar_formulario()
-
-
-# ==========================================================
-# DASHBOARD
-# ==========================================================
-
-
-@app.route("/dashboard")
-@login_required
-def dashboard():
-
-    return render_template("dashboard.html")
-
-
-# ==========================================================
-# DATOS DASHBOARD
-# ==========================================================
-
-
-@app.route("/dashboard/datos")
-@login_required
-def dashboard_datos():
-
-    maq = obtener_maquinarias()
-    aduana = obtener_aduanas()
-
-    total = len(maq)
-
-    bajas = (maq["estado"] == "BAJA").sum()
-
-    activos = (maq["estado"] == "ACTIVO").sum()
-
-    valor = maq["valor_mx"].fillna(0).sum()
-
-    origen = aduana["origen"].fillna("SIN DATO").value_counts()
-
-    documentacion = aduana["documentacion_completa"].fillna("NO").value_counts()
-
-    top = maq["categoria"].fillna("SIN DATO").value_counts().head(10)
-
-    valor_origen = (
-        aduana.merge(maq[["id_activo", "valor_mx"]], on="id_activo", how="left")
-        .groupby("origen")["valor_mx"]
-        .sum()
-    )
-
-    return jsonify(
-        {
-            "kpi": {
-                "total": int(total),
-                "activos": int(activos),
-                "bajas": int(bajas),
-                "valor": float(valor),
-            },
-            "origen": {
-                "labels": origen.index.tolist(),
-                "values": origen.values.tolist(),
-            },
-            "documentacion": {
-                "labels": documentacion.index.tolist(),
-                "values": documentacion.values.tolist(),
-            },
-            "top": {"labels": top.index.tolist(), "values": top.values.tolist()},
-            "valorOrigen": {
-                "labels": valor_origen.index.tolist(),
-                "values": valor_origen.values.tolist(),
-            },
-        }
-    )
 
 
 # ==========================================================
@@ -2816,34 +2744,6 @@ def qr_documento(id_activo, tipo):
     )
 
 
-@app.route("/m/dashboard")
-@login_required
-def dashboard_mobil():
-    rol_actual = session.get("rol")
-    nombre_actual = session.get("nombre")
-
-    kpis = obtener_kpis_dashboard()
-
-    actividad = obtener_actividad_filtrada(
-        rol=rol_actual,
-        usuario_actual=nombre_actual,
-        limite=3
-    )
-
-    grafica_actividad = (
-        obtener_actividad_ultimos_7_dias(
-            rol=rol_actual,
-            usuario_actual=nombre_actual
-        )
-    )
-
-    return render_template(
-        "maquinaria_qr/dashboard_mobil.html",
-        **kpis,
-        actividad=actividad,
-        grafica_actividad=grafica_actividad
-    )
-
 @app.route("/m/maquinarias/<id_activo>/movimiento/<tipo>")
 @login_required
 @roles_required("Administrador", "Mantenimiento")
@@ -3701,6 +3601,7 @@ def registrar_accesorio_desde_contenido(id_activo):
 
 registrar_rutas_usuarios(app, admin_required, registrar_movimiento)
 registrar_rutas_actividad(app, login_required)
+registrar_rutas_dashboard(app, login_required)
 
 if __name__ == "__main__":
 
