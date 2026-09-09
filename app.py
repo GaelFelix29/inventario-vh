@@ -90,8 +90,6 @@ from database.maquinarias import (
     obtener_activos_vecinos,
     obtener_ubicaciones,
     finalizar_mantenimiento,
-    confirmar_recepcion_activo,
-    finalizar_mantenimiento_activo,
     obtener_mantenimiento_en_proceso,
     obtener_maquinarias_mobile_filtrado,
     obtener_ubicaciones,
@@ -1321,56 +1319,6 @@ def crear_categoria_accesorio_route(id_accesorio):
     return redirigir_despues_de_gestionar_accesorio(
         id_accesorio
     )
-
-
-@app.route("/maquinarias/<id_activo>/confirmar-recepcion", methods=["POST"])
-@login_required
-def confirmar_recepcion_route(id_activo):
-
-    origen = request.form.get("origen")
-
-    if session.get("rol") != "Administrador":
-
-        flash("No tiene permisos para realizar esta acción.", "danger")
-
-        if origen == "qr":
-            return redirect(url_for("maquinaria_qr", id_activo=id_activo))
-
-        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
-
-    confirmar_recepcion_activo(id_activo, session["nombre"])
-
-    flash("La maquinaria fue recibida correctamente.", "success")
-
-    if origen == "qr":
-        return redirect(url_for("maquinaria_qr", id_activo=id_activo))
-
-    return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
-
-
-@app.route("/maquinarias/<id_activo>/finalizar-mantenimiento", methods=["POST"])
-@login_required
-def finalizar_mantenimiento_route(id_activo):
-
-    origen = request.form.get("origen")
-
-    if session.get("rol") != "Administrador":
-
-        flash("No tiene permisos para realizar esta acción.", "danger")
-
-        if origen == "qr":
-            return redirect(url_for("maquinaria_qr", id_activo=id_activo))
-
-        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
-
-    finalizar_mantenimiento_activo(id_activo, session["nombre"])
-
-    flash("El mantenimiento fue finalizado correctamente.", "success")
-
-    if origen == "qr":
-        return redirect(url_for("maquinaria_qr", id_activo=id_activo))
-
-    return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
 
 @app.route("/<id_activo>")

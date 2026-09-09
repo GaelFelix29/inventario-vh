@@ -56,6 +56,20 @@ class RutasSolicitudesTest(unittest.TestCase):
         }
         self.assertTrue(esperadas.issubset(rutas))
 
+        operaciones = {
+            (
+                "/maquinarias/<id_activo>/confirmar-recepcion",
+                "confirmar_recepcion_route",
+                ("POST",),
+            ),
+            (
+                "/maquinarias/<id_activo>/finalizar-mantenimiento",
+                "finalizar_mantenimiento_route",
+                ("POST",),
+            ),
+        }
+        self.assertTrue(operaciones.issubset(rutas))
+
 
 if __name__ == "__main__":
     unittest.main()

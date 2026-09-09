@@ -10,7 +10,11 @@ from flask import (
     url_for,
 )
 
-from database.maquinarias import obtener_maquinaria
+from database.maquinarias import (
+    confirmar_recepcion_activo,
+    finalizar_mantenimiento_activo,
+    obtener_maquinaria,
+)
 from database.solicitudes_baja import (
     aprobar_solicitud,
     existe_solicitud_pendiente,
@@ -158,3 +162,38 @@ def registrar_rutas_solicitudes(
         except Exception as error:
             traceback.print_exc()
             return jsonify({"ok": False, "error": str(error)}), 500
+
+    def regresar_al_activo(id_activo, origen):
+        if origen == "qr":
+            return redirect(url_for("maquinaria_qr", id_activo=id_activo))
+        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
+
+    @app.route(
+        "/maquinarias/<id_activo>/confirmar-recepcion",
+        methods=["POST"],
+    )
+    @login_required
+    def confirmar_recepcion_route(id_activo):
+        origen = request.form.get("origen")
+        if session.get("rol") != "Administrador":
+            flash("No tiene permisos para realizar esta acción.", "danger")
+            return regresar_al_activo(id_activo, origen)
+
+        confirmar_recepcion_activo(id_activo, session["nombre"])
+        flash("La maquinaria fue recibida correctamente.", "success")
+        return regresar_al_activo(id_activo, origen)
+
+    @app.route(
+        "/maquinarias/<id_activo>/finalizar-mantenimiento",
+        methods=["POST"],
+    )
+    @login_required
+    def finalizar_mantenimiento_route(id_activo):
+        origen = request.form.get("origen")
+        if session.get("rol") != "Administrador":
+            flash("No tiene permisos para realizar esta acción.", "danger")
+            return regresar_al_activo(id_activo, origen)
+
+        finalizar_mantenimiento_activo(id_activo, session["nombre"])
+        flash("El mantenimiento fue finalizado correctamente.", "success")
+        return regresar_al_activo(id_activo, origen)
