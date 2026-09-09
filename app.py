@@ -88,6 +88,7 @@ from routes.etiquetas import registrar_rutas_etiquetas
 from routes.maquinaria import registrar_rutas_maquinaria
 from routes.solicitudes import registrar_rutas_solicitudes
 from routes.aduanas import registrar_rutas_aduanas
+from routes.documentos import registrar_rutas_documentos
 
 from database.maquinarias import buscar_activos, obtener_maquinarias_mobile
 
@@ -1209,106 +1210,6 @@ def obtener_historial_activo(id_activo):
         return conn.execute(sql, {"id": id_activo}).mappings().all()
 
 
-@app.route("/maquinarias/<id_activo>/documentos", methods=["POST"])
-@login_required
-def subir_documento(id_activo):
-
-    if session.get("rol") != "Administrador":
-
-        flash("No tiene permisos para subir documentos.", "danger")
-
-        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
-
-    archivo = request.files.get("documento")
-
-    tipo_documento = request.form.get("tipo_documento")
-
-    if not archivo or archivo.filename == "":
-
-        flash("Seleccione un archivo.", "warning")
-
-        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
-
-    nombre_original = archivo.filename
-
-    nombre_seguro = secure_filename(nombre_original)
-
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    nombre_archivo = f"{id_activo}_{timestamp}_{nombre_seguro}"
-
-    try:
-
-        print("=" * 70)
-        print("INICIANDO SUBIDA A SUPABASE")
-        print("Activo:", id_activo)
-        print("Archivo:", nombre_original)
-
-        archivo_bytes = archivo.read()
-
-        ruta = f"{id_activo}/{nombre_archivo}"
-
-        respuesta = supabase.storage.from_("documentos").upload(
-            path=ruta,
-            file=archivo_bytes,
-            file_options={"content-type": archivo.content_type, "upsert": False},
-        )
-
-        print("RESPUESTA UPLOAD:")
-        print(respuesta)
-
-        url_pdf = supabase.storage.from_("documentos").get_public_url(ruta)
-
-        print("=" * 70)
-        print("TIPO URL:", type(url_pdf))
-        print("URL:", url_pdf)
-        print("=" * 70)
-
-        # Compatibilidad con distintas versiones del SDK
-        if isinstance(url_pdf, dict):
-            url_guardar = url_pdf.get("publicUrl") or url_pdf.get("public_url")
-        else:
-            url_guardar = url_pdf
-
-        guardar_documento_bd(
-            id_activo=id_activo,
-            nombre_original=nombre_original,
-            nombre_archivo=nombre_archivo,
-            tipo=tipo_documento,
-            tipo_archivo="DOCUMENTO",
-            descripcion=request.form.get("descripcion"),
-            url=url_guardar,
-            public_id=ruta,
-            usuario=session["nombre"],
-        )
-
-        registrar_movimiento(
-            usuario=session["nombre"],
-            accion=f"Subió documento: {nombre_original}",
-            modulo="Documentación",
-            referencia=id_activo,
-        )
-
-        print("DOCUMENTO GUARDADO EN MYSQL")
-
-        flash("Documento subido correctamente.", "success")
-
-    except Exception as e:
-
-        import traceback
-
-        traceback.print_exc()
-
-        print("=" * 70)
-        print("ERROR SUBIENDO DOCUMENTO")
-        print(e)
-        print("=" * 70)
-
-        flash(f"Ocurrió un error al subir el documento: {e}", "danger")
-
-    return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
-
-
 @app.route("/buscar-activos")
 @login_required
 def buscar_activos_ajax():
@@ -1614,56 +1515,6 @@ def finalizar_mantenimiento_route(id_activo):
     return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
 
-@app.route("/documentos/<int:id_documento>/eliminar", methods=["POST"])
-@login_required
-def borrar_documento(id_documento):
-
-    if session.get("rol") != "Administrador":
-
-        flash("No tiene permisos para eliminar documentos.", "danger")
-
-        return redirect(request.referrer or url_for("lista_maquinarias"))
-
-    # Obtener información del documento
-    doc = obtener_documento(id_documento)
-
-    if not doc:
-
-        flash("Documento no encontrado.", "danger")
-
-        return redirect(request.referrer or url_for("lista_maquinarias"))
-
-    # Eliminar archivo de Supabase
-    try:
-
-        if doc["public_id"]:
-
-            print("PUBLIC ID:", repr(doc["public_id"]))
-
-            respuesta = supabase.storage.from_("documentos").remove([doc["public_id"]])
-
-            print("RESPUESTA SUPABASE:", respuesta)
-
-    except Exception as e:
-
-        print("ERROR SUPABASE:", e)
-
-    # Eliminar registro de MySQL
-    eliminar_documento(id_documento)
-
-    # Auditoría
-    registrar_movimiento(
-        usuario=session["nombre"],
-        accion="Eliminó documento",
-        modulo="Documentación",
-        referencia=doc["id_activo"],
-    )
-
-    flash("Documento eliminado correctamente.", "success")
-
-    return redirect(url_for("expediente_maquinaria", id_activo=doc["id_activo"]))
-
-
 @app.route("/<id_activo>")
 @login_required
 def redireccion_qr_antiguo(id_activo):
@@ -1880,32 +1731,6 @@ def qr_expediente(id_activo):
         documentos_map=documentos_map,
         pagina="expediente",
         id_activo=id_activo,
-    )
-
-
-@app.route("/qr/<id_activo>/documento/<tipo>")
-@login_required
-def qr_documento(id_activo, tipo):
-
-    documentos = listar_documentos(id_activo)
-
-    print("TIPO SOLICITADO:", tipo)
-
-    for doc in documentos:
-        print(doc)
-
-    documento = None
-
-    for doc in documentos:
-        if doc["tipo"].lower() == tipo.lower():
-            documento = doc
-            break
-
-    if not documento:
-        abort(404)
-
-    return render_template(
-        "maquinaria_qr/documento.html", documento=documento, id_activo=id_activo
     )
 
 
@@ -2738,6 +2563,7 @@ registrar_rutas_solicitudes(
     registrar_movimiento,
 )
 registrar_rutas_aduanas(app, login_required, registrar_movimiento)
+registrar_rutas_documentos(app, login_required, registrar_movimiento)
 
 if __name__ == "__main__":
 
