@@ -37,7 +37,6 @@ import os
 import secrets
 import warnings
 from urllib.parse import urljoin, urlparse
-import string
 
 from werkzeug.utils import secure_filename
 from flask_wtf.csrf import CSRFError, CSRFProtect
@@ -89,17 +88,13 @@ from io import BytesIO
 
 from database.usuarios import (
     obtener_usuario,
-    obtener_usuarios,
-    crear_usuario,
     obtener_usuario_id,
-    actualizar_usuario,
     actualizar_password,
-    desactivar_usuario,
-    reactivar_usuario,
     verificar_password,
     actualizar_perfil,
-    establecer_password_temporal
 )
+
+from routes.usuarios import registrar_rutas_usuarios
 
 from database.maquinarias import buscar_activos, obtener_maquinarias_mobile
 
@@ -873,274 +868,6 @@ def editar_perfil():
 
 
 # ==========================================================
-# USUARIOS
-# ==========================================================
-
-
-@app.route("/usuarios")
-@admin_required
-def usuarios():
-
-    lista = obtener_usuarios()
-
-    return render_template("usuarios.html", usuarios=lista)
-
-# ==========================================================
-# USUARIOS MÓVIL
-# ==========================================================
-
-@app.route("/m/usuarios")
-@admin_required
-def usuarios_mobile():
-
-    lista = obtener_usuarios()
-
-    return render_template(
-        "maquinaria_qr/usuarios_mobile.html",
-        usuarios=lista,
-        pagina="usuarios"
-    )
-
-
-# ==========================================================
-# NUEVO USUARIO
-# ==========================================================
-
-
-@app.route("/usuarios/nuevo", methods=["GET", "POST"])
-@admin_required
-def nuevo_usuario():
-
-    if request.method == "POST":
-
-        if request.form["password"] != request.form["confirmar"]:
-
-            flash("Las contraseñas no coinciden.", "danger")
-
-            return redirect(url_for("nuevo_usuario"))
-
-        crear_usuario(
-            request.form["nombre"],
-            request.form["usuario"],
-            request.form["correo"],
-            request.form["password"],
-            request.form["rol"],
-        )
-
-        registrar_movimiento(
-            usuario=session["nombre"],
-            accion=f"Creó el usuario: {request.form['usuario']}",
-            modulo="Usuarios",
-            referencia=str(request.form["usuario"]),
-        )
-
-        flash("Usuario creado correctamente.", "success")
-
-        return redirect(url_for("usuarios"))
-
-    return render_template("nuevo_usuario.html")
-
-# ==========================================================
-# NUEVO USUARIO MÓVIL
-# ==========================================================
-
-@app.route("/m/usuarios/nuevo", methods=["GET", "POST"])
-@admin_required
-def nuevo_usuario_mobile():
-
-    if request.method == "POST":
-
-        nombre = (request.form.get("nombre") or "").strip()
-        usuario = (request.form.get("usuario") or "").strip()
-        correo = (request.form.get("correo") or "").strip()
-        password = request.form.get("password") or ""
-        confirmar = request.form.get("confirmar") or ""
-        rol = (request.form.get("rol") or "").strip()
-
-        if password != confirmar:
-
-            flash(
-                "Las contraseñas no coinciden.",
-                "danger"
-            )
-
-            return redirect(
-                url_for("nuevo_usuario_mobile")
-            )
-
-        crear_usuario(
-            nombre,
-            usuario,
-            correo,
-            password,
-            rol,
-        )
-
-        registrar_movimiento(
-            usuario=session["nombre"],
-            accion=f"Creó el usuario: {usuario}",
-            modulo="Usuarios",
-            referencia=usuario,
-        )
-
-        flash(
-            "Usuario creado correctamente.",
-            "success"
-        )
-
-        return redirect(
-            url_for("usuarios_mobile")
-        )
-
-    return render_template(
-        "maquinaria_qr/nuevo_usuario_mobile.html",
-        pagina="usuarios"
-    )
-# ==========================================================
-# EDITAR USUARIO
-# ==========================================================
-
-
-@app.route("/usuarios/editar/<int:id>", methods=["GET", "POST"])
-@admin_required
-def editar_usuario(id):
-
-    usuario = obtener_usuario_id(id)
-
-    if not usuario:
-
-        flash("Usuario no encontrado.", "danger")
-
-        return redirect(url_for("usuarios"))
-
-    if request.method == "POST":
-
-        actualizar_usuario(
-            id,
-            request.form["nombre"],
-            request.form["usuario"],
-            request.form["correo"],
-            request.form["rol"],
-            int(request.form["activo"]),
-        )
-
-        registrar_movimiento(
-            usuario=session["nombre"],
-            accion=f"Actualizó el usuario: {request.form['usuario']}",
-            modulo="Usuarios",
-            referencia=str(id),
-        )
-
-        flash("Usuario actualizado correctamente.", "success")
-
-        return redirect(url_for("usuarios"))
-
-    return render_template("editar_usuario.html", usuario=usuario)
-
-def generar_password_temporal(longitud=14):
-    caracteres = (
-        string.ascii_letters
-        + string.digits
-        + "!@#$%*-_"
-    )
-
-    password = [
-        secrets.choice(string.ascii_uppercase),
-        secrets.choice(string.ascii_lowercase),
-        secrets.choice(string.digits),
-        secrets.choice("!@#$%*-_"),
-    ]
-
-    password.extend(
-        secrets.choice(caracteres)
-        for _ in range(longitud - len(password))
-    )
-
-    secrets.SystemRandom().shuffle(password)
-
-    return "".join(password)
-
-
-@app.route(
-    "/usuarios/<int:id>/restablecer-password",
-    methods=["POST"]
-)
-@admin_required
-def restablecer_password_usuario(id):
-    usuario = obtener_usuario_id(id)
-
-    if not usuario:
-        flash("Usuario no encontrado.", "danger")
-        return redirect(url_for("usuarios"))
-
-    try:
-        password_temporal = generar_password_temporal()
-
-        establecer_password_temporal(
-            id,
-            password_temporal
-        )
-
-        registrar_movimiento(
-            usuario=session["nombre"],
-            accion=(
-                "Restableció la contraseña del usuario: "
-                f"{usuario.usuario}"
-            ),
-            modulo="Usuarios",
-            referencia=str(id),
-        )
-
-        respuesta = make_response(
-            render_template(
-                "password_temporal.html",
-                usuario=usuario,
-                password_temporal=password_temporal
-            )
-        )
-
-        respuesta.headers["Cache-Control"] = (
-            "no-store, no-cache, must-revalidate, private"
-        )
-        respuesta.headers["Pragma"] = "no-cache"
-        respuesta.headers["Expires"] = "0"
-
-        return respuesta
-
-    except ValueError as error:
-        flash(str(error), "danger")
-        return redirect(
-            url_for("editar_usuario", id=id)
-        )
-
-
-
-# ==========================================================
-# DESACTIVAR USUARIO
-# ==========================================================
-
-
-@app.route("/usuarios/desactivar/<int:id>")
-@admin_required
-def desactivar(id):
-
-    desactivar_usuario(id)
-
-    usuario = obtener_usuario_id(id)
-
-    registrar_movimiento(
-        usuario=session["nombre"],
-        accion=f"Desactivó el usuario: {usuario.usuario}",
-        modulo="Usuarios",
-        referencia=str(id),
-    )
-
-    flash("Usuario desactivado correctamente.", "warning")
-
-    return redirect(url_for("usuarios"))
-
-
-# ==========================================================
 # ACTIVIDAD DEL SISTEMA
 # ==========================================================
 
@@ -1356,31 +1083,6 @@ def actividad_sistema_mobile():
     return mostrar_actividad_sistema(
         "maquinaria_qr/actividad.html"
     )
-
-
-# ==========================================================
-# REACTIVAR USUARIO
-# ==========================================================
-
-
-@app.route("/usuarios/reactivar/<int:id>")
-@admin_required
-def reactivar_usuario_route(id):
-
-    reactivar_usuario(id)
-
-    usuario = obtener_usuario_id(id)
-
-    registrar_movimiento(
-        usuario=session["nombre"],
-        accion=f"Reactivó el usuario: {usuario.usuario}",
-        modulo="Usuarios",
-        referencia=str(id),
-    )
-
-    flash("Usuario reactivado correctamente.", "success")
-
-    return redirect(url_for("usuarios"))
 
 
 # ==========================================================
@@ -4213,6 +3915,8 @@ def registrar_accesorio_desde_contenido(id_activo):
 # ==========================================================
 # SERVIDOR
 # ==========================================================
+
+registrar_rutas_usuarios(app, admin_required, registrar_movimiento)
 
 if __name__ == "__main__":
 
