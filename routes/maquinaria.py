@@ -2,7 +2,7 @@ import base64
 from io import BytesIO
 
 import qrcode
-from flask import flash, redirect, render_template, request, session, url_for
+from flask import abort, flash, redirect, render_template, request, session, url_for
 
 from database.maquinarias import (
     insertar_maquinaria,
@@ -266,4 +266,158 @@ def registrar_rutas_maquinaria(
             "nueva_maquinaria.html",
             maquina=maquina,
             editar=True,
+        )
+
+    @app.route("/<id_activo>")
+    @login_required
+    def redireccion_qr_antiguo(id_activo):
+        if not id_activo.startswith("ACT-"):
+            abort(404)
+
+        return redirect(
+            url_for("expediente_maquinaria", id_activo=id_activo)
+        )
+
+    @app.route("/maquina/<id_activo>")
+    @login_required
+    def redireccion_qr_maquina(id_activo):
+        return redirect(
+            url_for("expediente_maquinaria", id_activo=id_activo),
+            code=301,
+        )
+
+    @app.route("/qr/<id_activo>")
+    @login_required
+    def maquinaria_qr(id_activo):
+        maquinaria = obtener_maquinaria(id_activo)
+        if not maquinaria:
+            abort(404)
+
+        registrar_activo_reciente(
+            usuario=session["nombre"],
+            id_activo=id_activo,
+        )
+
+        aduana = obtener_aduana(id_activo)
+        estado = estado_expediente_aduanal(aduana)
+        traslado_en_proceso = obtener_traslado_en_proceso(id_activo)
+        mantenimiento_en_proceso = obtener_mantenimiento_en_proceso(
+            id_activo
+        )
+        contenido_activo = []
+        es_contenedor = bool(maquinaria.get("es_contenedor"))
+        es_accesorio = (
+            not es_contenedor
+            and (maquinaria.get("categoria") or "").strip().upper()
+            == "ACCESORIO"
+        )
+        categorias_accesorios = []
+        asignacion_activa = None
+        historial_asignaciones = []
+        accesorios_asignados = []
+
+        if es_contenedor:
+            contenido_activo = obtener_contenido_activo(id_activo)
+
+        if es_contenedor or es_accesorio:
+            categorias_accesorios = obtener_categorias_accesorios()
+
+        if es_accesorio:
+            asignacion_activa = obtener_asignacion_activa_accesorio(
+                id_activo
+            )
+            historial_asignaciones = (
+                obtener_historial_asignaciones_accesorio(id_activo)
+            )
+        elif not es_contenedor:
+            accesorios_asignados = (
+                obtener_accesorios_asignados_maquinaria(id_activo)
+            )
+
+        estado_ui = {
+            "ACTIVO": {
+                "clase": "activo",
+                "icono": "bi-check-circle-fill",
+            },
+            "BAJA": {
+                "clase": "baja",
+                "icono": "bi-x-circle-fill",
+            },
+            "MANTENIMIENTO": {
+                "clase": "mantenimiento",
+                "icono": "bi-tools",
+            },
+            "EN TRASLADO": {
+                "clase": "traslado",
+                "icono": "bi-truck",
+            },
+        }.get(
+            maquinaria["estado"],
+            {
+                "clase": "activo",
+                "icono": "bi-circle-fill",
+            },
+        )
+
+        return render_template(
+            "maquinaria_qr/inicio.html",
+            maquinaria=maquinaria,
+            aduana=aduana,
+            estado=estado,
+            traslado_en_proceso=traslado_en_proceso,
+            mantenimiento_en_proceso=mantenimiento_en_proceso,
+            contenido_activo=contenido_activo,
+            estado_ui=estado_ui,
+            id_activo=id_activo,
+            pagina="inicio",
+            es_contenedor=es_contenedor,
+            es_accesorio=es_accesorio,
+            categorias_accesorios=categorias_accesorios,
+            asignacion_activa=asignacion_activa,
+            historial_asignaciones=historial_asignaciones,
+            accesorios_asignados=accesorios_asignados,
+        )
+
+    @app.route("/qr/<id_activo>/contenido")
+    @login_required
+    def qr_contenido(id_activo):
+        maquinaria = obtener_maquinaria(id_activo)
+        if not maquinaria:
+            abort(404)
+
+        if maquinaria.get("es_contenedor") != 1:
+            flash(
+                "Este activo no está marcado como contenedor.",
+                "warning",
+            )
+            return redirect(url_for("maquinaria_qr", id_activo=id_activo))
+
+        return render_template(
+            "maquinaria_qr/contenido.html",
+            maquinaria=maquinaria,
+            contenido_activo=obtener_contenido_activo(id_activo),
+            categorias_accesorios=obtener_categorias_accesorios(),
+            id_activo=id_activo,
+            pagina="contenido",
+        )
+
+    @app.route("/qr/<id_activo>/expediente")
+    @login_required
+    def qr_expediente(id_activo):
+        maquinaria = obtener_maquinaria(id_activo)
+        aduana = obtener_aduana(id_activo)
+        estado = estado_expediente_aduanal(aduana)
+        documentos_map = {
+            documento["tipo"]: documento
+            for documento in listar_documentos(id_activo)
+        }
+
+        return render_template(
+            "maquinaria_qr/expediente.html",
+            maquinaria=maquinaria,
+            aduana=aduana,
+            estado=estado,
+            documentos_map=documentos_map,
+            pagina="expediente",
+            id_activo=id_activo,
         )

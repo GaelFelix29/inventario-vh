@@ -77,6 +77,38 @@ class RutasMaquinariaTest(unittest.TestCase):
             ),
             rutas,
         )
+        self.assertIn(
+            ("/<id_activo>", "redireccion_qr_antiguo", ("GET",)),
+            rutas,
+        )
+        self.assertIn(
+            (
+                "/maquina/<id_activo>",
+                "redireccion_qr_maquina",
+                ("GET",),
+            ),
+            rutas,
+        )
+        self.assertIn(
+            ("/qr/<id_activo>", "maquinaria_qr", ("GET",)),
+            rutas,
+        )
+        self.assertIn(
+            (
+                "/qr/<id_activo>/contenido",
+                "qr_contenido",
+                ("GET",),
+            ),
+            rutas,
+        )
+        self.assertIn(
+            (
+                "/qr/<id_activo>/expediente",
+                "qr_expediente",
+                ("GET",),
+            ),
+            rutas,
+        )
 
 
 if __name__ == "__main__":
