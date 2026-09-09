@@ -31,7 +31,7 @@ from sqlalchemy import text
 from database.conexion import engine
 
 from functools import wraps
-from datetime import date, datetime, timedelta
+from datetime import timedelta
 
 
 from models.auditoria_model import (
@@ -39,7 +39,6 @@ from models.auditoria_model import (
     obtener_historial,
     obtener_historial_activo,
     registrar_activo_reciente,
-    obtener_activos_recientes,
 )
 
 from database.documentos import (
@@ -51,8 +50,6 @@ from database.solicitudes_baja import (
     existe_solicitud_pendiente,
     obtener_traslado_en_proceso,
 )
-
-import pandas as pd
 
 # ==========================================
 # BASE DE DATOS
@@ -77,8 +74,9 @@ from routes.documentos import registrar_rutas_documentos
 from routes.evidencias import registrar_rutas_evidencias
 from routes.respaldos import registrar_rutas_respaldos
 from routes.movimientos_mobile import registrar_rutas_movimientos_mobile
+from routes.maquinaria_mobile import registrar_rutas_maquinaria_mobile
 
-from database.maquinarias import buscar_activos, obtener_maquinarias_mobile
+from database.maquinarias import buscar_activos
 
 from database.maquinarias import (
     insertar_maquinaria,
@@ -92,7 +90,6 @@ from database.maquinarias import (
     obtener_ubicaciones,
     finalizar_mantenimiento,
     obtener_mantenimiento_en_proceso,
-    obtener_maquinarias_mobile_filtrado,
     obtener_ubicaciones,
     obtener_contenido_activo,
     vincular_contenido_activo,
@@ -1324,88 +1321,6 @@ def crear_categoria_accesorio_route(id_accesorio):
 
 
 
-@app.route("/m/maquinarias/cargar")
-@login_required
-def cargar_maquinarias_mobile():
-
-    offset = int(request.args.get("offset", 0))
-
-    maquinarias = (
-        obtener_maquinarias_mobile(limite=20, offset=offset)
-        .fillna("")
-        .to_dict("records")
-    )
-
-    for maquina in maquinarias:
-
-        aduana = obtener_aduana(maquina["id_activo"])
-
-        maquina["expediente"] = estado_expediente_aduanal(aduana)
-
-    return jsonify(maquinarias)
-
-
-@app.route("/m/maquinarias")
-@login_required
-def maquinarias_mobile():
-
-    return render_template("maquinaria_qr/maquinarias_mobile.html")
-
-
-@app.route("/m/maquinarias/api")
-@login_required
-def api_maquinarias_mobile():
-
-    q = request.args.get("q", "").strip()
-    estado = request.args.get("estado", "")
-    ubicacion = request.args.get("ubicacion", "")
-    tipo = request.args.get("tipo", "")
-
-    offset = int(request.args.get("offset", 0))
-    limite = 20
-
-    maquinarias = obtener_maquinarias_mobile_filtrado(
-        q=q, estado=estado, ubicacion=ubicacion, tipo=tipo, limite=limite, offset=offset
-    ).to_dict("records")
-
-    for maquina in maquinarias:
-
-        aduana = obtener_aduana(maquina["id_activo"])
-        maquina["expediente"] = estado_expediente_aduanal(aduana)
-
-        # Limpiar TODOS los campos de ESTA maquinaria
-        for key, value in list(maquina.items()):
-
-            try:
-                if pd.isna(value):
-                    maquina[key] = None
-                    continue
-            except TypeError:
-                pass
-
-            if isinstance(value, (datetime, date, pd.Timestamp)):
-                maquina[key] = value.strftime("%Y-%m-%d %H:%M:%S")
-
-    return jsonify(maquinarias)
-
-
-@app.route("/m/maquinarias/ubicaciones")
-@login_required
-def api_ubicaciones_mobile():
-
-    ubicaciones = obtener_ubicaciones()
-
-    return jsonify(ubicaciones)
-
-
-@app.route("/m/recientes")
-@login_required
-def api_activos_recientes():
-
-    recientes = obtener_activos_recientes(session["nombre"])
-
-    return jsonify(recientes)
-
 
 @app.route(
     "/maquinarias/<id_activo>/contenido/vincular",
@@ -1615,6 +1530,7 @@ registrar_rutas_documentos(app, login_required, registrar_movimiento)
 registrar_rutas_evidencias(app, login_required, registrar_movimiento)
 registrar_rutas_respaldos(app, login_required, registrar_movimiento)
 registrar_rutas_movimientos_mobile(app, login_required, roles_required)
+registrar_rutas_maquinaria_mobile(app, login_required)
 
 if __name__ == "__main__":
 
