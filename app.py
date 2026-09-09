@@ -62,7 +62,6 @@ from database.documentos import (
 )
 
 from database.solicitudes_baja import (
-    guardar_solicitud,
     obtener_solicitudes,
     obtener_solicitud,
     obtener_pendientes,
@@ -91,6 +90,7 @@ from routes.actividad import registrar_rutas_actividad
 from routes.dashboard import registrar_rutas_dashboard
 from routes.etiquetas import registrar_rutas_etiquetas
 from routes.maquinaria import registrar_rutas_maquinaria
+from routes.solicitudes import registrar_rutas_solicitudes
 
 from database.maquinarias import buscar_activos, obtener_maquinarias_mobile
 
@@ -1174,107 +1174,6 @@ def finalizar_revision_contenido_route(id_activo):
         flash("La revisión de contenido fue finalizada correctamente.", "success")
 
     return redirigir_despues_de_contenido(id_activo)
-
-
-@app.route("/maquinarias/<id_activo>/solicitud-baja", methods=["POST"])
-@login_required
-def solicitud_baja(id_activo):
-
-    # Solo Administrador y Mantenimiento
-    if session.get("rol") not in ["Administrador", "Mantenimiento"]:
-
-        flash("No tiene permisos para realizar esta acción.", "danger")
-        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
-
-    maquina = obtener_maquinaria(id_activo)
-
-    if not maquina:
-
-        flash("El activo no existe.", "danger")
-        return redirect(url_for("lista_maquinarias"))
-
-    origen = request.form.get("origen", "desktop")
-
-    print("=" * 50)
-    print("ORIGEN:", origen)
-    print("FORM:", request.form.to_dict())
-    print("=" * 50)
-
-    # ---------- ESTA FUNCIÓN VA DENTRO ----------
-    def regresar():
-
-        print(">>> regresar()")
-        print(">>> origen =", origen)
-
-        if origen in ("mobile", "qr"):
-
-            print(">>> REDIRECCIÓN A MÓVIL")
-
-            return redirect(url_for("maquinaria_qr", id_activo=id_activo))
-
-        print(">>> REDIRECCIÓN A ESCRITORIO")
-
-        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
-
-    # ==================================================
-    # VALIDACIÓN 1
-    # ==================================================
-
-    tipo = request.form["tipo"]
-
-    if maquina["estado"] == "BAJA" and tipo != "REINCORPORACION":
-
-        flash(
-            "Este activo ya fue dado de baja y solo puede solicitar una reactivación.",
-            "warning",
-        )
-
-        return regresar()
-
-    # ==================================================
-    # VALIDACIÓN 2
-    # ==================================================
-
-    if existe_solicitud_pendiente(id_activo):
-
-        flash("Este activo ya cuenta con una solicitud pendiente.", "warning")
-
-        return regresar()
-
-    datos = {
-        "id_activo": id_activo,
-        "solicitante": session["nombre"],
-        "tipo": tipo,
-        "motivo": request.form["motivo"],
-        "observaciones": request.form["observaciones"],
-        "prioridad": request.form["prioridad"],
-        "ubicacion_destino": request.form.get("ubicacion_destino") or None,
-        "proveedor_mantenimiento": request.form.get("proveedor_mantenimiento") or None,
-        "fecha_estimada_fin": request.form.get("fecha_estimada_fin") or None,
-    }
-
-    guardar_solicitud(datos)
-
-    acciones = {
-        "BAJA": "Solicitó baja del activo",
-        "TRASLADO": "Solicitó traslado del activo",
-        "MANTENIMIENTO": "Solicitó mantenimiento del activo",
-        "REINCORPORACION": "Solicitó reactivación del activo",
-    }
-
-    registrar_movimiento(
-        usuario=session["nombre"],
-        accion=acciones[tipo],
-        modulo="Maquinaria",
-        referencia=id_activo,
-    )
-
-    flash(
-        "La solicitud fue enviada correctamente y está pendiente de aprobación.",
-        "success",
-    )
-
-    return regresar()
 
 
 @app.route("/solicitudes-baja")
@@ -3125,6 +3024,11 @@ registrar_rutas_maquinaria(
     roles_required,
     registrar_movimiento,
     es_dispositivo_movil,
+)
+registrar_rutas_solicitudes(
+    app,
+    login_required,
+    registrar_movimiento,
 )
 
 if __name__ == "__main__":
