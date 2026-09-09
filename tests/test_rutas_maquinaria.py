@@ -21,6 +21,7 @@ class RutasMaquinariaTest(unittest.TestCase):
             permitir_acceso,
             permitir_roles,
             lambda **kwargs: None,
+            lambda: False,
         )
 
         rutas = {
@@ -34,6 +35,14 @@ class RutasMaquinariaTest(unittest.TestCase):
 
         self.assertIn(
             ("/maquinarias", "lista_maquinarias", ("GET",)),
+            rutas,
+        )
+        self.assertIn(
+            (
+                "/maquinarias/<id_activo>",
+                "expediente_maquinaria",
+                ("GET",),
+            ),
             rutas,
         )
         self.assertIn(
