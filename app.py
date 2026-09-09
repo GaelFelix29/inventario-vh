@@ -93,6 +93,7 @@ from database.usuarios import (
 from routes.usuarios import registrar_rutas_usuarios
 from routes.actividad import registrar_rutas_actividad
 from routes.dashboard import registrar_rutas_dashboard
+from routes.etiquetas import registrar_rutas_etiquetas
 
 from database.maquinarias import buscar_activos, obtener_maquinarias_mobile
 
@@ -863,132 +864,6 @@ def editar_perfil():
         return redirect(url_for("perfil"))
 
     return mostrar_formulario()
-
-
-# ==========================================================
-# IMPRIMIR QR
-# ==========================================================
-
-
-@app.route("/imprimir")
-@login_required
-def imprimir_qr():
-
-    maquinas = obtener_maquinarias()
-
-    return render_template("imprimir-qr.html", maquinas=maquinas.to_dict("records"))
-
-
-# ==========================================================
-# ETIQUETAS
-# ==========================================================
-
-
-@app.route("/etiquetas", methods=["POST"])
-@login_required
-def etiquetas():
-
-    datos = request.get_json()
-
-    codigos = datos["codigos"]
-
-    maquinas = obtener_maquinarias()
-
-    maquinas = maquinas[maquinas["id_activo"].isin(codigos)]
-
-    etiquetas = []
-
-    for _, fila in maquinas.iterrows():
-
-        url = url_for(
-            "expediente_maquinaria", id_activo=fila["id_activo"], _external=True
-        )
-
-        qr = qrcode.QRCode(
-            version=3,
-            error_correction=qrcode.constants.ERROR_CORRECT_M,
-            box_size=12,
-            border=4,
-        )
-
-        qr.add_data(url)
-
-        qr.make(fit=True)
-
-        img = qr.make_image(fill_color="black", back_color="white")
-
-        buffer = BytesIO()
-
-        img.save(buffer, format="PNG")
-
-        qr64 = base64.b64encode(buffer.getvalue()).decode()
-
-        etiquetas.append(
-            {
-                "codigo": fila["id_activo"],
-                "nombre": fila["descripcion"],
-                "estado": "BAJA" if pd.notna(fila["fecha_baja"]) else "ACTIVO",
-                "url": url,
-                "qr": qr64,
-            }
-        )
-
-    return render_template("etiquetas.html", etiquetas=etiquetas)
-
-
-@app.route("/fichas", methods=["POST"])
-@login_required
-def fichas():
-
-    datos = request.get_json()
-
-    codigos = datos["codigos"]
-
-    maquinas = obtener_maquinarias()
-
-    maquinas = maquinas[maquinas["id_activo"].isin(codigos)]
-
-    fichas = []
-
-    for _, fila in maquinas.iterrows():
-
-        url = url_for(
-            "expediente_maquinaria", id_activo=fila["id_activo"], _external=True
-        )
-
-        qr = qrcode.QRCode(
-            version=3,
-            error_correction=qrcode.constants.ERROR_CORRECT_M,
-            box_size=12,
-            border=4,
-        )
-
-        qr.add_data(url)
-
-        qr.make(fit=True)
-
-        img = qr.make_image(fill_color="black", back_color="white")
-
-        buffer = BytesIO()
-
-        img.save(buffer, format="PNG")
-
-        qr64 = base64.b64encode(buffer.getvalue()).decode()
-
-        fichas.append(
-            {
-                "codigo": fila["id_activo"],
-                "nombre": fila["descripcion"],
-                "marca": fila["marca"],
-                "modelo": fila["modelo"],
-                "serie": fila["numero_serie"],
-                "estado": "BAJA" if pd.notna(fila["fecha_baja"]) else "ACTIVO",
-                "url": url,
-                "qr": qr64,
-            }
-        )
-
-    return render_template("fichas.html", fichas=fichas)
 
 
 @app.route("/maquinarias")
@@ -3602,6 +3477,7 @@ def registrar_accesorio_desde_contenido(id_activo):
 registrar_rutas_usuarios(app, admin_required, registrar_movimiento)
 registrar_rutas_actividad(app, login_required)
 registrar_rutas_dashboard(app, login_required)
+registrar_rutas_etiquetas(app, login_required)
 
 if __name__ == "__main__":
 
