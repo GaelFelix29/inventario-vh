@@ -75,6 +75,7 @@ from routes.evidencias import registrar_rutas_evidencias
 from routes.respaldos import registrar_rutas_respaldos
 from routes.movimientos_mobile import registrar_rutas_movimientos_mobile
 from routes.maquinaria_mobile import registrar_rutas_maquinaria_mobile
+from routes.accesorios import registrar_rutas_accesorios
 
 from database.maquinarias import buscar_activos
 
@@ -97,14 +98,9 @@ from database.maquinarias import (
     iniciar_revision_contenido,
     finalizar_revision_contenido,
     obtener_categorias_accesorios,
-    actualizar_categoria_accesorio,
-    asignar_accesorio_maquinaria,
-    liberar_accesorio_maquinaria,
     obtener_asignacion_activa_accesorio,
     obtener_accesorios_asignados_maquinaria,
     obtener_historial_asignaciones_accesorio,
-    crear_categoria_y_clasificar_accesorio,
-    buscar_maquinarias_asignables,
     reabrir_revision_contenido,
 
 )
@@ -844,177 +840,7 @@ def redirigir_despues_de_contenido(id_activo):
 
     return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
 
-def redirigir_despues_de_gestionar_accesorio(id_accesorio):
 
-    retorno_id = (
-        request.form.get("retorno_id")
-        or id_accesorio
-    ).strip().upper()
-
-    origen = request.form.get("origen")
-    retorno_vista = request.form.get("retorno_vista")
-
-    if origen == "qr":
-
-        if retorno_vista == "contenido":
-            return redirect(
-                url_for(
-                    "qr_contenido",
-                    id_activo=retorno_id
-                )
-            )
-
-        return redirect(
-            url_for(
-                "maquinaria_qr",
-                id_activo=retorno_id
-            )
-        )
-
-    return redirect(
-        url_for(
-            "expediente_maquinaria",
-            id_activo=retorno_id
-        )
-    )
-
-
-def usuario_puede_gestionar_accesorios():
-
-    return session.get("rol") in [
-        "Administrador",
-        "Mantenimiento"
-    ]
-
-
-@app.route(
-    "/accesorios/<id_accesorio>/categoria",
-    methods=["POST"]
-)
-@login_required
-def actualizar_categoria_accesorio_route(id_accesorio):
-
-    if not usuario_puede_gestionar_accesorios():
-
-        flash(
-            "No tiene permisos para clasificar accesorios.",
-            "danger"
-        )
-
-        return redirigir_despues_de_gestionar_accesorio(
-            id_accesorio
-        )
-
-    categoria_id = request.form.get(
-        "categoria_accesorio_id"
-    )
-
-    try:
-
-        categoria = actualizar_categoria_accesorio(
-            id_activo=id_accesorio,
-            categoria_accesorio_id=categoria_id,
-            usuario=session["nombre"]
-        )
-
-    except ValueError as error:
-
-        flash(str(error), "warning")
-
-    except Exception as error:
-
-        print(
-            "ERROR ACTUALIZANDO CATEGORÍA "
-            "DEL ACCESORIO:",
-            error
-        )
-
-        flash(
-            "No fue posible actualizar la categoría.",
-            "danger"
-        )
-
-    else:
-
-        flash(
-            f"{id_accesorio} fue clasificado como "
-            f"{categoria['nombre']}.",
-            "success"
-        )
-
-    return redirigir_despues_de_gestionar_accesorio(
-        id_accesorio
-    )
-
-
-@app.route(
-    "/accesorios/<id_accesorio>/asignacion",
-    methods=["POST"]
-)
-@login_required
-def asignar_accesorio_maquinaria_route(id_accesorio):
-
-    if not usuario_puede_gestionar_accesorios():
-
-        flash(
-            "No tiene permisos para asignar accesorios.",
-            "danger"
-        )
-
-        return redirigir_despues_de_gestionar_accesorio(
-            id_accesorio
-        )
-
-    id_maquinaria = request.form.get("id_maquinaria")
-    observaciones = request.form.get("observaciones")
-
-    try:
-
-        resultado = asignar_accesorio_maquinaria(
-            id_accesorio=id_accesorio,
-            id_maquinaria=id_maquinaria,
-            usuario=session["nombre"],
-            observaciones=observaciones
-        )
-
-    except ValueError as error:
-
-        flash(str(error), "warning")
-
-    except Exception as error:
-
-        print(
-            "ERROR ASIGNANDO ACCESORIO:",
-            error
-        )
-
-        flash(
-            "No fue posible guardar la asignación.",
-            "danger"
-        )
-
-    else:
-
-        if resultado["maquinaria_anterior"]:
-
-            flash(
-                f"{id_accesorio} cambió de "
-                f"{resultado['maquinaria_anterior']} a "
-                f"{resultado['id_maquinaria']}.",
-                "success"
-            )
-
-        else:
-
-            flash(
-                f"{id_accesorio} fue asignado a "
-                f"{resultado['id_maquinaria']}.",
-                "success"
-            )
-
-    return redirigir_despues_de_gestionar_accesorio(
-        id_accesorio
-    )
 
 @app.route(
     "/maquinarias/<id_activo>/revision-contenido/reabrir",
@@ -1067,59 +893,6 @@ def reabrir_revision_contenido_route(id_activo):
 
     return redirigir_despues_de_contenido(id_activo)
 
-
-@app.route(
-    "/accesorios/<id_accesorio>/asignacion/liberar",
-    methods=["POST"]
-)
-@login_required
-def liberar_accesorio_maquinaria_route(id_accesorio):
-
-    if not usuario_puede_gestionar_accesorios():
-
-        flash(
-            "No tiene permisos para liberar accesorios.",
-            "danger"
-        )
-
-        return redirigir_despues_de_gestionar_accesorio(
-            id_accesorio
-        )
-
-    try:
-
-        id_maquinaria = liberar_accesorio_maquinaria(
-            id_accesorio=id_accesorio,
-            usuario=session["nombre"]
-        )
-
-    except ValueError as error:
-
-        flash(str(error), "warning")
-
-    except Exception as error:
-
-        print(
-            "ERROR LIBERANDO ACCESORIO:",
-            error
-        )
-
-        flash(
-            "No fue posible liberar el accesorio.",
-            "danger"
-        )
-
-    else:
-
-        flash(
-            f"{id_accesorio} fue liberado de "
-            f"{id_maquinaria}.",
-            "success"
-        )
-
-    return redirigir_despues_de_gestionar_accesorio(
-        id_accesorio
-    )
 
 
 @app.route("/maquinarias/<id_activo>/revision-contenido/iniciar", methods=["POST"])
@@ -1217,109 +990,6 @@ def buscar_activos_ajax():
             for a in activos
         ]
     )
-
-@app.route("/buscar-maquinarias-asignables")
-@login_required
-def buscar_maquinarias_asignables_ajax():
-
-    if not usuario_puede_gestionar_accesorios():
-        return jsonify([]), 403
-
-    texto = request.args.get("q", "").strip()
-
-    id_accesorio = request.args.get(
-        "id_accesorio",
-        ""
-    ).strip().upper()
-
-    if len(texto) < 2:
-        return jsonify([])
-
-    maquinarias = buscar_maquinarias_asignables(
-        texto=texto,
-        id_accesorio=id_accesorio
-    )
-
-    return jsonify(
-        [
-            {
-                "id": maquinaria["id_activo"],
-                "descripcion": maquinaria["descripcion"],
-                "categoria": maquinaria["categoria"],
-                "marca": maquinaria["marca"],
-                "modelo": maquinaria["modelo"],
-                "serie": maquinaria["numero_serie"],
-                "ubicacion": maquinaria["ubicacion"],
-            }
-            for maquinaria in maquinarias
-        ]
-    )
-
-@app.route(
-    "/accesorios/<id_accesorio>/categoria/crear",
-    methods=["POST"]
-)
-@login_required
-def crear_categoria_accesorio_route(id_accesorio):
-
-    if not usuario_puede_gestionar_accesorios():
-
-        flash(
-            "No tiene permisos para crear categorías.",
-            "danger"
-        )
-
-        return redirigir_despues_de_gestionar_accesorio(
-            id_accesorio
-        )
-
-    nombre = request.form.get("nombre_categoria")
-    descripcion = request.form.get(
-        "descripcion_categoria"
-    )
-
-    try:
-
-        categoria = (
-            crear_categoria_y_clasificar_accesorio(
-                id_activo=id_accesorio,
-                nombre=nombre,
-                descripcion=descripcion,
-                usuario=session["nombre"]
-            )
-        )
-
-    except ValueError as error:
-
-        flash(str(error), "warning")
-
-    except Exception as error:
-
-        print(
-            "ERROR CREANDO CATEGORÍA DE ACCESORIO:",
-            error
-        )
-
-        flash(
-            "No fue posible crear la categoría.",
-            "danger"
-        )
-
-    else:
-
-        flash(
-            f"Se creó la categoría "
-            f"{categoria['nombre']} y se asignó a "
-            f"{id_accesorio}.",
-            "success"
-        )
-
-    return redirigir_despues_de_gestionar_accesorio(
-        id_accesorio
-    )
-
-
-
 
 
 @app.route(
@@ -1531,6 +1201,7 @@ registrar_rutas_evidencias(app, login_required, registrar_movimiento)
 registrar_rutas_respaldos(app, login_required, registrar_movimiento)
 registrar_rutas_movimientos_mobile(app, login_required, roles_required)
 registrar_rutas_maquinaria_mobile(app, login_required)
+registrar_rutas_accesorios(app, login_required)
 
 if __name__ == "__main__":
 
