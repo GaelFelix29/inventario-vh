@@ -19,11 +19,7 @@ from flask import redirect, url_for, abort
 import re
 
 from database import documentos
-from flask import send_from_directory
-
-
 from flask import jsonify
-from respaldos import BASE_DIR, crear_respaldo
 
 import os
 import secrets
@@ -79,6 +75,7 @@ from routes.solicitudes import registrar_rutas_solicitudes
 from routes.aduanas import registrar_rutas_aduanas
 from routes.documentos import registrar_rutas_documentos
 from routes.evidencias import registrar_rutas_evidencias
+from routes.respaldos import registrar_rutas_respaldos
 
 from database.maquinarias import buscar_activos, obtener_maquinarias_mobile
 
@@ -1326,135 +1323,6 @@ def crear_categoria_accesorio_route(id_accesorio):
     )
 
 
-@app.route("/respaldos")
-@login_required
-def vista_respaldos():
-    if session.get("rol") != "Administrador":
-
-        flash("No tiene permisos para eliminar documentos.", "danger")
-
-        return redirect(request.referrer or url_for("lista_maquinarias"))
-
-    carpeta = os.path.join(app.root_path, "backups")
-
-    respaldos = []
-
-    if os.path.exists(carpeta):
-
-        for archivo in os.listdir(carpeta):
-
-            if archivo.endswith(".sql"):
-
-                ruta = os.path.join(carpeta, archivo)
-
-                tamano = os.path.getsize(ruta)
-
-                fecha_modificacion = os.path.getmtime(ruta)
-
-                fecha = datetime.fromtimestamp(fecha_modificacion).strftime(
-                    "%d/%m/%Y %H:%M"
-                )
-
-                respaldos.append(
-                    {
-                        "archivo": archivo,
-                        "fecha": fecha,
-                        "tamano": round(tamano / 1024, 2),
-                    }
-                )
-
-    # Ordenar por fecha de modificación (más reciente primero)
-    respaldos.sort(
-        key=lambda x: datetime.strptime(x["fecha"], "%d/%m/%Y %H:%M"), reverse=True
-    )
-
-    # ===========================
-    # KPIs
-    # ===========================
-
-    total_respaldos = len(respaldos)
-
-    espacio_total = round(sum(r["tamano"] for r in respaldos), 2)
-
-    ultimo = respaldos[0] if respaldos else None
-
-    return render_template(
-        "respaldos.html",
-        respaldos=respaldos,
-        total_respaldos=total_respaldos,
-        espacio_total=espacio_total,
-        ultimo=ultimo,
-    )
-
-
-@app.route("/respaldos/crear", methods=["POST"])
-@login_required
-def crear_respaldo_ajax():
-
-    if session.get("rol") != "Administrador":
-
-        flash("No tiene permisos para eliminar documentos.", "danger")
-
-        return redirect(request.referrer or url_for("lista_maquinarias"))
-
-    try:
-
-        archivo = crear_respaldo()
-
-        registrar_movimiento(
-            usuario=session["nombre"],
-            accion=f"Generó respaldo: {archivo}",
-            modulo="Respaldos",
-        )
-
-        return jsonify({"ok": True, "archivo": archivo})
-
-    except Exception as e:
-
-        return jsonify({"ok": False, "error": str(e)}), 500
-
-
-@app.route("/respaldos/descargar/<nombre>")
-@login_required
-def descargar_respaldo(nombre):
-    if session.get("rol") != "Administrador":
-
-        flash("No tiene permisos para eliminar documentos.", "danger")
-
-        return redirect(request.referrer or url_for("lista_maquinarias"))
-
-    carpeta = os.path.join(app.root_path, "backups")
-
-    return send_from_directory(carpeta, nombre, as_attachment=True)
-
-
-@app.route("/respaldos/eliminar/<nombre>", methods=["POST"])
-@login_required
-def eliminar_respaldo(nombre):
-
-    if session.get("rol") != "Administrador":
-
-        flash("No tiene permisos para eliminar documentos.", "danger")
-
-        return redirect(request.referrer or url_for("lista_maquinarias"))
-
-    ruta = os.path.join(app.root_path, "backups", nombre)
-
-    if os.path.exists(ruta):
-
-        os.remove(ruta)
-
-        registrar_movimiento(
-            usuario=session["nombre"],
-            accion=f"Eliminó respaldo: {nombre}",
-            modulo="Respaldos",
-        )
-
-        return jsonify({"ok": True})
-
-    return jsonify({"ok": False}), 404
-
-
 @app.route("/maquinarias/<id_activo>/confirmar-recepcion", methods=["POST"])
 @login_required
 def confirmar_recepcion_route(id_activo):
@@ -2156,6 +2024,7 @@ registrar_rutas_solicitudes(
 registrar_rutas_aduanas(app, login_required, registrar_movimiento)
 registrar_rutas_documentos(app, login_required, registrar_movimiento)
 registrar_rutas_evidencias(app, login_required, registrar_movimiento)
+registrar_rutas_respaldos(app, login_required, registrar_movimiento)
 
 if __name__ == "__main__":
 
