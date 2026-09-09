@@ -47,6 +47,30 @@ class RutasMaquinariaTest(unittest.TestCase):
         )
         self.assertIn(
             (
+                "/maquinarias/<id_activo>/imprimir",
+                "imprimir_maquinaria",
+                ("GET",),
+            ),
+            rutas,
+        )
+        self.assertIn(
+            (
+                "/maquinarias/<id_activo>/qr",
+                "qr_maquinaria",
+                ("GET",),
+            ),
+            rutas,
+        )
+        self.assertIn(
+            (
+                "/maquinarias/<id_activo>/editar",
+                "editar_maquinaria",
+                ("GET", "POST"),
+            ),
+            rutas,
+        )
+        self.assertIn(
+            (
                 "/maquinarias/nuevo",
                 "nueva_maquinaria",
                 ("GET", "POST"),

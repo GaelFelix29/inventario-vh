@@ -73,10 +73,6 @@ from database.solicitudes_baja import (
 )
 
 import pandas as pd
-import qrcode
-import base64
-
-from io import BytesIO
 
 # ==========================================
 # BASE DE DATOS
@@ -1178,107 +1174,6 @@ def finalizar_revision_contenido_route(id_activo):
         flash("La revisión de contenido fue finalizada correctamente.", "success")
 
     return redirigir_despues_de_contenido(id_activo)
-
-
-@app.route("/maquinarias/<id_activo>/imprimir")
-@login_required
-def imprimir_maquinaria(id_activo):
-
-    maquina = obtener_maquinaria_detalle(id_activo)
-
-    if not maquina:
-        flash("El activo no existe.", "danger")
-        return redirect(url_for("lista_maquinarias"))
-
-    return render_template("imprimir-qr.html", maquina=maquina)
-
-
-@app.route("/maquinarias/<id_activo>/qr")
-@login_required
-def qr_maquinaria(id_activo):
-
-    maquina = obtener_maquinaria_detalle(id_activo)
-
-    if not maquina:
-        flash("El activo no existe.", "danger")
-        return redirect(url_for("lista_maquinarias"))
-
-    # URL que abrirá el QR
-    url = url_for("expediente_maquinaria", id_activo=id_activo, _external=True)
-
-    # Generar QR
-    img = qrcode.make(url)
-
-    buffer = BytesIO()
-    img.save(buffer, format="PNG")
-    buffer.seek(0)
-
-    qr = base64.b64encode(buffer.getvalue()).decode("utf-8")
-
-    return render_template("qr_maquinaria.html", maquina=maquina, qr=qr)
-
-
-@app.route("/maquinarias/<id_activo>/editar", methods=["GET", "POST"])
-@login_required
-def editar_maquinaria(id_activo):
-
-    # Solo administrador
-    if session.get("rol") != "Administrador":
-
-        flash("No tiene permisos para editar activos.", "danger")
-
-        return redirect(url_for("lista_maquinarias"))
-
-    # Obtener el activo
-    maquina = obtener_maquinaria(id_activo)
-
-    if not maquina:
-
-        flash("El activo no existe.", "danger")
-
-        return redirect(url_for("lista_maquinarias"))
-
-    # Guardar cambios
-    if request.method == "POST":
-
-        cantidad = int(request.form["cantidad"] or 1)
-        precio = float(request.form["precio_unitario_us"] or 0)
-        total = float(request.form["total_us"] or 0)
-        valor_mx = float(request.form["valor_mx"] or 0)
-
-        datos = {
-            "id_activo": id_activo,
-            "categoria": request.form["categoria"],
-            "descripcion": request.form["descripcion"],
-            "cantidad": cantidad,
-            "marca": request.form["marca"],
-            "modelo": request.form["modelo"],
-            "numero_serie": request.form["numero_serie"],
-            "serie_interna": request.form["serie_interna"],
-            "proveedor": request.form["proveedor"],
-            "ubicacion": request.form["ubicacion"],
-            "precio_unitario_us": precio,
-            "total_us": total,
-            "valor_mx": valor_mx,
-            "fecha_alta": request.form["fecha_alta"],
-            "observaciones": request.form["observaciones"],
-        }
-
-        actualizar_maquinaria(datos)
-
-        registrar_movimiento(
-            usuario=session["nombre"],
-            accion="Actualizó información del activo",
-            modulo="Maquinaria",
-            referencia=id_activo,
-        )
-
-        flash(f"El activo {id_activo} fue actualizado correctamente.", "success")
-
-        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
-
-    # Mostrar formulario
-    return render_template("nueva_maquinaria.html", maquina=maquina, editar=True)
 
 
 @app.route("/maquinarias/<id_activo>/solicitud-baja", methods=["POST"])

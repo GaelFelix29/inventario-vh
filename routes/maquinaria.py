@@ -1,7 +1,12 @@
+import base64
+from io import BytesIO
+
+import qrcode
 from flask import flash, redirect, render_template, request, session, url_for
 
 from database.maquinarias import (
     insertar_maquinaria,
+    actualizar_maquinaria,
     obtener_accesorios_asignados_maquinaria,
     obtener_asignacion_activa_accesorio,
     obtener_categorias_accesorios,
@@ -9,6 +14,7 @@ from database.maquinarias import (
     obtener_estadisticas_maquinarias,
     obtener_historial_asignaciones_accesorio,
     obtener_mantenimiento_en_proceso,
+    obtener_maquinaria,
     obtener_maquinaria_detalle,
     obtener_todas_maquinas,
     obtener_ubicaciones,
@@ -176,4 +182,88 @@ def registrar_rutas_maquinaria(
             asignacion_activa=asignacion_activa,
             historial_asignaciones=historial_asignaciones,
             accesorios_asignados=accesorios_asignados,
+        )
+
+    @app.route("/maquinarias/<id_activo>/imprimir")
+    @login_required
+    def imprimir_maquinaria(id_activo):
+        maquina = obtener_maquinaria_detalle(id_activo)
+        if not maquina:
+            flash("El activo no existe.", "danger")
+            return redirect(url_for("lista_maquinarias"))
+
+        return render_template("imprimir-qr.html", maquina=maquina)
+
+    @app.route("/maquinarias/<id_activo>/qr")
+    @login_required
+    def qr_maquinaria(id_activo):
+        maquina = obtener_maquinaria_detalle(id_activo)
+        if not maquina:
+            flash("El activo no existe.", "danger")
+            return redirect(url_for("lista_maquinarias"))
+
+        url = url_for(
+            "expediente_maquinaria",
+            id_activo=id_activo,
+            _external=True,
+        )
+        imagen = qrcode.make(url)
+        buffer = BytesIO()
+        imagen.save(buffer, format="PNG")
+        buffer.seek(0)
+        qr = base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+        return render_template("qr_maquinaria.html", maquina=maquina, qr=qr)
+
+    @app.route("/maquinarias/<id_activo>/editar", methods=["GET", "POST"])
+    @login_required
+    def editar_maquinaria(id_activo):
+        if session.get("rol") != "Administrador":
+            flash("No tiene permisos para editar activos.", "danger")
+            return redirect(url_for("lista_maquinarias"))
+
+        maquina = obtener_maquinaria(id_activo)
+        if not maquina:
+            flash("El activo no existe.", "danger")
+            return redirect(url_for("lista_maquinarias"))
+
+        if request.method == "POST":
+            datos = {
+                "id_activo": id_activo,
+                "categoria": request.form["categoria"],
+                "descripcion": request.form["descripcion"],
+                "cantidad": int(request.form["cantidad"] or 1),
+                "marca": request.form["marca"],
+                "modelo": request.form["modelo"],
+                "numero_serie": request.form["numero_serie"],
+                "serie_interna": request.form["serie_interna"],
+                "proveedor": request.form["proveedor"],
+                "ubicacion": request.form["ubicacion"],
+                "precio_unitario_us": float(
+                    request.form["precio_unitario_us"] or 0
+                ),
+                "total_us": float(request.form["total_us"] or 0),
+                "valor_mx": float(request.form["valor_mx"] or 0),
+                "fecha_alta": request.form["fecha_alta"],
+                "observaciones": request.form["observaciones"],
+            }
+            actualizar_maquinaria(datos)
+            registrar_movimiento(
+                usuario=session["nombre"],
+                accion="Actualizó información del activo",
+                modulo="Maquinaria",
+                referencia=id_activo,
+            )
+            flash(
+                f"El activo {id_activo} fue actualizado correctamente.",
+                "success",
+            )
+            return redirect(
+                url_for("expediente_maquinaria", id_activo=id_activo)
+            )
+
+        return render_template(
+            "nueva_maquinaria.html",
+            maquina=maquina,
+            editar=True,
         )
