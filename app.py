@@ -76,6 +76,7 @@ from routes.aduanas import registrar_rutas_aduanas
 from routes.documentos import registrar_rutas_documentos
 from routes.evidencias import registrar_rutas_evidencias
 from routes.respaldos import registrar_rutas_respaldos
+from routes.movimientos_mobile import registrar_rutas_movimientos_mobile
 
 from database.maquinarias import buscar_activos, obtener_maquinarias_mobile
 
@@ -1322,148 +1323,6 @@ def crear_categoria_accesorio_route(id_accesorio):
 
 
 
-@app.route("/m/maquinarias/<id_activo>/movimiento/<tipo>")
-@login_required
-@roles_required("Administrador", "Mantenimiento")
-def formulario_movimiento_mobile(id_activo, tipo):
-
-    maquina = obtener_maquinaria(id_activo)
-
-    if not maquina:
-        flash("Activo no encontrado.", "danger")
-        return redirect(url_for("dashboard_mobil"))
-
-    titulos = {
-        "TRASLADO": "Solicitud de Traslado",
-        "MANTENIMIENTO": "Solicitud de Mantenimiento",
-        "BAJA": "Solicitud de Baja",
-        "REINCORPORACION": "Solicitud de Reactivación",
-    }
-
-    if tipo not in titulos:
-        abort(404)
-
-    return render_template(
-        "maquinaria_qr/formulario_movimiento.html",
-        maquina=maquina,
-        tipo=tipo,
-        titulo=titulos[tipo],
-        id_activo=id_activo,
-        pagina="movimientos",
-    )
-
-
-@app.route("/m/maquinarias/<id_activo>/movimientos")
-@login_required
-@roles_required("Administrador", "Mantenimiento")
-def movimientos_mobile(id_activo):
-
-    maquina = obtener_maquinaria(id_activo)
-
-    if not maquina:
-        flash("Activo no encontrado.", "danger")
-        return redirect(url_for("dashboard_mobil"))
-
-    traslado_en_proceso = obtener_traslado_en_proceso(id_activo)
-
-    mantenimiento_en_proceso = obtener_mantenimiento_en_proceso(id_activo)
-
-    solicitud_pendiente = existe_solicitud_pendiente(id_activo)
-
-    return render_template(
-        "maquinaria_qr/movimientos_mobile.html",
-        maquina=maquina,
-        traslado_en_proceso=traslado_en_proceso,
-        mantenimiento_en_proceso=mantenimiento_en_proceso,
-        solicitud_pendiente=solicitud_pendiente,
-        id_activo=id_activo,
-        pagina="movimientos",
-    )
-
-
-@app.route("/m/maquinarias/<id_activo>/actividad")
-@login_required
-def actividad_mobile(id_activo):
-
-    maquinaria = obtener_maquinaria(id_activo)
-
-    if not maquinaria:
-
-        flash("Activo no encontrado.", "danger")
-        return redirect(url_for("dashboard_mobil"))
-
-    historial = obtener_historial_activo(id_activo)
-
-    historial_procesado = []
-
-    for evento in historial:
-
-        nuevo = dict(evento)
-
-        accion = nuevo["accion"].upper()
-
-        # ===========================
-        # ICONO Y COLOR
-        # ===========================
-
-        if "REINCORPORACION" in accion:
-
-            nuevo["icono"] = "bi-arrow-clockwise"
-            nuevo["color"] = "success"
-
-        elif "BAJA" in accion:
-
-            nuevo["icono"] = "bi-trash-fill"
-            nuevo["color"] = "danger"
-
-        elif "DOCUMENTO" in accion:
-
-            nuevo["icono"] = "bi-file-earmark-text-fill"
-            nuevo["color"] = "primary"
-
-        elif "TRASLADO" in accion:
-
-            nuevo["icono"] = "bi-truck"
-            nuevo["color"] = "info"
-
-        elif "MANTENIMIENTO" in accion:
-
-            nuevo["icono"] = "bi-tools"
-            nuevo["color"] = "warning"
-
-        elif "ADUANA" in accion or "PEDIMENTO" in accion:
-
-            nuevo["icono"] = "bi-folder2-open"
-            nuevo["color"] = "secondary"
-
-        else:
-
-            nuevo["icono"] = "bi-clock-history"
-            nuevo["color"] = "dark"
-
-        # ===========================
-        # FORMATO DE FECHA
-        # ===========================
-
-        fecha = nuevo["fecha"]
-
-        if isinstance(fecha, datetime):
-
-            nuevo["fecha_formato"] = fecha.strftime("%d %b · %H:%M")
-
-        else:
-
-            nuevo["fecha_formato"] = str(fecha)
-
-        historial_procesado.append(nuevo)
-
-    return render_template(
-        "maquinaria_qr/actividad_mobile.html",
-        maquinaria=maquinaria,
-        historial=historial_procesado,
-        pagina="actividad",
-        id_activo=id_activo,
-    )
 
 @app.route("/m/maquinarias/cargar")
 @login_required
@@ -1755,6 +1614,7 @@ registrar_rutas_aduanas(app, login_required, registrar_movimiento)
 registrar_rutas_documentos(app, login_required, registrar_movimiento)
 registrar_rutas_evidencias(app, login_required, registrar_movimiento)
 registrar_rutas_respaldos(app, login_required, registrar_movimiento)
+registrar_rutas_movimientos_mobile(app, login_required, roles_required)
 
 if __name__ == "__main__":
 
