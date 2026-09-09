@@ -36,6 +36,26 @@ class RutasSolicitudesTest(unittest.TestCase):
             rutas,
         )
 
+        esperadas = {
+            ("/solicitudes-baja", "lista_solicitudes_baja", ("GET",)),
+            (
+                "/solicitudes-baja/<int:id>",
+                "ver_solicitud",
+                ("GET",),
+            ),
+            (
+                "/solicitudes-baja/<int:id>/aprobar",
+                "aprobar_solicitud_route",
+                ("POST",),
+            ),
+            (
+                "/solicitudes-baja/<int:id>/rechazar",
+                "rechazar_solicitud_route",
+                ("POST",),
+            ),
+        }
+        self.assertTrue(esperadas.issubset(rutas))
+
 
 if __name__ == "__main__":
     unittest.main()

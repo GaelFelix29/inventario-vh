@@ -62,11 +62,7 @@ from database.documentos import (
 )
 
 from database.solicitudes_baja import (
-    obtener_solicitudes,
-    obtener_solicitud,
     obtener_pendientes,
-    aprobar_solicitud,
-    rechazar_solicitud,
     existe_solicitud_pendiente,
     obtener_traslado_en_proceso,
 )
@@ -1174,92 +1170,6 @@ def finalizar_revision_contenido_route(id_activo):
         flash("La revisión de contenido fue finalizada correctamente.", "success")
 
     return redirigir_despues_de_contenido(id_activo)
-
-
-@app.route("/solicitudes-baja")
-@login_required
-def lista_solicitudes_baja():
-
-    if session.get("rol") != "Administrador":
-
-        flash("No tiene permisos.", "danger")
-
-        return redirect(url_for("dashboard"))
-
-    solicitudes = obtener_solicitudes()
-
-    return render_template(
-        "solicitudes_baja.html", solicitudes=solicitudes.to_dict("records")
-    )
-
-
-@app.route("/solicitudes-baja/<int:id>")
-@login_required
-def ver_solicitud(id):
-
-    if session.get("rol") != "Administrador":
-
-        flash("No tiene permisos.", "danger")
-
-        return redirect(url_for("dashboard"))
-
-    solicitud = obtener_solicitud(id)
-
-    return jsonify(solicitud.to_dict())
-
-
-@app.route("/solicitudes-baja/<int:id>/aprobar", methods=["POST"])
-@login_required
-def aprobar_solicitud_route(id):
-
-    if session.get("rol") != "Administrador":
-
-        return jsonify({"ok": False, "error": "No tiene permisos."}), 403
-
-    try:
-
-        data = request.get_json()
-
-        comentario = data.get("comentario", "")
-
-        aprobar_solicitud(id, session["nombre"], comentario)
-
-        return jsonify({"ok": True})
-
-    except Exception as e:
-
-        import traceback
-
-        traceback.print_exc()
-
-        return jsonify({"ok": False, "error": str(e)}), 500
-
-
-@app.route("/solicitudes-baja/<int:id>/rechazar", methods=["POST"])
-@login_required
-def rechazar_solicitud_route(id):
-
-    if session.get("rol") != "Administrador":
-
-        return jsonify({"ok": False, "error": "No tiene permisos."}), 403
-
-    try:
-
-        data = request.get_json()
-
-        comentario = data.get("comentario", "")
-
-        rechazar_solicitud(id, session["nombre"], comentario)
-
-        return jsonify({"ok": True})
-
-    except Exception as e:
-
-        import traceback
-
-        traceback.print_exc()
-
-        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 @app.route("/aduanas")
