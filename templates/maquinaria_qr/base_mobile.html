@@ -30,25 +30,20 @@
 
     <header class="topbar">
 
-        <button class="icon-btn" id="menuBtn">
+        <button class="icon-btn topbar-menu" id="menuBtn" aria-label="Abrir menú">
 
             <i class="bi bi-list"></i>
 
         </button>
 
-        <div class="topbar-center">
+        <a href="/" class="topbar-center" aria-label="Ir al inicio">
+            <span><i class="bi bi-capsule-pill"></i></span>
+            <div><strong>VITAL HEALTH</strong><small>Inventario de activos</small></div>
+        </a>
 
-            <h1>VITAL HEALTH</h1>
-
-            <small>Sistema de Activos</small>
-
-        </div>
-
-        <button class="icon-btn">
-
-            <i class="bi bi-bell"></i>
-
-        </button>
+        <a href="{{ url_for('perfil') }}" class="topbar-perfil" aria-label="Abrir mi perfil">
+            {{ (session.get('nombre') or 'U')[0]|upper }}
+        </a>
 
     </header>
 

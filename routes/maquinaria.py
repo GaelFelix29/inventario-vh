@@ -91,6 +91,50 @@ def registrar_rutas_maquinaria(
             siguiente_id=siguiente_id_activo(),
         )
 
+    @app.route("/m/maquinarias/nuevo", methods=["GET", "POST"])
+    @login_required
+    @roles_required("Administrador")
+    def nueva_maquinaria_mobile():
+        if request.method == "POST":
+            cantidad = int(request.form["cantidad"] or 1)
+            precio = float(request.form["precio_unitario_us"] or 0)
+            total = cantidad * precio
+            valor_mx = float(request.form["valor_mx"] or 0)
+
+            datos = {
+                "id_activo": request.form["id_activo"],
+                "categoria": request.form["categoria"],
+                "descripcion": request.form["descripcion"],
+                "cantidad": cantidad,
+                "marca": request.form["marca"],
+                "modelo": request.form["modelo"],
+                "numero_serie": request.form["numero_serie"],
+                "serie_interna": request.form["serie_interna"],
+                "proveedor": request.form["proveedor"],
+                "ubicacion": request.form["ubicacion"],
+                "precio_unitario_us": precio,
+                "total_us": total,
+                "valor_mx": valor_mx,
+                "fecha_alta": request.form["fecha_alta"],
+                "observaciones": request.form["observaciones"],
+            }
+
+            insertar_maquinaria(datos)
+            registrar_movimiento(
+                usuario=session["nombre"],
+                accion="Registró un nuevo activo",
+                modulo="Maquinaria",
+                referencia=request.form["id_activo"],
+            )
+            flash("Activo registrado correctamente.", "success")
+            return redirect(url_for("maquinarias_mobile"))
+
+        return render_template(
+            "maquinaria_qr/nueva_maquinaria_mobile.html",
+            siguiente_id=siguiente_id_activo(),
+            pagina="maquinaria",
+        )
+
     @app.route("/maquinarias/<id_activo>")
     @login_required
     def expediente_maquinaria(id_activo):
@@ -266,6 +310,57 @@ def registrar_rutas_maquinaria(
             "nueva_maquinaria.html",
             maquina=maquina,
             editar=True,
+        )
+
+    @app.route(
+        "/m/maquinarias/<id_activo>/editar",
+        methods=["GET", "POST"],
+    )
+    @login_required
+    @roles_required("Administrador")
+    def editar_maquinaria_mobile(id_activo):
+        maquina = obtener_maquinaria(id_activo)
+        if not maquina:
+            flash("El activo no existe.", "danger")
+            return redirect(url_for("maquinarias_mobile"))
+
+        if request.method == "POST":
+            datos = {
+                "id_activo": id_activo,
+                "categoria": request.form["categoria"],
+                "descripcion": request.form["descripcion"],
+                "cantidad": int(request.form["cantidad"] or 1),
+                "marca": request.form["marca"],
+                "modelo": request.form["modelo"],
+                "numero_serie": request.form["numero_serie"],
+                "serie_interna": request.form["serie_interna"],
+                "proveedor": request.form["proveedor"],
+                "ubicacion": request.form["ubicacion"],
+                "precio_unitario_us": float(
+                    request.form["precio_unitario_us"] or 0
+                ),
+                "total_us": float(request.form["total_us"] or 0),
+                "valor_mx": float(request.form["valor_mx"] or 0),
+                "fecha_alta": request.form["fecha_alta"],
+                "observaciones": request.form["observaciones"],
+            }
+            actualizar_maquinaria(datos)
+            registrar_movimiento(
+                usuario=session["nombre"],
+                accion="Actualizó información del activo",
+                modulo="Maquinaria",
+                referencia=id_activo,
+            )
+            flash(
+                f"El activo {id_activo} fue actualizado correctamente.",
+                "success",
+            )
+            return redirect(url_for("maquinaria_qr", id_activo=id_activo))
+
+        return render_template(
+            "maquinaria_qr/editar_maquinaria_mobile.html",
+            maquina=maquina,
+            pagina="maquinaria",
         )
 
     @app.route("/<id_activo>")

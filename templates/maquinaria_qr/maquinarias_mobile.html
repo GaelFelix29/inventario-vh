@@ -26,6 +26,12 @@ Maquinarias
 
     </div>
 
+    {% if session.get('rol') == 'Administrador' %}
+    <a href="{{ url_for('nueva_maquinaria_mobile') }}" class="hero-nuevo" aria-label="Registrar un activo">
+        <i class="bi bi-plus-lg"></i>
+    </a>
+    {% endif %}
+
 </div>
 
 <!-- ========================= -->
@@ -39,7 +45,11 @@ Maquinarias
         <i class="bi bi-search search-icon"></i>
 
         <input type="search" id="buscarActivo" class="search-input"
-            placeholder="Buscar por activo, descripción, marca...">
+            placeholder="Activo, categoría, descripción, marca...">
+
+        <button id="limpiarBusqueda" class="search-clear" type="button" aria-label="Limpiar búsqueda">
+            <i class="bi bi-x-lg"></i>
+        </button>
 
     </div>
 
@@ -51,15 +61,19 @@ Maquinarias
 
 <div class="filter-card">
 
-    <div class="filter-title">
+    <button class="filter-title" id="toggleFiltros" type="button" aria-expanded="false">
 
         <i class="bi bi-funnel-fill"></i>
 
         <span>Filtros</span>
 
-    </div>
+        <span id="cantidadFiltros" class="filter-count" hidden>0</span>
 
-    <div class="filtros">
+        <i class="bi bi-chevron-down filter-chevron"></i>
+
+    </button>
+
+    <div class="filtros" id="panelFiltros" hidden>
 
         <!-- Tipo -->
 
@@ -149,11 +163,20 @@ Maquinarias
 
         </div>
 
+        <button type="button" id="limpiarFiltros" class="limpiar-filtros">
+            <i class="bi bi-arrow-counterclockwise"></i> Limpiar filtros
+        </button>
+
     </div>
 
 </div><!-- Lista -->
 
-<div id="listaMaquinarias">
+<div class="resultados-encabezado">
+    <div><strong>Activos encontrados</strong><small id="resumenResultados">Cargando información...</small></div>
+    <span id="indicadorCarga"><i class="bi bi-arrow-repeat"></i></span>
+</div>
+
+<div id="listaMaquinarias" aria-live="polite">
 
 
 
@@ -184,6 +207,38 @@ Maquinarias
     const filtroEstado = document.getElementById("filtroEstado");
     const filtroUbicacion = document.getElementById("filtroUbicacion");
 
+    const toggleFiltros = document.getElementById("toggleFiltros");
+    const panelFiltros = document.getElementById("panelFiltros");
+    const limpiarFiltros = document.getElementById("limpiarFiltros");
+    const limpiarBusqueda = document.getElementById("limpiarBusqueda");
+    const cantidadFiltros = document.getElementById("cantidadFiltros");
+    const resumenResultados = document.getElementById("resumenResultados");
+    const indicadorCarga = document.getElementById("indicadorCarga");
+    let temporizadorBusqueda = null;
+
+    function actualizarControles() {
+        const cantidad = [filtroTipo, filtroEstado, filtroUbicacion]
+            .filter(control => control.value).length;
+        cantidadFiltros.textContent = cantidad;
+        cantidadFiltros.hidden = cantidad === 0;
+        limpiarBusqueda.classList.toggle("visible", Boolean(txtBuscar.value));
+    }
+
+    function escapar(valor) {
+        const elemento = document.createElement("div");
+        elemento.textContent = valor == null ? "" : String(valor);
+        return elemento.innerHTML;
+    }
+
+    function restablecerFiltros() {
+        txtBuscar.value = "";
+        filtroTipo.value = "";
+        filtroEstado.value = "";
+        filtroUbicacion.value = "";
+        actualizarControles();
+        cargarMaquinarias(true);
+    }
+
     async function cargarMaquinarias(reset = false) {
 
         try {
@@ -197,6 +252,7 @@ Maquinarias
 
             btn.disabled = true;
             btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Cargando...';
+            indicadorCarga.classList.add("cargando");
 
             const params = new URLSearchParams({
 
@@ -222,17 +278,7 @@ Maquinarias
 
             if (reset && maquinas.length === 0) {
 
-                lista.innerHTML = `
-
-                <div class="text-center py-5">
-
-                    <i class="bi bi-search" style="font-size:50px;color:#999"></i>
-
-                    <h5>No se encontraron resultados</h5>
-
-                </div>
-
-            `;
+                lista.innerHTML = `<div class="sin-resultados"><span><i class="bi bi-search"></i></span><h3>No encontramos activos</h3><p>Pruebe con otro texto o limpie los filtros seleccionados.</p><button type="button" onclick="restablecerFiltros()">Limpiar búsqueda y filtros</button></div>`;
 
             }
 
@@ -242,13 +288,16 @@ Maquinarias
                     m.cantidad_accesorios || 0
                 );
 
+                const esAccesorio = Number(m.es_accesorio || 0) === 1;
+                const maquinariaAsignada = m.maquinaria_asignada || "";
+
                 const textoAccesorios =
                     cantidadAccesorios === 1
                         ? "1 accesorio asignado"
                         : cantidadAccesorios + " accesorios asignados";
 
                 const distintivoAccesorios =
-                    cantidadAccesorios > 0
+                    !esAccesorio && cantidadAccesorios > 0
                         ? `
                 <a
                     href="/qr/${m.id_activo}#accesorios-asignados"
@@ -268,6 +317,20 @@ Maquinarias
             `
                         : "";
 
+                const datoRelacion = esAccesorio
+                    ? `<a href="/qr/${encodeURIComponent(m.id_activo)}"
+                           class="dato-asignacion ${maquinariaAsignada ? "asignado" : "disponible"}">
+                            <strong>Asignación</strong>
+                            <span><i class="bi ${maquinariaAsignada ? "bi-diagram-3-fill" : "bi-check-circle-fill"}"></i>
+                                ${maquinariaAsignada ? "Asignado a " + escapar(maquinariaAsignada) : "Disponible para asignación"}
+                            </span>
+                       </a>`
+                    : `<a href="/qr/${encodeURIComponent(m.id_activo)}#accesorios-asignados"
+                           class="dato-accesorios ${cantidadAccesorios > 0 ? "con-accesorios" : "sin-accesorios"}">
+                            <strong>Accesorios</strong>
+                            <span><i class="bi bi-puzzle-fill"></i> ${cantidadAccesorios}</span>
+                       </a>`;
+
                 lista.insertAdjacentHTML("beforeend", `
 
                 <div class="card-maquina"
@@ -277,15 +340,17 @@ Maquinarias
 
                         <div>
 
-                            <h4>${m.id_activo}</h4>
+                            <h4>${escapar(m.id_activo)}</h4>
 
-                            <small>${m.descripcion ?? ""}</small>
+                            <small>${escapar(m.descripcion)}</small>
+
+                            <span class="categoria-activo"><i class="bi bi-tag-fill"></i> ${escapar(m.categoria || "Sin categoría")}</span>
 
                         </div>
 
-                        <span class="estado">
+                        <span class="estado ${m.estado === "BAJA" ? "estado-baja" : ""}">
 
-                            ${m.estado}
+                            ${escapar(m.estado)}
 
                         </span>
 
@@ -320,7 +385,7 @@ Maquinarias
 
                             <strong>Marca</strong>
 
-                            ${m.marca ?? "-"}
+                            ${escapar(m.marca || "-")}
 
                         </div>
 
@@ -328,7 +393,7 @@ Maquinarias
 
                             <strong>Modelo</strong>
 
-                            ${m.modelo ?? "-"}
+                            ${escapar(m.modelo || "-")}
 
                         </div>
 
@@ -336,19 +401,24 @@ Maquinarias
 
                             <strong>Ubicación</strong>
 
-                            ${m.ubicacion ?? "-"}
+                            ${escapar(m.ubicacion || "-")}
 
                         </div>
 
+                        ${datoRelacion}
+
                     </div>
 
-                    <a href="/qr/${m.id_activo}" class="btn-ver">
-
-                        <i class="bi bi-eye"></i>
-
-                        Ver expediente
-
-                    </a>
+                    <div class="acciones-tarjeta-mobile">
+                        <a href="/qr/${encodeURIComponent(m.id_activo)}" class="btn-ver">
+                            <i class="bi bi-eye"></i> Ver expediente
+                        </a>
+                        {% if session.get('rol') == 'Administrador' %}
+                        <a href="/m/maquinarias/${encodeURIComponent(m.id_activo)}/editar" class="btn-editar-mobile" aria-label="Editar activo">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        {% endif %}
+                    </div>
 
                 </div>
 
@@ -357,6 +427,10 @@ Maquinarias
             });
 
             offset += maquinas.length;
+
+            resumenResultados.textContent = offset === 1
+                ? "1 activo mostrado"
+                : offset + " activos mostrados";
 
             btn.disabled = false;
             btn.innerHTML = '<i class="bi bi-chevron-down"></i> Mostrar más';
@@ -371,12 +445,17 @@ Maquinarias
 
             }
 
+            indicadorCarga.classList.remove("cargando");
+            actualizarControles();
+
         } catch (error) {
 
             console.error(error);
 
             btn.disabled = false;
             btn.innerHTML = '<i class="bi bi-chevron-down"></i> Mostrar más';
+            indicadorCarga.classList.remove("cargando");
+            resumenResultados.textContent = "No fue posible cargar los activos";
 
         }
 
@@ -389,9 +468,9 @@ Maquinarias
     });
 
     txtBuscar.addEventListener("input", () => {
-
-        cargarMaquinarias(true);
-
+        actualizarControles();
+        clearTimeout(temporizadorBusqueda);
+        temporizadorBusqueda = setTimeout(() => cargarMaquinarias(true), 350);
     });
 
     filtroEstado.addEventListener("change", () => {
@@ -408,8 +487,28 @@ Maquinarias
 
     filtroTipo.addEventListener("change", () => {
 
+        actualizarControles();
         cargarMaquinarias(true);
 
+    });
+
+    [filtroEstado, filtroUbicacion].forEach(control => {
+        control.addEventListener("change", actualizarControles);
+    });
+
+    toggleFiltros.addEventListener("click", () => {
+        const abrir = panelFiltros.hidden;
+        panelFiltros.hidden = !abrir;
+        toggleFiltros.setAttribute("aria-expanded", String(abrir));
+        toggleFiltros.classList.toggle("abierto", abrir);
+    });
+
+    limpiarFiltros.addEventListener("click", restablecerFiltros);
+    limpiarBusqueda.addEventListener("click", () => {
+        txtBuscar.value = "";
+        actualizarControles();
+        cargarMaquinarias(true);
+        txtBuscar.focus();
     });
 
     async function cargarUbicaciones() {
@@ -433,6 +532,7 @@ Maquinarias
     }
 
     cargarUbicaciones();
+    actualizarControles();
     cargarMaquinarias(true);
 
 </script>

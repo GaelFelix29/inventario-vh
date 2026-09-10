@@ -144,6 +144,73 @@ def registrar_rutas_aduanas(app, login_required, registrar_movimiento):
     def aduanas_mobile():
         return render_template("maquinaria_qr/aduanas_mobile.html")
 
+    @app.route("/m/aduanas/nuevo", methods=["GET", "POST"])
+    @login_required
+    def nueva_aduana_mobile():
+        if session.get("rol") != "Administrador":
+            flash(
+                "No tiene permisos para crear expedientes aduanales.",
+                "danger",
+            )
+            return redirect(url_for("aduanas_mobile"))
+
+        id_activo = request.args.get("id")
+        maquinarias = obtener_maquinarias_select()
+
+        if request.method == "POST":
+            id_activo = request.form["id_activo"]
+            _guardar_desde_formulario(id_activo)
+            registrar_movimiento(
+                usuario=session["nombre"],
+                accion="Creó expediente aduanal",
+                modulo="Aduanas",
+                referencia=id_activo,
+            )
+            flash(
+                "Expediente aduanal guardado correctamente.",
+                "success",
+            )
+            return redirect(url_for("aduanas_mobile"))
+
+        return render_template(
+            "maquinaria_qr/nueva_aduana_mobile.html",
+            maquinarias=maquinarias.to_dict("records"),
+            aduana=_datos_formulario_aduana(id_activo),
+            editar=False,
+            pagina="aduanas",
+        )
+
+    @app.route("/m/aduanas/<id_activo>/editar", methods=["GET", "POST"])
+    @login_required
+    def editar_aduana_mobile(id_activo):
+        if session.get("rol") != "Administrador":
+            flash("No tiene permisos para editar expedientes aduanales.", "danger")
+            return redirect(url_for("qr_expediente", id_activo=id_activo))
+
+        aduana = obtener_aduana(id_activo)
+        if not aduana:
+            flash("El activo todavía no tiene expediente aduanal.", "warning")
+            return redirect(url_for("nueva_aduana_mobile", id=id_activo))
+
+        if request.method == "POST":
+            _guardar_desde_formulario(id_activo)
+            registrar_movimiento(
+                usuario=session["nombre"],
+                accion="Actualizó expediente aduanal",
+                modulo="Aduanas",
+                referencia=id_activo,
+            )
+            flash("Expediente aduanal actualizado correctamente.", "success")
+            return redirect(url_for("qr_expediente", id_activo=id_activo))
+
+        return render_template(
+            "maquinaria_qr/nueva_aduana_mobile.html",
+            maquinarias=obtener_maquinarias_select().to_dict("records"),
+            aduana=aduana,
+            editar=True,
+            pagina="aduanas",
+        )
+
     @app.route("/m/aduanas/api")
     @login_required
     def api_aduanas_mobile():
@@ -152,6 +219,7 @@ def registrar_rutas_aduanas(app, login_required, registrar_movimiento):
                 q=request.args.get("q", "").strip(),
                 origen=request.args.get("origen", ""),
                 tipo=request.args.get("tipo", ""),
+                estado=request.args.get("estado", ""),
                 limite=20,
                 offset=int(request.args.get("offset", 0)),
             )

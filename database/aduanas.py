@@ -409,6 +409,7 @@ def obtener_aduanas_mobile_filtrado(
     q="",
     origen="",
     tipo="",
+    estado="",
     limite=20,
     offset=0
 ):
@@ -473,6 +474,45 @@ def obtener_aduanas_mobile_filtrado(
             sql += """
             AND UPPER(a.origen) = 'NACIONAL'
             """
+
+    completo = """
+        (
+            (UPPER(TRIM(COALESCE(a.origen, ''))) = 'NACIONAL'
+             AND TRIM(COALESCE(a.factura, '')) <> ''
+             AND UPPER(TRIM(COALESCE(a.documentacion_completa, ''))) = 'SI')
+            OR
+            (UPPER(TRIM(COALESCE(a.origen, ''))) <> 'NACIONAL'
+             AND TRIM(COALESCE(a.factura, '')) <> ''
+             AND TRIM(COALESCE(a.pedimento, '')) <> ''
+             AND TRIM(COALESCE(a.entrada_mtz, '')) <> ''
+             AND TRIM(COALESCE(a.id_imp, '')) <> ''
+             AND TRIM(COALESCE(a.inbond, '')) <> ''
+             AND TRIM(COALESCE(a.origen, '')) <> ''
+             AND a.fecha_importacion IS NOT NULL
+             AND a.kg_bruto IS NOT NULL
+             AND a.total_bultos IS NOT NULL
+             AND UPPER(TRIM(COALESCE(a.documentacion_completa, ''))) = 'SI')
+        )
+    """
+    sin_expediente = """
+        (TRIM(COALESCE(a.factura, '')) = ''
+         AND TRIM(COALESCE(a.pedimento, '')) = ''
+         AND TRIM(COALESCE(a.entrada_mtz, '')) = ''
+         AND TRIM(COALESCE(a.id_imp, '')) = ''
+         AND TRIM(COALESCE(a.inbond, '')) = ''
+         AND TRIM(COALESCE(a.origen, '')) = ''
+         AND a.fecha_importacion IS NULL
+         AND a.kg_bruto IS NULL
+         AND a.total_bultos IS NULL
+         AND UPPER(TRIM(COALESCE(a.documentacion_completa, ''))) <> 'SI')
+    """
+
+    if estado == "Completo":
+        sql += " AND " + completo
+    elif estado == "Sin expediente":
+        sql += " AND " + sin_expediente
+    elif estado == "Incompleto":
+        sql += " AND NOT " + completo + " AND NOT " + sin_expediente
 
     # ==========================================
     # ORDEN Y PAGINACIÓN

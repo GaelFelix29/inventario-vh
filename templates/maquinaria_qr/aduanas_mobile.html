@@ -1,388 +1,67 @@
 {% extends "maquinaria_qr/base_mobile.html" %}
-
-{% block titulo %}
-Aduanas
-{% endblock %}
-
-{% block estilos %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/aduanas_mobile.css') }}">
-
-<link rel="stylesheet" href="{{ url_for('static', filename='css/maquinarias_mobile.css') }}">
-
-<link rel="stylesheet" href="{{ url_for('static', filename='css/aduanas_mobile.css') }}">
-
-{% endblock %}
+{% block titulo %}Aduanas{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{{ url_for('static', filename='css/aduanas_mobile.css') }}">{% endblock %}
 
 {% block contenido %}
+<section class="aduanas-mobile">
+    <header class="aduanas-portada">
+        <span><i class="bi bi-truck"></i></span>
+        <div><small>CONTROL DOCUMENTAL</small><h1>Aduanas</h1><p>Consulta rápida de expedientes</p></div>
+        {% if session.get('rol') == 'Administrador' %}<a href="{{ url_for('nueva_aduana_mobile') }}" aria-label="Nuevo expediente"><i class="bi bi-plus-lg"></i></a>{% endif %}
+    </header>
 
-<!-- ========================================= -->
-<!-- HERO -->
-<!-- ========================================= -->
-
-<div class="hero-card">
-
-    <div class="hero-icon">
-
-        <i class="bi bi-box-seam"></i>
-
+    <div class="aduanas-buscador">
+        <i class="bi bi-search"></i><input type="search" id="buscarAduana" placeholder="Activo, factura, pedimento...">
+        <button id="limpiarBusqueda" type="button" aria-label="Limpiar búsqueda"><i class="bi bi-x-lg"></i></button>
     </div>
 
-    <div>
+    <section class="aduanas-filtros">
+        <button id="toggleFiltros" type="button" aria-expanded="false"><i class="bi bi-funnel-fill"></i><strong>Filtros</strong><span id="cantidadFiltros" hidden>0</span><i class="bi bi-chevron-down"></i></button>
+        <div id="panelFiltros" hidden>
+            <label for="filtroTipo">Tipo</label><select id="filtroTipo"><option value="">Todos los tipos</option><option value="Importado">Importados</option><option value="Nacional">Nacionales</option></select>
+            <label for="filtroOrigen">Origen</label><select id="filtroOrigen"><option value="">Todos los orígenes</option></select>
+            <label for="filtroEstado">Estado documental</label><select id="filtroEstado"><option value="">Todos los estados</option><option value="Completo">Completo</option><option value="Incompleto">Incompleto</option><option value="Sin expediente">Sin expediente</option></select>
+            <button id="limpiarFiltros" type="button"><i class="bi bi-arrow-counterclockwise"></i> Limpiar filtros</button>
+        </div>
+    </section>
 
-        <h2>Gestion de Aduanas</h2>
-
-        <small>Consulta rápida de expedientes</small>
-
-    </div>
-
-</div>
-
-<!-- ========================================= -->
-<!-- BUSCADOR -->
-<!-- ========================================= -->
-
-<section class="search-section">
-
-    <div class="position-relative">
-
-        <i class="bi bi-search search-icon"></i>
-
-        <input type="search" id="buscarAduana" class="search-input" placeholder="Buscar activo, factura o pedimento...">
-
-    </div>
-
+    <div class="aduanas-resultados"><div><strong>Expedientes encontrados</strong><small id="resumenResultados">Cargando información...</small></div><span id="indicadorCarga"><i class="bi bi-arrow-repeat"></i></span></div>
+    <div id="listaAduanas" aria-live="polite"></div>
+    <button id="btnMostrarMas" class="aduanas-mostrar" type="button"><i class="bi bi-chevron-down"></i> Mostrar más</button>
 </section>
+{% endblock %}
 
-<!-- ========================================= -->
-<!-- FILTROS -->
-<!-- ========================================= -->
-
-<div class="filtro-card">
-
-    <div class="filtro-title">
-
-        <i class="bi bi-funnel-fill"></i>
-
-        Filtros
-
-    </div>
-
-    <div class="filtro-group">
-
-        <label>
-
-            <i class="bi bi-globe2"></i>
-
-            Tipo
-
-        </label>
-
-        <select id="filtroTipo" class="filtro-select">
-
-            <option value="">🌍 Todos</option>
-
-            <option value="Importado">🌎 Importados</option>
-
-            <option value="Nacional">🇲🇽 Nacionales</option>
-
-        </select>
-
-    </div>
-
-    <div class="filtro-group">
-
-        <label>
-
-            <i class="bi bi-geo-alt"></i>
-
-            Origen
-
-        </label>
-
-        <select id="filtroOrigen" class="filtro-select">
-
-            <option value="">🌎 Todos los orígenes</option>
-
-        </select>
-
-    </div>
-
-    <div class="filtro-group">
-
-        <label>
-
-            <i class="bi bi-clipboard-check"></i>
-
-            Expediente
-
-        </label>
-
-        <select id="filtroEstado" class="filtro-select">
-
-            <option value="">Todos</option>
-
-            <option value="Completo">🟢 Completo</option>
-
-            <option value="Incompleto">🟡 Incompleto</option>
-
-            <option value="Sin expediente">🔴 Sin expediente</option>
-
-        </select>
-
-    </div>
-
-</div>
-
-<!-- ========================================= -->
-<!-- LISTA -->
-<!-- ========================================= -->
-
-<div id="listaAduanas"></div>
-
-<div class="text-center mt-3 mb-4">
-
-    <button id="btnMostrarMas" class="btn-mostrar">
-
-        <i class="bi bi-chevron-down"></i>
-
-        Mostrar más
-
-    </button>
-
-</div>
-
+{% block scripts %}
 <script>
-
-    let offset = 0;
-
-    const lista = document.getElementById("listaAduanas");
-    const btn = document.getElementById("btnMostrarMas");
-
-    const txtBuscar = document.getElementById("buscarAduana");
-
-    const filtroTipo = document.getElementById("filtroTipo");
-    const filtroOrigen = document.getElementById("filtroOrigen");
-    const filtroEstado = document.getElementById("filtroEstado");
-
-    async function cargarAduanas(reset = false) {
-
-        try {
-
-            if (reset) {
-
-                offset = 0;
-                lista.innerHTML = "";
-
-            }
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Cargando...';
-
-            const params = new URLSearchParams({
-
-                offset: offset,
-                q: txtBuscar.value,
-                tipo: filtroTipo.value,
-                origen: filtroOrigen.value,
-                estado: filtroEstado.value
-
-            });
-
-            const respuesta = await fetch("/m/aduanas/api?" + params);
-
-            if (!respuesta.ok) {
-
-                throw new Error("Error al consultar la API");
-
-            }
-
-
-
-            const aduanas = await respuesta.json();
-
-            aduanas.forEach(a => {
-
-                let fecha = "-";
-
-                if (a.fecha_importacion) {
-
-                    const f = new Date(a.fecha_importacion);
-
-                    fecha = f.toLocaleDateString("es-MX", {
-
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric"
-
-                    });
-
-                }
-
-                lista.insertAdjacentHTML("beforeend", `
-
-<div class="card-maquina">
-
-    <div class="card-top">
-
-        <div>
-
-            <h4>${a.id_activo}</h4>
-
-            <small>${a.descripcion ?? ""}</small>
-
-        </div>
-
-        <span class="estado ${a.expediente.color}">
-
-            ${a.expediente.estado}
-
-        </span>
-
-    </div>
-
-    <div class="expediente-box">
-
-        <div class="barra">
-
-            <div
-                class="progreso ${a.expediente.color}"
-                style="width:${a.expediente.porcentaje}%">
-            </div>
-
-        </div>
-
-        <div class="expediente-info">
-
-            <span>${a.expediente.estado}</span>
-
-            <strong>${a.expediente.porcentaje}%</strong>
-
-        </div>
-
-    </div>
-
-    <div class="datos">
-
-        <div>
-
-            <strong>
-                <i class="bi bi-receipt"></i>
-                Factura
-            </strong>
-
-            ${a.factura || "-"}
-
-        </div>
-
-        <div>
-
-            <strong>
-                <i class="bi bi-file-earmark-text"></i>
-                Pedimento
-            </strong>
-
-            ${a.pedimento || "-"}
-
-        </div>
-
-        <div>
-
-            <strong>
-                <i class="bi bi-globe-americas"></i>
-                Origen
-            </strong>
-
-            ${a.origen || "-"}
-
-        </div>
-
-        <div>
-
-            <strong>
-                <i class="bi bi-calendar-event"></i>
-                Fecha
-            </strong>
-
-            ${fecha}
-
-        </div>
-
-    </div>
-
-<a href="/maquinarias/${a.id_activo}" class="btn-ver">
-    <i class="bi bi-eye"></i>
-    Ver expediente completo
-</a>
-
-</div>
-
-`);;
-
-            });
-
-
-
-            console.log(aduanas);
-
-            offset += aduanas.length;
-
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-chevron-down"></i> Mostrar más';
-
-            if (aduanas.length < 20) {
-
-                btn.style.display = "none";
-
-            } else {
-
-                btn.style.display = "inline-block";
-
-            }
-
-        } catch (error) {
-
-            console.error(error);
-
-            btn.disabled = false;
-
-            btn.innerHTML = '<i class="bi bi-chevron-down"></i> Mostrar más';
-
-        }
-
-    }
-
-    btn.addEventListener("click", () => {
-
-        cargarAduanas();
-
-    });
-
-    txtBuscar.addEventListener("input", () => {
-
-        cargarAduanas(true);
-
-    });
-
-    filtroTipo.addEventListener("change", () => {
-
-        cargarAduanas(true);
-
-    });
-
-    filtroOrigen.addEventListener("change", () => {
-
-        cargarAduanas(true);
-
-    });
-
-    filtroEstado.addEventListener("change", () => {
-
-        cargarAduanas(true);
-
-    });
-
-    cargarAduanas(true);
-
+document.addEventListener('DOMContentLoaded',function(){
+ let offset=0,temporizador=null,controlador=null;
+ const lista=document.getElementById('listaAduanas'),btn=document.getElementById('btnMostrarMas'),buscar=document.getElementById('buscarAduana'),tipo=document.getElementById('filtroTipo'),origen=document.getElementById('filtroOrigen'),estado=document.getElementById('filtroEstado'),toggle=document.getElementById('toggleFiltros'),panel=document.getElementById('panelFiltros'),cantidad=document.getElementById('cantidadFiltros'),resumen=document.getElementById('resumenResultados'),carga=document.getElementById('indicadorCarga'),limpiarBusqueda=document.getElementById('limpiarBusqueda');
+ const escapar=v=>{const e=document.createElement('div');e.textContent=v==null?'':String(v);return e.innerHTML};
+ function controles(){const n=[tipo,origen,estado].filter(c=>c.value).length;cantidad.textContent=n;cantidad.hidden=!n;limpiarBusqueda.classList.toggle('visible',Boolean(buscar.value))}
+ function limpiar(){buscar.value='';tipo.value='';origen.value='';estado.value='';controles();cargar(true)}
+ function fecha(valor){
+  if(!valor)return '-';
+  const texto=String(valor),iso=texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(iso)return `${iso[3]}/${iso[2]}/${iso[1]}`;
+  const fechaInterpretada=new Date(texto);
+  if(Number.isNaN(fechaInterpretada.getTime()))return '-';
+  return new Intl.DateTimeFormat('es-MX',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'}).format(fechaInterpretada);
+ }
+ async function cargar(reset=false){
+  try{
+   if(reset){offset=0;lista.innerHTML='';if(controlador)controlador.abort();controlador=new AbortController()}
+   carga.classList.add('cargando');btn.disabled=true;btn.innerHTML='<i class="bi bi-arrow-repeat"></i> Cargando...';
+   const params=new URLSearchParams({offset,q:buscar.value,tipo:tipo.value,origen:origen.value,estado:estado.value});
+   const respuesta=await fetch('/m/aduanas/api?'+params,{signal:controlador?controlador.signal:undefined});if(!respuesta.ok)throw new Error('Error de consulta');const datos=await respuesta.json();
+   if(reset&&!datos.length)lista.innerHTML='<div class="aduanas-vacio"><span><i class="bi bi-folder-x"></i></span><h2>No encontramos expedientes</h2><p>Pruebe otra búsqueda o elimine los filtros.</p><button id="vaciarFiltros" type="button">Limpiar búsqueda y filtros</button></div>';
+   datos.forEach(a=>{const ex=a.expediente||{},color=['success','warning','danger'].includes(ex.color)?ex.color:'warning',porcentaje=Number(ex.porcentaje)||0;lista.insertAdjacentHTML('beforeend',`<article class="aduana-card"><div class="aduana-card-cabecera"><div><small>ACTIVO</small><h2>${escapar(a.id_activo)}</h2><p>${escapar(a.descripcion||'Sin descripción')}</p></div><span class="estado-${color}">${escapar(ex.estado||'Pendiente')}</span></div><div class="progreso"><div><span style="width:${Math.max(0,Math.min(100,porcentaje))}%" class="${color}"></span></div><small>Integración documental</small><strong>${porcentaje}%</strong></div><div class="aduana-datos"><div><i class="bi bi-receipt"></i><span><small>Factura</small><strong>${escapar(a.factura||'-')}</strong></span></div><div><i class="bi bi-file-earmark-text"></i><span><small>Pedimento</small><strong>${escapar(a.pedimento||'-')}</strong></span></div><div><i class="bi bi-globe-americas"></i><span><small>Origen</small><strong>${escapar(a.origen||'-')}</strong></span></div><div><i class="bi bi-calendar3"></i><span><small>Importación</small><strong>${fecha(a.fecha_importacion)}</strong></span></div></div><a href="/qr/${encodeURIComponent(a.id_activo)}"><i class="bi bi-eye"></i> Ver expediente completo</a></article>`)});
+   offset+=datos.length;resumen.textContent=offset===1?'1 expediente mostrado':offset+' expedientes mostrados';btn.style.display=datos.length<20?'none':'flex';btn.disabled=false;btn.innerHTML='<i class="bi bi-chevron-down"></i> Mostrar más';carga.classList.remove('cargando');controles();const vacio=document.getElementById('vaciarFiltros');if(vacio)vacio.addEventListener('click',limpiar)
+  }catch(error){if(error.name==='AbortError')return;console.error(error);carga.classList.remove('cargando');resumen.textContent='No fue posible cargar los expedientes';btn.disabled=false;btn.innerHTML='<i class="bi bi-arrow-repeat"></i> Reintentar'}
+ }
+ async function origenes(){try{const r=await fetch('/m/aduanas/origenes'),datos=await r.json();datos.forEach(v=>origen.insertAdjacentHTML('beforeend',`<option value="${escapar(v)}">${escapar(v)}</option>`))}catch(error){console.error(error)}}
+ toggle.addEventListener('click',()=>{const abrir=panel.hidden;panel.hidden=!abrir;toggle.setAttribute('aria-expanded',String(abrir));toggle.classList.toggle('abierto',abrir)});
+ buscar.addEventListener('input',()=>{controles();clearTimeout(temporizador);temporizador=setTimeout(()=>cargar(true),350)});limpiarBusqueda.addEventListener('click',()=>{buscar.value='';controles();cargar(true);buscar.focus()});[tipo,origen,estado].forEach(c=>c.addEventListener('change',()=>{controles();cargar(true)}));document.getElementById('limpiarFiltros').addEventListener('click',limpiar);btn.addEventListener('click',()=>cargar());
+ controles();origenes();cargar(true);
+});
 </script>
-
 {% endblock %}

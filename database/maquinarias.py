@@ -682,6 +682,19 @@ SELECT
     a.origen,
 
     (
+        m.categoria_accesorio_id IS NOT NULL
+        OR UPPER(TRIM(COALESCE(m.categoria, ''))) LIKE 'ACCESORIO%'
+    ) AS es_accesorio,
+
+    (
+        SELECT aa.id_maquinaria
+        FROM asignaciones_accesorios aa
+        WHERE aa.id_accesorio = m.id_activo
+        AND aa.estado = 'ACTIVA'
+        LIMIT 1
+    ) AS maquinaria_asignada,
+
+    (
         SELECT COUNT(*)
         FROM asignaciones_accesorios aa
         WHERE aa.id_maquinaria = m.id_activo
@@ -709,6 +722,7 @@ FROM maquinarias m
 
             m.id_activo LIKE :q
             OR m.descripcion LIKE :q
+            OR m.categoria LIKE :q
             OR m.marca LIKE :q
             OR m.modelo LIKE :q
             OR m.ubicacion LIKE :q

@@ -1,0 +1,54 @@
+{% extends "maquinaria_qr/base_mobile.html" %}
+{% block titulo %}Editar {{ maquina.id_activo }}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{{ url_for('static', filename='css/nueva_maquinaria_mobile.css') }}">{% endblock %}
+
+{% block contenido %}
+<section class="nueva-maquinaria-mobile">
+    <header class="maquinaria-portada">
+        <a href="{{ url_for('maquinaria_qr', id_activo=maquina.id_activo) }}" aria-label="Regresar"><i class="bi bi-arrow-left"></i></a>
+        <div><small>CONTROL DE ACTIVOS</small><h1>Editar maquinaria</h1><p>Actualice la información del activo.</p></div>
+        <span><i class="bi bi-pencil-square"></i></span>
+    </header>
+
+    <div class="id-nuevo"><span><i class="bi bi-upc-scan"></i></span><div><small>ACTIVO SELECCIONADO</small><strong>{{ maquina.id_activo }}</strong><p>Los cambios quedarán registrados en su historial</p></div></div>
+
+    <form method="POST" action="{{ url_for('editar_maquinaria_mobile', id_activo=maquina.id_activo) }}" id="formEditarMaquinaria">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <section class="maquinaria-seccion">
+            <div class="seccion-titulo"><span><i class="bi bi-info-circle"></i></span><div><small>INFORMACIÓN GENERAL</small><h2>Datos del activo</h2><p>Identificación y ubicación de la maquinaria.</p></div></div>
+            {% set categorias_base = ["LLENADORA","ENCAPSULADORA","LOTEADORA","ETIQUETADORA","CONTADORA DE CAPSULAS","ACCESORIO","OTRA"] %}
+            <label for="categoria"><i class="bi bi-tag"></i> Categoría <b>*</b></label><select id="categoria" name="categoria" required><option value="">Seleccione una categoría</option>{% if maquina.categoria and maquina.categoria not in categorias_base %}<option value="{{ maquina.categoria }}" selected>{{ maquina.categoria }}</option>{% endif %}{% for c in categorias_base %}<option value="{{ c }}" {% if maquina.categoria == c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+            <label for="descripcion"><i class="bi bi-card-text"></i> Descripción</label><textarea id="descripcion" name="descripcion" rows="3" placeholder="Descripción clara del activo">{{ maquina.descripcion or '' }}</textarea>
+            <div class="campos-dobles"><div><label for="marca"><i class="bi bi-bookmark"></i> Marca</label><input type="text" id="marca" name="marca" value="{{ maquina.marca or '' }}"></div><div><label for="modelo"><i class="bi bi-cpu"></i> Modelo</label><input type="text" id="modelo" name="modelo" value="{{ maquina.modelo or '' }}"></div></div>
+            <label for="numero_serie"><i class="bi bi-upc"></i> Número de serie</label><input type="text" id="numero_serie" name="numero_serie" value="{{ maquina.numero_serie or '' }}">
+            <div class="campos-dobles"><div><label for="serie_interna"><i class="bi bi-qr-code"></i> Serie interna</label><input type="text" id="serie_interna" name="serie_interna" value="{{ maquina.serie_interna or '' }}"></div><div><label for="cantidad"><i class="bi bi-123"></i> Cantidad</label><input type="number" id="cantidad" name="cantidad" min="1" value="{{ maquina.cantidad or 1 }}"></div></div>
+            <label for="ubicacion"><i class="bi bi-geo-alt"></i> Ubicación</label><input type="text" id="ubicacion" name="ubicacion" value="{{ maquina.ubicacion or '' }}">
+            <label for="fecha_alta"><i class="bi bi-calendar3"></i> Fecha de alta</label><input type="date" id="fecha_alta" name="fecha_alta" value="{{ maquina.fecha_alta.strftime('%Y-%m-%d') if maquina.fecha_alta else '' }}">
+        </section>
+
+        <section class="maquinaria-seccion">
+            <div class="seccion-titulo"><span><i class="bi bi-cash-stack"></i></span><div><small>INFORMACIÓN ECONÓMICA</small><h2>Proveedor y valor</h2><p>Importes registrados para este activo.</p></div></div>
+            <label for="proveedor"><i class="bi bi-building"></i> Proveedor</label><input type="text" id="proveedor" name="proveedor" value="{{ maquina.proveedor or '' }}">
+            <label for="precio_unitario_us"><i class="bi bi-currency-dollar"></i> Precio unitario (USD)</label><input type="number" id="precio_unitario_us" name="precio_unitario_us" min="0" step="0.01" value="{{ maquina.precio_unitario_us or 0 }}">
+            <div class="total-estimado"><span>Total USD</span><strong id="totalUsd">$0.00</strong><small>Cantidad × precio unitario</small></div>
+            <input type="hidden" id="total_us" name="total_us" value="{{ maquina.total_us or 0 }}">
+            <label for="valor_mx"><i class="bi bi-cash-coin"></i> Valor total (MXN)</label><input type="number" id="valor_mx" name="valor_mx" min="0" step="0.01" value="{{ maquina.valor_mx or 0 }}">
+            <small class="ayuda-mxn"><i class="bi bi-info-circle"></i> Valor total registrado en pesos mexicanos.</small>
+        </section>
+
+        <section class="maquinaria-seccion">
+            <div class="seccion-titulo"><span><i class="bi bi-chat-left-text"></i></span><div><small>INFORMACIÓN ADICIONAL</small><h2>Observaciones</h2><p>Información útil sobre el activo.</p></div></div>
+            <textarea id="observaciones" name="observaciones" rows="4" placeholder="Observaciones del activo...">{{ maquina.observaciones or '' }}</textarea>
+        </section>
+
+        <div class="acciones-maquinaria"><a href="{{ url_for('maquinaria_qr', id_activo=maquina.id_activo) }}">Cancelar</a><button type="submit" id="guardarMaquinaria"><i class="bi bi-check-circle-fill"></i> Guardar cambios</button></div>
+    </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded',function(){const cantidad=document.getElementById('cantidad'),precio=document.getElementById('precio_unitario_us'),total=document.getElementById('totalUsd'),totalCampo=document.getElementById('total_us'),form=document.getElementById('formEditarMaquinaria'),guardar=document.getElementById('guardarMaquinaria');function calcular(){const valor=(Number(cantidad.value)||0)*(Number(precio.value)||0);totalCampo.value=valor.toFixed(2);total.textContent=new Intl.NumberFormat('es-MX',{style:'currency',currency:'USD'}).format(valor)}cantidad.addEventListener('input',calcular);precio.addEventListener('input',calcular);form.addEventListener('submit',function(){calcular();guardar.disabled=true;guardar.innerHTML='<span class="spinner-border spinner-border-sm"></span> Guardando...'});calcular()});
+</script>
+{% endblock %}

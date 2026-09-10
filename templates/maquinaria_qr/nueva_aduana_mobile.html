@@ -1,0 +1,50 @@
+{% extends "maquinaria_qr/base_mobile.html" %}
+{% block titulo %}{{ 'Editar' if editar else 'Nuevo' }} expediente aduanal{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{{ url_for('static', filename='css/nueva_aduana_mobile.css') }}">{% endblock %}
+
+{% block contenido %}
+<section class="nueva-aduana-mobile">
+    <header class="nueva-aduana-portada">
+        <a href="{{ url_for('qr_expediente', id_activo=aduana.id_activo) if editar else url_for('aduanas_mobile') }}" aria-label="Regresar"><i class="bi bi-arrow-left"></i></a>
+        <div><small>CONTROL DE IMPORTACIONES</small><h1>{{ 'Editar expediente' if editar else 'Nuevo expediente' }}</h1><p>{{ 'Actualice la información aduanal del activo.' if editar else 'Registre la información aduanal del activo.' }}</p></div>
+        <span><i class="bi bi-truck"></i></span>
+    </header>
+
+    <form method="POST" action="{{ url_for('editar_aduana_mobile', id_activo=aduana.id_activo) if editar else url_for('nueva_aduana_mobile') }}" id="formNuevaAduana">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <section class="aduana-mobile-seccion">
+            <div class="seccion-titulo"><span><i class="bi bi-box-seam"></i></span><div><small>IDENTIFICACIÓN</small><h2>Activo y referencias</h2><p>Seleccione la maquinaria y capture sus folios.</p></div></div>
+            <label for="id_activo"><i class="bi bi-upc-scan"></i> Activo <b>*</b></label>
+            <select id="id_activo" name="id_activo" required {% if editar %}disabled{% endif %}><option value="">Seleccione una maquinaria</option>{% for m in maquinarias %}<option value="{{ m.id_activo }}" {% if aduana.id_activo == m.id_activo %}selected{% endif %}>{{ m.id_activo }} - {{ m.descripcion }}</option>{% endfor %}</select>
+            {% if editar %}<input type="hidden" name="id_activo" value="{{ aduana.id_activo }}">{% endif %}
+            <div id="estadoCarga" class="estado-carga"><i class="bi bi-info-circle"></i> Al seleccionar un activo se recuperarán los datos existentes.</div>
+            <label for="factura"><i class="bi bi-receipt"></i> Factura</label><input type="text" id="factura" name="factura" placeholder="Número de factura">
+            <label for="pedimento"><i class="bi bi-file-earmark-text"></i> Pedimento</label><input type="text" id="pedimento" name="pedimento" placeholder="Número de pedimento">
+            <label for="entrada_mtz"><i class="bi bi-door-open"></i> Entrada MTZ</label><input type="text" id="entrada_mtz" name="entrada_mtz" placeholder="Referencia de entrada">
+            <label for="id_imp"><i class="bi bi-hash"></i> ID IMP</label><input type="text" id="id_imp" name="id_imp" placeholder="Identificador de importación">
+            <label for="inbond"><i class="bi bi-link-45deg"></i> Inbond</label><input type="text" id="inbond" name="inbond" placeholder="Número Inbond">
+        </section>
+
+        <section class="aduana-mobile-seccion">
+            <div class="seccion-titulo"><span><i class="bi bi-globe-americas"></i></span><div><small>LOGÍSTICA</small><h2>Datos de importación</h2><p>Origen, fecha y características del embarque.</p></div></div>
+            <label for="origen"><i class="bi bi-geo-alt"></i> País de origen</label><input type="text" id="origen" name="origen" placeholder="Ej. China">
+            <label for="fecha_importacion"><i class="bi bi-calendar3"></i> Fecha de importación</label><input type="date" id="fecha_importacion" name="fecha_importacion">
+            <div class="campos-dobles"><div><label for="kg_bruto"><i class="bi bi-speedometer2"></i> Kg bruto</label><input type="number" id="kg_bruto" name="kg_bruto" min="0" step="0.01" placeholder="0.00"></div><div><label for="total_bultos"><i class="bi bi-boxes"></i> Bultos</label><input type="number" id="total_bultos" name="total_bultos" min="0" placeholder="0"></div></div>
+            <label for="documentacion_completa"><i class="bi bi-folder-check"></i> Estado documental</label><select id="documentacion_completa" name="documentacion_completa"><option value="">Seleccione el estado</option><option value="SI">Documentación completa</option><option value="NO">Documentación pendiente</option></select>
+        </section>
+
+        <div class="acciones-mobile"><a href="{{ url_for('qr_expediente', id_activo=aduana.id_activo) if editar else url_for('aduanas_mobile') }}">Cancelar</a><button type="submit" id="guardarAduana"><i class="bi bi-check-circle-fill"></i> {{ 'Actualizar expediente' if editar else 'Guardar expediente' }}</button></div>
+    </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+ const activo=document.getElementById('id_activo'),estado=document.getElementById('estadoCarga'),form=document.getElementById('formNuevaAduana'),guardar=document.getElementById('guardarAduana'),campos=['factura','pedimento','entrada_mtz','id_imp','inbond','origen','fecha_importacion','kg_bruto','total_bultos','documentacion_completa'];
+ async function cargarDatos(){const id=activo.value;if(!id){campos.forEach(c=>document.getElementById(c).value='');estado.innerHTML='<i class="bi bi-info-circle"></i> Al seleccionar un activo se recuperarán los datos existentes.';return}estado.className='estado-carga cargando';estado.innerHTML='<i class="bi bi-arrow-repeat"></i> Consultando información...';try{const respuesta=await fetch('/aduanas/datos/'+encodeURIComponent(id)),datos=await respuesta.json();campos.forEach(c=>document.getElementById(c).value=datos[c]??'');estado.className='estado-carga listo';estado.innerHTML=Object.keys(datos).length?'<i class="bi bi-check-circle-fill"></i> Información existente recuperada. Puede actualizarla.':'<i class="bi bi-plus-circle-fill"></i> Activo listo para un nuevo expediente.'}catch(error){estado.className='estado-carga error';estado.innerHTML='<i class="bi bi-exclamation-circle-fill"></i> No se pudo consultar la información.'}}
+ activo.addEventListener('change',cargarDatos);form.addEventListener('submit',function(){guardar.disabled=true;guardar.innerHTML='<span class="spinner-border spinner-border-sm"></span> Guardando...'});if(activo.value)cargarDatos();
+});
+</script>
+{% endblock %}
