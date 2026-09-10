@@ -1,295 +1,74 @@
 {% extends "base.html" %}
-
-{% block titulo %}
-Información Aduanal
-{% endblock %}
+{% block titulo %}{{ 'Editar' if editar else 'Nuevo' }} expediente aduanal{% endblock %}
 
 {% block contenido %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/formulario_aduana.css') }}">
 
-<div class="container-fluid">
-
-    <div class="card shadow-sm border-0">
-
-        <div class="card-header bg-success text-white">
-
-            <h4 class="mb-0">
-
-                <i class="bi bi-truck"></i>
-
-                Información Aduanal
-
-            </h4>
-
+<div class="aduana-form-page">
+    <header class="aduana-form-hero">
+        <div class="hero-principal">
+            <span class="hero-icono"><i class="bi bi-truck"></i></span>
+            <div>
+                <small>CONTROL DE IMPORTACIONES</small>
+                <h1>{{ 'Editar expediente aduanal' if editar else 'Nuevo expediente aduanal' }}</h1>
+                <p>{{ 'Actualice la información documental y logística del activo.' if editar else 'Registre la información documental y logística del activo.' }}</p>
+            </div>
         </div>
-
-        <div class="card-body">
-
-            <form method="POST">
-
-                <div class="row">
-
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-
-                            Activo
-
-                        </label>
-
-                        <select id="id_activo" class="form-select" name="id_activo" required {% if editar %}disabled{%
-                            endif %}>
-
-                            <option value="">Seleccione una maquinaria</option>
-
-                            {% for m in maquinarias %}
-
-                            <option value="{{ m.id_activo }}" {% if editar and aduana.id_activo==m.id_activo
-                                %}selected{% endif %}>
-
-                                {{ m.id_activo }} - {{ m.descripcion }}
-
-                            </option>
-
-                            {% endfor %}
-
-                        </select>
-
-                        {% if editar %}
-                        <input type="hidden" name="id_activo" value="{{ aduana.id_activo }}">
-                        {% endif %}
-
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-
-                            Factura
-
-                        </label>
-
-                        <input type="text" id="factura" name="factura" class="form-control"
-                            value="{{ aduana.factura if editar else '' }}">
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-
-                            Pedimento
-
-                        </label>
-
-                        <input id="pedimento" name="pedimento" type="text" class="form-control"
-                            value="{{ aduana.pedimento if editar else '' }}">
-
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-
-                            Entrada MTZ
-
-                        </label>
-
-                        <input id="entrada_mtz" name="entrada_mtz" type="text" class="form-control"
-                            value="{{ aduana.entrada_mtz if editar else '' }}">
-
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-
-                            ID IMP
-
-                        </label>
-
-                        <input id="id_imp" name="id_imp" type="text" class="form-control"
-                            value="{{ aduana.id_imp if editar else '' }}">
-
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-
-                            Inbond
-
-                        </label>
-
-                        <input id="inbond" name="inbond" type="text" class="form-control"
-                            value="{{ aduana.inbond if editar else '' }}">
-
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-
-                            Origen
-
-                        </label>
-
-                        <input id="origen" name="origen" type="text" class="form-control"
-                            value="{{ aduana.origen if editar else '' }}">
-
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-
-                            Fecha Importación
-
-                        </label>
-
-                        <input id="fecha_importacion" type="date" class="form-control" name="fecha_importacion"
-                            value="{{ aduana.fecha_importacion if editar else '' }}">
-
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-                            Kg Bruto
-                        </label>
-
-                        <input type="number" step="0.01" class="form-control" name="kg_bruto"
-                            value="{{ aduana.kg_bruto if aduana else '' }}">
-
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-                            Total de Bultos
-                        </label>
-
-                        <input type="number" class="form-control" name="total_bultos"
-                            value="{{ aduana.total_bultos if aduana else '' }}">
-
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-                            Documentación Completa
-                        </label>
-
-                        <select name="documentacion_completa" class="form-select">
-
-                            <option value="">Seleccione...</option>
-
-                            <option value="SI" {% if aduana and aduana.documentacion_completa=="SI" %} selected {% endif
-                                %}>
-                                Sí
-                            </option>
-
-                            <option value="NO" {% if aduana and aduana.documentacion_completa=="NO" %} selected {% endif
-                                %}>
-                                No
-                            </option>
-
-                        </select>
-
-                    </div>
-
+        <a href="{{ url_for('expediente_maquinaria', id_activo=aduana.id_activo) if editar else url_for('lista_aduanas') }}"><i class="bi bi-arrow-left"></i> Regresar</a>
+    </header>
+
+    {% if editar %}
+    <section class="resumen-activo">
+        <span><i class="bi bi-box-seam"></i></span>
+        <div><small>ACTIVO SELECCIONADO</small><strong>{{ aduana.id_activo }}</strong><p>Expediente aduanal registrado</p></div>
+        <span class="estado"><i class="bi bi-check-circle-fill"></i> En edición</span>
+    </section>
+    {% endif %}
+
+    <form method="POST" class="aduana-form-card">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <section class="form-seccion">
+            <div class="seccion-titulo"><span><i class="bi bi-box-seam"></i></span><div><h2>Identificación del expediente</h2><p>Activo y referencias principales de importación.</p></div></div>
+            <div class="campos-grid">
+                <div class="campo campo-ancho">
+                    <label for="id_activo"><i class="bi bi-upc-scan"></i> Activo</label>
+                    <select id="id_activo" name="id_activo" required {% if editar %}disabled{% endif %}>
+                        <option value="">Seleccione una maquinaria</option>
+                        {% for m in maquinarias %}<option value="{{ m.id_activo }}" {% if aduana and aduana.id_activo == m.id_activo %}selected{% endif %}>{{ m.id_activo }} - {{ m.descripcion }}</option>{% endfor %}
+                    </select>
+                    {% if editar %}<input type="hidden" name="id_activo" value="{{ aduana.id_activo }}">{% endif %}
                 </div>
+                <div class="campo"><label for="factura"><i class="bi bi-receipt"></i> Factura</label><input type="text" id="factura" name="factura" value="{{ aduana.factura if aduana else '' }}" placeholder="Número de factura"></div>
+                <div class="campo"><label for="pedimento"><i class="bi bi-file-earmark-text"></i> Pedimento</label><input type="text" id="pedimento" name="pedimento" value="{{ aduana.pedimento if aduana else '' }}" placeholder="Número de pedimento"></div>
+                <div class="campo"><label for="entrada_mtz"><i class="bi bi-door-open"></i> Entrada MTZ</label><input type="text" id="entrada_mtz" name="entrada_mtz" value="{{ aduana.entrada_mtz if aduana else '' }}" placeholder="Referencia de entrada"></div>
+                <div class="campo"><label for="id_imp"><i class="bi bi-hash"></i> ID IMP</label><input type="text" id="id_imp" name="id_imp" value="{{ aduana.id_imp if aduana else '' }}" placeholder="Identificador de importación"></div>
+                <div class="campo"><label for="inbond"><i class="bi bi-link-45deg"></i> Inbond</label><input type="text" id="inbond" name="inbond" value="{{ aduana.inbond if aduana else '' }}" placeholder="Número Inbond"></div>
+            </div>
+        </section>
 
-                <hr>
+        <section class="form-seccion">
+            <div class="seccion-titulo"><span><i class="bi bi-globe-americas"></i></span><div><h2>Información logística</h2><p>Origen, fecha y características físicas del embarque.</p></div></div>
+            <div class="campos-grid tres">
+                <div class="campo"><label for="origen"><i class="bi bi-geo-alt"></i> País de origen</label><input type="text" id="origen" name="origen" value="{{ aduana.origen if aduana else '' }}" placeholder="Ej. China"></div>
+                <div class="campo"><label for="fecha_importacion"><i class="bi bi-calendar3"></i> Fecha de importación</label><input type="date" id="fecha_importacion" name="fecha_importacion" value="{{ aduana.fecha_importacion if aduana else '' }}"></div>
+                <div class="campo"><label for="documentacion_completa"><i class="bi bi-folder-check"></i> Estado documental</label><select id="documentacion_completa" name="documentacion_completa"><option value="">Seleccione...</option><option value="SI" {% if aduana and aduana.documentacion_completa == "SI" %}selected{% endif %}>Documentación completa</option><option value="NO" {% if aduana and aduana.documentacion_completa == "NO" %}selected{% endif %}>Documentación pendiente</option></select></div>
+                <div class="campo"><label for="kg_bruto"><i class="bi bi-speedometer2"></i> Peso bruto (kg)</label><input type="number" step="0.01" min="0" id="kg_bruto" name="kg_bruto" value="{{ aduana.kg_bruto if aduana else '' }}" placeholder="0.00"></div>
+                <div class="campo"><label for="total_bultos"><i class="bi bi-boxes"></i> Total de bultos</label><input type="number" min="0" id="total_bultos" name="total_bultos" value="{{ aduana.total_bultos if aduana else '' }}" placeholder="0"></div>
+            </div>
+        </section>
 
-                <div class="d-flex justify-content-end gap-2">
-
-                    {% if editar %}
-
-                    <a href="{{ url_for('expediente_maquinaria', id_activo=aduana.id_activo) }}"
-                        class="btn btn-secondary">
-
-                        <i class="bi bi-arrow-left"></i>
-
-                        Regresar
-
-                    </a>
-
-                    <button type="submit" class="btn btn-success">
-
-                        <i class="bi bi-save"></i>
-
-                        Actualizar Expediente
-
-                    </button>
-
-                    {% else %}
-
-                    <a href="{{ url_for('lista_aduanas') }}" class="btn btn-secondary">
-
-                        <i class="bi bi-x-circle"></i>
-
-                        Cancelar
-
-                    </a>
-
-                    <button type="submit" class="btn btn-success">
-
-                        <i class="bi bi-save"></i>
-
-                        Guardar Expediente
-
-                    </button>
-
-                    {% endif %}
-
-                </div>
-
+        <div class="acciones-formulario">
+            <a href="{{ url_for('expediente_maquinaria', id_activo=aduana.id_activo) if editar else url_for('lista_aduanas') }}">Cancelar</a>
+            <button type="submit"><i class="bi bi-check-circle-fill"></i> {{ 'Actualizar expediente' if editar else 'Guardar expediente' }}</button>
         </div>
+    </form>
+</div>
+{% endblock %}
 
-    </div>
-
-    {% endblock %}
-
-    {% block scripts %}
-
-    <script>
-
-        $("#id_activo").change(function () {
-
-            let id = $(this).val();
-
-            if (id == "") {
-
-                $("#factura").val("");
-                $("#pedimento").val("");
-                $("#entrada_mtz").val("");
-                $("#id_imp").val("");
-                $("#inbond").val("");
-                $("#origen").val("");
-                $("#fecha_importacion").val("");
-                return;
-
-            }
-
-            $.get("/aduanas/datos/" + id, function (r) {
-
-                $("#factura").val(r.factura || "");
-
-                $("#pedimento").val(r.pedimento || "");
-
-                $("#entrada_mtz").val(r.entrada_mtz || "");
-
-                $("#id_imp").val(r.id_imp || "");
-
-                $("#inbond").val(r.inbond || "");
-
-                $("#origen").val(r.origen || "");
-
-                $("#fecha_importacion").val(r.fecha_importacion || "");
-
-            });
-
-        });
-
-    </script>
-
-    {% endblock %}
+{% block scripts %}
+<script>
+$(function(){
+ $('#id_activo').on('change',function(){const id=$(this).val(),campos=['factura','pedimento','entrada_mtz','id_imp','inbond','origen','fecha_importacion','kg_bruto','total_bultos','documentacion_completa'];if(!id){campos.forEach(c=>$('#'+c).val(''));return}$.get('/aduanas/datos/'+encodeURIComponent(id),function(r){campos.forEach(c=>$('#'+c).val(r[c]||''))})});
+});
+</script>
+{% endblock %}

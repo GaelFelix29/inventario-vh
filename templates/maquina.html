@@ -4,7 +4,7 @@
 
 {% block contenido %}
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 maquinaria-page">
 
     <!-- ENCABEZADO -->
 
@@ -12,11 +12,13 @@
     <!-- ENCABEZADO -->
     <!-- ========================================= -->
 
-    <div class="row align-items-center gy-3 mb-4">
+    <div class="row align-items-center gy-3 mb-4 maquinaria-hero">
 
         <div class="col-12 col-lg-6">
 
-            <h2 class="fw-bold text-success mb-1">
+            <span class="maquinaria-eyebrow">CONTROL DE ACTIVOS</span>
+
+            <h2 class="fw-bold mb-1">
 
                 <i class="bi bi-pc-display"></i>
 
@@ -36,7 +38,7 @@
 
         <div class="col-12 col-lg-6 text-lg-end">
 
-            <a href="/maquinarias/nuevo" class="btn btn-success rounded-pill px-4">
+            <a href="/maquinarias/nuevo" class="btn maquinaria-nuevo">
 
                 <i class="bi bi-plus-circle"></i>
 
@@ -202,9 +204,17 @@
 
     </div>
 
-    <div class="card shadow border-0 rounded-4">
+    <div class="card shadow border-0 rounded-4 maquinaria-panel">
 
-        <div class="card-header bg-white border-0 pt-4 pb-0">
+        <div class="card-header bg-white border-0 maquinaria-filtros">
+
+            <div class="maquinaria-filtros__titulo">
+                <span><i class="bi bi-funnel-fill"></i></span>
+                <div>
+                    <strong>Filtros del inventario</strong>
+                    <small>Combine los filtros para encontrar activos rápidamente.</small>
+                </div>
+            </div>
 
             <div class="row g-3">
 
@@ -266,9 +276,9 @@
 
             <div class="table-responsive">
 
-                <table id="tablaMaquinas" class="table table-hover table-striped align-middle">
+                <table id="tablaMaquinas" class="table align-middle maquinaria-tabla">
 
-                    <thead class="table-success">
+                    <thead>
 
                         <tr>
 
@@ -306,7 +316,9 @@
 
                             <td>
 
-                                <strong>{{ maquina.id_activo }}</strong>
+                                <a class="maquinaria-id" href="{{ url_for('expediente_maquinaria', id_activo=maquina.id_activo) }}">
+                                    {{ maquina.id_activo }}
+                                </a>
 
                             </td>
 
@@ -343,7 +355,7 @@
 
                             <td>
 
-                                <span class="badge bg-{{ maquina.tipo.color }}">
+                                <span class="maquinaria-chip maquinaria-chip--tipo">
 
                                     <i class="bi bi-{{ maquina.tipo.icono }}"></i>
 
@@ -357,7 +369,7 @@
 
                                 {% if maquina.estado == "ACTIVO" %}
 
-                                <span class="badge bg-success">
+                                <span class="maquinaria-chip maquinaria-chip--activo">
 
                                     ACTIVO
 
@@ -365,7 +377,7 @@
 
                                 {% else %}
 
-                                <span class="badge bg-danger">
+                                <span class="maquinaria-chip maquinaria-chip--baja">
 
                                     BAJA
 
@@ -413,7 +425,7 @@
                             <td>
 
                                 <a href="{{ url_for('expediente_maquinaria', id_activo=maquina.id_activo) }}"
-                                    class="btn btn-sm btn-primary rounded-pill">
+                                    class="maquinaria-accion maquinaria-accion--ver" title="Ver expediente" aria-label="Ver expediente de {{ maquina.id_activo }}">
 
                                     <i class="bi bi-eye"></i>
 
@@ -422,7 +434,7 @@
                                 {% if session["rol"] == "Administrador" %}
 
                                 <a href="{{ url_for('editar_maquinaria', id_activo=maquina.id_activo) }}"
-                                    class="btn btn-sm btn-warning rounded-pill">
+                                    class="maquinaria-accion maquinaria-accion--editar" title="Editar activo" aria-label="Editar {{ maquina.id_activo }}">
 
                                     <i class="bi bi-pencil"></i>
 
@@ -445,16 +457,6 @@
         </div>
 
     </div>
-
-</div>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
 
 </div>
 

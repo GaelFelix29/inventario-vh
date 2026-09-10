@@ -131,6 +131,79 @@ def registrar_rutas_usuarios(app, admin_required, registrar_movimiento):
 
         return render_template("editar_usuario.html", usuario=usuario)
 
+    @app.route("/m/usuarios/editar/<int:id>", methods=["GET", "POST"])
+    @admin_required
+    def editar_usuario_mobile(id):
+        usuario = obtener_usuario_id(id)
+        if not usuario:
+            flash("Usuario no encontrado.", "danger")
+            return redirect(url_for("usuarios_mobile"))
+
+        if request.method == "POST":
+            actualizar_usuario(
+                id,
+                request.form["nombre"],
+                request.form["usuario"],
+                request.form["correo"],
+                request.form["rol"],
+                int(request.form["activo"]),
+            )
+            registrar_movimiento(
+                usuario=session["nombre"],
+                accion=f"Actualizó el usuario: {request.form['usuario']}",
+                modulo="Usuarios",
+                referencia=str(id),
+            )
+            flash("Usuario actualizado correctamente.", "success")
+            return redirect(url_for("usuarios_mobile"))
+
+        return render_template(
+            "maquinaria_qr/editar_usuario_mobile.html",
+            usuario=usuario,
+            pagina="usuarios",
+        )
+
+    @app.route(
+        "/m/usuarios/<int:id>/restablecer-password",
+        methods=["POST"],
+    )
+    @admin_required
+    def restablecer_password_usuario_mobile(id):
+        usuario = obtener_usuario_id(id)
+        if not usuario:
+            flash("Usuario no encontrado.", "danger")
+            return redirect(url_for("usuarios_mobile"))
+
+        try:
+            password_temporal = generar_password_temporal()
+            establecer_password_temporal(id, password_temporal)
+            registrar_movimiento(
+                usuario=session["nombre"],
+                accion=(
+                    "Restableció la contraseña del usuario: "
+                    f"{usuario.usuario}"
+                ),
+                modulo="Usuarios",
+                referencia=str(id),
+            )
+            respuesta = make_response(
+                render_template(
+                    "maquinaria_qr/password_temporal_mobile.html",
+                    usuario=usuario,
+                    password_temporal=password_temporal,
+                    pagina="usuarios",
+                )
+            )
+            respuesta.headers["Cache-Control"] = (
+                "no-store, no-cache, must-revalidate, private"
+            )
+            respuesta.headers["Pragma"] = "no-cache"
+            respuesta.headers["Expires"] = "0"
+            return respuesta
+        except ValueError as error:
+            flash(str(error), "danger")
+            return redirect(url_for("editar_usuario_mobile", id=id))
+
     @app.route("/usuarios/<int:id>/restablecer-password", methods=["POST"])
     @admin_required
     def restablecer_password_usuario(id):

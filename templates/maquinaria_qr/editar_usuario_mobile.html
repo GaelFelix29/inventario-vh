@@ -1,0 +1,40 @@
+{% extends "maquinaria_qr/base_mobile.html" %}
+{% block titulo %}Editar usuario{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{{ url_for('static', filename='css/editar_usuario_mobile.css') }}">{% endblock %}
+
+{% block contenido %}
+<section class="editar-usuario-mobile">
+    <header class="editar-mobile-portada">
+        <a href="{{ url_for('usuarios_mobile') }}" aria-label="Regresar"><i class="bi bi-arrow-left"></i></a>
+        <div><small>ADMINISTRACIÓN</small><h1>Editar usuario</h1><p>Información y permisos de acceso.</p></div>
+        <span><i class="bi bi-person-gear"></i></span>
+    </header>
+
+    <section class="usuario-mobile-resumen">
+        <b>{{ (usuario.nombre or 'U')[0]|upper }}</b>
+        <div><small>COLABORADOR</small><h2>{{ usuario.nombre }}</h2><p>@{{ usuario.usuario }}</p></div>
+        {% if usuario.activo %}<span class="activo"><i class="bi bi-check-circle-fill"></i> Activo</span>{% else %}<span class="inactivo"><i class="bi bi-x-circle-fill"></i> Inactivo</span>{% endif %}
+    </section>
+
+    <form method="POST" action="{{ url_for('editar_usuario_mobile', id=usuario.id) }}" class="editar-mobile-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mobile-seccion-titulo"><span><i class="bi bi-person-vcard"></i></span><div><h2>Datos del usuario</h2><p>Actualice la información de la cuenta.</p></div></div>
+        <label for="nombre"><i class="bi bi-person"></i> Nombre completo</label><input type="text" id="nombre" name="nombre" maxlength="150" value="{{ usuario.nombre }}" required>
+        <label for="usuario"><i class="bi bi-at"></i> Nombre de usuario</label><input type="text" id="usuario" name="usuario" value="{{ usuario.usuario }}" required>
+        <label for="correo"><i class="bi bi-envelope"></i> Correo electrónico</label><input type="email" id="correo" name="correo" value="{{ usuario.correo }}" required>
+        <label for="rol"><i class="bi bi-shield-check"></i> Rol</label><select id="rol" name="rol" required><option value="Administrador" {% if usuario.rol == 'Administrador' %}selected{% endif %}>Administrador</option><option value="Mantenimiento" {% if usuario.rol == 'Mantenimiento' %}selected{% endif %}>Mantenimiento</option><option value="Visualizador" {% if usuario.rol == 'Visualizador' %}selected{% endif %}>Visualizador</option></select>
+        <small class="ayuda">Determine las funciones disponibles para esta cuenta.</small>
+        <label for="activo"><i class="bi bi-toggle-on"></i> Estado de la cuenta</label><select id="activo" name="activo" required><option value="1" {% if usuario.activo %}selected{% endif %}>Activo</option><option value="0" {% if not usuario.activo %}selected{% endif %}>Inactivo</option></select>
+        <button type="submit" class="guardar"><i class="bi bi-check-circle-fill"></i> Guardar cambios</button>
+    </form>
+
+    <section class="seguridad-mobile">
+        <div class="mobile-seccion-titulo"><span><i class="bi bi-shield-lock"></i></span><div><h2>Seguridad</h2><p>Genere una contraseña temporal.</p></div></div>
+        <p>El colaborador deberá reemplazarla cuando vuelva a iniciar sesión.</p>
+        <form method="POST" action="{{ url_for('restablecer_password_usuario_mobile', id=usuario.id) }}" onsubmit="return confirm('¿Desea restablecer la contraseña de este usuario?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit"><i class="bi bi-key-fill"></i> Generar contraseña temporal</button>
+        </form>
+    </section>
+</section>
+{% endblock %}

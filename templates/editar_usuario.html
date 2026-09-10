@@ -1,222 +1,112 @@
 {% extends "base.html" %}
-
-{% block titulo %}
-Editar usuario
-{% endblock %}
+{% block titulo %}Editar usuario{% endblock %}
 
 {% block contenido %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/editar_usuario_escritorio.css') }}">
 
-<div class="row justify-content-center">
-
-    <div class="col-lg-8">
-
-        <div class="card border-0 shadow">
-
-            <div class="card-header bg-success text-white p-4">
-
-                <h1 class="h3 mb-1">
-                    <i class="bi bi-person-gear"></i>
-                    Editar usuario
-                </h1>
-
-                <p class="mb-0 opacity-75">
-                    Administra la información y los permisos del colaborador.
-                </p>
-
+<div class="editar-usuario-page">
+    <header class="editar-usuario-hero">
+        <div class="hero-principal">
+            <span class="hero-icono"><i class="bi bi-person-gear"></i></span>
+            <div>
+                <small>ADMINISTRACIÓN DE ACCESOS</small>
+                <h1>Editar usuario</h1>
+                <p>Actualice la información y los permisos del colaborador.</p>
             </div>
-
-            <div class="card-body p-4">
-
-                <!-- Formulario principal -->
-                <form method="POST">
-
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                    <div class="mb-3">
-
-                        <label for="nombre" class="form-label fw-bold">
-
-                            Nombre completo
-
-                        </label>
-
-                        <input type="text" class="form-control" id="nombre" name="nombre" maxlength="150"
-                            value="{{ usuario.nombre }}" required>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label for="usuario" class="form-label fw-bold">
-
-                            Nombre de usuario
-
-                        </label>
-
-                        <input type="text" class="form-control" id="usuario" name="usuario"
-                            value="{{ usuario.usuario }}" required>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label for="correo" class="form-label fw-bold">
-
-                            Correo electrónico
-
-                        </label>
-
-                        <input type="email" class="form-control" id="correo" name="correo" value="{{ usuario.correo }}"
-                            required>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label for="rol" class="form-label fw-bold">
-
-                            Rol del usuario
-
-                        </label>
-
-                        <select name="rol" id="rol" class="form-select" required>
-
-                            <option value="Administrador" {% if usuario.rol=="Administrador" %} selected {% endif %}>
-
-                                Administrador
-
-                            </option>
-
-                            <option value="Visualizador" {% if usuario.rol=="Visualizador" %} selected {% endif %}>
-
-                                Visualizador
-
-                            </option>
-
-                            <option value="Mantenimiento" {% if usuario.rol=="Mantenimiento" %} selected {% endif %}>
-
-                                Mantenimiento
-
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    <div class="mb-4">
-
-                        <label for="activo" class="form-label fw-bold">
-
-                            Estado de la cuenta
-
-                        </label>
-
-                        <select name="activo" id="activo" class="form-select" required>
-
-                            <option value="1" {% if usuario.activo %} selected {% endif %}>
-
-                                Activo
-
-                            </option>
-
-                            <option value="0" {% if not usuario.activo %} selected {% endif %}>
-
-                                Inactivo
-
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    <div class="d-flex flex-column flex-sm-row
-                            justify-content-between gap-3">
-
-                        <a href="/usuarios/desactivar/{{ usuario.id }}" class="btn btn-outline-danger" onclick="return confirm(
-                                '¿Deseas desactivar este usuario?'
-                            );">
-
-                            <i class="bi bi-person-x"></i>
-                            Desactivar usuario
-
-                        </a>
-
-                        <button type="submit" class="btn btn-success">
-
-                            <i class="bi bi-check-circle"></i>
-                            Guardar cambios
-
-                        </button>
-
-                    </div>
-
-                </form>
-
-                <!-- Restablecimiento de contraseña -->
-                <div class="card border-warning mt-4">
-
-                    <div class="card-body">
-
-                        <div class="d-flex align-items-start gap-3">
-
-                            <div class="d-flex align-items-center
-                                    justify-content-center
-                                    text-warning
-                                    bg-warning bg-opacity-10
-                                    rounded-circle" style="
-                                    width: 48px;
-                                    height: 48px;
-                                    flex: 0 0 48px;
-                                ">
-
-                                <i class="bi bi-key-fill fs-5"></i>
-
-                            </div>
-
-                            <div class="flex-grow-1">
-
-                                <h2 class="h6 fw-bold mb-1">
-                                    Restablecer contraseña
-                                </h2>
-
-                                <p class="small text-muted mb-3">
-                                    Genera una contraseña temporal. El
-                                    colaborador deberá reemplazarla cuando
-                                    vuelva a iniciar sesión.
-                                </p>
-
-                                <form method="POST" action="{{ url_for(
-                                        'restablecer_password_usuario',
-                                        id=usuario.id
-                                    ) }}" onsubmit="return confirm(
-                                        '¿Deseas restablecer la contraseña de este usuario?'
-                                    );">
-
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                                    <button type="submit" class="btn btn-outline-warning fw-bold">
-
-                                        <i class="bi bi-arrow-clockwise"></i>
-                                        Generar contraseña temporal
-
-                                    </button>
-
-                                </form>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
         </div>
+        <a href="{{ url_for('usuarios') }}" class="volver"><i class="bi bi-arrow-left"></i> Volver a usuarios</a>
+    </header>
 
+    <section class="resumen-usuario">
+        <span class="avatar">{{ (usuario.nombre or 'U')[0]|upper }}</span>
+        <div class="identidad">
+            <small>COLABORADOR</small>
+            <h2>{{ usuario.nombre }}</h2>
+            <p>@{{ usuario.usuario }} · {{ usuario.correo }}</p>
+        </div>
+        <div class="resumen-chips">
+            <span class="chip rol"><i class="bi bi-person-badge"></i>{{ usuario.rol }}</span>
+            {% if usuario.activo %}
+            <span class="chip activo"><i class="bi bi-check-circle-fill"></i>Cuenta activa</span>
+            {% else %}
+            <span class="chip inactivo"><i class="bi bi-x-circle-fill"></i>Cuenta inactiva</span>
+            {% endif %}
+        </div>
+    </section>
+
+    <div class="editar-grid">
+        <section class="formulario-card">
+            <div class="card-titulo">
+                <span><i class="bi bi-person-vcard"></i></span>
+                <div><h2>Información del usuario</h2><p>Datos personales, rol y estado de acceso.</p></div>
+            </div>
+
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="campos-grid">
+                    <div class="campo campo-ancho">
+                        <label for="nombre"><i class="bi bi-person"></i> Nombre completo</label>
+                        <input type="text" id="nombre" name="nombre" maxlength="150" value="{{ usuario.nombre }}" required>
+                    </div>
+                    <div class="campo">
+                        <label for="usuario"><i class="bi bi-at"></i> Nombre de usuario</label>
+                        <input type="text" id="usuario" name="usuario" value="{{ usuario.usuario }}" required>
+                    </div>
+                    <div class="campo">
+                        <label for="correo"><i class="bi bi-envelope"></i> Correo electrónico</label>
+                        <input type="email" id="correo" name="correo" value="{{ usuario.correo }}" required>
+                    </div>
+                    <div class="campo">
+                        <label for="rol"><i class="bi bi-shield-check"></i> Rol del usuario</label>
+                        <select name="rol" id="rol" required>
+                            <option value="Administrador" {% if usuario.rol == "Administrador" %}selected{% endif %}>Administrador</option>
+                            <option value="Visualizador" {% if usuario.rol == "Visualizador" %}selected{% endif %}>Visualizador</option>
+                            <option value="Mantenimiento" {% if usuario.rol == "Mantenimiento" %}selected{% endif %}>Mantenimiento</option>
+                        </select>
+                        <small id="ayudaRol">Define las funciones disponibles para esta cuenta.</small>
+                    </div>
+                    <div class="campo">
+                        <label for="activo"><i class="bi bi-toggle-on"></i> Estado de la cuenta</label>
+                        <select name="activo" id="activo" required>
+                            <option value="1" {% if usuario.activo %}selected{% endif %}>Activo</option>
+                            <option value="0" {% if not usuario.activo %}selected{% endif %}>Inactivo</option>
+                        </select>
+                        <small>Los usuarios inactivos no pueden iniciar sesión.</small>
+                    </div>
+                </div>
+                <div class="acciones-formulario">
+                    <a href="{{ url_for('usuarios') }}" class="btn-secundario">Cancelar</a>
+                    <button type="submit" class="btn-guardar"><i class="bi bi-check-circle-fill"></i> Guardar cambios</button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="seguridad-card">
+            <div class="card-titulo">
+                <span><i class="bi bi-shield-lock"></i></span>
+                <div><h2>Seguridad de la cuenta</h2><p>Acciones sensibles del usuario.</p></div>
+            </div>
+
+            <div class="accion-seguridad clave">
+                <span class="accion-icono"><i class="bi bi-key-fill"></i></span>
+                <div><h3>Contraseña temporal</h3><p>Genere una nueva clave. El colaborador deberá cambiarla al iniciar sesión.</p></div>
+                <form method="POST" action="{{ url_for('restablecer_password_usuario', id=usuario.id) }}" onsubmit="return confirm('¿Desea restablecer la contraseña de este usuario?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit"><i class="bi bi-arrow-clockwise"></i> Generar contraseña</button>
+                </form>
+            </div>
+
+            <div class="accion-seguridad estado">
+                <span class="accion-icono"><i class="bi bi-person-lock"></i></span>
+                {% if usuario.activo %}
+                <div><h3>Desactivar cuenta</h3><p>Bloquea temporalmente el acceso sin eliminar la información.</p></div>
+                <a href="{{ url_for('desactivar', id=usuario.id) }}" onclick="return confirm('¿Desea desactivar este usuario?');"><i class="bi bi-person-dash"></i> Desactivar usuario</a>
+                {% else %}
+                <div><h3>Reactivar cuenta</h3><p>Permite que el colaborador vuelva a ingresar al sistema.</p></div>
+                <a class="reactivar" href="{{ url_for('reactivar_usuario_route', id=usuario.id) }}" onclick="return confirm('¿Desea reactivar este usuario?');"><i class="bi bi-person-check"></i> Reactivar usuario</a>
+                {% endif %}
+            </div>
+        </aside>
     </div>
-
 </div>
-
 {% endblock %}

@@ -1,145 +1,33 @@
 {% extends "base.html" %}
-
-{% block titulo %}
-Usuarios
-{% endblock %}
-
+{% block titulo %}Usuarios{% endblock %}
 {% block contenido %}
-
-<div class="card shadow">
-
-    <div class="card-header bg-success text-white">
-
-        <div class="d-flex justify-content-between align-items-center">
-
-            <h3 class="mb-0">
-                Administración de Usuarios
-            </h3>
-
-            <a href="/usuarios/nuevo"
-               class="btn btn-light">
-
-                <i class="bi bi-plus-circle"></i>
-
-                Nuevo Usuario
-
-            </a>
-
-        </div>
-
+<link rel="stylesheet" href="{{ url_for('static', filename='css/usuarios_escritorio.css') }}">
+{% set total = usuarios|length %}
+{% set activos = usuarios|selectattr('activo')|list|length %}
+<div class="container-fluid usuarios-page">
+  <header class="usuarios-hero">
+    <div><span>ADMINISTRACIÓN</span><h1><i class="bi bi-people-fill"></i> Gestión de usuarios</h1><p>Administre cuentas, funciones y accesos al sistema.</p></div>
+    <a href="{{ url_for('nuevo_usuario') }}"><i class="bi bi-person-plus-fill"></i> Nuevo usuario</a>
+  </header>
+  <section class="usuarios-metricas">
+    <button class="activa" data-estado=""><i class="bi bi-people"></i><span>Total<strong>{{ total }}</strong></span></button>
+    <button data-estado="Activo"><i class="bi bi-person-check-fill"></i><span>Activos<strong>{{ activos }}</strong></span></button>
+    <button data-estado="Inactivo"><i class="bi bi-person-x-fill"></i><span>Inactivos<strong>{{ total-activos }}</strong></span></button>
+  </section>
+  <section class="usuarios-panel">
+    <div class="usuarios-toolbar">
+      <div><strong>Cuentas registradas</strong><small>Consulte y administre cada colaborador.</small></div>
+      <div><select id="filtroRol"><option value="">Todos los roles</option><option>Administrador</option><option>Mantenimiento</option><option>Visualizador</option></select><select id="filtroEstado"><option value="">Todos los estados</option><option>Activo</option><option>Inactivo</option></select></div>
     </div>
-
-    <div class="card-body">
-
-        <table class="table table-hover">
-
-            <thead>
-
-                <tr>
-
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Usuario</th>
-                    <th>Correo</th>
-                    <th>Rol</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                {% for usuario in usuarios %}
-
-                <tr>
-
-                    <td>{{ usuario.id }}</td>
-
-                    <td>{{ usuario.nombre }}</td>
-
-                    <td>{{ usuario.usuario }}</td>
-
-                    <td>{{ usuario.correo }}</td>
-
-                    <td>
-
-                        <span class="badge bg-primary">
-
-                            {{ usuario.rol }}
-
-                        </span>
-
-                    </td>
-
-                    <td>
-
-                        {% if usuario.activo %}
-
-                        <span class="badge bg-success">
-
-                            Activo
-
-                        </span>
-
-                        {% else %}
-
-                        <span class="badge bg-danger">
-
-                            Inactivo
-
-                        </span>
-
-                        {% endif %}
-
-                    </td>
-
-                    <td>
-
-                        <a href="/usuarios/editar/{{ usuario.id }}"
-                            class="btn btn-warning rounded-circle">
-
-                        <i class="bi bi-pencil"></i>
-
-</a>
-
-{% if usuario.activo %}
-
-<a
-    href="/usuarios/desactivar/{{ usuario.id }}"
-    class="btn btn-danger"
-    onclick="return confirm('¿Deseas desactivar este usuario?')">
-
-    <i class="bi bi-trash"></i>
-
-</a>
-
-{% else %}
-
-<a
-    href="/usuarios/reactivar/{{ usuario.id }}"
-    class="btn btn-success"
-    onclick="return confirm('¿Deseas reactivar este usuario?')">
-
-    <i class="bi bi-arrow-clockwise"></i>
-
-</a>
-
-{% endif %}
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
+    <div class="table-responsive"><table id="tablaUsuarios" class="table usuarios-tabla"><thead><tr><th>Colaborador</th><th>Usuario</th><th>Correo</th><th>ID</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+    {% for usuario in usuarios %}<tr>
+      <td><div class="usuario-identidad"><b>{{ (usuario.nombre or 'U')[0]|upper }}</b><span><strong>{{ usuario.nombre }}</strong><small>Colaborador</small></span></div></td>
+      <td><span class="usuario-alias">@{{ usuario.usuario }}</span></td><td><a href="mailto:{{ usuario.correo }}">{{ usuario.correo }}</a></td><td>#{{ usuario.id }}</td>
+      <td><span class="chip rol"><i class="bi bi-person-badge"></i>{{ usuario.rol }}</span></td>
+      <td>{% if usuario.activo %}<span class="chip activo"><i class="bi bi-check-circle-fill"></i>Activo</span>{% else %}<span class="chip inactivo"><i class="bi bi-x-circle-fill"></i>Inactivo</span>{% endif %}</td>
+      <td><div class="acciones"><a class="editar" href="{{ url_for('editar_usuario',id=usuario.id) }}" title="Editar"><i class="bi bi-pencil"></i></a>{% if usuario.activo %}<a class="desactivar" href="{{ url_for('desactivar',id=usuario.id) }}" onclick="return confirm('¿Desea desactivar este usuario?')" title="Desactivar"><i class="bi bi-person-dash"></i></a>{% else %}<a class="reactivar" href="{{ url_for('reactivar_usuario_route',id=usuario.id) }}" onclick="return confirm('¿Desea reactivar este usuario?')" title="Reactivar"><i class="bi bi-arrow-clockwise"></i></a>{% endif %}</div></td>
+    </tr>{% endfor %}</tbody></table></div>
+  </section>
 </div>
-
 {% endblock %}
+{% block scripts %}<script>$(function(){const t=$('#tablaUsuarios').DataTable({language:{url:'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json'},pageLength:10,responsive:true,order:[[0,'asc']],dom:"<'row align-items-center mb-4'<'col-md-6'l><'col-md-6'f>>rt<'row mt-3'<'col-md-5'i><'col-md-7'p>>",initComplete:function(){const f=$('.dataTables_filter');f.find('label').contents().filter(function(){return this.nodeType===3}).remove();f.find('input').attr('placeholder','Buscar nombre, usuario o correo...')}});function filtrarEstado(estado){t.column(5).search(estado?'^'+estado+'$':'',true,false).draw()}$('#filtroRol').on('change',function(){t.column(4).search(this.value).draw()});$('#filtroEstado').on('change',function(){filtrarEstado(this.value);$('.usuarios-metricas button').removeClass('activa')});$('.usuarios-metricas button').on('click',function(){const e=$(this).data('estado');$('.usuarios-metricas button').removeClass('activa');$(this).addClass('activa');$('#filtroEstado').val(e);filtrarEstado(e)})});</script>{% endblock %}

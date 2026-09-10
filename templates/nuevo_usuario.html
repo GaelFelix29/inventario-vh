@@ -1,175 +1,96 @@
 {% extends "base.html" %}
-
-{% block titulo %}
-Nuevo Usuario
-{% endblock %}
+{% block titulo %}Nuevo usuario{% endblock %}
 
 {% block contenido %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/nuevo_usuario_escritorio.css') }}">
 
-<div class="row justify-content-center">
+<div class="nuevo-usuario-page">
+    <header class="nuevo-usuario-hero">
+        <div class="hero-principal">
+            <span class="hero-icono"><i class="bi bi-person-plus-fill"></i></span>
+            <div>
+                <small>ADMINISTRACIÓN DE ACCESOS</small>
+                <h1>Nuevo usuario</h1>
+                <p>Registre un colaborador y defina su nivel de acceso.</p>
+            </div>
+        </div>
+        <a href="{{ url_for('usuarios') }}"><i class="bi bi-arrow-left"></i> Volver a usuarios</a>
+    </header>
 
-    <div class="col-lg-8">
-
-        <div class="card shadow">
-
-            <div class="card-header bg-success text-white">
-
-                <h3 class="mb-0">
-
-                    <i class="bi bi-person-plus-fill"></i>
-
-                    Nuevo Usuario
-
-                </h3>
-
+    <div class="nuevo-usuario-grid">
+        <section class="formulario-card">
+            <div class="card-titulo">
+                <span><i class="bi bi-person-vcard"></i></span>
+                <div><h2>Información del colaborador</h2><p>Complete los datos necesarios para crear la cuenta.</p></div>
             </div>
 
-            <div class="card-body">
-
-                <form method="POST">
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Nombre completo
-
-                        </label>
-
-                        <input
-                            type="text"
-                            name="nombre"
-                            class="form-control"
-                            required>
-
+            <form method="POST" id="formNuevoUsuario">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="campos-grid">
+                    <div class="campo campo-ancho">
+                        <label for="nombre"><i class="bi bi-person"></i> Nombre completo</label>
+                        <input type="text" id="nombre" name="nombre" maxlength="150" placeholder="Ej. María López Hernández" autocomplete="name" required>
                     </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Usuario
-
-                        </label>
-
-                        <input
-                            type="text"
-                            name="usuario"
-                            class="form-control"
-                            required>
-
+                    <div class="campo">
+                        <label for="usuario"><i class="bi bi-at"></i> Nombre de usuario</label>
+                        <input type="text" id="usuario" name="usuario" placeholder="Ej. maria.lopez" autocomplete="username" required>
+                        <small>Será el nombre utilizado para iniciar sesión.</small>
                     </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Correo
-
-                        </label>
-
-                        <input
-                            type="email"
-                            name="correo"
-                            class="form-control"
-                            required>
-
+                    <div class="campo">
+                        <label for="correo"><i class="bi bi-envelope"></i> Correo electrónico</label>
+                        <input type="email" id="correo" name="correo" placeholder="nombre@empresa.com" autocomplete="email" required>
                     </div>
-
-                    <div class="row">
-
-                        <div class="col-md-6">
-
-                            <div class="mb-3">
-
-                                <label class="form-label">
-
-                                    Contraseña
-
-                                </label>
-
-                                <input
-                                    type="password"
-                                    name="password"
-                                    class="form-control"
-                                    required>
-
-                            </div>
-
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <div class="mb-3">
-
-                                <label class="form-label">
-
-                                    Confirmar contraseña
-
-                                </label>
-
-                                <input
-                                    type="password"
-                                    name="confirmar"
-                                    class="form-control"
-                                    required>
-
-                            </div>
-
-                        </div>
-
+                    <div class="campo">
+                        <label for="password"><i class="bi bi-lock"></i> Contraseña</label>
+                        <div class="password-control"><input type="password" id="password" name="password" autocomplete="new-password" required><button type="button" data-ver="password" aria-label="Mostrar contraseña"><i class="bi bi-eye"></i></button></div>
                     </div>
-
-                    <div class="mb-4">
-
-                        <label class="form-label">
-
-                            Rol
-
-                        </label>
-
-                        <select
-                            name="rol"
-                            class="form-select">
+                    <div class="campo">
+                        <label for="confirmar"><i class="bi bi-shield-check"></i> Confirmar contraseña</label>
+                        <div class="password-control"><input type="password" id="confirmar" name="confirmar" autocomplete="new-password" required><button type="button" data-ver="confirmar" aria-label="Mostrar contraseña"><i class="bi bi-eye"></i></button></div>
+                        <small id="estadoPassword">Ambas contraseñas deben coincidir.</small>
+                    </div>
+                    <div class="campo campo-ancho">
+                        <label for="rol"><i class="bi bi-person-badge"></i> Rol del usuario</label>
+                        <select name="rol" id="rol" required>
                             <option value="Administrador">Administrador</option>
                             <option value="Mantenimiento">Mantenimiento</option>
-                            <option value="Visualizador">Visualizador</option>
-
+                            <option value="Visualizador" selected>Visualizador</option>
                         </select>
-
+                        <small id="descripcionRol">Puede consultar la información autorizada sin realizar cambios administrativos.</small>
                     </div>
+                </div>
+                <div class="acciones-formulario">
+                    <a href="{{ url_for('usuarios') }}">Cancelar</a>
+                    <button type="submit"><i class="bi bi-person-check-fill"></i> Crear usuario</button>
+                </div>
+            </form>
+        </section>
 
-                    <div class="d-flex justify-content-between">
-
-                        <a
-                            href="/usuarios"
-                            class="btn btn-secondary">
-
-                            <i class="bi bi-arrow-left"></i>
-
-                            Regresar
-
-                        </a>
-
-                        <button
-                            class="btn btn-success">
-
-                            <i class="bi bi-check-circle"></i>
-
-                            Guardar Usuario
-
-                        </button>
-
-                    </div>
-
-                </form>
-
-            </div>
-
-        </div>
-
+        <aside class="ayuda-card">
+            <div class="ayuda-icono"><i class="bi bi-shield-lock-fill"></i></div>
+            <small>CUENTA SEGURA</small>
+            <h2>Antes de crearla</h2>
+            <p>Verifique los datos y asigne únicamente los permisos necesarios para las funciones del colaborador.</p>
+            <ul>
+                <li><i class="bi bi-check-circle-fill"></i><span><strong>Administrador</strong>Control total del sistema y sus usuarios.</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span><strong>Mantenimiento</strong>Acceso a las funciones operativas autorizadas.</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span><strong>Visualizador</strong>Consulta de información sin administración.</span></li>
+            </ul>
+            <div class="aviso"><i class="bi bi-info-circle"></i> La cuenta se creará inicialmente en estado activo.</div>
+        </aside>
     </div>
-
 </div>
+{% endblock %}
 
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+ const p=document.getElementById('password'),c=document.getElementById('confirmar'),e=document.getElementById('estadoPassword'),f=document.getElementById('formNuevoUsuario');
+ function comparar(){const diferente=c.value&&p.value!==c.value;e.textContent=diferente?'Las contraseñas no coinciden.':'Ambas contraseñas deben coincidir.';e.classList.toggle('error',diferente);c.setCustomValidity(diferente?'Las contraseñas no coinciden.':'')}
+ p.addEventListener('input',comparar);c.addEventListener('input',comparar);f.addEventListener('submit',comparar);
+ document.querySelectorAll('[data-ver]').forEach(function(b){b.addEventListener('click',function(){const i=document.getElementById(b.dataset.ver),mostrar=i.type==='password';i.type=mostrar?'text':'password';b.innerHTML='<i class="bi bi-eye'+(mostrar?'-slash':'')+'"></i>'})});
+ const textos={Administrador:'Control total del sistema, configuración y administración de usuarios.',Mantenimiento:'Acceso a las funciones operativas y de mantenimiento autorizadas.',Visualizador:'Puede consultar la información autorizada sin realizar cambios administrativos.'};
+ document.getElementById('rol').addEventListener('change',function(){document.getElementById('descripcionRol').textContent=textos[this.value]||''});
+});
+</script>
 {% endblock %}

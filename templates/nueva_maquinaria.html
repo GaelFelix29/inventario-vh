@@ -16,18 +16,22 @@ Nuevo Activo
 
 {% block contenido %}
 
-<div class="container-fluid py-4">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/formulario_activo.css') }}">
+
+<div class="container-fluid py-4 activo-form-page">
 
     <div class="row justify-content-center">
 
         <div class="col-xl-11">
 
-            <div class="card shadow-lg border-0 rounded-4">
+            <div class="card border-0 activo-form-shell">
 
-                <div class="card-header bg-success text-white py-3">
+                <div class="card-header activo-form-hero">
 
                     <div class="d-flex justify-content-between align-items-center">
 
+                        <div>
+                        <span class="activo-form-eyebrow">INVENTARIO DE ACTIVOS</span>
                         <h3 class="mb-0">
 
                             {% if editar %}
@@ -45,28 +49,28 @@ Nuevo Activo
                             {% endif %}
 
                         </h3>
+                        <p class="mb-0">Mantenga actualizada la información técnica y económica.</p>
+                        </div>
 
                         {% if editar %}
                         <a href="{{ url_for('expediente_maquinaria', id_activo=maquina.id_activo) }}"
-                            class="btn btn-light rounded-pill">
+                            class="activo-form-volver">
                             <i class="bi bi-arrow-left"></i> Volver
                         </a>
                         {% else %}
-                        <a href="{{ url_for('lista_maquinarias') }}" class="btn btn-light rounded-pill">
+                        <a href="{{ url_for('lista_maquinarias') }}" class="activo-form-volver">
                             <i class="bi bi-arrow-left"></i> Volver
                         </a>
                         {% endif %}
-                        </a>
-
                     </div>
 
                 </div>
 
-                <div class="card-body p-4">
+                <div class="card-body activo-form-body">
 
                     {% if editar %}
 
-                    <div class="alert alert-warning border-0 shadow-sm">
+                    <div class="activo-form-aviso">
 
                         <i class="bi bi-pencil-fill"></i>
 
@@ -78,7 +82,7 @@ Nuevo Activo
 
                     {% endif %}
 
-                    <form method="POST" action="{% if editar %}
+                    <form class="activo-form" method="POST" action="{% if editar %}
 
 {{ url_for('editar_maquinaria',id_activo=maquina.id_activo) }}
 
@@ -88,7 +92,7 @@ Nuevo Activo
 
 {% endif %}">
 
-                        <h4 class="text-success mb-4">
+                        <h4 class="activo-form-seccion">
 
                             <i class="bi bi-info-circle"></i>
 
@@ -257,7 +261,6 @@ Nuevo Activo
                                 </label>
 
                                 <input type="date" name="fecha_alta" class="form-control"
-                                    value="{{ maquina.fecha_alta if editar else '' }}"
                                     value="{{ maquina.fecha_alta.strftime('%Y-%m-%d') if editar and maquina.fecha_alta else '' }}">
 
                             </div>
@@ -266,7 +269,7 @@ Nuevo Activo
 
                         <hr>
 
-                        <h4 class="text-success mb-4">
+                        <h4 class="activo-form-seccion">
 
                             <i class="bi bi-cash-stack"></i>
 
@@ -324,7 +327,7 @@ Nuevo Activo
 
                         <hr>
 
-                        <h4 class="text-success mb-4">
+                        <h4 class="activo-form-seccion">
 
                             <i class="bi bi-chat-left-text"></i>
 
@@ -347,11 +350,11 @@ Nuevo Activo
 
                         <hr>
 
-                        <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="activo-form-acciones">
 
                             <div>
 
-                                <a href="{{ url_for('lista_maquinarias') }}" class="btn btn-outline-secondary">
+                                <a href="{{ url_for('lista_maquinarias') }}" class="activo-form-cancelar">
 
                                     <i class="bi bi-arrow-left"></i>
 
@@ -363,7 +366,7 @@ Nuevo Activo
 
                             <div class="d-flex gap-2">
 
-                                <button type="reset" class="btn btn-outline-warning">
+                                <button type="reset" class="activo-form-restablecer">
 
                                     <i class="bi bi-arrow-counterclockwise"></i>
 
@@ -371,7 +374,7 @@ Nuevo Activo
 
                                 </button>
 
-                                <button type="submit" class="btn btn-success px-5">
+                                <button type="submit" class="activo-form-guardar">
 
                                     {% if editar %}
 

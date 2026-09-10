@@ -1,0 +1,126 @@
+.activo-form-page {
+    --af-verde: #0b8f55;
+    --af-verde-oscuro: #076f43;
+    --af-tinta: #19251f;
+    --af-muted: #6d7b74;
+    --af-borde: #dfe9e3;
+    max-width: 1450px;
+    margin: 0 auto;
+}
+
+.activo-form-shell {
+    max-width: none;
+    border-radius: 26px !important;
+    overflow: hidden;
+    background: #f7faf8;
+    box-shadow: 0 22px 55px rgba(26, 56, 41, .12);
+}
+
+.activo-form-hero {
+    padding: 25px 30px;
+    border: 0;
+    color: #fff;
+    background: linear-gradient(125deg, #0aa561, #087d4b 75%, #06643d);
+    position: relative;
+    overflow: hidden;
+}
+
+.activo-form-hero::after {
+    content: "";
+    position: absolute;
+    right: -65px;
+    top: -105px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.08);
+}
+
+.activo-form-hero h3 { font-weight: 750; position: relative; z-index: 1; }
+.activo-form-hero p { margin-top: 5px; font-size: .9rem; opacity: .78; position: relative; z-index: 1; }
+.activo-form-eyebrow { display: block; margin-bottom: 4px; font-size: .68rem; font-weight: 800; letter-spacing: .14em; opacity: .78; }
+
+.activo-form-volver,
+.activo-form-cancelar,
+.activo-form-restablecer,
+.activo-form-guardar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: .18s ease;
+}
+
+.activo-form-volver { color: var(--af-verde-oscuro); background: #fff; position: relative; z-index: 1; }
+.activo-form-volver:hover { color: #fff; background: #064f31; }
+.activo-form-body { padding: 26px 30px 30px; }
+.activo-form-aviso { display: flex; align-items: center; gap: 9px; margin-bottom: 22px; padding: 14px 17px; border: 1px solid #d7eadf; border-radius: 14px; color: #236647; background: #eef8f2; }
+
+.activo-form {
+    padding: 26px;
+    border: 1px solid var(--af-borde);
+    border-radius: 20px;
+    background: #fff;
+}
+
+.activo-form-seccion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 22px;
+    color: var(--af-tinta);
+    font-size: 1.12rem;
+    font-weight: 800;
+}
+.activo-form-seccion i { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; color: var(--af-verde); background: #eaf7f0; }
+.activo-form hr { margin: 26px 0; border-color: var(--af-borde); opacity: 1; }
+.activo-form .form-label { margin-bottom: 7px; color: #4b5c53; font-size: .82rem; font-weight: 700; }
+.activo-form .form-control,
+.activo-form .form-select {
+    min-height: 47px;
+    padding: 10px 13px;
+    border: 1px solid var(--af-borde);
+    border-radius: 12px;
+    color: var(--af-tinta);
+    background-color: #fbfdfc;
+    box-shadow: none;
+}
+.activo-form textarea.form-control { min-height: 110px; resize: vertical; }
+.activo-form .form-control:focus,
+.activo-form .form-select:focus { border-color: var(--af-verde); background: #fff; box-shadow: 0 0 0 3px rgba(11,143,85,.11); }
+.activo-form .form-control[readonly] { color: var(--af-verde-oscuro); background: #edf7f1; font-weight: 800; }
+
+.activo-form-acciones {
+    position: sticky;
+    bottom: 14px;
+    z-index: 5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border: 1px solid rgba(213,228,220,.95);
+    border-radius: 16px;
+    background: rgba(255,255,255,.94);
+    box-shadow: 0 10px 28px rgba(25,54,40,.13);
+    backdrop-filter: blur(10px);
+}
+.activo-form-cancelar { color: #53635b; border: 1px solid #d8e2dc; background: #fff; }
+.activo-form-restablecer { color: #9a6400; border: 1px solid #f2d798; background: #fff8e7; }
+.activo-form-guardar { min-width: 190px; color: #fff; border: 0; background: linear-gradient(135deg, #0aa561, #087d4b); box-shadow: 0 7px 18px rgba(11,143,85,.22); }
+.activo-form-cancelar:hover, .activo-form-restablecer:hover, .activo-form-guardar:hover { transform: translateY(-1px); filter: brightness(.97); }
+
+@media (max-width: 767px) {
+    .activo-form-hero, .activo-form-body { padding: 20px; }
+    .activo-form-hero .d-flex { align-items: flex-start !important; gap: 14px; }
+    .activo-form { padding: 18px; }
+    .activo-form-acciones { position: static; flex-direction: column-reverse; align-items: stretch; }
+    .activo-form-acciones > div, .activo-form-acciones .d-flex { width: 100%; }
+    .activo-form-acciones .d-flex { flex-direction: column-reverse; }
+    .activo-form-cancelar, .activo-form-restablecer, .activo-form-guardar { width: 100%; }
+}

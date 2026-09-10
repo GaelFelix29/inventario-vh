@@ -6,11 +6,15 @@ Aduanas
 
 {% block contenido %}
 
-<div class="container-fluid">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/aduanas_escritorio.css') }}">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid aduanas-page">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 aduanas-hero">
 
         <div>
+
+            <span class="aduanas-eyebrow">CONTROL DOCUMENTAL</span>
 
             <h2 class="fw-bold mb-1">
 
@@ -20,7 +24,7 @@ Aduanas
 
             </h2>
 
-            <p class="text-muted mb-0">
+            <p class="mb-0">
 
                 Administración de información de importaciones.
 
@@ -28,23 +32,43 @@ Aduanas
 
         </div>
 
+        <div class="aduanas-hero__acciones">
+        <span class="aduanas-total"><strong>{{ aduanas|length }}</strong> expedientes</span>
         {% if session["rol"] == "Administrador" %}
-        <button class="btn btn-success rounded-pill px-4" onclick="seleccionarActivo()">
+        <button class="aduanas-nuevo" onclick="seleccionarActivo()">
             <i class="bi bi-plus-circle"></i>
             Actualizar Expediente
         </button>
         {% endif %}
+        </div>
 
     </div>
 
 
-    <div class="card shadow-sm border-0">
+    <div class="card border-0 aduanas-panel">
 
         <div class="card-body">
 
-            <table id="tablaAduanas" class="table table-hover align-middle">
+            <div class="aduanas-toolbar">
+                <div class="aduanas-toolbar__titulo">
+                    <span><i class="bi bi-folder2-open"></i></span>
+                    <div>
+                        <strong>Expedientes aduanales</strong>
+                        <small>Consulte facturas, pedimentos y origen de los activos.</small>
+                    </div>
+                </div>
+                <select id="filtroOrigenAduana" class="form-select">
+                    <option value="">Todos los orígenes</option>
+                    {% for origen in aduanas | map(attribute='origen') | unique %}
+                    {% if origen %}<option value="{{ origen }}">{{ origen }}</option>{% endif %}
+                    {% endfor %}
+                </select>
+            </div>
 
-                <thead class="table-success">
+            <div class="table-responsive">
+            <table id="tablaAduanas" class="table align-middle aduanas-tabla">
+
+                <thead>
 
                     <tr>
 
@@ -76,31 +100,31 @@ Aduanas
 
                         <td>
 
-                            <strong>{{ a.id_activo }}</strong>
+                            <a class="aduanas-id" href="{{ url_for('expediente_maquinaria', id_activo=a.id_activo) }}">{{ a.id_activo }}</a>
 
                         </td>
 
                         <td>
 
-                            {{ a.factura }}
+                            {{ a.factura or "—" }}
 
                         </td>
 
                         <td>
 
-                            {{ a.pedimento }}
+                            {{ a.pedimento or "—" }}
 
                         </td>
 
                         <td>
 
-                            {{ a.origen }}
+                            <span class="aduanas-origen"><i class="bi bi-globe-americas"></i>{{ a.origen or "Sin clasificar" }}</span>
 
                         </td>
 
                         <td>
 
-                            {{ a.fecha_importacion }}
+                            {{ a.fecha_importacion or "—" }}
 
                         </td>
 
@@ -108,7 +132,7 @@ Aduanas
 
                             {% if a.documento %}
 
-                            <a href="#" class="btn btn-sm btn-outline-secondary">
+                            <a href="#" class="aduanas-documento" title="Ver documento">
 
                                 <i class="bi bi-file-earmark-pdf"></i>
 
@@ -116,7 +140,7 @@ Aduanas
 
                             {% else %}
 
-                            <span class="text-muted">
+                            <span class="aduanas-sin-documento">
 
                                 Sin documento
 
@@ -129,7 +153,7 @@ Aduanas
                         <td>
 
                             <a href="{{ url_for('expediente_maquinaria', id_activo=a.id_activo) }}"
-                                class="btn btn-primary rounded-pill px-3">
+                                class="aduanas-accion aduanas-accion--ver" title="Ver expediente" aria-label="Ver expediente de {{ a.id_activo }}">
 
                                 <i class="bi bi-eye"></i>
 
@@ -137,7 +161,7 @@ Aduanas
 
                             {% if session["rol"] == "Administrador" %}
                             <a href="{{ url_for('editar_aduana', id_activo=a.id_activo) }}"
-                                class="btn btn-warning rounded-pill px-3">
+                                class="aduanas-accion aduanas-accion--editar" title="Editar aduana" aria-label="Editar aduana de {{ a.id_activo }}">
                                 <i class="bi bi-pencil"></i>
                             </a>
                             {% endif %}
@@ -150,6 +174,7 @@ Aduanas
                 </tbody>
 
             </table>
+            </div>
 
         </div>
 
@@ -164,7 +189,7 @@ Aduanas
 <script>
     $(document).ready(function () {
 
-        $("#tablaAduanas").DataTable({
+        const tablaAduanas = $("#tablaAduanas").DataTable({
 
             language: {
                 url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json"
@@ -203,6 +228,10 @@ Aduanas
 
             }
 
+        });
+
+        $("#filtroOrigenAduana").on("change", function () {
+            tablaAduanas.column(3).search($(this).val()).draw();
         });
 
     });
