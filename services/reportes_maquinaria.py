@@ -31,14 +31,14 @@ def _tipo(maquina):
 
 
 def _filtros_legibles(filtros):
-    nombres = {"q": "Búsqueda", "tipo": "Tipo", "estado": "Estado", "ubicacion": "Ubicación"}
+    nombres = {"q": "Búsqueda", "tipo": "Tipo", "estado": "Estado", "ubicacion": "Ubicación", "categoria": "Categoría"}
     activos = [f"{nombres[k]}: {v}" for k, v in filtros.items() if v]
     return activos or ["Sin filtros (inventario completo)"]
 
 
 def filtrar_maquinarias(maquinas, filtros):
     terminos = (filtros.get("q") or "").casefold().split()
-    tipo, estado, ubicacion = [(filtros.get(k) or "").casefold() for k in ("tipo", "estado", "ubicacion")]
+    tipo, estado, ubicacion, categoria = [(filtros.get(k) or "").casefold() for k in ("tipo", "estado", "ubicacion", "categoria")]
     resultado = []
     for m in maquinas:
         tipo_m = _tipo(m)
@@ -49,6 +49,7 @@ def filtrar_maquinarias(maquinas, filtros):
         if tipo and tipo != tipo_m.casefold(): continue
         if estado and estado != _texto(m.get("estado"), "").casefold(): continue
         if ubicacion and ubicacion != _texto(m.get("ubicacion"), "").casefold(): continue
+        if categoria and categoria != _texto(m.get("categoria"), "").casefold(): continue
         resultado.append(m)
     return resultado
 

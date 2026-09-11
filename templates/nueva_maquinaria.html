@@ -124,30 +124,23 @@ Nuevo Activo
 
                                 </label>
 
-                                <select name="categoria" class="form-select" required>
-
-                                    <option value="">Seleccione...</option>
-
-                                    {% for c in [
-                                    "LLENADORA",
-                                    "ENCAPSULADORA",
-                                    "LOTEADORA",
-                                    "ETIQUETADORA",
-                                    "CONTADORA DE CAPSULAS",
-                                    "ACCESORIO",
-                                    "OTRA"
-                                    ] %}
-
-                                    <option value="{{ c }}" {% if editar and maquina.categoria==c %} selected {% endif
-                                        %}>
-
-                                        {{ c }}
-
-                                    </option>
-
-                                    {% endfor %}
-
-                                </select>
+                                <div class="categoria-selector" id="categoriaSelector">
+                                    <input type="text" name="categoria" id="categoriaMaquinaria"
+                                        class="form-control" maxlength="100" pattern=".*\S.*" required autocomplete="off"
+                                        value="{{ maquina.categoria if editar else '' }}"
+                                        placeholder="Buscar o escribir una categoría">
+                                    <i class="bi bi-chevron-down categoria-selector-icono"></i>
+                                    <div class="categoria-opciones" id="categoriaOpciones" hidden>
+                                        {% for c in categorias_maquinaria %}
+                                        <button type="button" data-categoria="{{ c }}">{{ c }}</button>
+                                        {% endfor %}
+                                        <p class="categoria-sin-resultados" hidden>Presione Enter para usar esta categoría nueva.</p>
+                                    </div>
+                                </div>
+                                <small class="categoria-ayuda">
+                                    <i class="bi bi-lightbulb"></i>
+                                    Busque una existente o escriba directamente una nueva.
+                                </small>
 
                             </div>
 
@@ -407,5 +400,32 @@ Nuevo Activo
     </div>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const selector = document.getElementById('categoriaSelector');
+    const campo = document.getElementById('categoriaMaquinaria');
+    const opciones = document.getElementById('categoriaOpciones');
+    if (!selector || !campo || !opciones) return;
+    const botones = [...opciones.querySelectorAll('[data-categoria]')];
+    const vacio = opciones.querySelector('.categoria-sin-resultados');
+    function filtrar() {
+        const texto = campo.value.trim().toLocaleUpperCase('es');
+        let visibles = 0;
+        botones.forEach(function (boton) {
+            const coincide = !texto || boton.dataset.categoria.toLocaleUpperCase('es').includes(texto);
+            boton.hidden = !coincide;
+            if (coincide) visibles++;
+        });
+        vacio.hidden = visibles > 0 || !texto;
+    }
+    function mostrar() { opciones.hidden = false; filtrar(); }
+    campo.addEventListener('focus', mostrar);
+    campo.addEventListener('input', mostrar);
+    campo.addEventListener('keydown', function (evento) { if (evento.key === 'Escape') opciones.hidden = true; });
+    botones.forEach(function (boton) { boton.addEventListener('click', function () { campo.value = boton.dataset.categoria; opciones.hidden = true; campo.focus(); }); });
+    document.addEventListener('click', function (evento) { if (!selector.contains(evento.target)) opciones.hidden = true; });
+});
+</script>
 
 {% endblock %}

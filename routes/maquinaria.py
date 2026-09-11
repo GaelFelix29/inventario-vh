@@ -10,6 +10,7 @@ from database.maquinarias import (
     obtener_accesorios_asignados_maquinaria,
     obtener_asignacion_activa_accesorio,
     obtener_categorias_accesorios,
+    obtener_categorias_maquinaria,
     obtener_contenido_activo,
     obtener_estadisticas_maquinarias,
     obtener_historial_asignaciones_accesorio,
@@ -40,6 +41,12 @@ def registrar_rutas_maquinaria(
 ):
     """Registra inicialmente el listado y alta de maquinaria."""
 
+    def _categoria_formulario():
+        categoria = request.form.get("categoria", "").strip()
+        if categoria == "__NUEVA__":
+            categoria = request.form.get("categoria_nueva", "").strip()
+        return categoria
+
     @app.route("/maquinarias")
     @login_required
     def lista_maquinarias():
@@ -48,12 +55,13 @@ def registrar_rutas_maquinaria(
             maquinas=obtener_todas_maquinas(),
             estadisticas=obtener_estadisticas_maquinarias(),
             ubicaciones=obtener_ubicaciones(),
+            categorias_maquinaria=obtener_categorias_maquinaria(),
         )
 
     def _filtros_reporte_maquinaria():
         return {
             clave: request.args.get(clave, "").strip()
-            for clave in ("q", "tipo", "estado", "ubicacion")
+            for clave in ("q", "tipo", "estado", "ubicacion", "categoria")
         }
 
     @app.route("/maquinarias/reportes/excel")
@@ -112,7 +120,7 @@ def registrar_rutas_maquinaria(
 
             datos = {
                 "id_activo": request.form["id_activo"],
-                "categoria": request.form["categoria"],
+                "categoria": _categoria_formulario(),
                 "descripcion": request.form["descripcion"],
                 "cantidad": cantidad,
                 "marca": request.form["marca"],
@@ -141,6 +149,7 @@ def registrar_rutas_maquinaria(
         return render_template(
             "nueva_maquinaria.html",
             siguiente_id=siguiente_id_activo(),
+            categorias_maquinaria=obtener_categorias_maquinaria(),
         )
 
     @app.route("/m/maquinarias/nuevo", methods=["GET", "POST"])
@@ -155,7 +164,7 @@ def registrar_rutas_maquinaria(
 
             datos = {
                 "id_activo": request.form["id_activo"],
-                "categoria": request.form["categoria"],
+                "categoria": _categoria_formulario(),
                 "descripcion": request.form["descripcion"],
                 "cantidad": cantidad,
                 "marca": request.form["marca"],
@@ -184,6 +193,7 @@ def registrar_rutas_maquinaria(
         return render_template(
             "maquinaria_qr/nueva_maquinaria_mobile.html",
             siguiente_id=siguiente_id_activo(),
+            categorias_maquinaria=obtener_categorias_maquinaria(),
             pagina="maquinaria",
         )
 
@@ -326,7 +336,7 @@ def registrar_rutas_maquinaria(
         if request.method == "POST":
             datos = {
                 "id_activo": id_activo,
-                "categoria": request.form["categoria"],
+                "categoria": _categoria_formulario(),
                 "descripcion": request.form["descripcion"],
                 "cantidad": int(request.form["cantidad"] or 1),
                 "marca": request.form["marca"],
@@ -362,6 +372,7 @@ def registrar_rutas_maquinaria(
             "nueva_maquinaria.html",
             maquina=maquina,
             editar=True,
+            categorias_maquinaria=obtener_categorias_maquinaria(),
         )
 
     @app.route(
@@ -379,7 +390,7 @@ def registrar_rutas_maquinaria(
         if request.method == "POST":
             datos = {
                 "id_activo": id_activo,
-                "categoria": request.form["categoria"],
+                "categoria": _categoria_formulario(),
                 "descripcion": request.form["descripcion"],
                 "cantidad": int(request.form["cantidad"] or 1),
                 "marca": request.form["marca"],
@@ -412,6 +423,7 @@ def registrar_rutas_maquinaria(
         return render_template(
             "maquinaria_qr/editar_maquinaria_mobile.html",
             maquina=maquina,
+            categorias_maquinaria=obtener_categorias_maquinaria(),
             pagina="maquinaria",
         )
 

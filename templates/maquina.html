@@ -226,7 +226,7 @@
 
             <div class="row g-3">
 
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-3">
 
                     <select id="filtroTipo" class="form-select">
 
@@ -244,7 +244,7 @@
 
                 </div>
 
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-3">
 
                     <select id="filtroEstado" class="form-select">
 
@@ -258,7 +258,7 @@
 
                 </div>
 
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-3">
 
                     <select id="filtroUbicacion" class="form-select">
 
@@ -274,6 +274,15 @@
 
                     </select>
 
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <select id="filtroCategoria" class="form-select">
+                        <option value="">🏷️ Todas las categorías</option>
+                        {% for categoria in categorias_maquinaria %}
+                        <option value="{{ categoria }}">🏷️ {{ categoria }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
 
             </div>
@@ -308,7 +317,7 @@
                                 Accesorios
                             </th>
 
-                            <th width="220">
+                            <th width="86">
                                 Acciones
                             </th>
 
@@ -320,7 +329,7 @@
 
                         {% for maquina in maquinas %}
 
-                        <tr>
+                        <tr data-categoria="{{ maquina.categoria or '' }}">
 
                             <td>
 
@@ -482,6 +491,8 @@
 
             pageLength: 10,
 
+            order: [[0, "desc"]],
+
             responsive: true,
 
             dom:
@@ -520,7 +531,8 @@
                 q: tabla.search(),
                 tipo: $("#filtroTipo").val() || "",
                 estado: $("#filtroEstado").val() || "",
-                ubicacion: $("#filtroUbicacion").val() || ""
+                ubicacion: $("#filtroUbicacion").val() || "",
+                categoria: $("#filtroCategoria").val() || ""
             });
             $("#exportarExcel").attr("href", "{{ url_for('reporte_maquinarias_excel') }}?" + parametros.toString());
             $("#exportarPdf").attr("href", "{{ url_for('reporte_maquinarias_pdf') }}?" + parametros.toString());
@@ -528,6 +540,13 @@
 
         tabla.on("draw search", actualizarEnlacesReportes);
         actualizarEnlacesReportes();
+
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+            if (settings.nTable.id !== "tablaMaquinas") return true;
+            const categoria = $("#filtroCategoria").val();
+            if (!categoria) return true;
+            return String($(tabla.row(dataIndex).node()).data("categoria") || "").toLocaleUpperCase("es") === categoria.toLocaleUpperCase("es");
+        });
 
         //==========================================
         // FILTROS AVANZADOS
@@ -552,6 +571,11 @@
             tabla.column(4).search($(this).val()).draw();
             actualizarEnlacesReportes();
 
+        });
+
+        $("#filtroCategoria").on("change", function () {
+            tabla.draw();
+            actualizarEnlacesReportes();
         });
 
         //==========================================

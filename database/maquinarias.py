@@ -98,6 +98,34 @@ FROM maquinarias m
     return resultado
 
 
+def normalizar_categoria_maquinaria(valor):
+    """Unifica mayúsculas y espacios sin limitar nuevas categorías."""
+    return " ".join(str(valor or "").split()).upper()
+
+
+def obtener_categorias_maquinaria():
+    """Devuelve categorías existentes para sugerirlas en los formularios."""
+    sql = text("""
+        SELECT DISTINCT categoria
+        FROM maquinarias
+        WHERE categoria IS NOT NULL
+          AND TRIM(categoria) <> ''
+        ORDER BY categoria
+    """)
+    with engine.connect() as conn:
+        existentes = conn.execute(sql).scalars().all()
+
+    categorias = {
+        "LLENADORA", "ENCAPSULADORA", "LOTEADORA", "ETIQUETADORA",
+        "CONTADORA DE CAPSULAS", "ACCESORIO", "OTRA",
+    }
+    categorias.update(
+        normalizar_categoria_maquinaria(categoria)
+        for categoria in existentes
+    )
+    return sorted(categoria for categoria in categorias if categoria)
+
+
 def insertar_maquinaria(datos):
 
     sql = text("""
@@ -140,6 +168,9 @@ def insertar_maquinaria(datos):
     """)
 
     datos_insertar = dict(datos)
+    datos_insertar["categoria"] = normalizar_categoria_maquinaria(
+        datos_insertar.get("categoria")
+    )
 
     es_accesorio = (
         datos_insertar.get("categoria") or ""
@@ -241,9 +272,14 @@ def actualizar_maquinaria(datos):
 
     """)
 
+    datos_actualizados = dict(datos)
+    datos_actualizados["categoria"] = normalizar_categoria_maquinaria(
+        datos_actualizados.get("categoria")
+    )
+
     with engine.begin() as conn:
 
-        conn.execute(sql, datos)
+        conn.execute(sql, datos_actualizados)
 
 
 def baja_desde_solicitud(conn, id_activo, motivo, responsable):
@@ -681,7 +717,7 @@ def obtener_mantenimiento_en_proceso(id_activo):
 
 
 def obtener_maquinarias_mobile_filtrado(
-    q="", estado="", ubicacion="", tipo="", limite=20, offset=0
+    q="", estado="", ubicacion="", tipo="", categoria="", limite=20, offset=0
 ):
 
     sql = """
@@ -768,6 +804,16 @@ FROM maquinarias m
         """
 
         params["ubicacion"] = ubicacion
+
+    if categoria:
+
+        sql += """
+
+        AND UPPER(TRIM(m.categoria)) = UPPER(TRIM(:categoria))
+
+        """
+
+        params["categoria"] = categoria
 
     # ===============================
     # TIPO (NACIONAL / IMPORTADO)

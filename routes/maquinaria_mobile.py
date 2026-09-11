@@ -7,6 +7,7 @@ from database.aduanas import estado_expediente_aduanal, obtener_aduana
 from database.maquinarias import (
     obtener_maquinarias_mobile,
     obtener_maquinarias_mobile_filtrado,
+    obtener_categorias_maquinaria,
     obtener_ubicaciones,
 )
 from models.auditoria_model import obtener_activos_recientes
@@ -34,7 +35,10 @@ def registrar_rutas_maquinaria_mobile(app, login_required):
     @app.route("/m/maquinarias")
     @login_required
     def maquinarias_mobile():
-        return render_template("maquinaria_qr/maquinarias_mobile.html")
+        return render_template(
+            "maquinaria_qr/maquinarias_mobile.html",
+            categorias_maquinaria=obtener_categorias_maquinaria(),
+        )
 
     @app.route("/m/maquinarias/api")
     @login_required
@@ -43,6 +47,7 @@ def registrar_rutas_maquinaria_mobile(app, login_required):
         estado = request.args.get("estado", "")
         ubicacion = request.args.get("ubicacion", "")
         tipo = request.args.get("tipo", "")
+        categoria = request.args.get("categoria", "")
         offset = int(request.args.get("offset", 0))
 
         maquinarias = obtener_maquinarias_mobile_filtrado(
@@ -50,6 +55,7 @@ def registrar_rutas_maquinaria_mobile(app, login_required):
             estado=estado,
             ubicacion=ubicacion,
             tipo=tipo,
+            categoria=categoria,
             limite=20,
             offset=offset,
         ).to_dict("records")

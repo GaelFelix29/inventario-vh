@@ -110,6 +110,16 @@ Maquinarias
         <!-- Estado -->
 
         <div class="filter-group">
+            <label><i class="bi bi-tags-fill"></i> Categoría</label>
+            <select id="filtroCategoria" class="filtro-select">
+                <option value="">Todas las categorías</option>
+                {% for categoria in categorias_maquinaria %}<option value="{{ categoria }}">{{ categoria }}</option>{% endfor %}
+            </select>
+        </div>
+
+        <!-- Estado -->
+
+        <div class="filter-group">
 
             <label>
 
@@ -206,6 +216,7 @@ Maquinarias
     const txtBuscar = document.getElementById("buscarActivo");
     const filtroEstado = document.getElementById("filtroEstado");
     const filtroUbicacion = document.getElementById("filtroUbicacion");
+    const filtroCategoria = document.getElementById("filtroCategoria");
 
     const toggleFiltros = document.getElementById("toggleFiltros");
     const panelFiltros = document.getElementById("panelFiltros");
@@ -217,7 +228,7 @@ Maquinarias
     let temporizadorBusqueda = null;
 
     function actualizarControles() {
-        const cantidad = [filtroTipo, filtroEstado, filtroUbicacion]
+        const cantidad = [filtroTipo, filtroEstado, filtroUbicacion, filtroCategoria]
             .filter(control => control.value).length;
         cantidadFiltros.textContent = cantidad;
         cantidadFiltros.hidden = cantidad === 0;
@@ -235,6 +246,7 @@ Maquinarias
         filtroTipo.value = "";
         filtroEstado.value = "";
         filtroUbicacion.value = "";
+        filtroCategoria.value = "";
         actualizarControles();
         cargarMaquinarias(true);
     }
@@ -260,7 +272,8 @@ Maquinarias
                 q: txtBuscar.value,
                 estado: filtroEstado.value,
                 ubicacion: filtroUbicacion.value,
-                tipo: filtroTipo.value
+                tipo: filtroTipo.value,
+                categoria: filtroCategoria.value
 
             });
 
@@ -490,6 +503,11 @@ Maquinarias
         actualizarControles();
         cargarMaquinarias(true);
 
+    });
+
+    filtroCategoria.addEventListener("change", () => {
+        actualizarControles();
+        cargarMaquinarias(true);
     });
 
     [filtroEstado, filtroUbicacion].forEach(control => {

@@ -94,6 +94,16 @@
 .activo-form .form-control:focus,
 .activo-form .form-select:focus { border-color: var(--af-verde); background: #fff; box-shadow: 0 0 0 3px rgba(11,143,85,.11); }
 .activo-form .form-control[readonly] { color: var(--af-verde-oscuro); background: #edf7f1; font-weight: 800; }
+.categoria-ayuda { display:block; margin-top:6px; color:#6e7e75; font-size:.72rem; }
+.categoria-ayuda i { margin-right:4px; color:var(--af-verde); }
+.categoria-selector { position: relative; }
+.categoria-selector-icono { position: absolute; top: 16px; right: 14px; z-index: 1; color: #6d7c74; pointer-events: none; }
+.categoria-selector .form-control { padding-right: 40px; }
+.categoria-opciones { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 50; max-height: 220px; overflow-y: auto; padding: 7px; border: 1px solid #cfe2d8; border-radius: 13px; background: #fff; box-shadow: 0 14px 34px rgba(20, 55, 38, .16); }
+.categoria-opciones[hidden], .categoria-opciones button[hidden], .categoria-sin-resultados[hidden] { display: none !important; }
+.categoria-opciones button { display: block; width: 100%; padding: 9px 11px; border: 0; border-radius: 8px; color: #34473d; background: transparent; font-size: .78rem; font-weight: 650; text-align: left; }
+.categoria-opciones button:hover, .categoria-opciones button:focus { color: var(--af-verde-oscuro); background: #eaf7f0; outline: none; }
+.categoria-sin-resultados { margin: 0; padding: 10px; color: #6d7c74; font-size: .74rem; text-align: center; }
 
 .activo-form-acciones {
     position: sticky;
