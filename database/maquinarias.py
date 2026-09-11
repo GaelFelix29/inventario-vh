@@ -458,7 +458,7 @@ def obtener_ubicaciones():
 
     sql = text("""
 
-        SELECT DISTINCT ubicacion
+        SELECT DISTINCT UPPER(TRIM(ubicacion)) AS ubicacion
 
         FROM maquinarias
 
@@ -470,8 +470,16 @@ def obtener_ubicaciones():
     """)
 
     with engine.connect() as conn:
+        ubicaciones = conn.execute(sql).scalars().all()
 
-        return conn.execute(sql).scalars().all()
+    # Evita opciones visualmente duplicadas por espacios normales o
+    # caracteres de espacio invisibles provenientes de importaciones.
+    normalizadas = {
+        " ".join(str(ubicacion).split()).upper()
+        for ubicacion in ubicaciones
+        if ubicacion and str(ubicacion).strip()
+    }
+    return sorted(normalizadas)
 
 
 def confirmar_recepcion(conn, id_activo, nueva_ubicacion):
@@ -805,7 +813,7 @@ FROM maquinarias m
 def obtener_ubicaciones():
     sql = text("""
 
-        SELECT DISTINCT ubicacion
+        SELECT DISTINCT UPPER(TRIM(ubicacion)) AS ubicacion
 
         FROM maquinarias
 
@@ -817,8 +825,14 @@ def obtener_ubicaciones():
     """)
 
     with engine.connect() as conn:
+        ubicaciones = conn.execute(sql).scalars().all()
 
-        return conn.execute(sql).scalars().all()
+    normalizadas = {
+        " ".join(str(ubicacion).split()).upper()
+        for ubicacion in ubicaciones
+        if ubicacion and str(ubicacion).strip()
+    }
+    return sorted(normalizadas)
 
 
 def obtener_contenido_activo(id_activo):
