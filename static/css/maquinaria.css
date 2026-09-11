@@ -219,6 +219,13 @@ FILTROS RESPONSIVE
 .maquinaria-filtros__titulo > span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px; color: var(--mq-verde); background: #eaf7f0; }
 .maquinaria-filtros__titulo strong, .maquinaria-filtros__titulo small { display: block; }
 .maquinaria-filtros__titulo small { color: var(--mq-muted); margin-top: 2px; }
+.maquinaria-reportes { display: flex; gap: 9px; margin-left: auto; }
+.maquinaria-reporte { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; padding: 8px 13px; border-radius: 11px; font-size: .78rem; font-weight: 800; text-decoration: none; transition: .18s ease; }
+.maquinaria-reporte:hover { transform: translateY(-2px); }
+.maquinaria-reporte--excel { color: #087847; background: #e6f7ee; border: 1px solid #bfe5d0; }
+.maquinaria-reporte--excel:hover { color: #065f38; background: #d8f2e4; }
+.maquinaria-reporte--pdf { color: #c43643; background: #fff0f1; border: 1px solid #f5cbd0; }
+.maquinaria-reporte--pdf:hover { color: #a92d38; background: #ffe5e8; }
 .maquinaria-page .form-select { min-height: 46px; border-radius: 12px; border-color: var(--mq-borde); box-shadow: none; }
 .maquinaria-page .form-select:focus { border-color: var(--mq-verde); box-shadow: 0 0 0 3px rgba(11,143,85,.11); }
 
@@ -244,4 +251,10 @@ FILTROS RESPONSIVE
 @media (max-width: 991px) {
     .maquinaria-hero { padding: 22px; }
     .maquinaria-panel .card-body { padding: 16px !important; }
+}
+
+@media (max-width: 767px) {
+    .maquinaria-filtros__titulo { flex-wrap: wrap; }
+    .maquinaria-reportes { width: 100%; margin-left: 0; }
+    .maquinaria-reporte { flex: 1; }
 }

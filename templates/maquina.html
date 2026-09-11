@@ -214,6 +214,14 @@
                     <strong>Filtros del inventario</strong>
                     <small>Combine los filtros para encontrar activos rápidamente.</small>
                 </div>
+                <div class="maquinaria-reportes" aria-label="Exportar consulta">
+                    <a id="exportarExcel" href="{{ url_for('reporte_maquinarias_excel') }}" class="maquinaria-reporte maquinaria-reporte--excel">
+                        <i class="bi bi-file-earmark-spreadsheet"></i><span>Exportar Excel</span>
+                    </a>
+                    <a id="exportarPdf" href="{{ url_for('reporte_maquinarias_pdf') }}" class="maquinaria-reporte maquinaria-reporte--pdf">
+                        <i class="bi bi-file-earmark-pdf"></i><span>Exportar PDF</span>
+                    </a>
+                </div>
             </div>
 
             <div class="row g-3">
@@ -507,6 +515,20 @@
 
         });
 
+        function actualizarEnlacesReportes() {
+            const parametros = new URLSearchParams({
+                q: tabla.search(),
+                tipo: $("#filtroTipo").val() || "",
+                estado: $("#filtroEstado").val() || "",
+                ubicacion: $("#filtroUbicacion").val() || ""
+            });
+            $("#exportarExcel").attr("href", "{{ url_for('reporte_maquinarias_excel') }}?" + parametros.toString());
+            $("#exportarPdf").attr("href", "{{ url_for('reporte_maquinarias_pdf') }}?" + parametros.toString());
+        }
+
+        tabla.on("draw search", actualizarEnlacesReportes);
+        actualizarEnlacesReportes();
+
         //==========================================
         // FILTROS AVANZADOS
         //==========================================
@@ -514,18 +536,21 @@
         $("#filtroTipo").on("change", function () {
 
             tabla.column(5).search($(this).val()).draw();
+            actualizarEnlacesReportes();
 
         });
 
         $("#filtroEstado").on("change", function () {
 
             tabla.column(6).search($(this).val()).draw();
+            actualizarEnlacesReportes();
 
         });
 
         $("#filtroUbicacion").on("change", function () {
 
             tabla.column(4).search($(this).val()).draw();
+            actualizarEnlacesReportes();
 
         });
 
@@ -548,7 +573,7 @@
         $("#filtroTodos").click(function () {
 
             activarTarjeta("#filtroTodos");
-
+            $("#filtroTipo").val("");
             tabla.column(5).search("").draw();
 
         });
@@ -556,7 +581,7 @@
         $("#filtroImportados").click(function () {
 
             activarTarjeta("#filtroImportados");
-
+            $("#filtroTipo").val("Importado");
             tabla.column(5).search("Importado").draw();
 
         });
@@ -564,7 +589,7 @@
         $("#filtroNacionales").click(function () {
 
             activarTarjeta("#filtroNacionales");
-
+            $("#filtroTipo").val("Nacional");
             tabla.column(5).search("Nacional").draw();
 
         });
@@ -572,7 +597,7 @@
         $("#filtroPendientes").click(function () {
 
             activarTarjeta("#filtroPendientes");
-
+            $("#filtroTipo").val("Pendiente");
             tabla.column(5).search("Pendiente").draw();
 
         });

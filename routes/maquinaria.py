@@ -2,7 +2,7 @@ import base64
 from io import BytesIO
 
 import qrcode
-from flask import abort, flash, redirect, render_template, request, session, url_for
+from flask import abort, current_app, flash, redirect, render_template, request, send_file, session, url_for
 
 from database.maquinarias import (
     insertar_maquinaria,
@@ -28,6 +28,7 @@ from models.auditoria_model import (
     obtener_historial_activo,
     registrar_activo_reciente,
 )
+from services.reportes_maquinaria import crear_excel_maquinaria, crear_pdf_maquinaria, filtrar_maquinarias
 
 
 def registrar_rutas_maquinaria(
@@ -47,6 +48,57 @@ def registrar_rutas_maquinaria(
             maquinas=obtener_todas_maquinas(),
             estadisticas=obtener_estadisticas_maquinarias(),
             ubicaciones=obtener_ubicaciones(),
+        )
+
+    def _filtros_reporte_maquinaria():
+        return {
+            clave: request.args.get(clave, "").strip()
+            for clave in ("q", "tipo", "estado", "ubicacion")
+        }
+
+    @app.route("/maquinarias/reportes/excel")
+    @login_required
+    def reporte_maquinarias_excel():
+        filtros = _filtros_reporte_maquinaria()
+        maquinas = filtrar_maquinarias(obtener_todas_maquinas(), filtros)
+        archivo = crear_excel_maquinaria(
+            maquinas, filtros, session.get("nombre", "Usuario")
+        )
+        registrar_movimiento(
+            usuario=session["nombre"],
+            accion=f"Exportó reporte Excel de maquinaria ({len(maquinas)} registros)",
+            modulo="Maquinaria",
+            referencia="REPORTE",
+        )
+        return send_file(
+            archivo,
+            as_attachment=True,
+            download_name="reporte_maquinaria.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+
+    @app.route("/maquinarias/reportes/pdf")
+    @login_required
+    def reporte_maquinarias_pdf():
+        filtros = _filtros_reporte_maquinaria()
+        maquinas = filtrar_maquinarias(obtener_todas_maquinas(), filtros)
+        archivo = crear_pdf_maquinaria(
+            maquinas,
+            filtros,
+            session.get("nombre", "Usuario"),
+            current_app.root_path + "/static/img/logo.png",
+        )
+        registrar_movimiento(
+            usuario=session["nombre"],
+            accion=f"Exportó reporte PDF de maquinaria ({len(maquinas)} registros)",
+            modulo="Maquinaria",
+            referencia="REPORTE",
+        )
+        return send_file(
+            archivo,
+            as_attachment=True,
+            download_name="reporte_maquinaria.pdf",
+            mimetype="application/pdf",
         )
 
     @app.route("/maquinarias/nuevo", methods=["GET", "POST"])
@@ -388,6 +440,8 @@ def registrar_rutas_maquinaria(
         if not maquinaria:
             abort(404)
 
+        vecinos = obtener_activos_vecinos(id_activo)
+
         registrar_activo_reciente(
             usuario=session["nombre"],
             id_activo=id_activo,
@@ -471,6 +525,8 @@ def registrar_rutas_maquinaria(
             asignacion_activa=asignacion_activa,
             historial_asignaciones=historial_asignaciones,
             accesorios_asignados=accesorios_asignados,
+            anterior=vecinos["anterior"],
+            siguiente=vecinos["siguiente"],
         )
 
     @app.route("/qr/<id_activo>/contenido")

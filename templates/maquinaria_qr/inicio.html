@@ -42,6 +42,31 @@
 
 </div>
 
+<section class="navegador-activos" aria-label="Buscar y navegar entre activos">
+    <div class="navegador-activos__movimiento">
+        {% if anterior %}
+        <a href="{{ url_for('maquinaria_qr', id_activo=anterior) }}">
+            <i class="bi bi-arrow-left"></i><span><small>Anterior</small><strong>{{ anterior }}</strong></span>
+        </a>
+        {% else %}
+        <span class="navegador-activos__limite"><i class="bi bi-arrow-left"></i><small>Primer activo</small></span>
+        {% endif %}
+        {% if siguiente %}
+        <a href="{{ url_for('maquinaria_qr', id_activo=siguiente) }}">
+            <span><small>Siguiente</small><strong>{{ siguiente }}</strong></span><i class="bi bi-arrow-right"></i>
+        </a>
+        {% else %}
+        <span class="navegador-activos__limite navegador-activos__limite--derecha"><small>Último activo</small><i class="bi bi-arrow-right"></i></span>
+        {% endif %}
+    </div>
+    <div class="navegador-activos__busqueda">
+        <i class="bi bi-search"></i>
+        <input id="buscarActivoExpediente" type="search" autocomplete="off" placeholder="Buscar ID, descripción, marca o ubicación">
+        <button id="limpiarBusquedaActivo" type="button" aria-label="Limpiar búsqueda" hidden><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div id="resultadosActivosExpediente" class="navegador-activos__resultados" hidden></div>
+</section>
+
 </div>
 
 <div class="info-general">
@@ -784,6 +809,41 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const entrada = document.getElementById("buscarActivoExpediente");
+    const resultados = document.getElementById("resultadosActivosExpediente");
+    const limpiar = document.getElementById("limpiarBusquedaActivo");
+    let temporizador, controlador;
+
+    function ocultar() { resultados.hidden = true; resultados.replaceChildren(); }
+    function mensaje(texto) {
+        const p = document.createElement("p"); p.className = "navegador-activos__mensaje"; p.textContent = texto;
+        resultados.replaceChildren(p); resultados.hidden = false;
+    }
+    function resultado(activo) {
+        const a = document.createElement("a"); a.href = "/qr/" + encodeURIComponent(activo.id);
+        const bloque = document.createElement("span"), codigo = document.createElement("strong"), descripcion = document.createElement("small"), ubicacion = document.createElement("em");
+        codigo.textContent = activo.id; descripcion.textContent = activo.descripcion || "Sin descripción"; ubicacion.textContent = activo.ubicacion || "Sin ubicación";
+        bloque.append(codigo, descripcion); a.append(bloque, ubicacion); return a;
+    }
+    async function buscar() {
+        const texto = entrada.value.trim(); limpiar.hidden = !texto;
+        if (texto.length < 2) { ocultar(); return; }
+        if (controlador) controlador.abort(); controlador = new AbortController(); mensaje("Buscando activos...");
+        try {
+            const respuesta = await fetch("/buscar-activos?q=" + encodeURIComponent(texto), {signal: controlador.signal});
+            if (!respuesta.ok) throw new Error();
+            const activos = await respuesta.json();
+            if (!activos.length) { mensaje("No se encontraron activos."); return; }
+            resultados.replaceChildren(...activos.map(resultado)); resultados.hidden = false;
+        } catch (error) { if (error.name !== "AbortError") mensaje("No fue posible realizar la búsqueda."); }
+    }
+    entrada.addEventListener("input", function () { clearTimeout(temporizador); temporizador = setTimeout(buscar, 280); });
+    limpiar.addEventListener("click", function () { entrada.value = ""; limpiar.hidden = true; ocultar(); entrada.focus(); });
+    document.addEventListener("click", function (e) { if (!e.target.closest(".navegador-activos")) ocultar(); });
+});
+</script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 

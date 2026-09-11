@@ -174,6 +174,29 @@ body {
 
 }
 
+.navegador-activos { position:relative; z-index:8; margin:-8px 0 18px; padding:12px; border:1px solid #dce9e2; border-radius:17px; background:#fff; box-shadow:0 8px 22px rgba(20,62,40,.07); }
+.navegador-activos__movimiento { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:9px; }
+.navegador-activos__movimiento>a,.navegador-activos__limite { display:flex; align-items:center; gap:8px; min-width:0; min-height:43px; padding:7px 10px; border-radius:12px; color:#087847; background:#edf8f2; text-decoration:none; }
+.navegador-activos__movimiento>a:last-child,.navegador-activos__limite--derecha { justify-content:flex-end; text-align:right; }
+.navegador-activos__movimiento span { min-width:0; }
+.navegador-activos__movimiento small,.navegador-activos__movimiento strong { display:block; }
+.navegador-activos__movimiento small { color:#708078; font-size:9px; }
+.navegador-activos__movimiento strong { overflow:hidden; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
+.navegador-activos__limite { color:#98a59e; background:#f5f7f6; font-size:11px; }
+.navegador-activos__busqueda { display:flex; align-items:center; gap:8px; min-height:46px; padding:0 12px; border:1px solid #d5e3db; border-radius:13px; background:#fbfdfc; }
+.navegador-activos__busqueda>i { color:#079054; }
+.navegador-activos__busqueda input { flex:1; min-width:0; border:0; outline:0; background:transparent; font-size:12px; }
+.navegador-activos__busqueda button { border:0; color:#718078; background:transparent; }
+.navegador-activos__resultados { position:absolute; top:calc(100% - 11px); right:12px; left:12px; max-height:260px; overflow-y:auto; border:1px solid #dce7e1; border-radius:13px; background:#fff; box-shadow:0 14px 30px rgba(20,62,40,.16); }
+.navegador-activos__resultados a { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 12px; border-bottom:1px solid #edf2ef; color:#26382f; text-decoration:none; }
+.navegador-activos__resultados a:last-child { border-bottom:0; }
+.navegador-activos__resultados a:active { background:#edf8f2; }
+.navegador-activos__resultados strong,.navegador-activos__resultados small { display:block; }
+.navegador-activos__resultados strong { color:#087847; font-size:12px; }
+.navegador-activos__resultados small { max-width:185px; overflow:hidden; color:#65756c; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+.navegador-activos__resultados em { color:#7a8880; font-size:9px; font-style:normal; white-space:nowrap; }
+.navegador-activos__mensaje { margin:0; padding:16px; color:#6b7b72; font-size:11px; text-align:center; }
+
 .hero-card-top {
     display: flex;
     align-items: center;
