@@ -1,4 +1,7 @@
-from flask import jsonify, render_template, session
+import json
+from pathlib import Path
+
+from flask import current_app, jsonify, render_template, session
 
 from database.aduanas import obtener_aduanas
 from database.dashboard import obtener_kpis_dashboard
@@ -7,6 +10,17 @@ from models.auditoria_model import (
     obtener_actividad_filtrada,
     obtener_actividad_ultimos_7_dias,
 )
+from services.mapa_dashboard import resumir_mapa
+
+
+def _coordenadas_mapa():
+    ruta = Path(current_app.root_path) / "config" / "ubicaciones_mapa.json"
+    try:
+        with ruta.open(encoding="utf-8") as archivo:
+            datos = json.load(archivo)
+            return datos if isinstance(datos, dict) else {}
+    except (OSError, json.JSONDecodeError):
+        return {}
 
 
 def _datos_dashboard():
@@ -75,6 +89,12 @@ def registrar_rutas_dashboard(app, login_required):
     @login_required
     def dashboard_datos():
         return jsonify(_datos_dashboard())
+
+    @app.route("/dashboard/mapa/datos")
+    @login_required
+    def dashboard_mapa_datos():
+        registros = obtener_maquinarias().to_dict("records")
+        return jsonify(resumir_mapa(registros, _coordenadas_mapa()))
 
     @app.route("/m/dashboard")
     @login_required

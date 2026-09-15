@@ -21,6 +21,7 @@ class RutasDashboardTest(unittest.TestCase):
 
         self.assertIn(("/dashboard", "dashboard"), rutas)
         self.assertIn(("/dashboard/datos", "dashboard_datos"), rutas)
+        self.assertIn(("/dashboard/mapa/datos", "dashboard_mapa_datos"), rutas)
         self.assertIn(("/m/dashboard", "dashboard_mobil"), rutas)
 
 
