@@ -393,19 +393,27 @@ def buscar_activos(texto):
     sql = text("""
 
         SELECT
-            id_activo,
-            descripcion,
-            categoria,
-            marca,
-            ubicacion
-        FROM maquinarias
+            m.id_activo,
+            m.descripcion,
+            m.categoria,
+            m.marca,
+            m.ubicacion,
+            (
+                SELECT d.url
+                FROM documentos_maquinaria d
+                WHERE d.id_activo = m.id_activo
+                  AND d.tipo_archivo = 'IMAGEN'
+                ORDER BY d.fecha_subida DESC, d.id DESC
+                LIMIT 1
+            ) AS imagen_url
+        FROM maquinarias m
         WHERE
-            id_activo LIKE :q
-            OR descripcion LIKE :q
-            OR categoria LIKE :q
-            OR marca LIKE :q
-            OR ubicacion LIKE :q
-        ORDER BY id_activo
+            m.id_activo LIKE :q
+            OR m.descripcion LIKE :q
+            OR m.categoria LIKE :q
+            OR m.marca LIKE :q
+            OR m.ubicacion LIKE :q
+        ORDER BY m.id_activo
         LIMIT 20
 
     """)

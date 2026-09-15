@@ -3,7 +3,7 @@
 {% block titulo %}Expediente del Activo{% endblock %}
 
 {% block estilos %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/expediente_moderno.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/expediente_moderno.css', v='20260915-3') }}">
 {% endblock %}
 
 {% block contenido %}
@@ -1869,574 +1869,67 @@
 
         {% endif %}
 
-        <!-- ======================= INFORMACIÓN ADUANAL ======================= -->
-
-        <div class="col-12 mb-5">
-
-            <div class="card shadow-lg border-0 rounded-4 overflow-hidden aduana-card">
-
-                <!-- ================= HEADER ================= -->
-
-                <div class="aduana-header p-4">
-
-                    <div class="row align-items-center">
-
-                        <div class="col-lg-7">
-
-                            <div class="d-flex align-items-center">
-
-                                <div class="aduana-icon me-4">
-
-                                    {% if aduana and aduana.origen=="NACIONAL" %}
-
-                                    <i class="bi bi-building"></i>
-
-                                    {% else %}
-
-                                    <i class="bi bi-globe-americas"></i>
-
-                                    {% endif %}
-
-                                </div>
-
-                                <div>
-
-                                    {% if aduana and aduana.origen=="NACIONAL" %}
-
-                                    <h2 class="fw-bold mb-1">
-
-                                        Documentación Nacional
-
-                                    </h2>
-
-                                    <p class="mb-0">
-
-                                        Expediente correspondiente a maquinaria nacional.
-
-                                    </p>
-
-                                    {% else %}
-
-                                    <h2 class="fw-bold mb-1">
-
-                                        Información Aduanal
-
-                                    </h2>
-
-                                    <p class="mb-0">
-
-                                        Estado general del expediente de importación.
-
-                                    </p>
-
-                                    {% endif %}
-
-                                </div>
-
-                            </div>
-
+        <div class="col-12">
+            <section class="aduana-resumen" aria-labelledby="aduanaResumenTitulo">
+                <header class="aduana-resumen__cabecera">
+                    <div class="aduana-resumen__identidad">
+                        <span class="aduana-resumen__icono"><i class="bi {{ 'bi-building' if estado_aduana.nacional else 'bi-globe-americas' }}"></i></span>
+                        <div><small>EXPEDIENTE DEL ACTIVO · {{ maquina.id_activo }}</small>
+                            <h2 id="aduanaResumenTitulo">{{ 'Documentación nacional' if estado_aduana.nacional else 'Información aduanal' }}</h2>
+                            <p>{{ 'Factura y control documental de maquinaria nacional.' if estado_aduana.nacional else 'Referencias, logística y control de la importación.' }}</p>
                         </div>
-
-                        <div class="col-lg-5">
-
-                            <div class="d-flex justify-content-lg-end justify-content-center mt-4 mt-lg-0">
-
-                                <div class="porcentaje-circle">
-
-                                    <span id="contadorPorcentaje" data-valor="{{ estado_aduana.porcentaje }}">
-                                        0
-                                    </span>%
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
                     </div>
-
-                    <div class="progress rounded-pill mt-4" style="height:14px;">
-
-                        <div class="progress-bar progreso-aduana" style="--progreso: {{ estado_aduana.porcentaje }}%;">
+                    <span class="aduana-resumen__estado aduana-resumen__estado--{{ estado_aduana.color }}">
+                        <i class="bi {{ 'bi-check-circle-fill' if estado_aduana.estado == 'Completo' else 'bi-exclamation-circle' }}"></i>{{ estado_aduana.estado }}
+                    </span>
+                </header>
+                <div class="aduana-resumen__cuerpo">
+                    <aside class="aduana-avance">
+                        <small>INFORMACIÓN COMPLETADA</small>
+                        <div class="aduana-avance__numero">{{ estado_aduana.porcentaje }}<span>%</span></div>
+                        <p>{{ estado_aduana.completos }} de {{ estado_aduana.total }} campos requeridos</p>
+                        <div class="aduana-avance__barra" role="progressbar" aria-label="Información completada" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ estado_aduana.porcentaje }}"><span style="width: {{ estado_aduana.porcentaje }}%"></span></div>
+                        <div class="aduana-avance__cuentas">
+                            <div><strong>{{ estado_aduana.completos }}</strong><span>Completos</span></div>
+                            <div><strong>{{ estado_aduana.pendientes }}</strong><span>Pendientes</span></div>
                         </div>
-
+                        <div class="aduana-avance__nota"><i class="bi bi-info-circle"></i><span>{{ 'Los activos nacionales no requieren datos de importación.' if estado_aduana.nacional else 'El avance incluye los datos registrados y la confirmación documental.' }}</span></div>
+                    </aside>
+                    <div class="aduana-datos">
+                        <div class="aduana-datos__titulo"><h3>{{ 'Datos nacionales' if estado_aduana.nacional else 'Datos del expediente' }}</h3><span>{{ estado_aduana.total }} campos</span></div>
+                        <dl class="aduana-datos__grid">
+                            {% set iconos = {'factura':'bi-receipt', 'pedimento':'bi-file-earmark-text', 'entrada_mtz':'bi-truck', 'id_imp':'bi-upc-scan', 'inbond':'bi-box-seam', 'origen':'bi-globe2', 'fecha_importacion':'bi-calendar-event', 'kg_bruto':'bi-speedometer2', 'total_bultos':'bi-boxes', 'documentacion_completa':'bi-folder-check'} %}
+                            {% for campo in estado_aduana.campos %}
+                            <div class="aduana-dato {{ 'aduana-dato--pendiente' if not campo.completo else '' }}">
+                                <dt><i class="bi {{ iconos[campo.clave] }}"></i>{{ campo.etiqueta }}</dt>
+                                <dd>{{ campo.valor }}{% if campo.clave == 'kg_bruto' and campo.completo %} kg{% endif %}</dd>
+                            </div>
+                            {% endfor %}
+                        </dl>
                     </div>
-
                 </div>
-
-                <!-- ================= BODY ================= -->
-
-                <div class="card-body p-5">
-
-                    <div class="row g-4">
-
-                        <!-- ================= IZQUIERDA ================= -->
-
-                        <div class="col-lg-5">
-
-                            <div class="estado-card h-100">
-
-                                {% if estado_aduana.estado=="Completo" %}
-
-                                <div class="estado-icon success">
-
-                                    <i class="bi bi-check2-circle"></i>
-
-                                </div>
-
-                                <h2 class="text-success fw-bold">
-
-                                    Expediente Completo
-
-                                </h2>
-
-                                <p>
-
-                                    El expediente contiene toda la documentación requerida.
-
-                                </p>
-
-                                {% elif estado_aduana.estado=="Incompleto" %}
-
-                                <div class="estado-icon warning">
-
-                                    <i class="bi bi-exclamation-circle"></i>
-
-                                </div>
-
-                                <h2 class="text-warning fw-bold">
-
-                                    Expediente Incompleto
-
-                                </h2>
-
-                                <p>
-
-                                    Existen documentos pendientes.
-
-                                </p>
-
-                                {% else %}
-
-                                <div class="estado-icon danger">
-
-                                    <i class="bi bi-x-circle"></i>
-
-                                </div>
-
-                                <h2 class="text-danger fw-bold">
-
-                                    Sin Expediente
-
-                                </h2>
-
-                                <p>
-
-                                    No existe información registrada.
-
-                                </p>
-
-                                {% endif %}
-
-                                <hr>
-
-                                <h5 class="fw-bold text-center mb-3">
-
-                                    Progreso del Expediente
-
-                                </h5>
-
-                                <div class="progress rounded-pill mb-4" style="height:16px;">
-
-                                    <div class="progress-bar progreso-aduana"
-                                        style="--progreso: {{ estado_aduana.porcentaje }}%;">
-                                    </div>
-
-                                </div>
-
-                                <div class="row g-3">
-
-                                    <div class="col-4">
-
-                                        <div class="mini-card success">
-
-                                            <h2>
-
-                                                {{ estado_aduana.completos }}
-
-                                            </h2>
-
-                                            <small>OK</small>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-4">
-
-                                        <div class="mini-card warning">
-
-                                            <h2>
-
-                                                {{ estado_aduana.pendientes }}
-
-                                            </h2>
-
-                                            <small>Pend.</small>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-4">
-
-                                        <div class="mini-card primary">
-
-                                            <h2>
-
-                                                {{ estado_aduana.total }}
-
-                                            </h2>
-
-                                            <small>Total</small>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <!-- ================= DERECHA ================= -->
-
-                        <div class="col-lg-7">
-
-                            {% if aduana %}
-
-                            <div class="row g-3">
-
-                                <div class="col-md-6">
-
-                                    <div class="dato-card">
-
-                                        <i class="bi bi-file-earmark-text"></i>
-
-                                        <div>
-
-                                            <small>Pedimento</small>
-
-                                            <h5>{{ aduana.pedimento or "-" }}</h5>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                <div class="col-md-6">
-
-                                    <div class="dato-card">
-
-                                        <i class="bi bi-truck"></i>
-
-                                        <div>
-
-                                            <small>Entrada MTZ</small>
-
-                                            <h5>{{ aduana.entrada_mtz or "-" }}</h5>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                <div class="col-md-6">
-
-                                    <div class="dato-card">
-
-                                        <i class="bi bi-upc-scan"></i>
-
-                                        <div>
-
-                                            <small>ID IMP</small>
-
-                                            <h5>{{ aduana.id_imp or "-" }}</h5>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                <div class="col-md-6">
-
-                                    <div class="dato-card">
-
-                                        <i class="bi bi-box-seam"></i>
-
-                                        <div>
-
-                                            <small>Inbond</small>
-
-                                            <h5>{{ aduana.inbond or "-" }}</h5>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                <div class="col-md-6">
-
-                                    <div class="dato-card">
-
-                                        <i class="bi bi-globe2"></i>
-
-                                        <div>
-
-                                            <small>País de Origen</small>
-
-                                            <h5>{{ aduana.origen or "-" }}</h5>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                <div class="col-md-6">
-
-                                    <div class="dato-card">
-
-                                        <i class="bi bi-calendar-event"></i>
-
-                                        <div>
-
-                                            <small>Fecha de Importación</small>
-
-                                            <h5>{{ aduana.fecha_importacion or "-" }}</h5>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                <!-- NUEVO CAMPO -->
-
-                                <div class="col-12">
-
-                                    <div class="dato-card">
-
-                                        <i class="bi bi-receipt-cutoff"></i>
-
-                                        <div>
-
-                                            <small>Factura</small>
-
-                                            <h5>{{ aduana.factura or "Sin factura registrada" }}</h5>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                            {% else %}
-
-                            <div class="alert alert-danger rounded-4 text-center p-5">
-
-                                <i class="bi bi-folder-x display-3"></i>
-
-                                <h3 class="mt-3">
-
-                                    No existe expediente aduanal
-
-                                </h3>
-
-                                <p class="mb-0">
-
-                                    Registra la información para este activo.
-
-                                </p>
-
-                            </div>
-
-                            {% endif %}
-
-                        </div>
-
-                    </div>
-
-                    <div class="mt-5">
-
-                        {% if estado_aduana.estado=="Completo" %}
-
-                        <div class="alert alert-success rounded-4 border-0">
-
-                            <i class="bi bi-check-circle-fill me-2"></i>
-
-                            El expediente cumple con todos los requisitos documentales.
-
-                        </div>
-
-                        {% elif estado_aduana.estado=="Incompleto" %}
-
-                        <div class="alert alert-warning rounded-4 border-0">
-
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-
-                            Existen {{ estado_aduana.pendientes }} documentos pendientes.
-
-                        </div>
-
+                <footer class="aduana-resumen__pie">
+                    <div class="aduana-pendientes">
+                        {% if estado_aduana.estado == 'Completo' %}
+                        <i class="bi bi-check-circle-fill"></i><div><strong>Información completa</strong><p>Todos los campos requeridos están registrados y la documentación está confirmada.</p></div>
+                        {% elif not aduana %}
+                        <i class="bi bi-folder-plus"></i><div><strong>Expediente por crear</strong><p>Registre el origen y los datos del activo para comenzar.</p></div>
                         {% else %}
-
-                        <div class="alert alert-danger rounded-4 border-0">
-
-                            <i class="bi bi-x-circle-fill me-2"></i>
-
-                            No existe expediente registrado.
-
-                        </div>
-
+                        <i class="bi bi-exclamation-circle"></i><div><strong>{{ estado_aduana.pendientes }} {{ 'campo pendiente' if estado_aduana.pendientes == 1 else 'campos pendientes' }}</strong><p>Por completar: {{ estado_aduana.faltantes|join(' · ') }}.</p></div>
                         {% endif %}
-
                     </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="mt-5">
-
-            <div class="row align-items-center g-3">
-
-                <div class="col-lg-8">
-
-                    {% if estado_aduana.estado=="Completo" %}
-
-                    <div class="alert alert-success border-0 rounded-4 mb-0">
-
-                        <div class="d-flex align-items-center">
-
-                            <i class="bi bi-check-circle-fill fs-2 me-3"></i>
-
-                            <div>
-
-                                <strong>Expediente validado correctamente</strong><br>
-
-                                <small>
-                                    Toda la información aduanal se encuentra completa.
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    {% elif estado_aduana.estado=="Incompleto" %}
-
-                    <div class="alert alert-warning border-0 rounded-4 mb-0">
-
-                        <div class="d-flex align-items-center">
-
-                            <i class="bi bi-exclamation-triangle-fill fs-2 me-3"></i>
-
-                            <div>
-
-                                <strong>
-                                    Faltan {{ estado_aduana.pendientes }} campos.
-                                </strong><br>
-
-                                <small>
-                                    Completa la información para obtener un expediente al 100%.
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    {% else %}
-
-                    <div class="alert alert-danger border-0 rounded-4 mb-0">
-
-                        <div class="d-flex align-items-center">
-
-                            <i class="bi bi-x-circle-fill fs-2 me-3"></i>
-
-                            <div>
-
-                                <strong>Este activo no tiene expediente.</strong><br>
-
-                                <small>
-                                    Crea el expediente para comenzar el registro.
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    {% endif %}
-
-                </div>
-
-                <div class="col-lg-4 text-lg-end">
-
                     {% if session.get("rol") == "Administrador" %}
-
-                    {% if aduana %}
-
-                    <a href="{{ url_for('editar_aduana', id_activo=maquina.id_activo) }}"
-                        class="btn btn-success rounded-pill px-4">
-
-                        <i class="bi bi-pencil-square"></i>
-
-                        Editar Expediente
-
-                    </a>
-
-                    {% else %}
-
-                    <a href="{{ url_for('nueva_aduana', id=maquina.id_activo) }}"
-                        class="btn btn-success rounded-pill px-4">
-
-                        <i class="bi bi-plus-circle"></i>
-
-                        Crear Expediente
-
-                    </a>
-
+                    <a class="aduana-resumen__editar" href="{{ url_for('editar_aduana', id_activo=maquina.id_activo) if aduana else url_for('nueva_aduana', id=maquina.id_activo) }}"><i class="bi {{ 'bi-pencil-square' if aduana else 'bi-plus-circle' }}"></i>{{ 'Editar expediente' if aduana else 'Crear expediente' }}</a>
                     {% endif %}
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-
+                </footer>
+            </section>
         </div>
-
     </div>
-
 </div>
 
 <hr class="my-5">
 
-<div class="row">
+<div class="row expediente-page expediente-documentos">
     <div class="col-12">
         <div class="modern-card">
 
@@ -2468,97 +1961,53 @@
 
                     <div class="col-xl-4 col-lg-6">
 
-                        <div class="card border-0 shadow-sm rounded-4 h-100 documento-card">
-
-                            <div class="card-body">
-
-                                <div class="d-flex align-items-center mb-3">
-
-                                    {% if extension == "pdf" %}
-
-                                    <i class="bi bi-file-earmark-pdf-fill text-danger fs-1 me-3"></i>
-
-                                    {% elif extension in ["doc","docx"] %}
-
-                                    <i class="bi bi-file-earmark-word-fill text-primary fs-1 me-3"></i>
-
-                                    {% elif extension in ["xls","xlsx"] %}
-
-                                    <i class="bi bi-file-earmark-excel-fill text-success fs-1 me-3"></i>
-
-                                    {% elif extension in ["jpg","jpeg","png"] %}
-
-                                    <i class="bi bi-image-fill text-warning fs-1 me-3"></i>
-
-                                    {% else %}
-
-                                    <i class="bi bi-file-earmark-fill text-secondary fs-1 me-3"></i>
-
-                                    {% endif %}
-
-                                    <div>
-
-                                        <h6 class="fw-bold mb-1">
-
-                                            {{ doc.nombre_original }}
-
-                                        </h6>
-
-                                        <small class="text-muted">
-
-                                            {{ doc.fecha_subida }}
-
-                                        </small>
-
-                                    </div>
-
-                                </div>
-
-                                <div class="mb-3 text-muted">
-
-                                    <i class="bi bi-person-circle"></i>
-
-                                    {{ doc.subido_por }}
-
-                                </div>
-
-                                <div class="d-flex gap-2">
-
-                                    <a href="{{ doc.url }}" target="_blank"
-                                        class="btn btn-primary rounded-pill flex-fill">
-
-                                        <i class="bi bi-eye"></i>
-
-                                        Ver
-
-                                    </a>
-
-                                    <a href="{{ doc.url }}" target="_blank" class="btn btn-success rounded-pill">
-
-                                        <i class="bi bi-download"></i>
-
-                                    </a>
-
-                                    {% if session.get("rol")=="Administrador" %}
-
-                                    <form action="{{ url_for('borrar_documento', id_documento=doc.id) }}" method="POST"
-                                        onsubmit="return confirm('¿Eliminar documento?');">
-
-                                        <button class="btn btn-danger rounded-pill">
-
-                                            <i class="bi bi-trash"></i>
-
-                                        </button>
-
-                                    </form>
-
-                                    {% endif %}
-
-                                </div>
-
+                        <article class="documento-moderno">
+                            {% if extension in ["jpg", "jpeg", "png", "webp"] %}
+                            <button type="button" class="documento-miniatura" data-bs-toggle="modal"
+                                data-bs-target="#visorDocumentoImagen" data-imagen-url="{{ doc.url }}"
+                                data-imagen-nombre="{{ doc.nombre_original }}">
+                                <img src="{{ doc.url }}" alt="Vista previa de {{ doc.nombre_original }}" loading="lazy">
+                                <span><i class="bi bi-arrows-fullscreen"></i> Ampliar imagen</span>
+                            </button>
+                            {% else %}
+                            <div class="documento-portada documento-portada--{{ extension }}">
+                                {% if extension == "pdf" %}<i class="bi bi-file-earmark-pdf-fill"></i>
+                                {% elif extension in ["doc","docx"] %}<i class="bi bi-file-earmark-word-fill"></i>
+                                {% elif extension in ["xls","xlsx"] %}<i class="bi bi-file-earmark-excel-fill"></i>
+                                {% else %}<i class="bi bi-file-earmark-fill"></i>{% endif %}
+                                <strong>{{ extension|upper }}</strong>
                             </div>
+                            {% endif %}
 
-                        </div>
+                            <div class="documento-moderno__contenido">
+                                <div class="documento-moderno__encabezado">
+                                    <span><i class="bi bi-paperclip"></i> {{ doc.tipo or "Archivo" }}</span>
+                                    <small>{{ extension|upper }}</small>
+                                </div>
+                                <h3 title="{{ doc.nombre_original }}">{{ doc.nombre_original }}</h3>
+                                <div class="documento-moderno__meta">
+                                    <span><i class="bi bi-calendar3"></i> {{ doc.fecha_subida.strftime('%d/%m/%Y · %H:%M') if doc.fecha_subida else 'Sin fecha' }}</span>
+                                    <span><i class="bi bi-person-circle"></i> {{ doc.subido_por }}</span>
+                                </div>
+                                <div class="documento-moderno__acciones">
+                                    {% if extension in ["jpg", "jpeg", "png", "webp"] %}
+                                    <button type="button" data-bs-toggle="modal" data-bs-target="#visorDocumentoImagen"
+                                        data-imagen-url="{{ doc.url }}" data-imagen-nombre="{{ doc.nombre_original }}">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </button>
+                                    {% else %}
+                                    <a href="{{ doc.url }}" target="_blank" rel="noopener"><i class="bi bi-eye"></i> Abrir</a>
+                                    {% endif %}
+                                    <a href="{{ doc.url }}" target="_blank" rel="noopener" download><i class="bi bi-download"></i><span>Descargar</span></a>
+                                    {% if session.get("rol")=="Administrador" %}
+                                    <form action="{{ url_for('borrar_documento', id_documento=doc.id) }}" method="POST"
+                                        onsubmit="return confirm('¿Eliminar definitivamente este archivo?');">
+                                        <button type="submit" class="documento-eliminar" aria-label="Eliminar {{ doc.nombre_original }}"><i class="bi bi-trash3"></i></button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
 
                     </div>
 
@@ -2590,50 +2039,47 @@
 
                 {% if session.get("rol") == "Administrador" %}
 
-                <div class="border-top mt-4 pt-4">
-
-                    <div class="row justify-content-center">
-
-                        <div class="col-lg-7">
-
-                            <form action="{{ url_for('subir_documento', id_activo=maquina.id_activo) }}" method="POST"
-                                enctype="multipart/form-data">
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Tipo de documento
-                                    </label>
-
-                                    <select name="tipo_documento" class="form-select" required>
-
-                                        <option value="">Seleccione...</option>
-                                        <option value="Factura">Factura Comercial</option>
-                                        <option value="Pedimento">Pedimento</option>
-                                        <option value="Entrada MTY">Entrada MTY</option>
-                                        <option value="Inbond">Inbond</option>
-                                        <option value="Packing List">Packing List</option>
-                                        <option value="BL">Bill of Lading</option>
-                                        <option value="Otro">Otro</option>
-                                    </select>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Archivo
-                                    </label>
-
-                                    <input type="file" name="documento" class="form-control" accept=".pdf" required>
-                                </div>
-
-                                <button type="submit" class="btn btn-success w-100">
-                                    Subir documento
-                                </button>
-
-                            </form>
-
-                        </div>
-
+                <div class="documento-carga">
+                    <div class="documento-carga__encabezado">
+                        <span><i class="bi bi-cloud-arrow-up-fill"></i></span>
+                        <div><small>NUEVO ARCHIVO</small><h3>Agregar documentación</h3><p>Seleccione el tipo y adjunte un documento PDF al expediente.</p></div>
                     </div>
+                    <form action="{{ url_for('subir_documento', id_activo=maquina.id_activo) }}" method="POST"
+                        enctype="multipart/form-data" class="documento-carga__formulario">
+                        <fieldset class="documento-tipos">
+                            <legend>¿Qué tipo de documento desea agregar?</legend>
+                            <div class="documento-tipos__opciones">
+                                {% for valor, etiqueta, icono in [
+                                    ('Factura', 'Factura comercial', 'bi-receipt'),
+                                    ('Pedimento', 'Pedimento', 'bi-file-earmark-check'),
+                                    ('Entrada MTY', 'Entrada MTY', 'bi-box-arrow-in-down'),
+                                    ('Inbond', 'Inbond', 'bi-truck'),
+                                    ('Packing List', 'Packing list', 'bi-list-check'),
+                                    ('BL', 'Bill of lading', 'bi-file-text'),
+                                    ('Otro', 'Otro documento', 'bi-folder-plus')
+                                ] %}
+                                <label>
+                                    <input type="radio" name="tipo_documento" value="{{ valor }}" required>
+                                    <span><i class="bi {{ icono }}"></i>{{ etiqueta }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </fieldset>
+                        <div class="documento-adjunto">
+                            <label>Documento PDF</label>
+                            <label for="archivoDocumentoActivo" class="documento-archivo" id="zonaDocumentoActivo">
+                                <span class="documento-archivo__icono"><i class="bi bi-file-earmark-pdf"></i></span>
+                                <span class="documento-archivo__texto">
+                                    <strong id="nombreDocumentoActivo">Seleccione o arrastre su archivo</strong>
+                                    <small>Seleccione un documento en formato PDF</small>
+                                </span>
+                                <em>Explorar</em>
+                            </label>
+                            <input id="archivoDocumentoActivo" type="file" name="documento" accept="application/pdf,.pdf" required hidden>
+                        </div>
+                        <button type="submit"><i class="bi bi-cloud-arrow-up"></i> Subir documento</button>
+                    </form>
+                </div>
 
                     {% endif %}
 
@@ -2645,7 +2091,17 @@
 
     </div>
 
-</div>
+<div class="modal fade" id="visorDocumentoImagen" tabindex="-1" aria-labelledby="visorDocumentoTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content documento-visor">
+            <div class="modal-header">
+                <div><small>EVIDENCIA DEL ACTIVO</small><h2 class="modal-title" id="visorDocumentoTitulo">Vista previa</h2></div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body"><img id="visorDocumentoFoto" alt="Vista ampliada del documento"></div>
+            <div class="modal-footer"><a id="visorDocumentoAbrir" href="#" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Abrir original</a></div>
+        </div>
+    </div>
 </div>
 
 <!-- ====================== RESUMEN Y ACCIONES ====================== -->
@@ -3154,6 +2610,61 @@
 
         }, 15);
 
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const entradaArchivo = document.getElementById("archivoDocumentoActivo");
+        const nombreArchivo = document.getElementById("nombreDocumentoActivo");
+        const zonaArchivo = document.getElementById("zonaDocumentoActivo");
+        const actualizarNombreArchivo = function () {
+            if (!entradaArchivo || !nombreArchivo) return;
+            nombreArchivo.textContent = entradaArchivo.files.length
+                ? entradaArchivo.files[0].name
+                : "Seleccione o arrastre su archivo";
+            zonaArchivo?.classList.toggle("tiene-archivo", entradaArchivo.files.length > 0);
+        };
+        if (entradaArchivo && nombreArchivo) {
+            entradaArchivo.addEventListener("change", actualizarNombreArchivo);
+        }
+        if (entradaArchivo && zonaArchivo) {
+            ["dragenter", "dragover"].forEach(function (evento) {
+                zonaArchivo.addEventListener(evento, function (e) {
+                    e.preventDefault();
+                    zonaArchivo.classList.add("arrastrando");
+                });
+            });
+            ["dragleave", "drop"].forEach(function (evento) {
+                zonaArchivo.addEventListener(evento, function (e) {
+                    e.preventDefault();
+                    zonaArchivo.classList.remove("arrastrando");
+                });
+            });
+            zonaArchivo.addEventListener("drop", function (e) {
+                const archivo = e.dataTransfer.files[0];
+                if (!archivo) return;
+                if (archivo.type !== "application/pdf" && !archivo.name.toLowerCase().endsWith(".pdf")) {
+                    window.alert("Seleccione un archivo en formato PDF.");
+                    return;
+                }
+                entradaArchivo.files = e.dataTransfer.files;
+                actualizarNombreArchivo();
+            });
+        }
+
+        const visor = document.getElementById("visorDocumentoImagen");
+        if (visor) {
+            visor.addEventListener("show.bs.modal", function (evento) {
+                const disparador = evento.relatedTarget;
+                const url = disparador ? disparador.dataset.imagenUrl : "";
+                const nombre = disparador ? disparador.dataset.imagenNombre : "Vista previa";
+                document.getElementById("visorDocumentoTitulo").textContent = nombre;
+                document.getElementById("visorDocumentoFoto").src = url;
+                document.getElementById("visorDocumentoAbrir").href = url;
+            });
+            visor.addEventListener("hidden.bs.modal", function () {
+                document.getElementById("visorDocumentoFoto").src = "";
+            });
+        }
     });
 
 </script>

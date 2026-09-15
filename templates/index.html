@@ -44,6 +44,10 @@
                         <span><i class="bi bi-grid"></i><b>Categoría</b><em id="pCategoria"></em></span>
                     </div>
                 </div>
+                <button id="btnImagenActivo" class="preview-foto" type="button" style="display:none;" aria-label="Ampliar fotografía del activo">
+                    <img id="pImagen" alt="Fotografía del activo" loading="lazy">
+                    <span><i class="bi bi-arrows-fullscreen"></i> Ampliar</span>
+                </button>
                 <button id="btnAbrir" type="button">Ver expediente <i class="bi bi-arrow-right"></i></button>
             </div>
         </div>
@@ -55,6 +59,18 @@
         </div>
     </section>
 </div>
+
+<div class="modal fade" id="modalImagenActivo" tabindex="-1" aria-labelledby="tituloImagenActivo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content visor-imagen-contenido">
+            <div class="modal-header">
+                <div><small>VISTA PREVIA DEL ACTIVO</small><h2 class="modal-title" id="tituloImagenActivo"></h2></div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body"><img id="imagenAmpliada" alt="Fotografía ampliada del activo"></div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -62,7 +78,8 @@
 function formatoActivo(activo){if(!activo.id)return activo.text;return $(`<div class="resultado-activo"><span><i class="bi bi-box-seam"></i></span><div><strong>${activo.id}</strong><p>${activo.descripcion||''}</p><small><i class="bi bi-geo-alt"></i> ${activo.ubicacion||'Sin ubicación'}</small></div></div>`)}
 $(function(){
  $('#buscarActivo').select2({theme:'bootstrap-5',width:'100%',placeholder:'Buscar por código, serie, marca o ubicación...',minimumInputLength:2,templateResult:formatoActivo,templateSelection:a=>a.id||a.text,ajax:{url:"{{ url_for('buscar_activos_ajax') }}",dataType:'json',delay:250,data:p=>({q:p.term}),processResults:data=>({results:data})}});
- $('#buscarActivo').on('select2:select',function(e){const a=e.params.data;$('#pActivo').text(a.id);$('#pDescripcion').text(a.descripcion||'Sin descripción');$('#pUbicacion').text(a.ubicacion||'Sin ubicación');$('#pMarca').text(a.marca||'-');$('#pCategoria').text(a.categoria||'-');$('#previewActivo').stop(true,true).slideDown(220);$('#btnAbrir').off('click').on('click',()=>window.location='/maquinarias/'+encodeURIComponent(a.id))});
+ $('#buscarActivo').on('select2:select',function(e){const a=e.params.data;const foto=$('#btnImagenActivo'),imagen=$('#pImagen');$('#pActivo').text(a.id);$('#pDescripcion').text(a.descripcion||'Sin descripción');$('#pUbicacion').text(a.ubicacion||'Sin ubicación');$('#pMarca').text(a.marca||'-');$('#pCategoria').text(a.categoria||'-');if(a.imagen_url){imagen.attr('src',a.imagen_url).attr('alt','Fotografía de '+a.id);foto.show()}else{imagen.attr('src','');foto.hide()}$('#previewActivo').stop(true,true).slideDown(220);$('#btnAbrir').off('click').on('click',()=>window.location='/maquinarias/'+encodeURIComponent(a.id));foto.off('click').on('click',function(){$('#tituloImagenActivo').text(a.id+' · '+(a.descripcion||'Activo'));$('#imagenAmpliada').attr('src',a.imagen_url).attr('alt','Fotografía ampliada de '+a.id);bootstrap.Modal.getOrCreateInstance(document.getElementById('modalImagenActivo')).show()})});
+ $('#pImagen').on('error',function(){$('#btnImagenActivo').hide();$(this).attr('src','')});
 });
 </script>
 {% endblock %}

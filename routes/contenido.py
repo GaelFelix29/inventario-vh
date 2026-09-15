@@ -107,6 +107,7 @@ def registrar_rutas_contenido(
                     "categoria": activo["categoria"],
                     "marca": activo["marca"],
                     "ubicacion": activo["ubicacion"],
+                    "imagen_url": activo.get("imagen_url"),
                 }
                 for activo in buscar_activos(texto)
             ]

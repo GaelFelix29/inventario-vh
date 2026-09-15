@@ -226,7 +226,8 @@ Nuevo Activo
                                 </label>
 
                                 <input type="text" name="serie_interna" class="form-control"
-                                    value="{{ maquina.serie_interna if editar else '' }}">
+                                    value="{{ (maquina.serie_interna or maquina.id_activo|replace('ACT-', 'SN-')) if editar else siguiente_id|replace('ACT-', 'SN-') }}" readonly aria-describedby="ayudaSerieInterna">
+                                <small id="ayudaSerieInterna" class="text-muted">Asignada automáticamente por el sistema.</small>
 
                             </div>
 
