@@ -3,6 +3,8 @@
 
 {% block contenido %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/inicio_escritorio.css') }}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mapa_dashboard.css', v='20260915-2') }}">
 
 <div class="inicio-page">
     <section class="inicio-panel">
@@ -52,10 +54,10 @@
             </div>
         </div>
 
-        <div class="inicio-beneficios">
-            <article><span><i class="bi bi-search-heart"></i></span><div><h3>Búsqueda precisa</h3><p>Localice activos desde un solo lugar.</p></div></article>
-            <article><span><i class="bi bi-qr-code-scan"></i></span><div><h3>Identificación QR</h3><p>Acceda al expediente desde su etiqueta.</p></div></article>
-            <article><span><i class="bi bi-clock-history"></i></span><div><h3>Consulta inmediata</h3><p>Revise información e historial en segundos.</p></div></article>
+        <div class="inicio-mapa">
+            {% with mapa_enlace_maquinaria=url_for('lista_maquinarias') %}
+                {% include "partials/mapa_dashboard.html" %}
+            {% endwith %}
         </div>
     </section>
 </div>
@@ -74,6 +76,8 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="{{ url_for('static', filename='js/mapa_dashboard.js', v='20260915-2') }}"></script>
 <script>
 function formatoActivo(activo){if(!activo.id)return activo.text;return $(`<div class="resultado-activo"><span><i class="bi bi-box-seam"></i></span><div><strong>${activo.id}</strong><p>${activo.descripcion||''}</p><small><i class="bi bi-geo-alt"></i> ${activo.ubicacion||'Sin ubicación'}</small></div></div>`)}
 $(function(){

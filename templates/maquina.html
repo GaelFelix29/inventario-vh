@@ -541,8 +541,15 @@
         tabla.on("draw search", actualizarEnlacesReportes);
         actualizarEnlacesReportes();
 
+        function normalizarSede(valor) {
+            const texto = String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().replace(/\s+/g, " ").toUpperCase();
+            return !texto || texto === "-" ? "SIN UBICACION" : texto;
+        }
+
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             if (settings.nTable.id !== "tablaMaquinas") return true;
+            const ubicacion = $("#filtroUbicacion").val();
+            if (ubicacion && normalizarSede(data[4]) !== normalizarSede(ubicacion)) return false;
             const categoria = $("#filtroCategoria").val();
             if (!categoria) return true;
             return String($(tabla.row(dataIndex).node()).data("categoria") || "").toLocaleUpperCase("es") === categoria.toLocaleUpperCase("es");
@@ -568,7 +575,7 @@
 
         $("#filtroUbicacion").on("change", function () {
 
-            tabla.column(4).search($(this).val()).draw();
+            tabla.draw();
             actualizarEnlacesReportes();
 
         });
@@ -577,6 +584,14 @@
             tabla.draw();
             actualizarEnlacesReportes();
         });
+
+        const sedeInicial = new URLSearchParams(window.location.search).get("ubicacion");
+        if (sedeInicial) {
+            const selector = document.getElementById("filtroUbicacion");
+            const opcion = Array.from(selector.options).find(o => o.value && normalizarSede(o.value) === normalizarSede(sedeInicial));
+            if (!opcion) selector.add(new Option(sedeInicial, sedeInicial));
+            $(selector).val(opcion ? opcion.value : sedeInicial).trigger("change");
+        }
 
         //==========================================
         // ACTIVAR TARJETA

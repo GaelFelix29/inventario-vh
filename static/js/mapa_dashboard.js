@@ -5,6 +5,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const lista = document.getElementById("mapaLista");
     const buscar = document.getElementById("mapaBuscar");
     const todas = document.getElementById("mapaVerTodas");
+    const abrirMaquinaria = document.getElementById("mapaAbrirMaquinaria");
+    const enlaceSede = nombre => {
+        const url = new URL(panel.dataset.maquinariaUrl, window.location.origin);
+        url.searchParams.set("ubicacion", nombre);
+        return url.href;
+    };
     const elemento = (tag, texto, clase) => {
         const nodo = document.createElement(tag);
         if (texto !== undefined) nodo.textContent = texto;
@@ -44,6 +50,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 popup.append(elemento("h3", sede.nombre), elemento("p", sede.total + " activos registrados"),
                     elemento("p", sede.activos + " en servicio · " + sede.bajas + " bajas"));
                 if (sede.otros) popup.append(elemento("p", sede.otros + " en otros estados"));
+                if (panel.dataset.maquinariaUrl) {
+                    const enlace = elemento("a", "Ver maquinaria →", "mapa-abrir-maquinaria");
+                    enlace.href = enlaceSede(sede.nombre);
+                    popup.append(enlace);
+                }
                 pin.bindPopup(popup).bindTooltip(elemento("span", sede.nombre), {direction: "top", offset: [0, -30]});
                 pin.on("click", () => { seleccion = sede.nombre; pintarLista(); });
                 pines.set(sede.nombre, pin);
@@ -58,6 +69,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             mapa.fitBounds(L.featureGroup([...pines.values()]).getBounds(), {padding: [38, 38], maxZoom: 15});
         }
         function pintarLista() {
+            if (abrirMaquinaria) {
+                abrirMaquinaria.hidden = !seleccion;
+                if (seleccion) {
+                    abrirMaquinaria.href = enlaceSede(seleccion);
+                    abrirMaquinaria.setAttribute("aria-label", "Ver maquinaria de " + seleccion);
+                } else abrirMaquinaria.removeAttribute("href");
+            }
             lista.replaceChildren();
             const coincidencias = datos.ubicaciones.filter(s => normalizar(s.nombre).includes(normalizar(buscar.value.trim())));
             coincidencias.forEach(sede => {
@@ -94,4 +112,3 @@ document.addEventListener("DOMContentLoaded", async () => {
         estado.textContent = "No se pudieron cargar las ubicaciones. Actualice la página para reintentar.";
     }
 });
-

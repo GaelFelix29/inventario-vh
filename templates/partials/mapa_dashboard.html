@@ -1,4 +1,4 @@
-<section class="mapa-panel" aria-labelledby="mapaTitulo" data-endpoint="{{ url_for('dashboard_mapa_datos') }}">
+<section class="mapa-panel" aria-labelledby="mapaTitulo" data-endpoint="{{ url_for('dashboard_mapa_datos') }}"{% if mapa_enlace_maquinaria %} data-maquinaria-url="{{ mapa_enlace_maquinaria }}"{% endif %}>
     <header class="mapa-panel__header">
         <div><small>DISTRIBUCIÓN DEL INVENTARIO</small><h2 id="mapaTitulo"><i class="bi bi-geo-alt"></i> Activos por ubicación</h2><p>Explore las sedes y consulte cuántos activos hay en cada una.</p></div>
         <button type="button" id="mapaVerTodas" disabled>Ver todas las sedes</button>
@@ -10,8 +10,8 @@
             <label for="mapaBuscar">Buscar sede</label>
             <input id="mapaBuscar" type="search" placeholder="Nombre de ubicación…" autocomplete="off">
             <div id="mapaLista" class="mapa-leyenda__lista"></div>
+            {% if mapa_enlace_maquinaria %}<a id="mapaAbrirMaquinaria" class="mapa-abrir-maquinaria" hidden>Ver maquinaria →</a>{% endif %}
         </aside>
     </div>
     <footer class="mapa-panel__footer"><span>Seleccione un pin o una sede de la leyenda.</span><a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener">Reportar un error del mapa</a></footer>
 </section>
-
