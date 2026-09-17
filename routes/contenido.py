@@ -4,13 +4,13 @@ from database.maquinarias import (
     buscar_activos,
     finalizar_revision_contenido,
     iniciar_revision_contenido,
-    insertar_maquinaria,
     obtener_maquinaria_detalle,
     reabrir_revision_contenido,
     retirar_contenido_activo,
-    siguiente_id_activo,
     vincular_contenido_activo,
 )
+
+from services.contenido_activos import convertir_en_conjunto, registrar_accesorio_contenido, buscar_accesorios_disponibles
 
 
 def registrar_rutas_contenido(
@@ -27,6 +27,15 @@ def registrar_rutas_contenido(
         return redirect(
             url_for("expediente_maquinaria", id_activo=id_activo)
         )
+
+    @app.route('/accesorios/disponibles-conjunto')
+    @login_required
+    @roles_required('Administrador', 'Mantenimiento')
+    def buscar_accesorios_conjunto():
+        consulta = request.args.get('q', '').strip()
+        if len(consulta) < 2:
+            return jsonify([])
+        return jsonify(buscar_accesorios_disponibles(consulta))
 
     @app.route(
         "/maquinarias/<id_activo>/revision-contenido/reabrir",
@@ -66,6 +75,9 @@ def registrar_rutas_contenido(
             iniciar_revision_contenido(id_activo, session["nombre"])
         except ValueError as error:
             flash(str(error), "warning")
+        except Exception:
+            app.logger.exception('Error iniciando revisión de contenido')
+            flash('No fue posible iniciar la revisión. Intente de nuevo.', 'danger')
         else:
             flash(
                 "La revisión de contenido fue iniciada correctamente.",
@@ -84,6 +96,9 @@ def registrar_rutas_contenido(
             finalizar_revision_contenido(id_activo, session["nombre"])
         except ValueError as error:
             flash(str(error), "warning")
+        except Exception:
+            app.logger.exception('Error finalizando revisión de contenido')
+            flash('No fue posible finalizar la revisión. Intente de nuevo.', 'danger')
         else:
             flash(
                 "La revisión de contenido fue finalizada correctamente.",
@@ -137,14 +152,8 @@ def registrar_rutas_contenido(
                 usuario=session["nombre"],
                 observaciones=observaciones,
             )
-            registrar_movimiento(
-                usuario=session["nombre"],
-                accion=(
-                    f"Vinculó el activo {activo_relacionado} como contenido"
-                ),
-                modulo="Accesorios",
-                referencia=id_activo,
-            )
+        except ValueError as error:
+            flash(str(error), "warning")
         except Exception as error:
             print("ERROR VINCULANDO CONTENIDO:", error)
             flash(
@@ -175,6 +184,9 @@ def registrar_rutas_contenido(
             )
         except ValueError as error:
             flash(str(error), "warning")
+        except Exception:
+            app.logger.exception('Error retirando contenido')
+            flash('No fue posible retirar el accesorio. Su registro se conserva.', 'danger')
         else:
             flash(
                 f"{activo_retirado} fue retirado del contenido de "
@@ -188,76 +200,30 @@ def registrar_rutas_contenido(
         methods=["POST"],
     )
     @login_required
-    @roles_required("Administrador", "Mantenimiento")
+    @roles_required("Administrador")
     def registrar_accesorio_desde_contenido(id_activo):
-        nuevo_id = siguiente_id_activo()
-        descripcion = (request.form.get("descripcion") or "").strip()
-        marca = (request.form.get("marca") or "").strip()
-        modelo = (request.form.get("modelo") or "").strip()
-        numero_serie = (request.form.get("numero_serie") or "").strip()
-        ubicacion = (request.form.get("ubicacion") or "").strip()
-        observaciones = (request.form.get("observaciones") or "").strip()
-
-        if not descripcion:
-            flash("La descripción del accesorio es obligatoria.", "warning")
-            return redirigir(id_activo)
-
-        activo_origen = obtener_maquinaria_detalle(id_activo)
-        if not activo_origen:
-            flash("El activo origen no existe.", "danger")
-            return redirigir(id_activo)
-        if not ubicacion:
-            ubicacion = activo_origen.get("ubicacion") or ""
-
-        datos = {
-            "id_activo": nuevo_id,
-            "categoria": "ACCESORIO",
-            "descripcion": descripcion,
-            "cantidad": 1,
-            "marca": marca,
-            "modelo": modelo,
-            "numero_serie": numero_serie,
-            "serie_interna": "",
-            "proveedor": "",
-            "ubicacion": ubicacion,
-            "precio_unitario_us": 0,
-            "total_us": 0,
-            "valor_mx": 0,
-            "fecha_alta": None,
-            "observaciones": observaciones,
-        }
-
         try:
-            insertar_maquinaria(datos)
-            vincular_contenido_activo(
-                activo_origen=id_activo,
-                activo_relacionado=nuevo_id,
-                usuario=session["nombre"],
-                observaciones=(
-                    f"Accesorio registrado desde {id_activo}. "
-                    f"{observaciones}"
-                ),
-            )
-            registrar_movimiento(
-                usuario=session["nombre"],
-                accion=(
-                    f"Registró el accesorio {nuevo_id} desde {id_activo}"
-                ),
-                modulo="Accesorios",
-                referencia=nuevo_id,
-            )
-            registrar_movimiento(
-                usuario=session["nombre"],
-                accion=f"Vinculó {nuevo_id} como contenido",
-                modulo="Accesorios",
-                referencia=id_activo,
-            )
-        except Exception as error:
-            print("ERROR REGISTRANDO ACCESORIO:", error)
-            flash("No fue posible registrar el accesorio.", "danger")
+            nuevo_id = registrar_accesorio_contenido(id_activo, request.form, session["nombre"])
+        except ValueError as error:
+            flash(str(error), "warning")
+        except Exception:
+            app.logger.exception("Error registrando contenido")
+            flash("No se guardó el accesorio. Intente de nuevo; si persiste, contacte al administrador.", "danger")
         else:
-            flash(
-                f"Accesorio {nuevo_id} registrado y vinculado correctamente.",
-                "success",
-            )
+            flash(f"{nuevo_id} registrado con expediente propio y vinculado al conjunto.", "success")
+        return redirigir(id_activo)
+
+    @app.route("/maquinarias/<id_activo>/contenido/configurar", methods=["POST"])
+    @login_required
+    @roles_required("Administrador")
+    def configurar_conjunto_route(id_activo):
+        try:
+            convertir_en_conjunto(id_activo, session["nombre"])
+        except ValueError as error:
+            flash(str(error), "warning")
+        except Exception:
+            app.logger.exception("Error configurando conjunto")
+            flash("No fue posible configurar el conjunto.", "danger")
+        else:
+            flash("Conjunto configurado. Inicie una revisión para identificar sus piezas.", "success")
         return redirigir(id_activo)

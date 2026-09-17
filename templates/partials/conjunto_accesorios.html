@@ -1,0 +1,108 @@
+{% set gestionar = session.get('rol') in ['Administrador', 'Mantenimiento'] %}
+{% set revision = caja.estado_revision_contenido or 'PENDIENTE' %}
+{% set estados = {'PENDIENTE': 'Contenido pendiente de verificar', 'EN_REVISION': 'Inventario en revisión', 'VERIFICADO': 'Contenido verificado'} %}
+{% macro seguridad() %}
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<input type="hidden" name="origen" value="{{ origen_contenido }}">
+{% endmacro %}
+<section class="conjunto" aria-labelledby="titulo-conjunto">
+  <header class="conjunto__header">
+    <div><span class="conjunto__eyebrow">CONJUNTO DE ACCESORIOS · {{ caja.id_activo }}</span>
+      <h2 id="titulo-conjunto"><i class="bi bi-box-seam"></i> Contenido del conjunto</h2>
+      <p>Cada accesorio tiene su propio registro, QR e historial.</p></div>
+    <span class="conjunto__badge">{{ estados.get(revision, 'Revisión no configurada') }}</span>
+  </header>
+  <div class="conjunto__body">
+    <div class="conjunto__stats">
+      <div><small>Accesorios registrados</small><strong>{{ contenido_activo|length }}</strong></div>
+      <div><small>Prestando servicio</small><strong>{{ contenido_activo|selectattr('maquinaria_asignada_id')|list|length }}</strong></div>
+      <div><small>Ubicación del conjunto</small><strong>{{ caja.ubicacion or 'Sin registrar' }}</strong></div>
+    </div>
+    <div class="conjunto__notice">
+      {% if revision == 'VERIFICADO' %}
+      <i class="bi bi-check-circle"></i> Revisión finalizada por {{ caja.revisado_por or 'Sin responsable registrado' }}.
+      {% if caja.fecha_revision_contenido %}Fecha: {{ caja.fecha_revision_contenido.strftime('%d/%m/%Y %H:%M') if caja.fecha_revision_contenido.strftime is defined else caja.fecha_revision_contenido }}.{% endif %}
+      Reabra la revisión antes de cambiar el contenido.
+      {% elif revision == 'EN_REVISION' %}
+      Registre una pieza por ID. Vincule un registro existente si la pieza ya está en el sistema, para no duplicarla.
+      {% else %}La cantidad registrada no confirma el contenido físico. Abra y revise la caja antes de verificarla.{% endif %}
+    </div>
+    {% if gestionar %}
+    <div class="conjunto__actions">
+      {% if revision == 'EN_REVISION' %}
+      <form method="post" action="{{ url_for('finalizar_revision_contenido_route', id_activo=caja.id_activo) }}" onsubmit="return confirm('¿Confirma que revisó físicamente todo el contenido y las asignaciones? Si no hay registros, confirmará un conjunto vacío.');">
+        {{ seguridad() }}<button class="conjunto__button" type="submit"><i class="bi bi-check2-circle"></i> Finalizar revisión</button>
+      </form>
+      {% else %}
+      <form method="post" action="{{ url_for('reabrir_revision_contenido_route' if revision == 'VERIFICADO' else 'iniciar_revision_contenido_route', id_activo=caja.id_activo) }}">
+        {{ seguridad() }}<button class="conjunto__button" type="submit"><i class="bi bi-clipboard-check"></i> {{ 'Reabrir revisión' if revision == 'VERIFICADO' else 'Iniciar revisión' }}</button>
+      </form>
+      {% endif %}
+    </div>
+    {% if revision == 'EN_REVISION' %}
+    <div class="conjunto__forms">
+      {% if session.get('rol') == 'Administrador' %}
+      <details class="conjunto__panel">
+        <summary><i class="bi bi-plus-circle"></i> Registrar accesorio nuevo <span>ID automático</span></summary>
+        <form method="post" action="{{ url_for('registrar_accesorio_desde_contenido', id_activo=caja.id_activo) }}">
+          {{ seguridad() }}
+          <p>Se creará un expediente individual con cantidad 1 y la ubicación del conjunto. Para piezas identificables por separado, registre cada una.</p>
+          <label>Descripción <input name="descripcion" maxlength="255" required placeholder="Ej. Boquilla de llenado de 12 mm"></label>
+          <div class="conjunto__fields">
+            <label>Marca <input name="marca" maxlength="100" placeholder="Opcional"></label>
+            <label>Modelo <input name="modelo" maxlength="100" placeholder="Opcional"></label>
+          </div>
+          <label>Número de serie del fabricante <input name="numero_serie" maxlength="100" placeholder="Si la pieza lo tiene"></label>
+          <label>Observaciones <textarea name="observaciones" maxlength="2000" rows="2" placeholder="Estado físico, medidas o identificación"></textarea></label>
+          <p class="conjunto__hint">ID y serie interna automáticos. No se copia el valor económico de la caja: los importes iniciales son 0, pendientes de revisión. Fotos y documentos se agregan desde el nuevo expediente.</p>
+          <button type="submit" class="conjunto__button">Crear y agregar al conjunto</button>
+        </form>
+      </details>
+      {% endif %}
+      <details class="conjunto__panel">
+        <summary><i class="bi bi-link-45deg"></i> Vincular accesorio existente</summary>
+        <form method="post" action="{{ url_for('vincular_contenido_route', id_activo=caja.id_activo) }}" data-buscar-contenido="{{ url_for('buscar_accesorios_conjunto') }}">
+          {{ seguridad() }}
+          <p>Use el mismo registro si la pieza ya tiene un ID. No se admiten cajas anidadas ni accesorios pertenecientes a otro conjunto.</p>
+          <label>Buscar accesorio <input type="search" data-contenido-busqueda autocomplete="off" placeholder="Código, descripción o marca"></label>
+          <div data-contenido-resultados class="conjunto__results" aria-live="polite"></div>
+          <label>ID del accesorio <input name="activo_relacionado" required maxlength="50" placeholder="ACT-0000" data-contenido-id></label>
+          <label>Observaciones <textarea name="observaciones" maxlength="2000" rows="2"></textarea></label>
+          <button type="submit" class="conjunto__button">Vincular sin duplicar</button>
+        </form>
+      </details>
+    </div>
+    {% endif %}{% endif %}
+    <div class="conjunto__list-head"><h3>Registros individuales</h3><span>La pertenencia al conjunto no confirma presencia física si hay una asignación.</span></div>
+    <div class="conjunto__grid">
+      {% for item in contenido_activo %}
+      <article class="conjunto__item">
+        <div class="conjunto__item-top"><strong>{{ item.activo_relacionado }}</strong><span class="conjunto__tag">{{ item.estado_activo or 'Estado no registrado' }}</span></div>
+        <h4>{{ item.descripcion or 'Sin descripción' }}</h4>
+        <dl><div><dt>Categoría técnica</dt><dd>{{ item.categoria_accesorio_nombre or 'Por clasificar' }}</dd></div>
+          <div><dt>Serie</dt><dd>{{ item.numero_serie or 'Sin serie' }}</dd></div>
+          <div><dt>Ubicación registrada</dt><dd>{{ item.ubicacion or 'Sin ubicación' }}</dd></div></dl>
+        <div class="conjunto__assignment">{% if item.maquinaria_asignada_id %}<i class="bi bi-diagram-3"></i> En servicio con <a href="{{ url_for('maquinaria_qr' if origen_contenido == 'qr' else 'expediente_maquinaria', id_activo=item.maquinaria_asignada_id) }}">{{ item.maquinaria_asignada_id }}</a>{% else %}Sin asignación a maquinaria{% endif %}</div>
+        <div class="conjunto__actions">
+          <a class="conjunto__button" href="{{ url_for('maquinaria_qr' if origen_contenido == 'qr' else 'expediente_maquinaria', id_activo=item.activo_relacionado) }}">Ver expediente <i class="bi bi-arrow-up-right"></i></a>
+          {% if gestionar and revision == 'EN_REVISION' %}
+          <form method="post" action="{{ url_for('retirar_contenido_route', id_activo=caja.id_activo, relacion_id=item.id) }}" onsubmit="return confirm('¿Retirar este accesorio del conjunto? Su expediente, documentos y asignaciones se conservarán.');">
+            {{ seguridad() }}<button type="submit" class="conjunto__button conjunto__button--quiet">Retirar del conjunto</button>
+          </form>{% endif %}
+        </div>
+      </article>
+      {% else %}
+      <div class="conjunto__empty"><i class="bi bi-box-seam"></i><h3>{{ 'Conjunto verificado sin accesorios registrados' if revision == 'VERIFICADO' else 'Contenido pendiente de identificar' }}</h3><p>{{ 'Reabra la revisión si encuentra nuevas piezas.' if revision == 'VERIFICADO' else 'Todavía no hay registros individuales. Esto no significa que la caja esté vacía.' }}</p></div>
+      {% endfor %}
+    </div>
+    <details class="conjunto__panel conjunto__history"><summary><i class="bi bi-clock-history"></i> Historial de pertenencia</summary>
+      <p>Retirar un accesorio no elimina su expediente ni su trazabilidad.</p>
+      {% for evento in historial_contenido %}
+      <div class="conjunto__event"><strong>{{ evento.activo_relacionado }} · {{ evento.descripcion }}</strong>
+        <span>{{ 'Vínculo vigente' if evento.estado == 'ACTIVA' else 'Retirado del conjunto' }} · {{ evento.creado_por or 'Sin autor registrado' }}</span>
+        <small>Alta: {{ evento.fecha_inicio.strftime('%d/%m/%Y %H:%M') if evento.fecha_inicio and evento.fecha_inicio.strftime is defined else evento.fecha_inicio or 'Sin fecha' }}{% if evento.fecha_fin %} · Retiro: {{ evento.fecha_fin.strftime('%d/%m/%Y %H:%M') if evento.fecha_fin.strftime is defined else evento.fecha_fin }}{% endif %}</small>
+        {% if evento.observaciones %}<p>{{ evento.observaciones }}</p>{% endif %}</div>
+      {% else %}<p>No hay movimientos de contenido registrados.</p>{% endfor %}
+    </details>
+  </div>
+</section>

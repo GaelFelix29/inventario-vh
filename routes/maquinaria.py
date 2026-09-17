@@ -3,6 +3,7 @@ from io import BytesIO
 
 import qrcode
 from flask import abort, current_app, flash, redirect, render_template, request, send_file, session, url_for
+from services.contenido_activos import contexto_contenido
 
 from database.maquinarias import (
     insertar_maquinaria,
@@ -213,7 +214,7 @@ def registrar_rutas_maquinaria(
         es_accesorio = (
             not es_contenedor
             and (maquina.get("categoria") or "").strip().upper()
-            == "ACCESORIO"
+            in ("ACCESORIO", "ACCESORIOS")
         )
 
         categorias_accesorios = []
@@ -268,6 +269,7 @@ def registrar_rutas_maquinaria(
 
         return render_template(
             "expediente_maquinaria.html",
+            **contexto_contenido(id_activo),
             maquina=maquina,
             aduana=aduana,
             estado_aduana=estado_aduana,
@@ -470,7 +472,7 @@ def registrar_rutas_maquinaria(
         es_accesorio = (
             not es_contenedor
             and (maquinaria.get("categoria") or "").strip().upper()
-            == "ACCESORIO"
+            in ("ACCESORIO", "ACCESORIOS")
         )
         categorias_accesorios = []
         asignacion_activa = None
@@ -522,6 +524,7 @@ def registrar_rutas_maquinaria(
 
         return render_template(
             "maquinaria_qr/inicio.html",
+            **contexto_contenido(id_activo),
             maquinaria=maquinaria,
             aduana=aduana,
             estado=estado,
@@ -557,6 +560,7 @@ def registrar_rutas_maquinaria(
 
         return render_template(
             "maquinaria_qr/contenido.html",
+            **contexto_contenido(id_activo),
             maquinaria=maquinaria,
             contenido_activo=obtener_contenido_activo(id_activo),
             categorias_accesorios=obtener_categorias_accesorios(),

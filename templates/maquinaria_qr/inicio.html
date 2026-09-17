@@ -287,6 +287,7 @@
 
 
 {% if es_accesorio %}
+{% with caja=maquinaria, origen_contenido='qr' %}{% include 'partials/accesorio_pertenencia.html' %}{% endwith %}
 {% set categoria_actual_mobile = namespace(nombre="Por clasificar") %}
 
 {% for categoria_accesorio in categorias_accesorios %}
@@ -421,6 +422,7 @@
                     </div>
 
                     <div class="gestion-accesorio-mobile__formularios">
+                        {% if session.get("rol") == "Administrador" %}
                         <!-- Cambiar categoría -->
                         <form method="POST" action="{{ url_for(
                         'actualizar_categoria_accesorio_route',
@@ -487,6 +489,7 @@
                             </form>
                         </details>
 
+                        {% endif %}
                         <!-- Asignar o cambiar maquinaria -->
                         <form method="POST" action="{{ url_for(
                         'asignar_accesorio_maquinaria_route',
@@ -616,6 +619,11 @@
 {% endif %}
 
 
+{% if not es_accesorio and not maquinaria.es_contenedor %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/conjunto_accesorios.css', v='1') }}">
+<script src="{{ url_for('static', filename='js/conjunto_accesorios.js', v='2') }}" defer></script>
+{% with equipo=maquinaria, origen_accesorio='qr' %}{% include 'partials/agregar_accesorio_maquinaria.html' %}{% endwith %}
+{% endif %}
 {% if accesorios_asignados %}
 <h3 class="section-title">
     Accesorios asignados

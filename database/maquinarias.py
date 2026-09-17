@@ -1,4 +1,5 @@
 import pandas as pd
+from contextlib import nullcontext
 
 from database.conexion import engine
 
@@ -126,7 +127,7 @@ def obtener_categorias_maquinaria():
     return sorted(categoria for categoria in categorias if categoria)
 
 
-def insertar_maquinaria(datos):
+def insertar_maquinaria(datos, conn=None):
 
     sql = text("""
         INSERT INTO maquinarias(
@@ -176,7 +177,7 @@ def insertar_maquinaria(datos):
         datos_insertar.get("categoria") or ""
     ).strip().upper() == "ACCESORIO"
 
-    with engine.begin() as conn:
+    with (engine.begin() if conn is None else nullcontext(conn)) as conn:
 
         categoria_accesorio_id = None
 
@@ -901,6 +902,7 @@ def obtener_contenido_activo(id_activo):
             r.fecha_inicio,
             r.observaciones,
 
+            m.estado AS estado_activo,
             m.categoria,
             m.categoria_accesorio_id,
             m.descripcion,
@@ -954,36 +956,10 @@ def obtener_contenido_activo(id_activo):
 def vincular_contenido_activo(
     activo_origen, activo_relacionado, usuario, observaciones=None
 ):
-
-    sql = text("""
-        INSERT INTO relaciones_activos (
-            activo_origen,
-            activo_relacionado,
-            tipo_relacion,
-            estado,
-            observaciones,
-            creado_por
-        )
-        VALUES (
-            :activo_origen,
-            :activo_relacionado,
-            'CONTIENE',
-            'ACTIVA',
-            :observaciones,
-            :creado_por
-        )
-    """)
-
+    from services.contenido_activos import vincular_en_transaccion
     with engine.begin() as conn:
-        conn.execute(
-            sql,
-            {
-                "activo_origen": activo_origen,
-                "activo_relacionado": activo_relacionado,
-                "observaciones": observaciones,
-                "creado_por": usuario,
-            },
-        )
+        vincular_en_transaccion(conn, activo_origen, activo_relacionado,
+                               usuario, observaciones)
 
 
 def retirar_contenido_activo(activo_origen, relacion_id, usuario):
@@ -1054,6 +1030,12 @@ def retirar_contenido_activo(activo_origen, relacion_id, usuario):
             modulo="Accesorios",
             referencia=activo_origen,
             conn=conn,
+        )
+
+        registrar_movimiento(
+            usuario=usuario,
+            accion=f"Retiró del conjunto {activo_origen}; conserva su expediente",
+            modulo="Accesorios", referencia=relacion['activo_relacionado'], conn=conn,
         )
 
         return relacion["activo_relacionado"]
@@ -1219,7 +1201,7 @@ def actualizar_categoria_accesorio(id_activo, categoria_accesorio_id, usuario):
                 "Una caja contenedora no puede clasificarse como accesorio."
             )
 
-        if (accesorio["categoria"] or "").strip().upper() != "ACCESORIO":
+        if (accesorio["categoria"] or "").strip().upper() not in ("ACCESORIO", "ACCESORIOS"):
             raise ValueError(
                 "El activo seleccionado no está registrado como accesorio."
             )
@@ -1272,7 +1254,8 @@ def actualizar_categoria_accesorio(id_activo, categoria_accesorio_id, usuario):
 
 
 def asignar_accesorio_maquinaria(
-    id_accesorio, id_maquinaria, usuario, observaciones=None
+    id_accesorio, id_maquinaria, usuario, observaciones=None,
+    conn=None, permitir_reasignacion=True,
 ):
 
     id_accesorio = (id_accesorio or "").strip().upper()
@@ -1288,7 +1271,7 @@ def asignar_accesorio_maquinaria(
     if id_accesorio == id_maquinaria:
         raise ValueError("Un accesorio no puede asignarse a sí mismo.")
 
-    with engine.begin() as conn:
+    with (engine.begin() if conn is None else nullcontext(conn)) as conn:
 
         filas = (
             conn.execute(
@@ -1326,7 +1309,7 @@ def asignar_accesorio_maquinaria(
         if accesorio["es_contenedor"]:
             raise ValueError("Una caja contenedora no puede asignarse como accesorio.")
 
-        if (accesorio["categoria"] or "").strip().upper() != "ACCESORIO":
+        if (accesorio["categoria"] or "").strip().upper() not in ("ACCESORIO", "ACCESORIOS"):
             raise ValueError(
                 "El activo seleccionado no está registrado como accesorio."
             )
@@ -1337,7 +1320,7 @@ def asignar_accesorio_maquinaria(
         if maquinaria["es_contenedor"]:
             raise ValueError("El destino no puede ser una caja contenedora.")
 
-        if (maquinaria["categoria"] or "").strip().upper() == "ACCESORIO":
+        if (maquinaria["categoria"] or "").strip().upper() in ("ACCESORIO", "ACCESORIOS"):
             raise ValueError("Un accesorio no puede asignarse a otro accesorio.")
 
         if (maquinaria["estado"] or "").strip().upper() != "ACTIVO":
@@ -1362,6 +1345,9 @@ def asignar_accesorio_maquinaria(
 
         if asignacion_actual and asignacion_actual["id_maquinaria"] == id_maquinaria:
             raise ValueError(f"El accesorio ya está asignado a {id_maquinaria}.")
+
+        if asignacion_actual and not permitir_reasignacion:
+            raise ValueError("El accesorio ya está asignado a otra maquinaria. Libérelo primero.")
 
         maquinaria_anterior = None
 
@@ -1648,7 +1634,7 @@ def buscar_maquinarias_asignables(texto, id_accesorio=None):
                 TRIM(
                     COALESCE(categoria, '')
                 )
-            ) <> 'ACCESORIO'
+            ) NOT IN ('ACCESORIO', 'ACCESORIOS')
         AND id_activo <> :id_accesorio
         AND (
                 id_activo LIKE :texto
@@ -1727,7 +1713,7 @@ def crear_categoria_y_clasificar_accesorio(id_activo, nombre, descripcion, usuar
                 "Una caja contenedora no puede clasificarse como accesorio."
             )
 
-        if (accesorio["categoria"] or "").strip().upper() != "ACCESORIO":
+        if (accesorio["categoria"] or "").strip().upper() not in ("ACCESORIO", "ACCESORIOS"):
             raise ValueError("El activo no está registrado como accesorio.")
 
         categoria_existente = (

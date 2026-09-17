@@ -1,4 +1,5 @@
 from flask import flash, jsonify, redirect, request, session, url_for
+from services.accesorios_maquinaria import registrar_accesorio_maquinaria, buscar_accesorios_asignables
 
 from database.maquinarias import (
     actualizar_categoria_accesorio,
@@ -14,6 +15,41 @@ def registrar_rutas_accesorios(app, login_required):
 
     def puede_gestionar():
         return session.get("rol") in ["Administrador", "Mantenimiento"]
+
+    @app.route('/accesorios/disponibles-maquinaria')
+    @login_required
+    def buscar_accesorios_maquinaria():
+        if not puede_gestionar():
+            return jsonify([]), 403
+        return jsonify(buscar_accesorios_asignables(request.args.get('q', '')))
+
+    @app.route('/maquinarias/<id_activo>/accesorios/agregar', methods=['POST'])
+    @login_required
+    def agregar_accesorio_desde_maquinaria(id_activo):
+        destino = 'maquinaria_qr' if request.form.get('origen') == 'qr' else 'expediente_maquinaria'
+        if not puede_gestionar():
+            return 'No tiene permisos para agregar accesorios.', 403
+        if request.form.get('modo') == 'nuevo' and session.get('rol') != 'Administrador':
+            return 'Solo el Administrador puede registrar accesorios nuevos.', 403
+        try:
+            if request.form.get('modo') == 'existente':
+                resultado = asignar_accesorio_maquinaria(
+                    request.form.get('id_accesorio'), id_activo, session['nombre'],
+                    permitir_reasignacion=False)
+                mensaje = f"{resultado['id_accesorio']} asignado a esta maquinaria."
+            elif request.form.get('modo') == 'nuevo':
+                nuevo = registrar_accesorio_maquinaria(id_activo, request.form, session['nombre'])
+                mensaje = f'{nuevo} registrado con expediente propio y asignado a esta maquinaria.'
+            else:
+                raise ValueError('Seleccione registrar nuevo o vincular existente.')
+        except ValueError as error:
+            flash(str(error), 'warning')
+        except Exception:
+            app.logger.exception('Error agregando accesorio desde maquinaria')
+            flash('No se guardó la operación. Intente de nuevo.', 'danger')
+        else:
+            flash(mensaje, 'success')
+        return redirect(url_for(destino, id_activo=id_activo, _anchor='accesorios-asignados'))
 
     def redirigir(id_accesorio):
         retorno_id = (
@@ -37,7 +73,7 @@ def registrar_rutas_accesorios(app, login_required):
     @app.route("/accesorios/<id_accesorio>/categoria", methods=["POST"])
     @login_required
     def actualizar_categoria_accesorio_route(id_accesorio):
-        if not puede_gestionar():
+        if session.get("rol") != "Administrador":
             flash("No tiene permisos para clasificar accesorios.", "danger")
             return redirigir(id_accesorio)
 
@@ -158,7 +194,7 @@ def registrar_rutas_accesorios(app, login_required):
     )
     @login_required
     def crear_categoria_accesorio_route(id_accesorio):
-        if not puede_gestionar():
+        if session.get("rol") != "Administrador":
             flash("No tiene permisos para crear categorías.", "danger")
             return redirigir(id_accesorio)
 

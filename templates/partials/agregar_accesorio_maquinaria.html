@@ -1,0 +1,42 @@
+{% if session.get('rol') in ['Administrador', 'Mantenimiento'] and (equipo.estado or '')|upper == 'ACTIVO' %}
+<details class="conjunto conjunto__panel mb-4">
+  <summary><i class="bi bi-plus-circle"></i> {{ 'Agregar accesorio' if session.get('rol') == 'Administrador' else 'Asignar accesorio existente' }}</summary>
+  <div class="conjunto__forms">
+    {% if session.get('rol') == 'Administrador' %}
+    <details class="conjunto__panel">
+      <summary>Registrar accesorio nuevo</summary>
+      <form method="post" action="{{ url_for('agregar_accesorio_desde_maquinaria', id_activo=equipo.id_activo) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="origen" value="{{ origen_accesorio }}">
+        <input type="hidden" name="modo" value="nuevo">
+        <p>Para una pieza que esta maquinaria ya tiene físicamente y aún no está registrada. Si ya tiene ID, use «Vincular accesorio existente».</p>
+        <label>Descripción <input name="descripcion" maxlength="255" required placeholder="Ej. Boquilla de llenado de 12 mm"></label>
+        <div class="conjunto__fields">
+          <label>Marca <input name="marca" maxlength="100" placeholder="Opcional"></label>
+          <label>Modelo <input name="modelo" maxlength="100" placeholder="Opcional"></label>
+        </div>
+        <label>Número de serie del fabricante <input name="numero_serie" maxlength="150" placeholder="Si lo tiene"></label>
+        <label>Observaciones <textarea name="observaciones" maxlength="500" rows="3"></textarea></label>
+        <p>Se creará un expediente individual, con ID y serie interna automáticos, cantidad 1 y ubicación de la maquinaria. La fecha de adquisición y el valor quedarán sin registrar. La asignación se registra hoy; su fecha original se indica como desconocida.</p>
+        <button class="conjunto__button" type="submit">Crear y asignar a {{ equipo.id_activo }}</button>
+      </form>
+    </details>
+    {% else %}
+    <p>Para registrar una pieza nueva, solicite el alta al Administrador.</p>
+    {% endif %}
+    <details class="conjunto__panel">
+      <summary>Vincular accesorio existente</summary>
+      <form method="post" action="{{ url_for('agregar_accesorio_desde_maquinaria', id_activo=equipo.id_activo) }}" data-buscar-contenido="{{ url_for('buscar_accesorios_maquinaria') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="origen" value="{{ origen_accesorio }}">
+        <input type="hidden" name="modo" value="existente">
+        <p>Busque y seleccione una pieza registrada. Solo aparecen accesorios activos sin asignación. Si está en otra máquina, libérelo primero desde su expediente.</p>
+        <label>Buscar accesorio <input type="search" data-contenido-busqueda autocomplete="off" maxlength="100" placeholder="Código, descripción, marca, modelo o serie"></label>
+        <div data-contenido-resultados class="conjunto__results" aria-live="polite">Escriba al menos 2 caracteres para buscar.</div>
+        <label>ID seleccionado <input name="id_accesorio" data-contenido-id maxlength="20" required placeholder="Seleccione un resultado o escriba el ID exacto"></label>
+        <button class="conjunto__button" type="submit">Vincular a esta maquinaria</button>
+      </form>
+    </details>
+  </div>
+</details>
+{% endif %}

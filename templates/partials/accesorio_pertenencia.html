@@ -1,0 +1,20 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/conjunto_accesorios.css', v='1') }}">
+<section class="conjunto conjunto--compact">
+  <div class="conjunto__body">
+    <span class="conjunto__eyebrow">REGISTRO INDIVIDUAL · {{ caja.id_activo }}</span>
+    <h3><i class="bi bi-puzzle"></i> Identidad y pertenencia</h3>
+    <p>Este accesorio conserva su expediente, documentos, QR e historial propios.</p>
+    {% if conjunto_padre %}
+    <div class="conjunto__notice">Pertenece al conjunto <a href="{{ url_for('qr_contenido' if origen_contenido == 'qr' else 'expediente_maquinaria', id_activo=conjunto_padre.activo_origen) }}"><strong>{{ conjunto_padre.activo_origen }}</strong> · {{ conjunto_padre.descripcion }}</a>.</div>
+    {% else %}
+    <p class="conjunto__hint">No pertenece a un conjunto registrado.</p>
+    {% if session.get('rol') == 'Administrador' %}
+    <details class="conjunto__panel"><summary>¿Este registro representa una caja con varias piezas?</summary>
+      <p>Configúrelo como conjunto para registrar cada accesorio por separado. Se conserva el ID, documentos y valor actuales. No se crean piezas ni se distribuyen importes automáticamente. Si tiene una asignación activa, libérela primero.</p>
+      <form method="post" action="{{ url_for('configurar_conjunto_route', id_activo=caja.id_activo) }}" onsubmit="return confirm('¿Este activo representa un conjunto? Se conservará su expediente y deberá revisar su contenido.');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="origen" value="{{ origen_contenido }}">
+        <button class="conjunto__button" type="submit">Configurar como conjunto</button>
+      </form>
+    </details>{% endif %}{% endif %}
+  </div>
+</section>
