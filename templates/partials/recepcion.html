@@ -1,0 +1,67 @@
+<dialog id="modalRecepcion" aria-labelledby="tituloRecepcion"
+        style="border:0;border-radius:16px;padding:24px;width:min(94vw,520px);max-height:90vh;overflow:auto">
+    <form method="POST" enctype="multipart/form-data"
+          action="{{ url_for('confirmar_recepcion_route', id_activo=activo_recepcion.id_activo) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="origen" value="{{ origen_recepcion }}">
+        <h2 id="tituloRecepcion" class="h5">Confirmar recepción · {{ activo_recepcion.id_activo }}</h2>
+        <p>Adjunta una foto del activo recibido. JPG, PNG o WEBP, máximo 8 MB.</p>
+        <div class="d-flex gap-2 mb-3">
+            <button type="button" class="btn btn-outline-primary" id="tomarFotoRecepcion">Tomar foto</button>
+            <button type="button" class="btn btn-outline-primary" id="subirFotoRecepcion">Subir imagen</button>
+        </div>
+        <label for="fotoRecepcion">Foto de recepción (obligatoria)</label>
+        <input id="fotoRecepcion" class="form-control mb-3" type="file" name="foto_recepcion"
+               accept="image/jpeg,image/png,image/webp" required>
+        <img id="vistaRecepcion" alt="Vista previa de la evidencia de recepción" hidden
+             style="max-width:100%;max-height:240px;object-fit:contain;margin-bottom:16px">
+        <p id="errorRecepcion" role="alert" class="text-danger"></p>
+        <label for="observacionesRecepcion">Observaciones (opcional)</label>
+        <textarea id="observacionesRecepcion" name="observaciones" maxlength="500"
+                  class="form-control mb-3" rows="3"></textarea>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-secondary" onclick="this.closest('dialog').close()">Cancelar</button>
+            <button id="enviarRecepcion" type="submit" class="btn btn-primary" disabled>Confirmar recepción</button>
+        </div>
+    </form>
+</dialog>
+<script>
+(() => {
+    const dialogo = document.getElementById('modalRecepcion');
+    const formulario = dialogo.querySelector('form');
+    const archivo = document.getElementById('fotoRecepcion');
+    const vista = document.getElementById('vistaRecepcion');
+    const enviar = document.getElementById('enviarRecepcion');
+    const error = document.getElementById('errorRecepcion');
+    let url = null;
+    let enviando = false;
+    document.getElementById('tomarFotoRecepcion').onclick = () => {
+        archivo.setAttribute('capture', 'environment'); archivo.click();
+    };
+    document.getElementById('subirFotoRecepcion').onclick = () => {
+        archivo.removeAttribute('capture'); archivo.click();
+    };
+    archivo.onchange = () => {
+        enviar.disabled = true; vista.hidden = true; error.textContent = '';
+        if (url) URL.revokeObjectURL(url);
+        const foto = archivo.files[0];
+        if (!foto) return;
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(foto.type) || foto.size > 8 * 1024 * 1024 || !foto.size) {
+            error.textContent = 'Selecciona una imagen JPG, PNG o WEBP de hasta 8 MB.';
+            archivo.value = ''; return;
+        }
+        vista.onload = () => { vista.hidden = false; enviar.disabled = false; };
+        vista.onerror = () => { error.textContent = 'No se pudo leer la imagen.'; archivo.value = ''; };
+        url = URL.createObjectURL(foto); vista.src = url;
+    };
+    formulario.onsubmit = (evento) => {
+        if (enviando || enviar.disabled || !archivo.files.length) { evento.preventDefault(); return; }
+        enviando = true; enviar.disabled = true; enviar.textContent = 'Guardando recepción…';
+    };
+    dialogo.addEventListener('close', () => {
+        if (enviando) return;
+        formulario.reset(); enviar.disabled = true; vista.hidden = true; error.textContent = '';
+        if (url) { URL.revokeObjectURL(url); url = null; }
+    });
+})();
+</script>

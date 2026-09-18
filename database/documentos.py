@@ -1,4 +1,5 @@
 import os
+from contextlib import nullcontext
 from sqlalchemy import text
 from database.conexion import engine
 
@@ -43,7 +44,8 @@ def guardar_documento_bd(
     public_id,
     usuario,
     tipo_archivo="DOCUMENTO",
-    descripcion=None
+    descripcion=None,
+    conn=None
 ):
 
     sql = text("""
@@ -78,7 +80,7 @@ def guardar_documento_bd(
 
     """)
 
-    with engine.begin() as conn:
+    with (nullcontext(conn) if conn is not None else engine.begin()) as conn:
 
         conn.execute(
 

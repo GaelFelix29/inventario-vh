@@ -1,4 +1,9 @@
 import traceback
+from io import BytesIO
+
+from PIL import Image, UnidentifiedImageError
+from routes.evidencias import _preparar_imagenes
+from supabase_config import supabase
 
 from flask import (
     flash,
@@ -175,11 +180,54 @@ def registrar_rutas_solicitudes(
     @login_required
     def confirmar_recepcion_route(id_activo):
         origen = request.form.get("origen")
-        if session.get("rol") != "Administrador":
+        if session.get("rol") not in ["Administrador", "Mantenimiento"]:
             flash("No tiene permisos para realizar esta acción.", "danger")
             return regresar_al_activo(id_activo, origen)
 
-        confirmar_recepcion_activo(id_activo, session["nombre"])
+        archivo = request.files.get("foto_recepcion")
+        ruta_subida = None
+        try:
+            if not archivo or not archivo.filename:
+                raise ValueError("Debe adjuntar una foto de recepción.")
+            observaciones = request.form.get("observaciones", "").strip()
+            if len(observaciones) > 500:
+                raise ValueError("Las observaciones no pueden superar 500 caracteres.")
+            imagen = _preparar_imagenes([archivo], id_activo)[0]
+            try:
+                with Image.open(BytesIO(imagen["contenido"])) as foto:
+                    formato = foto.format
+                    foto.verify()
+                formatos = {"JPEG": "image/jpeg", "PNG": "image/png", "WEBP": "image/webp"}
+                if formato not in formatos:
+                    raise ValueError("Seleccione una imagen JPG, PNG o WEBP válida.")
+                imagen["content_type"] = formatos[formato]
+            except (UnidentifiedImageError, OSError, Image.DecompressionBombError) as error:
+                raise ValueError("El archivo no es una imagen válida.") from error
+
+            almacen = supabase.storage.from_("documentos")
+            almacen.upload(path=imagen["ruta"], file=imagen["contenido"],
+                           file_options={"content-type": imagen["content_type"], "upsert": False})
+            ruta_subida = imagen["ruta"]
+            url = almacen.get_public_url(ruta_subida)
+            if isinstance(url, dict):
+                url = url.get("publicUrl") or url.get("public_url")
+            if not url:
+                raise RuntimeError("No se obtuvo la URL de la evidencia.")
+            imagen["url"] = url
+            confirmar_recepcion_activo(id_activo, session["nombre"], imagen, observaciones)
+        except Exception as error:
+            # Compensar únicamente el archivo creado por este envío fallido.
+            if ruta_subida:
+                try:
+                    supabase.storage.from_("documentos").remove([ruta_subida])
+                except Exception:
+                    app.logger.exception("No se pudo limpiar la evidencia del envío fallido")
+            if isinstance(error, ValueError):
+                flash(str(error), "warning")
+            else:
+                app.logger.exception("Error al confirmar recepción")
+                flash("No fue posible confirmar la recepción. Intente nuevamente.", "danger")
+            return regresar_al_activo(id_activo, origen)
         flash("La maquinaria fue recibida correctamente.", "success")
         return regresar_al_activo(id_activo, origen)
 

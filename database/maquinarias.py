@@ -9,6 +9,7 @@ from database.conexion import engine
 import re
 import unicodedata
 
+from database.documentos import guardar_documento_bd
 from models.auditoria_model import registrar_movimiento
 
 
@@ -567,49 +568,49 @@ def finalizar_mantenimiento(conn, id_activo):
     conn.execute(sql, {"id": id_activo})
 
 
-def confirmar_recepcion_activo(id_activo, usuario):
+def confirmar_recepcion_activo(id_activo, usuario, evidencia, observaciones=""):
+    if not evidencia or not evidencia.get("url"):
+        raise ValueError("Debe adjuntar una foto de recepción.")
 
     with engine.begin() as conn:
+        # Serializar confirmaciones del mismo activo antes de buscar el traslado.
+        activo = conn.execute(text("""
+            SELECT id_activo FROM maquinarias
+            WHERE id_activo = :id FOR UPDATE
+        """), {"id": id_activo}).first()
+        if not activo:
+            raise ValueError("El activo no existe.")
 
-        # Buscar el traslado en proceso
-        sql = text("""
-            SELECT ubicacion_destino
-            FROM solicitudes_baja
-            WHERE id_activo = :id
-            AND tipo = 'TRASLADO'
+        fila = conn.execute(text("""
+            SELECT id, ubicacion_destino FROM solicitudes_baja
+            WHERE id_activo = :id AND tipo = 'TRASLADO'
             AND estado = 'En proceso'
-            ORDER BY fecha_aprobacion DESC
-            LIMIT 1
-        """)
-
-        fila = conn.execute(sql, {"id": id_activo}).mappings().first()
-
+            ORDER BY fecha_aprobacion DESC, id DESC
+            LIMIT 1 FOR UPDATE
+        """), {"id": id_activo}).mappings().first()
         if not fila:
-            raise Exception("No existe un traslado en proceso para este activo.")
+            raise ValueError("No existe un traslado en proceso para este activo.")
 
-        # Confirmar recepción de la maquinaria
+        guardar_documento_bd(
+            id_activo=id_activo,
+            nombre_original=evidencia["nombre_original"],
+            nombre_archivo=evidencia["nombre_archivo"],
+            tipo="General", tipo_archivo="IMAGEN",
+            descripcion=(f"Evidencia de recepción · Traslado #{fila['id']}"
+                         + (f" · {observaciones}" if observaciones else "")),
+            url=evidencia["url"], public_id=evidencia["ruta"],
+            usuario=usuario, conn=conn,
+        )
         confirmar_recepcion(conn, id_activo, fila["ubicacion_destino"])
-
-        # Finalizar la solicitud
-        sql = text("""
+        conn.execute(text("""
             UPDATE solicitudes_baja
-            SET
-                estado = 'Finalizada',
-                fecha_finalizacion = NOW(),
+            SET estado = 'Finalizada', fecha_finalizacion = NOW(),
                 finalizado_por = :usuario
-            WHERE id_activo = :id
-            AND tipo = 'TRASLADO'
-            AND estado = 'En proceso'
-        """)
-
-        conn.execute(sql, {"id": id_activo, "usuario": usuario})
-
+            WHERE id = :solicitud AND estado = 'En proceso'
+        """), {"solicitud": fila["id"], "usuario": usuario})
         registrar_movimiento(
-            usuario=usuario,
-            accion="Confirmó recepción del traslado",
-            modulo="Movimientos",
-            referencia=id_activo,
-            conn=conn,
+            usuario=usuario, accion="Confirmó recepción del traslado",
+            modulo="Movimientos", referencia=id_activo, conn=conn,
         )
 
 

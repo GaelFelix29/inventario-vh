@@ -261,6 +261,10 @@
 
             </button>
 
+            {% if imagen.descripcion %}
+            <p>{{ imagen.descripcion }}</p>
+            <small>Recibido por: {{ imagen.subido_por }}</small>
+            {% endif %}
             <div class="foto-footer">
 
                 <i class="bi bi-calendar3"></i>

@@ -192,7 +192,7 @@
 
 </div>
 
-{% if traslado_en_proceso %}
+{% if traslado_en_proceso and session.get("rol") in ["Administrador", "Mantenimiento"] %}
 
 <div class="accion-card accion-traslado">
 
@@ -212,17 +212,10 @@
 
     </div>
 
-    <form method="POST" action="{{ url_for('confirmar_recepcion_route',
-                        id_activo=maquinaria.id_activo) }}">
-
-        <input type="hidden" name="origen" value="qr">
-
-        <button type="submit" class="btn-accion">
-            <i class="bi bi-check-circle-fill"></i>
-            Confirmar recepción
-        </button>
-
-    </form>
+    <button type="button" class="btn btn-primary btn-accion w-100 rounded-pill mt-2"
+                            onclick="document.getElementById('modalRecepcion').showModal()">
+                            <i class="bi bi-truck"></i> Confirmar recepción
+                        </button>
 
 </div>
 
@@ -814,6 +807,12 @@
 
 {% endif %}
 
+
+{% if traslado_en_proceso and session.get("rol") in ["Administrador", "Mantenimiento"] %}
+{% with activo_recepcion=maquinaria, origen_recepcion="qr" %}
+{% include "partials/recepcion.html" %}
+{% endwith %}
+{% endif %}
 {% endblock %}
 
 {% block scripts %}

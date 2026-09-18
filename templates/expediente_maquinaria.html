@@ -152,15 +152,10 @@
 
                         {% if traslado_en_proceso %}
 
-                        <form method="POST" action="{{ url_for('confirmar_recepcion_route',
-                        id_activo=maquina.id_activo) }}">
-
-                            <button class="btn btn-primary w-100 rounded-pill mt-2">
-                                <i class="bi bi-truck"></i>
-                                Confirmar recepción
-                            </button>
-
-                        </form>
+                        <button type="button" class="btn btn-primary btn-accion w-100 rounded-pill mt-2"
+                            onclick="document.getElementById('modalRecepcion').showModal()">
+                            <i class="bi bi-truck"></i> Confirmar recepción
+                        </button>
 
                         {% endif %}
 
@@ -1509,6 +1504,7 @@
                                     <small>{{ extension|upper }}</small>
                                 </div>
                                 <h3 title="{{ doc.nombre_original }}">{{ doc.nombre_original }}</h3>
+                                {% if doc.descripcion %}<p>{{ doc.descripcion }}</p>{% endif %}
                                 <div class="documento-moderno__meta">
                                     <span><i class="bi bi-calendar3"></i> {{ doc.fecha_subida.strftime('%d/%m/%Y · %H:%M') if doc.fecha_subida else 'Sin fecha' }}</span>
                                     <span><i class="bi bi-person-circle"></i> {{ doc.subido_por }}</span>
@@ -1916,6 +1912,12 @@
 
 <!-- aquí termina todo el contenido HTML -->
 
+
+{% if traslado_en_proceso and session.get("rol") in ["Administrador", "Mantenimiento"] %}
+{% with activo_recepcion=maquina, origen_recepcion="desktop" %}
+{% include "partials/recepcion.html" %}
+{% endwith %}
+{% endif %}
 {% endblock %}
 
 
