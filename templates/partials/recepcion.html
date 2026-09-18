@@ -1,28 +1,64 @@
-<dialog id="modalRecepcion" aria-labelledby="tituloRecepcion"
-        style="border:0;border-radius:16px;padding:24px;width:min(94vw,520px);max-height:90vh;overflow:auto">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/recepcion.css', v='20260918-1') }}">
+<dialog id="modalRecepcion" class="recepcion" aria-labelledby="tituloRecepcion" aria-describedby="ayudaRecepcion">
     <form method="POST" enctype="multipart/form-data"
           action="{{ url_for('confirmar_recepcion_route', id_activo=activo_recepcion.id_activo) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="origen" value="{{ origen_recepcion }}">
-        <h2 id="tituloRecepcion" class="h5">Confirmar recepción · {{ activo_recepcion.id_activo }}</h2>
-        <p>Adjunta una foto del activo recibido. JPG, PNG o WEBP, máximo 8 MB.</p>
-        <div class="d-flex gap-2 mb-3">
-            <button type="button" class="btn btn-outline-primary" id="tomarFotoRecepcion">Tomar foto</button>
-            <button type="button" class="btn btn-outline-primary" id="subirFotoRecepcion">Subir imagen</button>
+
+        <header class="recepcion__encabezado">
+            <span class="recepcion__icono"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+            <div>
+                <span class="recepcion__etiqueta">Recepción del activo</span>
+                <h2 id="tituloRecepcion">Confirmar recepción</h2>
+            </div>
+            <button type="button" class="recepcion__cerrar" aria-label="Cerrar formulario"
+                    onclick="this.closest('dialog').close()"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+        </header>
+
+        <div class="recepcion__contenido">
+            <div class="recepcion__activo">
+                <i class="bi bi-truck" aria-hidden="true"></i>
+                <div><strong>{{ activo_recepcion.id_activo }}</strong>
+                    {% if activo_recepcion.descripcion %}<span>{{ activo_recepcion.descripcion }}</span>{% endif %}
+                </div>
+                <span class="recepcion__estado">En traslado</span>
+            </div>
+
+            <h3>Foto del activo recibido <span class="recepcion__obligatorio">Obligatoria</span></h3>
+            <p id="ayudaRecepcion" class="recepcion__ayuda">Toma una foto o elige una que ya tengas.</p>
+            <div class="recepcion__opciones">
+                <button type="button" class="recepcion__opcion recepcion__opcion--camara" id="tomarFotoRecepcion">
+                    <span class="recepcion__opcion-icono"><i class="bi bi-camera" aria-hidden="true"></i></span>
+                    <strong>Tomar foto</strong><span>Abrir cámara</span>
+                </button>
+                <button type="button" class="recepcion__opcion" id="subirFotoRecepcion">
+                    <span class="recepcion__opcion-icono"><i class="bi bi-images" aria-hidden="true"></i></span>
+                    <strong>Elegir imagen</strong><span>Desde tu galería</span>
+                </button>
+            </div>
+            <label class="recepcion__solo-lector" for="fotoRecepcion">Foto de recepción</label>
+            <input id="fotoRecepcion" class="recepcion__solo-lector" type="file" name="foto_recepcion"
+                   accept="image/jpeg,image/png,image/webp" aria-describedby="limiteRecepcion errorRecepcion" required tabindex="-1">
+
+            <figure id="contenedorVistaRecepcion" class="recepcion__vista" hidden>
+                <img id="vistaRecepcion" alt="Vista previa del activo recibido" hidden>
+                <figcaption><span><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Foto lista</span>
+                    <button type="button" id="quitarFotoRecepcion">Quitar foto</button></figcaption>
+            </figure>
+            <p id="limiteRecepcion" class="recepcion__limite">JPG, PNG o WEBP · Hasta 8 MB</p>
+            <p id="errorRecepcion" role="alert" class="recepcion__error"></p>
+
+            <label class="recepcion__label" for="observacionesRecepcion">Observaciones <span>Opcional</span></label>
+            <textarea id="observacionesRecepcion" name="observaciones" maxlength="500" rows="3"
+                      placeholder="¿Algo que debamos saber sobre cómo llegó el activo?"></textarea>
         </div>
-        <label for="fotoRecepcion">Foto de recepción (obligatoria)</label>
-        <input id="fotoRecepcion" class="form-control mb-3" type="file" name="foto_recepcion"
-               accept="image/jpeg,image/png,image/webp" required>
-        <img id="vistaRecepcion" alt="Vista previa de la evidencia de recepción" hidden
-             style="max-width:100%;max-height:240px;object-fit:contain;margin-bottom:16px">
-        <p id="errorRecepcion" role="alert" class="text-danger"></p>
-        <label for="observacionesRecepcion">Observaciones (opcional)</label>
-        <textarea id="observacionesRecepcion" name="observaciones" maxlength="500"
-                  class="form-control mb-3" rows="3"></textarea>
-        <div class="d-flex gap-2">
-            <button type="button" class="btn btn-secondary" onclick="this.closest('dialog').close()">Cancelar</button>
-            <button id="enviarRecepcion" type="submit" class="btn btn-primary" disabled>Confirmar recepción</button>
-        </div>
+
+        <footer class="recepcion__pie">
+            <button type="button" class="recepcion__cancelar" onclick="this.closest('dialog').close()">Cancelar</button>
+            <button id="enviarRecepcion" type="submit" class="recepcion__confirmar" disabled>
+                <i class="bi bi-check2-circle" aria-hidden="true"></i> Confirmar recepción
+            </button>
+        </footer>
     </form>
 </dialog>
 <script>
@@ -31,37 +67,55 @@
     const formulario = dialogo.querySelector('form');
     const archivo = document.getElementById('fotoRecepcion');
     const vista = document.getElementById('vistaRecepcion');
+    const contenedor = document.getElementById('contenedorVistaRecepcion');
     const enviar = document.getElementById('enviarRecepcion');
     const error = document.getElementById('errorRecepcion');
+    const quitar = document.getElementById('quitarFotoRecepcion');
+    const camara = document.getElementById('tomarFotoRecepcion');
+    const galeria = document.getElementById('subirFotoRecepcion');
     let url = null;
     let enviando = false;
-    document.getElementById('tomarFotoRecepcion').onclick = () => {
-        archivo.setAttribute('capture', 'environment'); archivo.click();
-    };
-    document.getElementById('subirFotoRecepcion').onclick = () => {
-        archivo.removeAttribute('capture'); archivo.click();
-    };
+    let version = 0;
+
+    function limpiarFoto() {
+        version++;
+        enviar.disabled = true; vista.hidden = true; contenedor.hidden = true;
+        error.textContent = ''; vista.onload = null; vista.onerror = null;
+        vista.removeAttribute('src');
+        if (url) { URL.revokeObjectURL(url); url = null; }
+    }
+    camara.onclick = () => { archivo.setAttribute('capture', 'environment'); archivo.click(); };
+    galeria.onclick = () => { archivo.removeAttribute('capture'); archivo.click(); };
+    quitar.onclick = () => { limpiarFoto(); archivo.value = ''; camara.focus(); };
     archivo.onchange = () => {
-        enviar.disabled = true; vista.hidden = true; error.textContent = '';
-        if (url) URL.revokeObjectURL(url);
+        limpiarFoto();
         const foto = archivo.files[0];
         if (!foto) return;
         if (!['image/jpeg', 'image/png', 'image/webp'].includes(foto.type) || foto.size > 8 * 1024 * 1024 || !foto.size) {
             error.textContent = 'Selecciona una imagen JPG, PNG o WEBP de hasta 8 MB.';
             archivo.value = ''; return;
         }
-        vista.onload = () => { vista.hidden = false; enviar.disabled = false; };
-        vista.onerror = () => { error.textContent = 'No se pudo leer la imagen.'; archivo.value = ''; };
+        const seleccion = version;
+        vista.onload = () => {
+            if (seleccion !== version) return;
+            vista.hidden = false; contenedor.hidden = false; enviar.disabled = false;
+        };
+        vista.onerror = () => {
+            if (seleccion !== version) return;
+            error.textContent = 'No se pudo leer la imagen. Intenta con otra foto.'; archivo.value = '';
+        };
         url = URL.createObjectURL(foto); vista.src = url;
     };
     formulario.onsubmit = (evento) => {
         if (enviando || enviar.disabled || !archivo.files.length) { evento.preventDefault(); return; }
         enviando = true; enviar.disabled = true; enviar.textContent = 'Guardando recepción…';
+        camara.disabled = true; galeria.disabled = true; quitar.disabled = true;
+        dialogo.querySelectorAll('button[type="button"]').forEach(boton => { boton.disabled = true; });
     };
+    dialogo.addEventListener('cancel', evento => { if (enviando) evento.preventDefault(); });
     dialogo.addEventListener('close', () => {
         if (enviando) return;
-        formulario.reset(); enviar.disabled = true; vista.hidden = true; error.textContent = '';
-        if (url) { URL.revokeObjectURL(url); url = null; }
+        formulario.reset(); limpiarFoto();
     });
 })();
 </script>
