@@ -128,6 +128,37 @@ def obtener_categorias_maquinaria():
     return sorted(categoria for categoria in categorias if categoria)
 
 
+def normalizar_datos_mantenimiento(codigo, nombre, voltaje):
+    """Valida y normaliza los identificadores usados por Mantenimiento."""
+    valores = {
+        "codigo_mantenimiento": " ".join(str(codigo or "").split()).upper(),
+        "nombre_mantenimiento": " ".join(str(nombre or "").split()),
+        "voltaje": " ".join(str(voltaje or "").split()).upper(),
+    }
+    limites = {
+        "codigo_mantenimiento": 30,
+        "nombre_mantenimiento": 150,
+        "voltaje": 30,
+    }
+    etiquetas = {
+        "codigo_mantenimiento": "El código de Mantenimiento",
+        "nombre_mantenimiento": "El nombre de Mantenimiento",
+        "voltaje": "El voltaje",
+    }
+    for campo, limite in limites.items():
+        if len(valores[campo]) > limite:
+            raise ValueError(f"{etiquetas[campo]} no puede superar {limite} caracteres.")
+    return valores
+
+
+def normalizar_departamento(valor):
+    """Conserva el departamento como dato opcional propio del activo."""
+    departamento = " ".join(str(valor or "").split())
+    if len(departamento) > 100:
+        raise ValueError("El departamento no puede superar 100 caracteres.")
+    return departamento or None
+
+
 def insertar_maquinaria(datos, conn=None):
 
     sql = text("""
@@ -141,6 +172,10 @@ def insertar_maquinaria(datos, conn=None):
             modelo,
             numero_serie,
             serie_interna,
+            codigo_mantenimiento,
+            nombre_mantenimiento,
+            voltaje,
+            departamento,
             proveedor,
             ubicacion,
             fecha_alta,
@@ -159,6 +194,10 @@ def insertar_maquinaria(datos, conn=None):
             :modelo,
             :numero_serie,
             :serie_interna,
+            :codigo_mantenimiento,
+            :nombre_mantenimiento,
+            :voltaje,
+            :departamento,
             :proveedor,
             :ubicacion,
             :fecha_alta,
@@ -172,6 +211,14 @@ def insertar_maquinaria(datos, conn=None):
     datos_insertar = dict(datos)
     datos_insertar["categoria"] = normalizar_categoria_maquinaria(
         datos_insertar.get("categoria")
+    )
+    datos_insertar.update(normalizar_datos_mantenimiento(
+        datos_insertar.get("codigo_mantenimiento"),
+        datos_insertar.get("nombre_mantenimiento"),
+        datos_insertar.get("voltaje"),
+    ))
+    datos_insertar["departamento"] = normalizar_departamento(
+        datos_insertar.get("departamento")
     )
 
     es_accesorio = (
@@ -262,6 +309,10 @@ def actualizar_maquinaria(datos):
         modelo = :modelo,
         numero_serie = :numero_serie,
         serie_interna = :serie_interna,
+        codigo_mantenimiento = :codigo_mantenimiento,
+        nombre_mantenimiento = :nombre_mantenimiento,
+        voltaje = :voltaje,
+        departamento = :departamento,
         proveedor = :proveedor,
         ubicacion = :ubicacion,
         fecha_alta = :fecha_alta,
@@ -277,6 +328,14 @@ def actualizar_maquinaria(datos):
     datos_actualizados = dict(datos)
     datos_actualizados["categoria"] = normalizar_categoria_maquinaria(
         datos_actualizados.get("categoria")
+    )
+    datos_actualizados.update(normalizar_datos_mantenimiento(
+        datos_actualizados.get("codigo_mantenimiento"),
+        datos_actualizados.get("nombre_mantenimiento"),
+        datos_actualizados.get("voltaje"),
+    ))
+    datos_actualizados["departamento"] = normalizar_departamento(
+        datos_actualizados.get("departamento")
     )
 
     with engine.begin() as conn:
@@ -399,6 +458,10 @@ def buscar_activos(texto):
             m.descripcion,
             m.categoria,
             m.marca,
+            m.codigo_mantenimiento,
+            m.nombre_mantenimiento,
+            m.voltaje,
+            m.departamento,
             m.ubicacion,
             (
                 SELECT d.url
@@ -414,6 +477,9 @@ def buscar_activos(texto):
             OR m.descripcion LIKE :q
             OR m.categoria LIKE :q
             OR m.marca LIKE :q
+            OR m.codigo_mantenimiento LIKE :q
+            OR m.nombre_mantenimiento LIKE :q
+            OR m.departamento LIKE :q
             OR m.ubicacion LIKE :q
         ORDER BY m.id_activo
         LIMIT 20
@@ -779,6 +845,8 @@ FROM maquinarias m
             OR m.categoria LIKE :q
             OR m.marca LIKE :q
             OR m.modelo LIKE :q
+            OR m.codigo_mantenimiento LIKE :q
+            OR m.nombre_mantenimiento LIKE :q
             OR m.ubicacion LIKE :q
 
         )
@@ -1627,6 +1695,9 @@ def buscar_maquinarias_asignables(texto, id_accesorio=None):
             marca,
             modelo,
             numero_serie,
+            codigo_mantenimiento,
+            nombre_mantenimiento,
+            voltaje,
             ubicacion
         FROM maquinarias
         WHERE estado = 'ACTIVO'
@@ -1643,6 +1714,8 @@ def buscar_maquinarias_asignables(texto, id_accesorio=None):
                 OR marca LIKE :texto
                 OR modelo LIKE :texto
                 OR numero_serie LIKE :texto
+                OR codigo_mantenimiento LIKE :texto
+                OR nombre_mantenimiento LIKE :texto
                 OR ubicacion LIKE :texto
                 )
         

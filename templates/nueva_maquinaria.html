@@ -244,6 +244,14 @@ Nuevo Activo
 
                             </div>
 
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Departamento</label>
+                                <input type="text" name="departamento" maxlength="100" class="form-control"
+                                    placeholder="Opcional, ej. Envasado de cápsulas"
+                                    value="{{ (maquina.departamento or '') if editar else '' }}">
+                                <small class="text-muted">Puede dejarse vacío.</small>
+                            </div>
+
                         </div>
 
                         <div class="row">
@@ -259,6 +267,34 @@ Nuevo Activo
 
                             </div>
 
+                        </div>
+
+                        <hr>
+
+                        <h4 class="activo-form-seccion">
+                            <i class="bi bi-tools"></i>
+                            Datos de Mantenimiento
+                        </h4>
+                        <p class="text-muted small mb-3">Identificación utilizada por el área de Mantenimiento.</p>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label" for="codigo_mantenimiento">Código de Mantenimiento</label>
+                                <input id="codigo_mantenimiento" type="text" name="codigo_mantenimiento"
+                                    class="form-control text-uppercase" maxlength="30" placeholder="Ej. TC-2"
+                                    value="{{ maquina.codigo_mantenimiento if editar else '' }}">
+                            </div>
+                            <div class="col-md-5 mb-3">
+                                <label class="form-label" for="nombre_mantenimiento">Nombre de Mantenimiento</label>
+                                <input id="nombre_mantenimiento" type="text" name="nombre_mantenimiento"
+                                    class="form-control" maxlength="150" placeholder="Ej. Túnel de calor #2"
+                                    value="{{ maquina.nombre_mantenimiento if editar else '' }}">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label" for="voltaje">Voltaje</label>
+                                <input id="voltaje" type="text" name="voltaje" class="form-control text-uppercase"
+                                    maxlength="30" placeholder="Ej. 220 V 3PH"
+                                    value="{{ maquina.voltaje if editar else '' }}">
+                            </div>
                         </div>
 
                         <hr>

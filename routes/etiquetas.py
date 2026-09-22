@@ -43,6 +43,26 @@ def _datos_comunes(fila):
     return {
         "codigo": fila["id_activo"],
         "nombre": fila["descripcion"],
+        "codigo_mantenimiento": (
+            fila.get("codigo_mantenimiento")
+            if pd.notna(fila.get("codigo_mantenimiento")) else ""
+        ),
+        "nombre_mantenimiento": (
+            fila.get("nombre_mantenimiento")
+            if pd.notna(fila.get("nombre_mantenimiento")) else ""
+        ),
+        "voltaje": (
+            fila.get("voltaje") if pd.notna(fila.get("voltaje")) else ""
+        ),
+        "departamento": (
+            fila.get("departamento")
+            if pd.notna(fila.get("departamento")) else ""
+        ),
+        "ubicacion": (
+            fila.get("ubicacion") if pd.notna(fila.get("ubicacion")) else ""
+        ),
+        "marca": fila.get("marca") if pd.notna(fila.get("marca")) else "",
+        "modelo": fila.get("modelo") if pd.notna(fila.get("modelo")) else "",
         "estado": "BAJA" if pd.notna(fila["fecha_baja"]) else "ACTIVO",
         "url": url,
         "qr": _generar_qr_base64(url),

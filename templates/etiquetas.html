@@ -1,375 +1,73 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
 <meta charset="UTF-8">
-
 <title>Etiquetas QR - Vital Health</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-
-@page{
-    size:76mm 130mm;
-    margin:0;
-}
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-html,
-body{
-
-    width:76mm;
-    background:#eceff3;
-    font-family:'Segoe UI',Arial,sans-serif;
-
-}
-
-/*=========================================
-=            ETIQUETA COMPLETA            =
-=========================================*/
-
-.etiqueta{
-
-    width:76mm;
-    height:130mm;
-
-    background:white;
-
-    display:flex;
-    flex-direction:column;
-
-    overflow:hidden;
-
-    page-break-after:always;
-
-    border:2px solid #17864b;
-    border-radius:10px;
-
-}
-
-/*=========================================
-=                HEADER                   =
-=========================================*/
-
-.header{
-
-    background:linear-gradient(135deg,#17864b,#0f6b3b);
-
-    color:white;
-
-    text-align:center;
-
-    padding:10px 8px;
-
-}
-
-.logo{
-
-    font-size:20px;
-    font-weight:700;
-    letter-spacing:.5px;
-
-}
-
-.subtitulo{
-
-    margin-top:3px;
-
-    font-size:9px;
-
-    opacity:.95;
-
-}
-
-/*=========================================
-=            CODIGO ACTIVO                =
-=========================================*/
-
-.codigo{
-
-    text-align:center;
-
-    margin-top:8px;
-
-    font-size:22px;
-
-    font-weight:800;
-
-    color:#17864b;
-
-}
-
-/*=========================================
-=             NOMBRE EQUIPO               =
-=========================================*/
-
-.nombre{
-
-    text-align:center;
-
-    margin:5px 8px;
-
-    font-size:12px;
-
-    font-weight:700;
-
-    text-transform:uppercase;
-
-    color:#333;
-
-    min-height:34px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-}
-
-/*=========================================
-=                 QR                      =
-=========================================*/
-
-.qr-container{
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    margin-top:6px;
-
-}
-
-.qr{
-
-    width:170px;
-
-    height:170px;
-
-    border:4px solid #17864b;
-
-    border-radius:12px;
-
-    padding:6px;
-
-    background:white;
-
-}
-
-/*=========================================
-=            TARJETAS INFO                =
-=========================================*/
-
-.info{
-
-    margin:10px;
-
-    display:grid;
-
-    grid-template-columns:1fr 1fr;
-
-    gap:8px;
-
-}
-
-.card{
-
-    background:#f6f8fa;
-
-    border-radius:8px;
-
-    padding:6px;
-
-    border-left:4px solid #17864b;
-
-}
-
-.card small{
-
-    display:block;
-
-    color:#666;
-
-    font-size:8px;
-
-    margin-bottom:2px;
-
-}
-
-.card strong{
-
-    font-size:10px;
-
-    color:#222;
-
-}
-
-/*=========================================
-=            ESTADO                       =
-=========================================*/
-
-.estado{
-
-    margin:0 10px;
-
-    text-align:center;
-
-}
-
-.badge{
-
-    display:inline-block;
-
-    padding:7px 18px;
-
-    border-radius:30px;
-
-    color:white;
-
-    font-size:11px;
-
-    font-weight:bold;
-
-}
-
-.activo{
-
-    background:#198754;
-
-}
-
-.baja{
-
-    background:#dc3545;
-
-}
-
-/*=========================================
-=               URL                       =
-=========================================*/
-
-.url{
-
-    margin:10px;
-
-    padding:8px;
-
-    background:#eef4f1;
-
-    border-radius:8px;
-
-    text-align:center;
-
-    font-size:8px;
-
-    color:#555;
-
-    word-break:break-all;
-
-}
-
-/*=========================================
-=               FOOTER                    =
-=========================================*/
-
-.footer{
-
-    margin-top:auto;
-
-    background:#17864b;
-
-    color:white;
-
-    text-align:center;
-
-    padding:8px;
-
-    font-size:8px;
-
-}
-
-.footer strong{
-
-    display:block;
-
-    font-size:10px;
-
-    margin-bottom:2px;
-
-}
-
+@page { size: 76mm 130mm; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 76mm; background: #e9efec; font-family: "Segoe UI", Arial, sans-serif; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+.etiqueta { width: 76mm; height: 130mm; overflow: hidden; display: flex; flex-direction: column; background: #fff; border: .6mm solid #087f4f; page-break-after: always; }
+.header { height: 17mm; padding: 3mm 4mm; display: flex; align-items: center; justify-content: space-between; color: #fff; background: linear-gradient(120deg, #07543b, #0b965e); }
+.marca-sistema strong { display: block; font-size: 12pt; letter-spacing: .3pt; }
+.marca-sistema span { display: block; margin-top: .7mm; font-size: 5.5pt; opacity: .85; letter-spacing: .25pt; }
+.logo { width: 15mm; height: 10mm; padding: 1mm; border-radius: 2mm; object-fit: contain; background: #fff; }
+.identidad { padding: 3mm 4mm 2mm; border-bottom: .25mm solid #dce8e2; }
+.codigo { color: #087f4f; font-size: 18pt; font-weight: 850; line-height: 1; letter-spacing: .5pt; }
+.nombre { min-height: 9mm; margin-top: 1.5mm; display: flex; align-items: center; color: #17251f; font-size: 9pt; font-weight: 750; line-height: 1.15; text-transform: uppercase; }
+.seccion-titulo { margin-bottom: 1.2mm; color: #6a7770; font-size: 5.4pt; font-weight: 800; letter-spacing: .5pt; text-transform: uppercase; }
+.datos { padding: 2mm 4mm 0; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.3mm; }
+.dato { min-width: 0; padding: 1.6mm 1.8mm; border: .25mm solid #dce8e2; border-radius: 2mm; background: #f7faf8; }
+.dato.destacado { border-color: #c4e4d4; background: #eaf7f1; }
+.dato.ancho { grid-column: 1 / -1; }
+.dato span, .dato strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dato span { margin-bottom: .5mm; color: #68756e; font-size: 5.2pt; font-weight: 700; text-transform: uppercase; }
+.dato strong { color: #192720; font-size: 7.5pt; }
+.dato.destacado strong { color: #07543b; }
+.qr-area { min-height: 0; flex: 1; padding: 2.5mm 4mm 3mm; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5mm; }
+.estado { display: inline-block; padding: 1mm 3mm; border-radius: 10mm; color: #fff; background: #087f4f; font-size: 6pt; font-weight: 800; }
+.estado.baja { background: #c8323e; }
+.qr { width: 39mm; height: 39mm; padding: 1.7mm; border: .7mm solid #087f4f; border-radius: 3.5mm; background: #fff; }
+.footer { padding: 1.7mm 4mm; color: #fff; background: #07543b; font-size: 5.4pt; text-align: center; letter-spacing: .2pt; }
+@media print { html, body { background: #fff; } }
 </style>
-
 </head>
-
 <body>
-
 {% for e in etiquetas %}
-
-<div class="etiqueta">
-
-    <div class="header">
-
-        <div class="logo">
-            ❤️ VITAL HEALTH
+<article class="etiqueta">
+    <header class="header">
+        <div class="marca-sistema"><strong>VITAL HEALTH</strong><span>GESTIÓN DE ACTIVOS</span></div>
+        <img class="logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Vital Health">
+    </header>
+    <section class="identidad">
+        <div class="codigo">{{ e.codigo }}</div>
+        <div class="nombre">{{ e.nombre|upper }}</div>
+    </section>
+    <section class="datos">
+        <div class="seccion-titulo">Identificación de mantenimiento</div>
+        <div class="grid">
+            <div class="dato destacado"><span>Código</span><strong>{{ e.codigo_mantenimiento or "—" }}</strong></div>
+            <div class="dato destacado"><span>Voltaje</span><strong>{{ e.voltaje or "—" }}</strong></div>
+            <div class="dato destacado ancho"><span>Nombre de mantenimiento</span><strong>{{ e.nombre_mantenimiento or "—" }}</strong></div>
         </div>
-
-        <div class="subtitulo">
-            Sistema Inteligente de Gestión de Activos
+    </section>
+    <section class="datos">
+        <div class="seccion-titulo">Datos del sistema</div>
+        <div class="grid">
+            <div class="dato"><span>Ubicación</span><strong>{{ e.ubicacion or "Sin ubicación" }}</strong></div>
+            <div class="dato"><span>Marca</span><strong>{{ e.marca or "—" }}</strong></div>
+            <div class="dato"><span>Modelo</span><strong>{{ e.modelo or "—" }}</strong></div>
         </div>
-
-    </div>
-
-    <div class="codigo">
-
-        {{ e.codigo }}
-
-    </div>
-
-    <div class="nombre">
-
-        {{ e.nombre|upper }}
-
-    </div>
-
-    <div class="qr-container">
-
-        <img
-            class="qr"
-            src="data:image/png;base64,{{ e.qr }}"
-        >
-
-    </div>
-
-</div>
-</div>
-
+    </section>
+    <section class="qr-area">
+        <img class="qr" src="data:image/png;base64,{{ e.qr }}" alt="Código QR de {{ e.codigo }}">
+        <span class="estado{% if e.estado == 'BAJA' %} baja{% endif %}">{{ e.estado }}</span>
+    </section>
+    <footer class="footer">Activo identificado por Vital Health</footer>
+</article>
 {% endfor %}
-
-<script>
-
-window.onload = function(){
-
-    setTimeout(function(){
-
-        window.print();
-
-    },400);
-
-}
-
-</script>
-
+<script>window.onload = () => setTimeout(() => window.print(), 400);</script>
 </body>
-
 </html>

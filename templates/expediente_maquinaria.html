@@ -346,6 +346,84 @@
 
                 </div>
 
+                <div class="col-lg-3 col-md-6">
+
+                    <div class="border rounded-4 p-3 h-100">
+
+                        <small class="text-muted d-block">
+
+                            <i class="bi bi-tools text-success me-1"></i>
+
+                            Código de mantenimiento
+
+                        </small>
+
+                        <h5 class="fw-bold mt-2 mb-0">
+
+                            {{ maquina.codigo_mantenimiento or "-" }}
+
+                        </h5>
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+
+                    <div class="border rounded-4 p-3 h-100">
+
+                        <small class="text-muted d-block">
+
+                            <i class="bi bi-card-heading text-primary me-1"></i>
+
+                            Nombre de mantenimiento
+
+                        </small>
+
+                        <h5 class="fw-bold mt-2 mb-0">
+
+                            {{ maquina.nombre_mantenimiento or "-" }}
+
+                        </h5>
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+
+                    <div class="border rounded-4 p-3 h-100">
+
+                        <small class="text-muted d-block">
+
+                            <i class="bi bi-lightning-charge-fill text-warning me-1"></i>
+
+                            Voltaje
+
+                        </small>
+
+                        <h5 class="fw-bold mt-2 mb-0">
+
+                            {{ maquina.voltaje or "-" }}
+
+                        </h5>
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="border rounded-4 p-3 h-100">
+                        <small class="text-muted d-block">
+                            <i class="bi bi-diagram-3-fill text-info me-1"></i>
+                            Departamento
+                        </small>
+                        <h5 class="fw-bold mt-2 mb-0">
+                            {{ maquina.departamento or "Sin asignar" }}
+                        </h5>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -1861,7 +1939,7 @@
 
                         <small class="text-muted">
 
-                            Busca por ID, descripción, categoría, marca o ubicación.
+                            Busca por ID, código de Mantenimiento, descripción, marca o ubicación.
 
                         </small>
 

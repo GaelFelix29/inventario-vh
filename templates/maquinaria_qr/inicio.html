@@ -61,7 +61,7 @@
     </div>
     <div class="navegador-activos__busqueda">
         <i class="bi bi-search"></i>
-        <input id="buscarActivoExpediente" type="search" autocomplete="off" placeholder="Buscar ID, descripción, marca o ubicación">
+        <input id="buscarActivoExpediente" type="search" autocomplete="off" placeholder="Buscar ID, código de Mantenimiento o descripción">
         <button id="limpiarBusquedaActivo" type="button" aria-label="Limpiar búsqueda" hidden><i class="bi bi-x-lg"></i></button>
     </div>
     <div id="resultadosActivosExpediente" class="navegador-activos__resultados" hidden></div>
@@ -133,6 +133,23 @@
 
         </div>
 
+    </div>
+
+    <div class="info-item">
+        <i class="bi bi-tools"></i>
+        <div><small>Código de Mantenimiento</small><strong>{{ maquinaria.codigo_mantenimiento or "Sin registrar" }}</strong></div>
+    </div>
+    <div class="info-item">
+        <i class="bi bi-card-heading"></i>
+        <div><small>Nombre de Mantenimiento</small><strong>{{ maquinaria.nombre_mantenimiento or "Sin registrar" }}</strong></div>
+    </div>
+    <div class="info-item">
+        <i class="bi bi-lightning-charge-fill"></i>
+        <div><small>Voltaje</small><strong>{{ maquinaria.voltaje or "Sin registrar" }}</strong></div>
+    </div>
+    <div class="info-item">
+        <i class="bi bi-diagram-3-fill"></i>
+        <div><small>Departamento</small><strong>{{ maquinaria.departamento or "Sin asignar" }}</strong></div>
     </div>
 
 </div>
