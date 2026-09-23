@@ -34,11 +34,14 @@ class MensajesTest(unittest.TestCase):
 
     def test_rutas_requieren_login_y_formularios_csrf(self):
         rutas = (ROOT / "routes/mensajes.py").read_text(encoding="utf-8")
-        self.assertEqual(rutas.count("@login_required"), 4)
+        self.assertEqual(rutas.count("@login_required"), 6)
 
         plantilla = (ROOT / "templates/mensajes.html").read_text(encoding="utf-8")
         self.assertEqual(plantilla.count('name="csrf_token"'), 2)
         self.assertIn('maxlength="2000"', plantilla)
+        self.assertIn("window.setInterval(actualizar, 4000)", plantilla)
+        self.assertIn("if (consultando || document.hidden) return", plantilla)
+        self.assertIn("X-CSRFToken", plantilla)
 
     def test_menu_y_registro_de_rutas_estan_integrados(self):
         base = (ROOT / "templates/base.html").read_text(encoding="utf-8")

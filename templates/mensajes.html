@@ -48,9 +48,9 @@
                 <span class="avatar-contacto grande">{{ conversacion.contacto_nombre[:1]|upper }}</span>
                 <div><strong>{{ conversacion.contacto_nombre }}</strong><small>{{ conversacion.contacto_rol }}</small></div>
             </header>
-            <div class="chat-mensajes" id="chatMensajes">
+            <div class="chat-mensajes" id="chatMensajes" data-conversacion-id="{{ conversacion.id }}" data-usuario-id="{{ session.usuario_id }}">
                 {% for mensaje in mensajes_conversacion %}
-                <div class="burbuja-fila{% if mensaje.remitente_id == session.usuario_id %} propia{% endif %}">
+                <div class="burbuja-fila{% if mensaje.remitente_id == session.usuario_id %} propia{% endif %}" data-mensaje-id="{{ mensaje.id }}">
                     <div class="burbuja">
                         <p>{{ mensaje.contenido }}</p>
                         <time>{{ mensaje.enviado_en.strftime('%d/%m/%Y %H:%M') }}</time>
@@ -60,7 +60,7 @@
                 <div class="chat-vacio"><i class="bi bi-chat-heart"></i><p>Escribe el primer mensaje.</p></div>
                 {% endfor %}
             </div>
-            <form class="chat-form" method="POST" action="{{ url_for('enviar_mensaje_route', conversacion_id=conversacion.id) }}">
+            <form class="chat-form" id="formMensaje" method="POST" action="{{ url_for('enviar_mensaje_route', conversacion_id=conversacion.id) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <textarea name="contenido" maxlength="2000" rows="1" required placeholder="Escribe un mensaje…" aria-label="Mensaje"></textarea>
                 <button type="submit" aria-label="Enviar mensaje"><i class="bi bi-send-fill"></i></button>
@@ -97,7 +97,86 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const chat = document.getElementById("chatMensajes");
-    if (chat) chat.scrollTop = chat.scrollHeight;
+    const form = document.getElementById("formMensaje");
+    if (!chat || !form) return;
+
+    const conversacionId = Number(chat.dataset.conversacionId);
+    const usuarioId = Number(chat.dataset.usuarioId);
+    const csrf = document.querySelector('meta[name="csrf-token"]').content;
+    let consultando = false;
+
+    function ultimoId() {
+        const elementos = chat.querySelectorAll("[data-mensaje-id]");
+        return elementos.length ? Number(elementos[elementos.length - 1].dataset.mensajeId) : 0;
+    }
+
+    function agregarMensaje(mensaje) {
+        if (chat.querySelector(`[data-mensaje-id="${mensaje.id}"]`)) return;
+        const fila = document.createElement("div");
+        fila.className = "burbuja-fila" + (Number(mensaje.remitente_id) === usuarioId ? " propia" : "");
+        fila.dataset.mensajeId = mensaje.id;
+        const burbuja = document.createElement("div");
+        burbuja.className = "burbuja";
+        const texto = document.createElement("p");
+        texto.textContent = mensaje.contenido;
+        const hora = document.createElement("time");
+        hora.textContent = mensaje.enviado_en;
+        burbuja.append(texto, hora);
+        fila.appendChild(burbuja);
+        const vacio = chat.querySelector(".chat-vacio");
+        if (vacio) vacio.remove();
+        chat.appendChild(fila);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    async function actualizar() {
+        if (consultando || document.hidden) return;
+        consultando = true;
+        try {
+            const respuesta = await fetch(`/mensajes/${conversacionId}/actualizar`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "X-CSRFToken": csrf},
+                body: JSON.stringify({despues_de: ultimoId()})
+            });
+            if (respuesta.ok) {
+                const datos = await respuesta.json();
+                datos.mensajes.forEach(agregarMensaje);
+            }
+        } catch (error) {
+            // Un fallo temporal de red se reintentará en el siguiente ciclo.
+        } finally {
+            consultando = false;
+        }
+    }
+
+    form.addEventListener("submit", async (evento) => {
+        evento.preventDefault();
+        const campo = form.querySelector('textarea[name="contenido"]');
+        const contenido = campo.value.trim();
+        if (!contenido) return;
+        const boton = form.querySelector("button[type=submit]");
+        boton.disabled = true;
+        try {
+            const respuesta = await fetch(`/mensajes/${conversacionId}/api/enviar`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "X-CSRFToken": csrf},
+                body: JSON.stringify({contenido})
+            });
+            const datos = await respuesta.json();
+            if (!respuesta.ok) throw new Error(datos.error || "No fue posible enviar el mensaje.");
+            agregarMensaje(datos.mensaje);
+            campo.value = "";
+            campo.focus();
+        } catch (error) {
+            window.alert(error.message);
+        } finally {
+            boton.disabled = false;
+        }
+    });
+
+    chat.scrollTop = chat.scrollHeight;
+    window.setInterval(actualizar, 4000);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) actualizar(); });
 });
 </script>
 {% endblock %}

@@ -1,12 +1,14 @@
-from flask import abort, flash, redirect, render_template, request, session, url_for
+from flask import abort, flash, jsonify, redirect, render_template, request, session, url_for
 
 from database.mensajes import (
     enviar_mensaje,
     listar_conversaciones,
     listar_mensajes,
+    listar_mensajes_nuevos,
     listar_usuarios_mensajeria,
     marcar_como_leidos,
     obtener_conversacion,
+    obtener_mensaje,
     obtener_o_crear_conversacion,
 )
 
@@ -78,3 +80,47 @@ def registrar_rutas_mensajes(app, login_required):
         return redirect(url_for(
             "ver_conversacion", conversacion_id=conversacion_id
         ))
+
+    @app.route("/mensajes/<int:conversacion_id>/actualizar", methods=["POST"])
+    @login_required
+    def actualizar_conversacion(conversacion_id):
+        datos = request.get_json(silent=True) or {}
+        try:
+            despues_de = max(0, int(datos.get("despues_de") or 0))
+        except (TypeError, ValueError):
+            return jsonify({"ok": False, "error": "Referencia inválida."}), 400
+
+        filas = listar_mensajes_nuevos(
+            conversacion_id, session["usuario_id"], despues_de
+        )
+        return jsonify({
+            "ok": True,
+            "mensajes": [_serializar_mensaje(fila) for fila in filas],
+        })
+
+    @app.route("/mensajes/<int:conversacion_id>/api/enviar", methods=["POST"])
+    @login_required
+    def enviar_mensaje_api(conversacion_id):
+        datos = request.get_json(silent=True) or {}
+        try:
+            mensaje_id = enviar_mensaje(
+                conversacion_id,
+                session["usuario_id"],
+                datos.get("contenido"),
+            )
+            fila = obtener_mensaje(mensaje_id, session["usuario_id"])
+            return jsonify({"ok": True, "mensaje": _serializar_mensaje(fila)})
+        except PermissionError:
+            abort(403)
+        except ValueError as error:
+            return jsonify({"ok": False, "error": str(error)}), 400
+
+
+def _serializar_mensaje(fila):
+    return {
+        "id": fila["id"],
+        "remitente_id": fila["remitente_id"],
+        "remitente_nombre": fila["remitente_nombre"],
+        "contenido": fila["contenido"],
+        "enviado_en": fila["enviado_en"].strftime("%d/%m/%Y %H:%M"),
+    }

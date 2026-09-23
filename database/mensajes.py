@@ -153,7 +153,7 @@ def enviar_mensaje(conversacion_id, remitente_id, contenido):
         if not participante:
             raise PermissionError("No tienes acceso a esta conversación.")
 
-        conn.execute(text("""
+        resultado = conn.execute(text("""
             INSERT INTO mensajes (conversacion_id, remitente_id, contenido)
             VALUES (:conversacion_id, :remitente_id, :contenido)
         """), {
@@ -165,6 +165,65 @@ def enviar_mensaje(conversacion_id, remitente_id, contenido):
             UPDATE conversaciones SET ultimo_mensaje_en = CURRENT_TIMESTAMP
             WHERE id = :conversacion_id
         """), {"conversacion_id": conversacion_id})
+        return resultado.lastrowid
+
+
+def obtener_mensaje(mensaje_id, usuario_id):
+    sql = text("""
+        SELECT m.id, m.remitente_id, m.contenido, m.enviado_en,
+               u.nombre AS remitente_nombre
+        FROM mensajes m
+        JOIN conversaciones c ON c.id = m.conversacion_id
+        JOIN usuarios u ON u.id = m.remitente_id
+        WHERE m.id = :mensaje_id
+          AND (:usuario_id = c.usuario_uno_id
+               OR :usuario_id = c.usuario_dos_id)
+    """)
+    with engine.connect() as conn:
+        return conn.execute(sql, {
+            "mensaje_id": mensaje_id,
+            "usuario_id": usuario_id,
+        }).mappings().first()
+
+
+def listar_mensajes_nuevos(conversacion_id, usuario_id, despues_de):
+    """Devuelve solo mensajes posteriores al último visible y marca recibidos."""
+    sql = text("""
+        SELECT m.id, m.remitente_id, m.contenido, m.enviado_en,
+               u.nombre AS remitente_nombre
+        FROM mensajes m
+        JOIN conversaciones c ON c.id = m.conversacion_id
+        JOIN usuarios u ON u.id = m.remitente_id
+        WHERE m.conversacion_id = :conversacion_id
+          AND m.id > :despues_de
+          AND (:usuario_id = c.usuario_uno_id
+               OR :usuario_id = c.usuario_dos_id)
+        ORDER BY m.id
+        LIMIT 50
+    """)
+    with engine.begin() as conn:
+        filas = conn.execute(sql, {
+            "conversacion_id": conversacion_id,
+            "usuario_id": usuario_id,
+            "despues_de": despues_de,
+        }).mappings().all()
+        if filas:
+            conn.execute(text("""
+                UPDATE mensajes m
+                JOIN conversaciones c ON c.id = m.conversacion_id
+                SET m.leido_en = CURRENT_TIMESTAMP
+                WHERE m.conversacion_id = :conversacion_id
+                  AND m.id > :despues_de
+                  AND m.remitente_id <> :usuario_id
+                  AND m.leido_en IS NULL
+                  AND (:usuario_id = c.usuario_uno_id
+                       OR :usuario_id = c.usuario_dos_id)
+            """), {
+                "conversacion_id": conversacion_id,
+                "usuario_id": usuario_id,
+                "despues_de": despues_de,
+            })
+        return filas
 
 
 def marcar_como_leidos(conversacion_id, usuario_id):
