@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block titulo %}Mensajes{% endblock %}
+{% block estilos %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mensajes.css', v='1') }}">
+{% endblock %}
+{% block contenido %}
+<div class="mensajes-page">
+    <header class="mensajes-encabezado">
+        <div>
+            <span class="mensajes-eyebrow">COMUNICACIÓN INTERNA</span>
+            <h1>Mensajes</h1>
+            <p>Conversa de forma privada con otros usuarios del sistema.</p>
+        </div>
+        <button class="btn-nuevo-mensaje" type="button" data-bs-toggle="modal" data-bs-target="#modalNuevoMensaje">
+            <i class="bi bi-pencil-square"></i> Nuevo mensaje
+        </button>
+    </header>
+
+    <div class="mensajes-layout">
+        <aside class="conversaciones-panel">
+            <div class="panel-titulo"><span>Conversaciones</span><small>Últimas 30</small></div>
+            <div class="conversaciones-lista">
+                {% for item in conversaciones %}
+                <a class="conversacion-item{% if conversacion and conversacion.id == item.id %} activa{% endif %}"
+                   href="{{ url_for('ver_conversacion', conversacion_id=item.id) }}">
+                    <span class="avatar-contacto">{{ item.contacto_nombre[:1]|upper }}</span>
+                    <span class="conversacion-resumen">
+                        <span class="contacto-linea">
+                            <strong>{{ item.contacto_nombre }}</strong>
+                            {% if item.no_leidos %}<b class="no-leidos">{{ item.no_leidos }}</b>{% endif %}
+                        </span>
+                        <small>{{ item.contacto_rol }}</small>
+                        <span>{{ item.ultimo_mensaje or "Conversación nueva" }}</span>
+                    </span>
+                </a>
+                {% else %}
+                <div class="lista-vacia">
+                    <i class="bi bi-chat-square-text"></i>
+                    <p>Aún no tienes conversaciones.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <section class="chat-panel">
+            {% if conversacion %}
+            <header class="chat-cabecera">
+                <span class="avatar-contacto grande">{{ conversacion.contacto_nombre[:1]|upper }}</span>
+                <div><strong>{{ conversacion.contacto_nombre }}</strong><small>{{ conversacion.contacto_rol }}</small></div>
+            </header>
+            <div class="chat-mensajes" id="chatMensajes">
+                {% for mensaje in mensajes_conversacion %}
+                <div class="burbuja-fila{% if mensaje.remitente_id == session.usuario_id %} propia{% endif %}">
+                    <div class="burbuja">
+                        <p>{{ mensaje.contenido }}</p>
+                        <time>{{ mensaje.enviado_en.strftime('%d/%m/%Y %H:%M') }}</time>
+                    </div>
+                </div>
+                {% else %}
+                <div class="chat-vacio"><i class="bi bi-chat-heart"></i><p>Escribe el primer mensaje.</p></div>
+                {% endfor %}
+            </div>
+            <form class="chat-form" method="POST" action="{{ url_for('enviar_mensaje_route', conversacion_id=conversacion.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <textarea name="contenido" maxlength="2000" rows="1" required placeholder="Escribe un mensaje…" aria-label="Mensaje"></textarea>
+                <button type="submit" aria-label="Enviar mensaje"><i class="bi bi-send-fill"></i></button>
+            </form>
+            {% else %}
+            <div class="seleccion-vacia">
+                <span><i class="bi bi-chat-dots"></i></span>
+                <h2>Selecciona una conversación</h2>
+                <p>O inicia un mensaje nuevo con otro usuario.</p>
+            </div>
+            {% endif %}
+        </section>
+    </div>
+</div>
+
+<div class="modal fade" id="modalNuevoMensaje" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content modal-mensaje" method="POST" action="{{ url_for('nueva_conversacion') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="modal-header"><div><small>NUEVA CONVERSACIÓN</small><h2>Enviar mensaje</h2></div><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <label for="destinatario_id">Destinatario</label>
+                <select id="destinatario_id" name="destinatario_id" required>
+                    <option value="">Selecciona un usuario</option>
+                    {% for usuario in usuarios %}<option value="{{ usuario.id }}">{{ usuario.nombre }} · {{ usuario.rol }}</option>{% endfor %}
+                </select>
+                <label for="contenidoInicial">Mensaje</label>
+                <textarea id="contenidoInicial" name="contenido" maxlength="2000" rows="5" required placeholder="Escribe tu mensaje…"></textarea>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn-enviar-modal"><i class="bi bi-send"></i> Enviar</button></div>
+        </form>
+    </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const chat = document.getElementById("chatMensajes");
+    if (chat) chat.scrollTop = chat.scrollHeight;
+});
+</script>
+{% endblock %}

@@ -137,6 +137,14 @@
 
             {% endif %}
 
+            <a href="{{ url_for('mensajes') }}">
+                <i class="bi bi-chat-dots-fill"></i>
+                Mensajes
+                {% if mensajes_no_leidos %}
+                <span class="badge rounded-pill bg-danger ms-auto">{{ mensajes_no_leidos }}</span>
+                {% endif %}
+            </a>
+
             <a href="{{ url_for('actividad_sistema') }}">
                 <i class="bi bi-clock-history"></i>
                 Actividad
@@ -255,6 +263,15 @@
 
                         Aduanas
 
+                    </a>
+
+                    <a href="{{ url_for('mensajes') }}"
+                        class="list-group-item list-group-item-action py-3 {% if request.path.startswith('/mensajes') %}menu-active{% endif %}">
+                        <i class="bi bi-chat-dots-fill me-2 text-success"></i>
+                        Mensajes
+                        {% if mensajes_no_leidos %}
+                        <span class="badge rounded-pill bg-danger float-end">{{ mensajes_no_leidos }}</span>
+                        {% endif %}
                     </a>
 
                     {% if session["rol"] == "Administrador" %}

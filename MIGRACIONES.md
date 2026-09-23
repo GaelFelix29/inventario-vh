@@ -10,10 +10,16 @@ ejecutarse nuevamente sin duplicar columnas.
    - Agrega `codigo_mantenimiento`, `nombre_mantenimiento` y `voltaje`.
 2. `migrar_departamento_maquinaria.py`
    - Agrega `departamento` como `VARCHAR(100) NULL`.
+3. `migrar_mensajes.py`
+   - Crea las conversaciones privadas, mensajes e índices de lectura.
 
 Ambas migraciones ya fueron aplicadas manualmente en la base de producción el
 22 de septiembre de 2026. Los scripts permanecen en Git para instalaciones
 nuevas, recuperación de respaldos y trazabilidad.
+
+`migrar_mensajes.py` queda pendiente de aplicar antes de desplegar el módulo de
+mensajería. La aplicación conserva el contador en cero mientras esas tablas no
+existan, para no afectar las pantallas actuales durante el despliegue.
 
 ## Procedimiento para cada despliegue
 

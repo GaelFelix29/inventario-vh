@@ -39,6 +39,8 @@ from routes.contenido import registrar_rutas_contenido
 from routes.autenticacion import registrar_rutas_autenticacion
 from routes.perfil import registrar_rutas_perfil
 from routes.inicio import registrar_rutas_inicio
+from routes.mensajes import registrar_rutas_mensajes
+from database.mensajes import contar_no_leidos
 
 # ==========================================
 # APP
@@ -70,6 +72,16 @@ app.config.update(
 )
 
 csrf = CSRFProtect(app)
+
+
+@app.context_processor
+def contexto_mensajes():
+    """Expone un contador ligero para el menú de usuarios autenticados."""
+    usuario_id = session.get("usuario_id")
+    return {
+        "mensajes_no_leidos": contar_no_leidos(usuario_id)
+        if usuario_id else 0
+    }
 
 
 @app.errorhandler(CSRFError)
@@ -236,6 +248,7 @@ registrar_rutas_perfil(
     es_dispositivo_movil,
 )
 registrar_rutas_inicio(app, login_required, es_dispositivo_movil)
+registrar_rutas_mensajes(app, login_required)
 
 if __name__ == "__main__":
 
