@@ -79,6 +79,14 @@
             Aduanas
         </a>
 
+        <a href="{{ url_for('mensajes') }}" class="{% if pagina == 'mensajes' %}active{% endif %}">
+            <i class="bi bi-chat-dots-fill"></i>
+            Mensajes
+            {% if mensajes_no_leidos %}
+            <span class="drawer-badge">{{ mensajes_no_leidos }}</span>
+            {% endif %}
+        </a>
+
         {% if session.get("rol") == "Administrador" %}
 
         <a href="{{ url_for('usuarios_mobile') }}" class="{% if pagina == 'usuarios' %}active{% endif %}">

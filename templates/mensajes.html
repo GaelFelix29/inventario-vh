@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends base_mensajes %}
 {% block titulo %}Mensajes{% endblock %}
 {% block estilos %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/mensajes.css', v='1') }}">
@@ -12,7 +12,8 @@
             <p>Conversa de forma privada con otros usuarios del sistema.</p>
         </div>
         <button class="btn-nuevo-mensaje" type="button" data-bs-toggle="modal" data-bs-target="#modalNuevoMensaje">
-            <i class="bi bi-pencil-square"></i> Nuevo mensaje
+            <i class="bi bi-pencil-square"></i>
+            <span class="btn-nuevo-mensaje__texto">Nuevo mensaje</span>
         </button>
     </header>
 
@@ -45,6 +46,9 @@
         <section class="chat-panel">
             {% if conversacion %}
             <header class="chat-cabecera">
+                <a class="chat-regresar" href="{{ url_for('mensajes') }}" aria-label="Regresar a conversaciones">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
                 <span class="avatar-contacto grande">{{ conversacion.contacto_nombre[:1]|upper }}</span>
                 <div><strong>{{ conversacion.contacto_nombre }}</strong><small>{{ conversacion.contacto_rol }}</small></div>
             </header>

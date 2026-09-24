@@ -49,8 +49,20 @@ class MensajesTest(unittest.TestCase):
         self.assertIn("mensajes_no_leidos", base)
 
         app = (ROOT / "app.py").read_text(encoding="utf-8")
-        self.assertIn("registrar_rutas_mensajes(app, login_required)", app)
+        self.assertIn(
+            "registrar_rutas_mensajes(app, login_required, es_dispositivo_movil)",
+            app,
+        )
         self.assertIn("def contexto_mensajes", app)
+
+        rutas = (ROOT / "routes/mensajes.py").read_text(encoding="utf-8")
+        self.assertIn('"maquinaria_qr/base_mobile.html" if movil', rutas)
+
+        base_mobile = (
+            ROOT / "templates/maquinaria_qr/base_mobile.html"
+        ).read_text(encoding="utf-8")
+        self.assertIn("url_for('mensajes')", base_mobile)
+        self.assertIn("pagina == 'mensajes'", base_mobile)
 
 
 if __name__ == "__main__":

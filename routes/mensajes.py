@@ -13,13 +13,23 @@ from database.mensajes import (
 )
 
 
-def registrar_rutas_mensajes(app, login_required):
+def registrar_rutas_mensajes(app, login_required, es_dispositivo_movil):
+    def contexto_vista():
+        movil = es_dispositivo_movil()
+        return {
+            "base_mensajes": (
+                "maquinaria_qr/base_mobile.html" if movil else "base.html"
+            ),
+            "pagina": "mensajes",
+        }
+
     @app.route("/mensajes")
     @login_required
     def mensajes():
         usuario_id = session["usuario_id"]
         return render_template(
             "mensajes.html",
+            **contexto_vista(),
             conversaciones=listar_conversaciones(usuario_id),
             usuarios=listar_usuarios_mensajeria(usuario_id),
             conversacion=None,
@@ -36,6 +46,7 @@ def registrar_rutas_mensajes(app, login_required):
         marcar_como_leidos(conversacion_id, usuario_id)
         return render_template(
             "mensajes.html",
+            **contexto_vista(),
             conversaciones=listar_conversaciones(usuario_id),
             usuarios=listar_usuarios_mensajeria(usuario_id),
             conversacion=conversacion,

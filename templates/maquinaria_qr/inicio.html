@@ -40,6 +40,21 @@
         {{ maquinaria.descripcion }}
     </p>
 
+    <div class="hero-mantenimiento" aria-label="Datos de mantenimiento">
+        <div class="hero-mantenimiento__dato">
+            <small>Código de mantenimiento</small>
+            <strong>{{ maquinaria.codigo_mantenimiento or "Sin registrar" }}</strong>
+        </div>
+        <div class="hero-mantenimiento__dato">
+            <small>Voltaje</small>
+            <strong>{{ maquinaria.voltaje or "Sin registrar" }}</strong>
+        </div>
+        <div class="hero-mantenimiento__dato hero-mantenimiento__dato--nombre">
+            <small>Nombre de mantenimiento</small>
+            <strong>{{ maquinaria.nombre_mantenimiento or "Sin registrar" }}</strong>
+        </div>
+    </div>
+
 </div>
 
 <section class="navegador-activos" aria-label="Buscar y navegar entre activos">
@@ -135,18 +150,6 @@
 
     </div>
 
-    <div class="info-item">
-        <i class="bi bi-tools"></i>
-        <div><small>Código de Mantenimiento</small><strong>{{ maquinaria.codigo_mantenimiento or "Sin registrar" }}</strong></div>
-    </div>
-    <div class="info-item">
-        <i class="bi bi-card-heading"></i>
-        <div><small>Nombre de Mantenimiento</small><strong>{{ maquinaria.nombre_mantenimiento or "Sin registrar" }}</strong></div>
-    </div>
-    <div class="info-item">
-        <i class="bi bi-lightning-charge-fill"></i>
-        <div><small>Voltaje</small><strong>{{ maquinaria.voltaje or "Sin registrar" }}</strong></div>
-    </div>
     <div class="info-item">
         <i class="bi bi-diagram-3-fill"></i>
         <div><small>Departamento</small><strong>{{ maquinaria.departamento or "Sin asignar" }}</strong></div>

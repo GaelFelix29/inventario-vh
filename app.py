@@ -248,7 +248,7 @@ registrar_rutas_perfil(
     es_dispositivo_movil,
 )
 registrar_rutas_inicio(app, login_required, es_dispositivo_movil)
-registrar_rutas_mensajes(app, login_required)
+registrar_rutas_mensajes(app, login_required, es_dispositivo_movil)
 
 if __name__ == "__main__":
 
