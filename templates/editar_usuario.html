@@ -62,6 +62,8 @@
                             <option value="Administrador" {% if usuario.rol == "Administrador" %}selected{% endif %}>Administrador</option>
                             <option value="Visualizador" {% if usuario.rol == "Visualizador" %}selected{% endif %}>Visualizador</option>
                             <option value="Mantenimiento" {% if usuario.rol == "Mantenimiento" %}selected{% endif %}>Mantenimiento</option>
+                            <option value="Compras" {% if usuario.rol == "Compras" %}selected{% endif %}>Compras</option>
+                            <option value="Finanzas" {% if usuario.rol == "Finanzas" %}selected{% endif %}>Finanzas</option>
                         </select>
                         <small id="ayudaRol">Define las funciones disponibles para esta cuenta.</small>
                     </div>

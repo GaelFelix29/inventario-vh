@@ -54,6 +54,8 @@
                         <select name="rol" id="rol" required>
                             <option value="Administrador">Administrador</option>
                             <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Compras">Compras</option>
+                            <option value="Finanzas">Finanzas</option>
                             <option value="Visualizador" selected>Visualizador</option>
                         </select>
                         <small id="descripcionRol">Puede consultar la información autorizada sin realizar cambios administrativos.</small>
@@ -89,7 +91,7 @@ document.addEventListener('DOMContentLoaded',function(){
  function comparar(){const diferente=c.value&&p.value!==c.value;e.textContent=diferente?'Las contraseñas no coinciden.':'Ambas contraseñas deben coincidir.';e.classList.toggle('error',diferente);c.setCustomValidity(diferente?'Las contraseñas no coinciden.':'')}
  p.addEventListener('input',comparar);c.addEventListener('input',comparar);f.addEventListener('submit',comparar);
  document.querySelectorAll('[data-ver]').forEach(function(b){b.addEventListener('click',function(){const i=document.getElementById(b.dataset.ver),mostrar=i.type==='password';i.type=mostrar?'text':'password';b.innerHTML='<i class="bi bi-eye'+(mostrar?'-slash':'')+'"></i>'})});
- const textos={Administrador:'Control total del sistema, configuración y administración de usuarios.',Mantenimiento:'Acceso a las funciones operativas y de mantenimiento autorizadas.',Visualizador:'Puede consultar la información autorizada sin realizar cambios administrativos.'};
+ const textos={Administrador:'Control total del sistema, configuración y administración de usuarios.',Mantenimiento:'Acceso a las funciones operativas y de mantenimiento autorizadas.',Compras:'Consulta los estados de cuenta y movimientos bancarios.',Finanzas:'Consulta e importa estados de cuenta mensuales.',Visualizador:'Puede consultar la información autorizada sin realizar cambios administrativos.'};
  document.getElementById('rol').addEventListener('change',function(){document.getElementById('descripcionRol').textContent=textos[this.value]||''});
 });
 </script>

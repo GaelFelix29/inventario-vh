@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block titulo %}Estados de cuenta{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{{ url_for('static', filename='css/finanzas.css') }}">{% endblock %}
+{% block contenido %}
+<div class="fin-page">
+ <header class="fin-hero"><div><small>CONTROL FINANCIERO</small><h1>Estados de cuenta</h1><p>Consulta todos los periodos bancarios desde un solo lugar.</p></div><i class="bi bi-bank"></i></header>
+ {% with mensajes=get_flashed_messages(with_categories=true) %}{% for categoria,mensaje in mensajes %}<div class="alert alert-{{categoria}}">{{mensaje}}</div>{% endfor %}{% endwith %}
+ {% if session.get('rol') in ('Administrador', 'Finanzas') %}
+ <form class="fin-upload" action="{{ url_for('importar_estado_cuenta_route') }}" method="post" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="fin-upload-icon"><i class="bi bi-file-earmark-spreadsheet-fill"></i></div>
+  <div class="fin-upload-copy"><small>NUEVO PERIODO</small><strong>Importar estado mensual</strong><span>Selecciona el Excel original; el sistema comprobará saldos, movimientos y duplicados.</span></div>
+  <label class="fin-file-picker" for="archivoEstado"><i class="bi bi-folder2-open"></i><span><small>Archivo de Excel</small><strong id="nombreArchivo">Seleccionar archivo .xlsx</strong></span><i class="bi bi-chevron-right"></i></label>
+  <input class="fin-file-input" id="archivoEstado" type="file" name="archivo" accept=".xlsx" required>
+  <button class="fin-upload-button" id="importarEstado" disabled><i class="bi bi-cloud-arrow-up-fill"></i><span>Importar</span></button>
+ </form>{% endif %}
+ <section class="fin-card"><div class="fin-card-title"><h2>Periodos registrados</h2><span>{{ estados|length }} estados</span></div>
+ {% if estados %}<div class="table-responsive"><table class="fin-table"><thead><tr><th>Periodo</th><th>Banco / cuenta</th><th>Movimientos</th><th>Cargos</th><th>Abonos</th><th>Saldo final</th><th></th></tr></thead><tbody>
+ {% for e in estados %}<tr><td><strong>{{ e.periodo_inicio.strftime('%d/%m/%Y') }}</strong><small>al {{ e.periodo_fin.strftime('%d/%m/%Y') }}</small></td><td>{{ e.banco }}<small>•••• {{ e.numero_cuenta[-4:] }}</small></td><td>{{ '{:,}'.format(e.cantidad_movimientos) }}</td><td class="cargo">${{ '{:,.2f}'.format(e.total_cargos) }}</td><td class="abono">${{ '{:,.2f}'.format(e.total_abonos) }}</td><td><strong>${{ '{:,.2f}'.format(e.saldo_final) }}</strong></td><td class="fin-actions"><a class="fin-view" href="{{ url_for('detalle_estado_cuenta', estado_id=e.id) }}"><i class="bi bi-eye"></i><span>Ver movimientos</span></a></td></tr>{% endfor %}
+ </tbody></table></div>{% else %}<div class="fin-empty"><i class="bi bi-receipt"></i><h2>Aún no hay estados de cuenta</h2><p>Finanzas puede importar el primer archivo mensual.</p></div>{% endif %}</section>
+</div>{% endblock %}
+{% block scripts %}
+<script>
+const archivoEstado=document.getElementById('archivoEstado');
+if(archivoEstado){archivoEstado.addEventListener('change',function(){
+ const tieneArchivo=this.files&&this.files.length>0;
+ document.getElementById('nombreArchivo').textContent=tieneArchivo?this.files[0].name:'Seleccionar archivo .xlsx';
+ document.getElementById('importarEstado').disabled=!tieneArchivo;
+ this.closest('.fin-upload').classList.toggle('has-file',tieneArchivo);
+});}
+</script>
+{% endblock %}

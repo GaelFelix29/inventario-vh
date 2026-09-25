@@ -7,6 +7,12 @@ from database.conexion import engine
 # CREAR USUARIO
 # ==========================================
 
+AVATAR_POR_ROL = {
+    "Administrador": "administracion", "Mantenimiento": "mantenimiento",
+    "Compras": "compras", "Finanzas": "finanzas", "Visualizador": "usuario",
+}
+
+
 def crear_usuario(nombre, usuario, correo, password, rol="Visualizador"):
 
     password_hash = generate_password_hash(password)
@@ -19,7 +25,8 @@ def crear_usuario(nombre, usuario, correo, password, rol="Visualizador"):
             correo,
             password,
             rol,
-            activo
+            activo,
+            avatar
         )
         VALUES
         (
@@ -28,7 +35,8 @@ def crear_usuario(nombre, usuario, correo, password, rol="Visualizador"):
             :correo,
             :password,
             :rol,
-            1
+            1,
+            :avatar
         )
     """)
 
@@ -38,7 +46,8 @@ def crear_usuario(nombre, usuario, correo, password, rol="Visualizador"):
             "usuario": usuario,
             "correo": correo,
             "password": password_hash,
-            "rol": rol
+            "rol": rol,
+            "avatar": AVATAR_POR_ROL.get(rol, "usuario")
         })
 
 
@@ -100,7 +109,8 @@ def actualizar_usuario(id,
             usuario = :usuario,
             correo = :correo,
             rol = :rol,
-            activo = :activo
+            activo = :activo,
+            avatar = :avatar
         WHERE id = :id
     """)
 
@@ -113,7 +123,8 @@ def actualizar_usuario(id,
             "usuario": usuario,
             "correo": correo,
             "rol": rol,
-            "activo": activo
+            "activo": activo,
+            "avatar": AVATAR_POR_ROL.get(rol, "usuario")
 
         })
 
@@ -237,6 +248,7 @@ def verificar_password(password, password_hash):
 AVATARES_PERMITIDOS = {
     "usuario",
     "finanzas",
+    "compras",
     "mantenimiento",
     "administracion",
     "seguridad",

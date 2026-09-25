@@ -12,6 +12,8 @@ ejecutarse nuevamente sin duplicar columnas.
    - Agrega `departamento` como `VARCHAR(100) NULL`.
 3. `migrar_mensajes.py`
    - Crea las conversaciones privadas, mensajes e índices de lectura.
+4. `migrar_estados_cuenta.py`
+   - Crea cuentas bancarias, estados mensuales y movimientos conciliados.
 
 Ambas migraciones ya fueron aplicadas manualmente en la base de producción el
 22 de septiembre de 2026. Los scripts permanecen en Git para instalaciones
@@ -44,3 +46,4 @@ Las cargas actuales están separadas en:
 
 - `cargar_relacion_mantenimiento.py`
 - `cargar_departamentos_maquinaria.py`
+- `cargar_estado_cuenta.py`

@@ -145,6 +145,12 @@
                 {% endif %}
             </a>
 
+            {% if session.get("rol") in ("Administrador", "Compras", "Finanzas") %}
+            <a href="{{ url_for('estados_cuenta') }}">
+                <i class="bi bi-bank"></i> Finanzas
+            </a>
+            {% endif %}
+
             <a href="{{ url_for('actividad_sistema') }}">
                 <i class="bi bi-clock-history"></i>
                 Actividad
@@ -273,6 +279,12 @@
                         <span class="badge rounded-pill bg-danger float-end">{{ mensajes_no_leidos }}</span>
                         {% endif %}
                     </a>
+
+                    {% if session.get("rol") in ("Administrador", "Compras", "Finanzas") %}
+                    <a href="{{ url_for('estados_cuenta') }}" class="list-group-item list-group-item-action py-3 {% if request.path.startswith('/finanzas') %}menu-active{% endif %}">
+                        <i class="bi bi-bank me-2 text-success"></i> Finanzas
+                    </a>
+                    {% endif %}
 
                     {% if session["rol"] == "Administrador" %}
 

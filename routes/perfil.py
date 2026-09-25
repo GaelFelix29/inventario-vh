@@ -11,6 +11,7 @@ from database.usuarios import (
 AVATARES_PERFIL = [
     {"id": "usuario", "nombre": "Clásico", "icono": "bi-person-fill", "clase": "avatar-verde"},
     {"id": "finanzas", "nombre": "Finanzas", "icono": "bi-graph-up-arrow", "clase": "avatar-azul"},
+    {"id": "compras", "nombre": "Compras", "icono": "bi-cart-check-fill", "clase": "avatar-amarillo"},
     {"id": "mantenimiento", "nombre": "Mantenimiento", "icono": "bi-tools", "clase": "avatar-naranja"},
     {"id": "administracion", "nombre": "Administración", "icono": "bi-briefcase-fill", "clase": "avatar-morado"},
     {"id": "seguridad", "nombre": "Seguridad", "icono": "bi-shield-check", "clase": "avatar-rojo"},

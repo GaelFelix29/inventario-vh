@@ -40,6 +40,7 @@ from routes.autenticacion import registrar_rutas_autenticacion
 from routes.perfil import registrar_rutas_perfil
 from routes.inicio import registrar_rutas_inicio
 from routes.mensajes import registrar_rutas_mensajes
+from routes.finanzas import registrar_rutas_finanzas
 from database.mensajes import contar_no_leidos
 
 # ==========================================
@@ -249,6 +250,7 @@ registrar_rutas_perfil(
 )
 registrar_rutas_inicio(app, login_required, es_dispositivo_movil)
 registrar_rutas_mensajes(app, login_required, es_dispositivo_movil)
+registrar_rutas_finanzas(app, login_required, roles_required, registrar_movimiento)
 
 if __name__ == "__main__":
 

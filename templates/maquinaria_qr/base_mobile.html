@@ -97,6 +97,10 @@
             {% endif %}
         </a>
 
+        {% if session.get("rol") in ("Administrador", "Compras", "Finanzas") %}
+        <a href="{{ url_for('estados_cuenta') }}"><i class="bi bi-bank"></i> Finanzas</a>
+        {% endif %}
+
         {% if session.get("rol") == "Administrador" %}
 
         <a href="{{ url_for('usuarios_mobile') }}" class="{% if pagina == 'usuarios' %}active{% endif %}">

@@ -13,6 +13,14 @@ from database.usuarios import (
     reactivar_usuario,
 )
 
+ROLES_PERMITIDOS = {"Administrador", "Visualizador", "Mantenimiento", "Compras", "Finanzas"}
+
+
+def validar_rol(rol):
+    if rol not in ROLES_PERMITIDOS:
+        raise ValueError("El rol seleccionado no es válido.")
+    return rol
+
 
 def generar_password_temporal(longitud=14):
     caracteres = string.ascii_letters + string.digits + "!@#$%*-_"
@@ -60,7 +68,7 @@ def registrar_rutas_usuarios(app, admin_required, registrar_movimiento):
                 request.form["usuario"],
                 request.form["correo"],
                 request.form["password"],
-                request.form["rol"],
+                validar_rol(request.form["rol"]),
             )
             registrar_movimiento(
                 usuario=session["nombre"],
@@ -82,7 +90,7 @@ def registrar_rutas_usuarios(app, admin_required, registrar_movimiento):
             correo = (request.form.get("correo") or "").strip()
             password = request.form.get("password") or ""
             confirmar = request.form.get("confirmar") or ""
-            rol = (request.form.get("rol") or "").strip()
+            rol = validar_rol((request.form.get("rol") or "").strip())
 
             if password != confirmar:
                 flash("Las contraseñas no coinciden.", "danger")
@@ -117,7 +125,7 @@ def registrar_rutas_usuarios(app, admin_required, registrar_movimiento):
                 request.form["nombre"],
                 request.form["usuario"],
                 request.form["correo"],
-                request.form["rol"],
+                validar_rol(request.form["rol"]),
                 int(request.form["activo"]),
             )
             registrar_movimiento(
@@ -145,7 +153,7 @@ def registrar_rutas_usuarios(app, admin_required, registrar_movimiento):
                 request.form["nombre"],
                 request.form["usuario"],
                 request.form["correo"],
-                request.form["rol"],
+                validar_rol(request.form["rol"]),
                 int(request.form["activo"]),
             )
             registrar_movimiento(
