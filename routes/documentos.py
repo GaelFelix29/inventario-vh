@@ -10,7 +10,7 @@ from database.documentos import (
     listar_documentos,
     obtener_documento,
 )
-from supabase_config import supabase
+from supabase_config import supabase, supabase_privado
 
 
 def registrar_rutas_documentos(app, login_required, registrar_movimiento):
@@ -95,22 +95,42 @@ def registrar_rutas_documentos(app, login_required, registrar_movimiento):
             flash("Documento no encontrado.", "danger")
             return redirect(request.referrer or url_for("lista_maquinarias"))
 
+        if supabase_privado is None:
+            flash(
+                "Falta configurar el acceso privado de Supabase; el documento "
+                "no fue eliminado.",
+                "danger",
+            )
+            return redirect(
+                url_for(
+                    "expediente_maquinaria",
+                    id_activo=documento["id_activo"],
+                )
+            )
+
         try:
             if documento["public_id"]:
-                supabase.storage.from_("documentos").remove(
+                supabase_privado.storage.from_("documentos").remove(
                     [documento["public_id"]]
                 )
+            eliminar_documento(id_documento)
+            registrar_movimiento(
+                usuario=session["nombre"],
+                accion=(
+                    "Eliminó documento y archivo de Supabase: "
+                    f"{documento['nombre_original']}"
+                ),
+                modulo="Documentación",
+                referencia=documento["id_activo"],
+            )
+            flash("Documento eliminado de la aplicación y Supabase.", "success")
         except Exception:
             traceback.print_exc()
-
-        eliminar_documento(id_documento)
-        registrar_movimiento(
-            usuario=session["nombre"],
-            accion="Eliminó documento",
-            modulo="Documentación",
-            referencia=documento["id_activo"],
-        )
-        flash("Documento eliminado correctamente.", "success")
+            flash(
+                "No fue posible eliminar el archivo de Supabase. El registro "
+                "se conservó para que puedas intentarlo nuevamente.",
+                "danger",
+            )
         return redirect(
             url_for(
                 "expediente_maquinaria",

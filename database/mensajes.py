@@ -21,6 +21,28 @@ def listar_usuarios_mensajeria(usuario_actual_id):
         }).mappings().all()
 
 
+def listar_usuarios_financieros_mensajeria(usuario_actual_id):
+    sql = text("""
+        SELECT id, nombre, usuario, rol, avatar
+        FROM usuarios
+        WHERE activo = 1 AND id <> :usuario_actual_id
+          AND rol IN ('Administrador', 'Compras', 'Finanzas')
+        ORDER BY nombre
+    """)
+    with engine.connect() as conn:
+        return conn.execute(sql, {
+            "usuario_actual_id": usuario_actual_id,
+        }).mappings().all()
+
+
+def obtener_usuario_mensajeria(usuario_id):
+    with engine.connect() as conn:
+        return conn.execute(text("""
+            SELECT id, nombre, rol FROM usuarios
+            WHERE id=:id AND activo=1
+        """), {"id": usuario_id}).mappings().first()
+
+
 def obtener_o_crear_conversacion(usuario_actual_id, destinatario_id):
     if usuario_actual_id == destinatario_id:
         raise ValueError("No puedes iniciar una conversación contigo mismo.")
@@ -87,7 +109,11 @@ def listar_conversaciones(usuario_id, limite=LIMITE_CONVERSACIONES):
             CASE WHEN c.usuario_uno_id = :usuario_id
                  THEN u2.rol ELSE u1.rol END AS contacto_rol,
             (
-                SELECT m.contenido FROM mensajes m
+                SELECT CASE
+                    WHEN m.contenido LIKE '__MOVIMIENTO_BANCARIO__:%'
+                    THEN 'Movimiento bancario compartido'
+                    ELSE m.contenido
+                END FROM mensajes m
                 WHERE m.conversacion_id = c.id
                 ORDER BY m.id DESC LIMIT 1
             ) AS ultimo_mensaje,

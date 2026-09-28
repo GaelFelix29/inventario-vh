@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block titulo %}Detalle del movimiento{% endblock %}
+{% block estilos %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/finanzas.css') }}">{% endblock %}
+{% block contenido %}<div class="fin-page">
+    <a class="fin-back" href="{{ url_for('detalle_estado_cuenta', estado_id=movimiento.estado_cuenta_id) }}"><i
+            class="bi bi-arrow-left"></i> Movimientos</a>
+    {% with mensajes=get_flashed_messages(with_categories=true) %}{% for categoria,mensaje in mensajes %}<div
+        class="alert alert-{{ categoria }}">{{ mensaje }}</div>{% endfor %}{% endwith %}
+    <section class="mov-hero">
+        <div class="mov-hero-icon"><i class="bi bi-receipt-cutoff"></i></div>
+        <div><small>MOVIMIENTO #{{ movimiento.id }}</small>
+            <h1>{{ movimiento.descripcion }}</h1>
+            <p>{{ movimiento.fecha.strftime('%d/%m/%Y') }} · {{ movimiento.banco }} •••• {{
+                movimiento.numero_cuenta[-4:] }}</p>
+        </div>
+        <div class="mov-amount {% if movimiento.abono %}abono{% else %}cargo{% endif %}"><small>{% if movimiento.abono
+                %}Abono{% else %}Cargo{% endif %}</small><strong>${{ '{:,.2f}'.format(movimiento.abono or
+                movimiento.cargo) }}</strong><span>Saldo ${{ '{:,.2f}'.format(movimiento.saldo) }}</span></div>
+    </section>
+    <div class="mov-grid">
+        <section class="mov-panel">
+            <header><span><i class="bi bi-chat-left-text-fill"></i></span>
+                <div>
+                    <h2>Observaciones</h2>
+                    <p>Notas internas sobre este movimiento</p>
+                </div>
+            </header>
+            <form class="mov-note-form" method="post"
+                action="{{ url_for('agregar_observacion_bancaria', movimiento_id=movimiento.id) }}"><input type="hidden"
+                    name="csrf_token" value="{{ csrf_token() }}"><textarea name="observacion" maxlength="2000" required
+                    placeholder="Escribe una aclaración, seguimiento o comentario..."></textarea><button><i
+                        class="bi bi-send-fill"></i> Guardar observación</button></form>
+            <div class="mov-timeline">{% for nota in observaciones %}<article><span class="mov-dot"></span>
+                    <div><strong>{{ nota.usuario_nombre }}</strong><time>{{ nota.creada_en.strftime('%d/%m/%Y %H:%M')
+                            }}</time>
+                        <p>{{ nota.observacion }}</p>{% if session.get('rol') == 'Administrador' %}<div class="mov-admin-actions"><details><summary><i class="bi bi-pencil"></i> Editar</summary><form method="post" action="{{ url_for('editar_observacion_bancaria', observacion_id=nota.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="movimiento_id" value="{{ movimiento.id }}"><textarea name="observacion" maxlength="2000" required>{{ nota.observacion }}</textarea><button><i class="bi bi-check-lg"></i> Guardar cambios</button></form></details><form method="post" action="{{ url_for('eliminar_observacion_bancaria', observacion_id=nota.id) }}" onsubmit="return confirm('¿Eliminar esta observación? Esta acción no se puede deshacer.');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="movimiento_id" value="{{ movimiento.id }}"><button class="mov-delete"><i class="bi bi-trash3"></i> Eliminar</button></form></div>{% endif %}
+                    </div>
+                </article>{% else %}<div class="mov-empty"><i class="bi bi-chat-square"></i>
+                    <p>Aún no hay observaciones.</p>
+                </div>{% endfor %}</div>
+        </section>
+        <section class="mov-panel">
+            <header><span><i class="bi bi-paperclip"></i></span>
+                <div>
+                    <h2>Archivos adjuntos</h2>
+                    <p>Comprobantes protegidos en Supabase</p>
+                </div>
+            </header>
+            <form class="mov-file-form" method="post" enctype="multipart/form-data"
+                action="{{ url_for('agregar_archivo_bancario', movimiento_id=movimiento.id) }}"><input type="hidden"
+                    name="csrf_token" value="{{ csrf_token() }}"><label for="archivoMovimiento"><i
+                        class="bi bi-cloud-arrow-up-fill"></i><span><strong id="archivoMovimientoNombre">Seleccionar
+                            archivo</strong><small>PDF, Excel, CSV o imagen · máximo 10 MB</small></span></label><input
+                    id="archivoMovimiento" type="file" name="archivo"
+                    accept=".pdf,.xlsx,.xls,.csv,.jpg,.jpeg,.png,.webp" required><button id="subirArchivoMovimiento"
+                    disabled>Adjuntar</button></form>
+            <div class="mov-files">{% for archivo in archivos %}<article class="mov-file-item"><a
+                    href="{{ url_for('abrir_archivo_bancario', archivo_id=archivo.id) }}" target="_blank"
+                    rel="noopener"><span><i class="bi bi-file-earmark-lock-fill"></i></span>
+                    <div><strong>{{ archivo.nombre_original }}</strong><small>{{ archivo.usuario_nombre }} · {{
+                            archivo.creado_en.strftime('%d/%m/%Y %H:%M') }}</small></div><i
+                        class="bi bi-box-arrow-up-right"></i>
+                </a>{% if session.get('rol') == 'Administrador' %}<div class="mov-admin-actions mov-file-admin"><details><summary><i class="bi bi-pencil"></i> Renombrar</summary><form method="post" action="{{ url_for('editar_archivo_bancario', archivo_id=archivo.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="movimiento_id" value="{{ movimiento.id }}"><input name="nombre" maxlength="255" value="{{ archivo.nombre_original }}" required><button><i class="bi bi-check-lg"></i> Guardar</button></form></details><form method="post" action="{{ url_for('eliminar_archivo_bancario_route', archivo_id=archivo.id) }}" onsubmit="return confirm('¿Eliminar este documento de forma permanente?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="movimiento_id" value="{{ movimiento.id }}"><button class="mov-delete"><i class="bi bi-trash3"></i> Eliminar</button></form></div>{% endif %}</article>{% else %}<div class="mov-empty"><i class="bi bi-folder2-open"></i>
+                    <p>Aún no hay archivos adjuntos.</p>
+                </div>{% endfor %}</div>
+        </section>
+    </div>
+</div>{% endblock %}
+{% block scripts %}
+<script>const a = document.getElementById('archivoMovimiento'); a.addEventListener('change', function () { const ok = this.files && this.files.length; document.getElementById('archivoMovimientoNombre').textContent = ok ? this.files[0].name : 'Seleccionar archivo'; document.getElementById('subirArchivoMovimiento').disabled = !ok; });</script>
+{% endblock %}

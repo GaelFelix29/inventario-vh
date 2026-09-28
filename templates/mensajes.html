@@ -1,7 +1,7 @@
 {% extends base_mensajes %}
 {% block titulo %}Mensajes{% endblock %}
 {% block estilos %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/mensajes.css', v='1') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mensajes.css', v='3') }}">
 {% endblock %}
 {% block contenido %}
 <div class="mensajes-page">
@@ -55,8 +55,8 @@
             <div class="chat-mensajes" id="chatMensajes" data-conversacion-id="{{ conversacion.id }}" data-usuario-id="{{ session.usuario_id }}">
                 {% for mensaje in mensajes_conversacion %}
                 <div class="burbuja-fila{% if mensaje.remitente_id == session.usuario_id %} propia{% endif %}" data-mensaje-id="{{ mensaje.id }}">
-                    <div class="burbuja">
-                        <p>{{ mensaje.contenido }}</p>
+                    <div class="burbuja{% if mensaje.referencia_movimiento %} burbuja-referencia{% endif %}">
+                        {% if mensaje.referencia_movimiento %}{% set ref=mensaje.referencia_movimiento %}<div class="mensaje-movimiento"><span class="mensaje-movimiento__icono"><i class="bi bi-receipt"></i></span><div class="mensaje-movimiento__encabezado"><small>MOVIMIENTO BANCARIO</small><strong>{{ ref.tipo }} · ${{ '{:,.2f}'.format(ref.monto) }}</strong><time>{{ ref.fecha }}</time></div><p>{{ ref.descripcion }}</p>{% if ref.comentario %}<blockquote>{{ ref.comentario }}</blockquote>{% endif %}<a href="{{ url_for('detalle_movimiento_bancario', movimiento_id=ref.movimiento_id) }}"><i class="bi bi-box-arrow-up-right"></i> Consultar movimiento</a></div>{% else %}<p>{{ mensaje.contenido }}</p>{% endif %}
                         <time>{{ mensaje.enviado_en.strftime('%d/%m/%Y %H:%M') }}</time>
                     </div>
                 </div>
@@ -107,7 +107,38 @@ document.addEventListener("DOMContentLoaded", () => {
     const conversacionId = Number(chat.dataset.conversacionId);
     const usuarioId = Number(chat.dataset.usuarioId);
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
+    const campoMensaje = form.querySelector('textarea[name="contenido"]');
+    const paginaMensajes = document.querySelector(".mensajes-page");
     let consultando = false;
+
+    function ajustarViewport() {
+        if (!paginaMensajes || window.innerWidth > 991) return;
+        const viewport = window.visualViewport;
+        const limiteInferior = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+        const inicio = paginaMensajes.getBoundingClientRect().top;
+        const disponible = Math.max(360, Math.floor(limiteInferior - inicio - 8));
+        paginaMensajes.style.setProperty("--mensajes-height", `${disponible}px`);
+    }
+
+    function ajustarCampo() {
+        campoMensaje.style.height = "auto";
+        campoMensaje.style.height = `${Math.min(campoMensaje.scrollHeight, 96)}px`;
+    }
+
+    ajustarViewport();
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", ajustarViewport);
+        window.visualViewport.addEventListener("scroll", ajustarViewport);
+    } else {
+        window.addEventListener("resize", ajustarViewport);
+    }
+    campoMensaje.addEventListener("input", ajustarCampo);
+    campoMensaje.addEventListener("focus", () => {
+        window.setTimeout(() => {
+            ajustarViewport();
+            chat.scrollTop = chat.scrollHeight;
+        }, 180);
+    });
 
     function ultimoId() {
         const elementos = chat.querySelectorAll("[data-mensaje-id]");
@@ -121,11 +152,44 @@ document.addEventListener("DOMContentLoaded", () => {
         fila.dataset.mensajeId = mensaje.id;
         const burbuja = document.createElement("div");
         burbuja.className = "burbuja";
-        const texto = document.createElement("p");
-        texto.textContent = mensaje.contenido;
+        if (mensaje.referencia_movimiento) {
+            burbuja.classList.add("burbuja-referencia");
+            const ref = mensaje.referencia_movimiento;
+            const tarjeta = document.createElement("div");
+            tarjeta.className = "mensaje-movimiento";
+            const icono = document.createElement("span");
+            icono.className = "mensaje-movimiento__icono";
+            icono.innerHTML = '<i class="bi bi-receipt"></i>';
+            const encabezado = document.createElement("div");
+            encabezado.className = "mensaje-movimiento__encabezado";
+            const etiqueta = document.createElement("small");
+            etiqueta.textContent = "MOVIMIENTO BANCARIO";
+            const monto = document.createElement("strong");
+            monto.textContent = `${ref.tipo} · $${Number(ref.monto).toLocaleString("es-MX", {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+            const fecha = document.createElement("time");
+            fecha.textContent = ref.fecha;
+            encabezado.append(etiqueta, monto, fecha);
+            const descripcion = document.createElement("p");
+            descripcion.textContent = ref.descripcion;
+            tarjeta.append(icono, encabezado, descripcion);
+            if (ref.comentario) {
+                const comentario = document.createElement("blockquote");
+                comentario.textContent = ref.comentario;
+                tarjeta.appendChild(comentario);
+            }
+            const enlace = document.createElement("a");
+            enlace.href = `/finanzas/movimientos/${ref.movimiento_id}`;
+            enlace.innerHTML = '<i class="bi bi-box-arrow-up-right"></i> Consultar movimiento';
+            tarjeta.appendChild(enlace);
+            burbuja.appendChild(tarjeta);
+        } else {
+            const texto = document.createElement("p");
+            texto.textContent = mensaje.contenido;
+            burbuja.appendChild(texto);
+        }
         const hora = document.createElement("time");
         hora.textContent = mensaje.enviado_en;
-        burbuja.append(texto, hora);
+        burbuja.appendChild(hora);
         fila.appendChild(burbuja);
         const vacio = chat.querySelector(".chat-vacio");
         if (vacio) vacio.remove();
@@ -155,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.addEventListener("submit", async (evento) => {
         evento.preventDefault();
-        const campo = form.querySelector('textarea[name="contenido"]');
+        const campo = campoMensaje;
         const contenido = campo.value.trim();
         if (!contenido) return;
         const boton = form.querySelector("button[type=submit]");
@@ -170,6 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!respuesta.ok) throw new Error(datos.error || "No fue posible enviar el mensaje.");
             agregarMensaje(datos.mensaje);
             campo.value = "";
+            ajustarCampo();
             campo.focus();
         } catch (error) {
             window.alert(error.message);

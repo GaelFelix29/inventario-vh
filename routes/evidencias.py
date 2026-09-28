@@ -10,7 +10,7 @@ from database.documentos import (
     obtener_documento,
 )
 from database.maquinarias import obtener_maquinaria
-from supabase_config import supabase
+from supabase_config import supabase, supabase_privado
 
 
 EXTENSIONES_PERMITIDAS = {"jpg", "jpeg", "png", "webp"}
@@ -181,7 +181,17 @@ def registrar_rutas_evidencias(app, login_required, registrar_movimiento):
                 flash("La evidencia no existe.", "warning")
                 return redirect(request.referrer)
 
-            supabase.storage.from_("documentos").remove([documento["public_id"]])
+            if supabase_privado is None:
+                flash(
+                    "Falta configurar el acceso privado de Supabase; la "
+                    "evidencia no fue eliminada.",
+                    "danger",
+                )
+                return _volver_evidencias(documento["id_activo"])
+
+            supabase_privado.storage.from_("documentos").remove(
+                [documento["public_id"]]
+            )
             eliminar_documento(id)
             registrar_movimiento(
                 usuario=session["nombre"],
@@ -189,7 +199,10 @@ def registrar_rutas_evidencias(app, login_required, registrar_movimiento):
                 modulo="Evidencias",
                 referencia=documento["id_activo"],
             )
-            flash("Evidencia eliminada correctamente.", "success")
+            flash(
+                "Evidencia eliminada de la aplicación y Supabase.",
+                "success",
+            )
             return _volver_evidencias(documento["id_activo"])
         except Exception as error:
             flash(f"Error al eliminar evidencia: {error}", "danger")

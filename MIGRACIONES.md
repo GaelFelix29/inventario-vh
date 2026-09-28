@@ -14,6 +14,14 @@ ejecutarse nuevamente sin duplicar columnas.
    - Crea las conversaciones privadas, mensajes e índices de lectura.
 4. `migrar_estados_cuenta.py`
    - Crea cuentas bancarias, estados mensuales y movimientos conciliados.
+5. `migrar_detalle_movimientos_bancarios.py`
+   - Crea observaciones y archivos asociados a cada movimiento bancario.
+
+El módulo financiero también requiere un bucket **privado** de Supabase llamado
+`finanzas`. Los archivos se organizan por estado y movimiento. La aplicación
+genera enlaces temporales de cinco minutos únicamente para usuarios autorizados.
+El servidor debe tener la variable `SUPABASE_SERVICE_ROLE_KEY`; esta credencial
+se configura en `.env` y en Render, y nunca se guarda en Git.
 
 Ambas migraciones ya fueron aplicadas manualmente en la base de producción el
 22 de septiembre de 2026. Los scripts permanecen en Git para instalaciones
@@ -47,3 +55,14 @@ Las cargas actuales están separadas en:
 - `cargar_relacion_mantenimiento.py`
 - `cargar_departamentos_maquinaria.py`
 - `cargar_estado_cuenta.py`
+# Roles de Compras y Finanzas
+
+Si la base de datos fue creada antes de incorporar los módulos financieros,
+ejecute una vez:
+
+```powershell
+python migrar_roles_financieros.py
+```
+
+La migración amplía `usuarios.rol` para aceptar `Compras` y `Finanzas`. Es
+seguro volver a ejecutarla porque primero comprueba la definición existente.

@@ -1,3 +1,5 @@
+import json
+
 from flask import abort, flash, jsonify, redirect, render_template, request, session, url_for
 
 from database.mensajes import (
@@ -50,9 +52,10 @@ def registrar_rutas_mensajes(app, login_required, es_dispositivo_movil):
             conversaciones=listar_conversaciones(usuario_id),
             usuarios=listar_usuarios_mensajeria(usuario_id),
             conversacion=conversacion,
-            mensajes_conversacion=(
-                listar_mensajes(conversacion_id, usuario_id) or []
-            ),
+            mensajes_conversacion=[
+                _presentar_mensaje(fila, session.get("rol"))
+                for fila in (listar_mensajes(conversacion_id, usuario_id) or [])
+            ],
         )
 
     @app.route("/mensajes/nuevo", methods=["POST"])
@@ -127,11 +130,30 @@ def registrar_rutas_mensajes(app, login_required, es_dispositivo_movil):
             return jsonify({"ok": False, "error": str(error)}), 400
 
 
+def _presentar_mensaje(fila, rol):
+    mensaje = dict(fila)
+    mensaje["referencia_movimiento"] = None
+    contenido = mensaje.get("contenido") or ""
+    prefijo = "__MOVIMIENTO_BANCARIO__:"
+    if contenido.startswith(prefijo):
+        mensaje["contenido"] = "Movimiento bancario compartido"
+        if rol in {"Administrador", "Compras", "Finanzas"}:
+            try:
+                mensaje["referencia_movimiento"] = json.loads(
+                    contenido[len(prefijo):]
+                )
+            except (TypeError, ValueError, json.JSONDecodeError):
+                pass
+    return mensaje
+
+
 def _serializar_mensaje(fila):
+    mensaje = _presentar_mensaje(fila, session.get("rol"))
     return {
-        "id": fila["id"],
-        "remitente_id": fila["remitente_id"],
-        "remitente_nombre": fila["remitente_nombre"],
-        "contenido": fila["contenido"],
-        "enviado_en": fila["enviado_en"].strftime("%d/%m/%Y %H:%M"),
+        "id": mensaje["id"],
+        "remitente_id": mensaje["remitente_id"],
+        "remitente_nombre": mensaje["remitente_nombre"],
+        "contenido": mensaje["contenido"],
+        "referencia_movimiento": mensaje["referencia_movimiento"],
+        "enviado_en": mensaje["enviado_en"].strftime("%d/%m/%Y %H:%M"),
     }

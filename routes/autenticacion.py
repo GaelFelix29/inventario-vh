@@ -142,6 +142,12 @@ def registrar_rutas_autenticacion(
             return redirect(url_for("login"))
 
         debe_cambiar = bool(usuario_actual.debe_cambiar_password)
+        # Refresca permisos y apariencia cuando un administrador cambia el rol
+        # de una cuenta que ya tenía una sesión abierta.
+        session["nombre"] = usuario_actual.nombre
+        session["usuario"] = usuario_actual.usuario
+        session["rol"] = usuario_actual.rol
+        session["avatar"] = usuario_actual.avatar or "usuario"
         session["debe_cambiar_password"] = debe_cambiar
         if debe_cambiar:
             return redirect(url_for("cambiar_password_obligatorio"))
