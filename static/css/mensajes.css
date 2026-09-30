@@ -32,3 +32,25 @@
 @media(min-width:992px){
     .mensajes-layout{height:min(690px,calc(100dvh - 210px));min-height:480px}
 }
+
+@media(max-width:600px){
+    .mensajes-page,
+    .mensajes-layout,
+    .chat-panel,
+    .chat-cabecera,
+    .chat-mensajes,
+    .chat-form{width:100%;max-width:100%;box-sizing:border-box}
+    .chat-panel,.chat-mensajes{overflow-x:hidden}
+    .chat-cabecera{padding-right:10px}
+    .chat-cabecera>div{flex:1;min-width:0;overflow:hidden}
+    .chat-cabecera strong{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .chat-form textarea{flex:1 1 auto;width:auto;min-width:0;box-sizing:border-box}
+    .chat-form button{flex:0 0 42px;min-width:42px}
+    .burbuja{box-sizing:border-box;overflow:hidden}
+    .burbuja-referencia{width:calc(100% - 8px);max-width:calc(100% - 8px)}
+    .mensaje-movimiento{width:100%;min-width:0;box-sizing:border-box}
+    .mensaje-movimiento__encabezado strong,
+    .mensaje-movimiento>p,
+    .mensaje-movimiento blockquote{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+    .mensaje-movimiento>a{min-width:0;text-align:center;white-space:normal}
+}
