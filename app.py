@@ -41,6 +41,7 @@ from routes.perfil import registrar_rutas_perfil
 from routes.inicio import registrar_rutas_inicio
 from routes.mensajes import registrar_rutas_mensajes
 from routes.finanzas import registrar_rutas_finanzas
+from routes.mantenimiento import registrar_rutas_mantenimiento
 from database.mensajes import contar_no_leidos
 
 # ==========================================
@@ -124,6 +125,9 @@ def agregar_encabezados_seguridad(response):
     response.headers["Permissions-Policy"] = (
         "camera=(self), microphone=(), geolocation=()"
     )
+
+    if request.path.startswith("/static/"):
+        response.headers["Cache-Control"] = "public, max-age=3600"
 
     if request.is_secure:
         response.headers["Strict-Transport-Security"] = (
@@ -251,6 +255,7 @@ registrar_rutas_perfil(
 registrar_rutas_inicio(app, login_required, es_dispositivo_movil)
 registrar_rutas_mensajes(app, login_required, es_dispositivo_movil)
 registrar_rutas_finanzas(app, login_required, roles_required, registrar_movimiento)
+registrar_rutas_mantenimiento(app, login_required)
 
 if __name__ == "__main__":
 

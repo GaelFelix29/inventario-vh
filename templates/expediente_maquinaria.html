@@ -132,6 +132,12 @@
 
                         </a>
 
+                        <a href="{{ url_for('mantenimiento_maquinaria', id_activo=maquina.id_activo, origen='web') }}"
+                            class="btn btn-outline-success rounded-pill">
+                            <i class="bi bi-tools"></i>
+                            Mantenimiento preventivo
+                        </a>
+
                         {% if session["rol"] in ["Administrador","Mantenimiento"] %}
 
                         {% if maquina.estado == "BAJA" %}

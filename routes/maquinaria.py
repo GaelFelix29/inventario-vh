@@ -319,7 +319,7 @@ def registrar_rutas_maquinaria(
             return redirect(url_for("lista_maquinarias"))
 
         url = url_for(
-            "expediente_maquinaria",
+            "maquinaria_qr",
             id_activo=id_activo,
             _external=True,
         )

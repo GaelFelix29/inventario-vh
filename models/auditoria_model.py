@@ -185,6 +185,7 @@ def obtener_actividad_filtrada(
             (
                 modulo IN (
                     'Accesorios',
+                    'Mantenimiento',
                     'Movimientos',
                     'Solicitudes'
                 )
@@ -334,6 +335,7 @@ def obtener_actividad_ultimos_7_dias(rol, usuario_actual):
             (
                 modulo IN (
                     'Accesorios',
+                    'Mantenimiento',
                     'Movimientos',
                     'Solicitudes'
                 )

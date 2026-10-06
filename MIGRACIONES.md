@@ -66,3 +66,24 @@ python migrar_roles_financieros.py
 
 La migración amplía `usuarios.rol` para aceptar `Compras` y `Finanzas`. Es
 seguro volver a ejecutarla porque primero comprueba la definición existente.
+# Mantenimiento preventivo
+
+Ejecutar una sola vez para crear el plan base de Naranjo 2026 y vincular las
+maquinarias que ya existen en esa ubicación:
+
+```powershell
+python migrar_mantenimiento_preventivo.py
+```
+
+La migración no crea ni modifica maquinarias. Los equipos quedan con
+periodicidad y prioridad `POR DEFINIR` hasta realizar la conciliación con el
+plan de Mantenimiento.
+
+Para conservar los colores originales del Excel, ejecutar después:
+
+```powershell
+python migrar_colores_plan_mantenimiento.py
+```
+
+Después, Administrador y Mantenimiento pueden asignar manualmente cada estado
+semanal desde la cuadrícula. Esta función no crea ni modifica maquinarias.

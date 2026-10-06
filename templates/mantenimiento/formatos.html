@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titulo %}Formatos de mantenimiento{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{{ url_for('static', filename='css/mantenimiento_formatos.css', v='20261001-1') }}">{% endblock %}
+{% block contenido %}
+<main class="fm-page">
+  <a class="fm-back" href="{{ url_for('mantenimiento_preventivo') }}"><i class="bi bi-arrow-left"></i> Regresar al plan</a>
+  <header class="fm-hero">
+    <div><small>CONFIGURACIÓN · NARANJO</small><h1>Formatos por maquinaria</h1><p>Consulta, asigna o cambia el formato preventivo de cada equipo.</p></div>
+    <span><strong>{{ maquinas|length }}</strong> equipos</span>
+  </header>
+  <form class="fm-search" method="get"><label><i class="bi bi-search"></i><input name="buscar" value="{{ buscar }}" placeholder="Buscar código, equipo o departamento"></label><button><i class="bi bi-funnel"></i> Buscar</button>{% if buscar %}<a href="{{ url_for('administrar_formatos_mantenimiento') }}">Limpiar</a>{% endif %}</form>
+  <section class="fm-note"><i class="bi bi-info-circle"></i><span>Un formato solo puede pertenecer a una maquinaria. Los cambios quedan registrados en Actividad.</span></section>
+  <section class="fm-list">
+    {% for maquina in maquinas %}
+    <article class="fm-row {% if maquina.formato_id %}assigned{% else %}pending{% endif %}">
+      <div class="fm-machine"><small>{{ maquina.id_activo }}</small><strong>{{ maquina.codigo }} · {{ maquina.equipo }}</strong><span>{{ maquina.departamento }}</span></div>
+      <div class="fm-current"><small>FORMATO ACTUAL</small>{% if maquina.formato_id %}<strong>{{ maquina.codigo_documento }}</strong><span>{{ maquina.formato_nombre }} · {{ maquina.version }}</span>{% else %}<strong>Sin formato asignado</strong><span>Pendiente de definir</span>{% endif %}</div>
+      {% if es_administrador %}
+      <form class="fm-assign" method="post">
+        <input type="hidden" name="id_activo" value="{{ maquina.id_activo }}"><input type="hidden" name="buscar" value="{{ buscar }}">
+        <select name="formato_id" aria-label="Formato para {{ maquina.codigo }}">
+          <option value="">Sin formato</option>
+          {% for formato in formatos %}<option value="{{ formato.id }}" {% if formato.id==maquina.formato_id %}selected{% elif formato.asignado_a %}disabled{% endif %}>{{ formato.codigo_documento }} · {{ formato.nombre }}{% if formato.asignado_a and formato.id!=maquina.formato_id %} · Asignado a {{ formato.asignado_a }}{% endif %}</option>{% endfor %}
+        </select>
+        <button type="submit"><i class="bi bi-check2"></i> Guardar</button>
+      </form>
+      {% else %}<span class="fm-readonly">Solo consulta</span>{% endif %}
+      {% if maquina.formato_id %}<a class="fm-pdf" target="_blank" rel="noopener" href="{{ url_for('archivo_formato_mantenimiento', formato_id=maquina.formato_id) }}" title="Ver PDF"><i class="bi bi-file-earmark-pdf"></i></a>{% endif %}
+    </article>
+    {% else %}<div class="fm-empty"><i class="bi bi-search"></i><h2>No encontramos maquinarias</h2><p>Cambia el texto de búsqueda.</p></div>{% endfor %}
+  </section>
+</main>
+{% endblock %}

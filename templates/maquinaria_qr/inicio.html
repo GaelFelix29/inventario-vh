@@ -57,6 +57,12 @@
 
 </div>
 
+<a class="quick-card" href="{{ url_for('mantenimiento_maquinaria', id_activo=maquinaria.id_activo, origen='qr') }}">
+    <div class="quick-icon"><i class="bi bi-tools"></i></div>
+    <div class="quick-content"><h6>Mantenimiento preventivo</h6><small>Consulta la semana programada e inicia el formato.</small></div>
+    <i class="bi bi-chevron-right"></i>
+</a>
+
 <section class="navegador-activos" aria-label="Buscar y navegar entre activos">
     <div class="navegador-activos__movimiento">
         {% if anterior %}

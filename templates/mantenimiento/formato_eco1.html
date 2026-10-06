@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}Formato {{ codigo_formato }} · Semana {{ ejecucion.semana }}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{{ url_for('static', filename='css/formato_mantenimiento.css', v='20260930-1') }}">{% endblock %}
+{% block contenido %}
+<main class="fm-page">
+  <header class="fm-top"><a href="{{ url_for('mantenimiento_maquinaria', id_activo=ejecucion.id_activo, anio=ejecucion.anio, origen=origen) }}"><i class="bi bi-arrow-left"></i></a><div><small>FORMATO DIGITAL · SEMANA {{ ejecucion.semana }}</small><h1>{{ codigo_formato }} · {{ ejecucion.equipo }}</h1><p>{{ ejecucion.id_activo }} · {{ ejecucion.departamento }}</p></div><span class="fm-state {{ ejecucion.estado|lower }}">{{ ejecucion.estado }}</span></header>
+  {% if ejecucion.estado == 'COMPLETO' %}<div class="fm-complete"><i class="bi bi-check-circle-fill"></i> Formato completo y firmado. Se conserva como registro de la semana {{ ejecucion.semana }}.</div>{% endif %}
+  <form method="post" id="formEco1"><input type="hidden" name="origen" value="{{ origen }}">
+    <section class="fm-card fm-general"><h2>Datos del mantenimiento</h2><div class="fm-fields"><label><span>Fecha de realización</span><input type="date" name="fecha_realizacion" value="{{ ejecucion.fecha_realizacion or '' }}" {% if puede_editar %}required{% else %}disabled{% endif %}></label><fieldset><legend>Procedimiento</legend><label><input type="radio" name="procedimiento" value="CONVENCIONAL" {% if ejecucion.procedimiento=='CONVENCIONAL' %}checked{% endif %} {% if not puede_editar %}disabled{% endif %}> Convencional</label><label><input type="radio" name="procedimiento" value="KOSHER" {% if ejecucion.procedimiento=='KOSHER' %}checked{% endif %} {% if not puede_editar %}disabled{% endif %}> Kosher</label><label><input type="radio" name="procedimiento" value="HALAL" {% if ejecucion.procedimiento=='HALAL' %}checked{% endif %} {% if not puede_editar %}disabled{% endif %}> Halal</label></fieldset></div></section>
+    {% for titulo, actividades in secciones %}
+    <details class="fm-card fm-section" open><summary><span><i class="bi bi-tools"></i>{{ titulo }}</span><i class="bi bi-chevron-down"></i></summary><div class="fm-activities">
+      {% for clave, texto in actividades %}{% set valor=ejecucion.respuestas_json.get(clave, '') %}
+      <article class="fm-activity"><p><span>{{ loop.index }}</span>{{ texto }}</p><div class="fm-options">
+        <label class="ok"><input type="radio" name="actividad_{{ clave }}" value="REALIZADO" {% if valor=='REALIZADO' %}checked{% endif %} {% if not puede_editar %}disabled{% endif %}><span>✓ Realizado</span></label>
+        <label class="change"><input type="radio" name="actividad_{{ clave }}" value="CAMBIO" {% if valor=='CAMBIO' %}checked{% endif %} {% if not puede_editar %}disabled{% endif %}><span>C Cambio</span></label>
+        <label class="na"><input type="radio" name="actividad_{{ clave }}" value="NO_APLICA" {% if valor=='NO_APLICA' %}checked{% endif %} {% if not puede_editar %}disabled{% endif %}><span>N/A</span></label>
+      </div></article>{% endfor %}
+    </div></details>{% endfor %}
+    <section class="fm-card"><h2>Material utilizado</h2><div class="fm-materials">{% for material in materiales %}<label><input type="checkbox" name="materiales" value="{{ material }}" {% if material in ejecucion.materiales_json %}checked{% endif %} {% if not puede_editar %}disabled{% endif %}><span>{{ material }}</span></label>{% endfor %}</div></section>
+    <section class="fm-card"><h2>Observaciones</h2><textarea name="observaciones" rows="4" placeholder="Cambios realizados, recomendaciones o incidencias..." {% if not puede_editar %}disabled{% endif %}>{{ ejecucion.observaciones or '' }}</textarea></section>
+    <section class="fm-card"><h2>Firmas</h2><div class="fm-signatures">
+      <div class="fm-sign"><strong>Responsable de mantenimiento</strong><canvas data-signature="firmaTecnico"></canvas><input type="hidden" id="firmaTecnico" name="firma_tecnico" value="{{ ejecucion.firma_tecnico or '' }}"><button type="button" data-clear="firmaTecnico" {% if not puede_editar %}disabled{% endif %}>Limpiar firma</button></div>
+      <div class="fm-sign"><strong>Supervisor</strong><canvas data-signature="firmaSupervisor"></canvas><input type="hidden" id="firmaSupervisor" name="firma_supervisor" value="{{ ejecucion.firma_supervisor or '' }}"><button type="button" data-clear="firmaSupervisor" {% if not puede_editar %}disabled{% endif %}>Limpiar firma</button></div>
+    </div></section>
+    {% if puede_editar %}<footer class="fm-actions"><button type="submit" name="accion" value="borrador" class="draft"><i class="bi bi-cloud-check"></i> Guardar borrador</button><button type="submit" name="accion" value="finalizar" class="finish"><i class="bi bi-check2-circle"></i> Finalizar mantenimiento</button></footer>{% endif %}
+  </form>
+</main>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/formato_mantenimiento.js', v='20260930-1') }}"></script>{% endblock %}
+

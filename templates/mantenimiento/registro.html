@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block titulo %}Mantenimiento · {{ registro.codigo }} · Semana {{ registro.semana }}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{{ url_for('static', filename='css/registro_mantenimiento.css', v='20261001-3') }}">{% endblock %}
+{% block contenido %}
+<main class="mr-page">
+  <a class="mr-back" href="{{ url_for('mantenimiento_preventivo', anio=registro.anio) }}"><i class="bi bi-arrow-left"></i> Regresar al plan</a>
+  <header class="mr-hero"><div><small>MANTENIMIENTO PREVENTIVO · SEMANA {{ registro.semana }}</small><h1>{{ registro.codigo }} · {{ registro.equipo }}</h1><p>{{ registro.id_activo }} · {{ registro.departamento }} · Plan {{ registro.anio }}</p></div><span class="mr-status"><i class="bi bi-check-circle-fill"></i> Realizado</span></header>
+  <section class="mr-summary">
+    <article><i class="bi bi-person-check"></i><div><small>Realizado por</small><strong>{{ registro.tecnico_nombre or registro.tecnico or 'No registrado' }}</strong></div></article>
+    <article><i class="bi bi-play-circle"></i><div><small>Inicio</small><strong>{% if registro.iniciado_en and (registro.iniciado_en.hour or registro.iniciado_en.minute) %}{{ registro.iniciado_en.strftime('%d/%m/%Y %H:%M') }}{% elif registro.iniciado_en %}{{ registro.iniciado_en.strftime('%d/%m/%Y') }} · Hora no registrada{% else %}No registrado{% endif %}</strong></div></article>
+    <article><i class="bi bi-stop-circle"></i><div><small>Finalización</small><strong>{% if registro.finalizado_en and (registro.finalizado_en.hour or registro.finalizado_en.minute) %}{{ registro.finalizado_en.strftime('%d/%m/%Y %H:%M') }}{% elif registro.finalizado_en %}{{ registro.finalizado_en.strftime('%d/%m/%Y') }} · Hora no registrada{% elif registro.fecha_realizada %}{{ registro.fecha_realizada.strftime('%d/%m/%Y') }}{% else %}No registrado{% endif %}</strong></div></article>
+    <article><i class="bi bi-clock-history"></i><div><small>Duración</small><strong>{% if registro.iniciado_en and registro.finalizado_en and ((registro.iniciado_en.hour or registro.iniciado_en.minute) or (registro.finalizado_en.hour or registro.finalizado_en.minute)) %}{{ ((registro.finalizado_en-registro.iniciado_en).total_seconds()/60)|round|int }} minutos{% else %}No disponible{% endif %}</strong></div></article>
+  </section>
+  {% if puede_editar_historico %}
+  <details class="mr-historical-edit">
+    <summary><i class="bi bi-pencil-square"></i> Editar datos del registro histórico</summary>
+    <form method="post" action="{{ url_for('editar_registro_historico_mantenimiento', mantenimiento_id=registro.mantenimiento_id) }}">
+      <label><span>Responsable del mantenimiento</span><input name="tecnico" maxlength="150" value="{{ registro.tecnico or '' }}" required></label>
+      <label><span>Fecha de realización</span><input type="date" name="fecha_realizada" value="{{ registro.fecha_realizada.strftime('%Y-%m-%d') if registro.fecha_realizada else '' }}" required></label>
+      <label><span>Inicio <small>(opcional)</small></span><input type="datetime-local" name="inicio" value="{{ registro.iniciado_manual_en.strftime('%Y-%m-%dT%H:%M') if registro.iniciado_manual_en else '' }}"></label>
+      <label><span>Finalización <small>(opcional)</small></span><input type="datetime-local" name="fin" value="{{ registro.finalizado_manual_en.strftime('%Y-%m-%dT%H:%M') if registro.finalizado_manual_en else '' }}"></label>
+      <button type="submit"><i class="bi bi-check2"></i> Guardar datos</button>
+    </form>
+    <p>Esta edición sólo completa el registro histórico. No cambia la fotografía ni el formato asignado a la maquinaria.</p>
+  </details>
+  {% endif %}
+  <section class="mr-grid">
+    <article class="mr-card mr-form">
+      <header><div><small>REGISTRO PRINCIPAL</small><h2>Formulario del mantenimiento</h2></div>{% if registro.ejecucion_id %}<span class="complete"><i class="bi bi-patch-check-fill"></i> {{ registro.estado_ejecucion|title }}</span>{% else %}<span class="manual"><i class="bi bi-info-circle"></i> Registro manual</span>{% endif %}</header>
+      {% if registro.ejecucion_id %}<div class="mr-form-info"><dl><div><dt>Formato</dt><dd>{{ registro.formato or 'Sin identificar' }}</dd></div><div><dt>Fecha realizada</dt><dd>{{ registro.fecha_realizacion.strftime('%d/%m/%Y') if registro.fecha_realizacion else '-' }}</dd></div></dl><p>El formulario digital conserva las actividades, materiales, observaciones y firmas capturadas.</p></div><div class="mr-actions"><a href="{{ url_for('formato_mantenimiento', ejecucion_id=registro.ejecucion_id, origen='web') }}"><i class="bi bi-eye"></i> Consultar formulario</a>{% if puede_exportar %}<a class="pdf" href="{{ url_for('exportar_registro_mantenimiento_pdf', mantenimiento_id=registro.mantenimiento_id) }}"><i class="bi bi-file-earmark-pdf"></i> Exportar PDF Vital Health</a>{% endif %}</div>
+      {% else %}<div class="mr-empty-form"><i class="bi bi-clipboard-x"></i><h3>Sin formulario digital</h3><p>Esta semana se marcó como realizada manualmente. Puedes adjuntar el documento utilizado en esta ocasión.</p></div>{% endif %}
+    </article>
+    <article class="mr-card mr-docs">
+      <header><div><small>EVIDENCIA ADJUNTA</small><h2>Documentos</h2></div><span>{{ documentos|length }}</span></header>
+      {% if puede_adjuntar %}
+      <form class="mr-upload" method="post" enctype="multipart/form-data" action="{{ url_for('adjuntar_documento_mantenimiento', mantenimiento_id=registro.mantenimiento_id) }}" data-document-upload>
+        <label class="mr-dropzone" data-dropzone>
+          <input type="file" name="archivo" accept=".pdf,.png,.jpg,.jpeg" required data-file-input>
+          <span class="mr-upload-icon"><i class="bi bi-cloud-arrow-up"></i></span>
+          <span class="mr-upload-copy"><strong>Arrastra tu evidencia aquí</strong><small>o haz clic para seleccionar un archivo</small></span>
+          <span class="mr-upload-types"><b>PDF</b><b>PNG</b><b>JPG</b><em>Máximo 10 MB</em></span>
+        </label>
+        <div class="mr-selected-file" data-selected-file hidden>
+          <i class="bi bi-file-earmark-check"></i><span><strong data-file-name></strong><small data-file-size></small></span>
+          <button type="button" data-file-remove aria-label="Quitar archivo"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <button class="mr-upload-submit" type="submit" disabled data-upload-submit><i class="bi bi-cloud-check"></i><span>Subir evidencia</span></button>
+      </form>
+      {% endif %}
+      <div class="mr-doc-list">{% for documento in documentos %}<a href="{{ url_for('abrir_documento_mantenimiento', documento_id=documento.id) }}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-text"></i><span><strong>{{ documento.nombre_original }}</strong><small>{{ documento.subido_por_nombre or 'Usuario' }} · {{ documento.subido_en.strftime('%d/%m/%Y %H:%M') }}</small></span><i class="bi bi-box-arrow-up-right"></i></a>{% else %}<div class="mr-no-docs"><i class="bi bi-folder2-open"></i><p>Aún no hay documentos adjuntos.</p></div>{% endfor %}</div>
+    </article>
+  </section>
+</main>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/registro_mantenimiento.js', v='20261001-1') }}"></script>{% endblock %}

@@ -12,6 +12,7 @@ MODULOS_GENERALES = [
     "Evidencias",
     "Login",
     "Maquinaria",
+    "Mantenimiento",
     "Movimientos",
     "Respaldos",
     "Seguridad",
@@ -22,6 +23,7 @@ MODULOS_GENERALES = [
 MODULOS_MANTENIMIENTO = [
     "Accesorios",
     "Maquinaria",
+    "Mantenimiento",
     "Movimientos",
     "Solicitudes",
 ]
