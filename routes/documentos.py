@@ -38,6 +38,24 @@ def _tipo_archivo_valido(nombre, contenido):
     return configuracion if firmas_validas[extension] else None
 
 
+def _destino_documentos(id_activo):
+    """Regresa al bloque de documentos para que el resultado sea visible."""
+    return url_for("expediente_maquinaria", id_activo=id_activo) + "#documentacion-activo"
+
+
+def _eliminar_archivo_supabase(cliente, ruta):
+    """Elimina un archivo y comprueba la respuesta del almacenamiento."""
+    resultado = cliente.storage.from_("documentos").remove([ruta])
+    eliminados = {
+        item.get("name")
+        for item in (resultado or [])
+        if isinstance(item, dict)
+    }
+    if ruta not in eliminados:
+        raise RuntimeError("Supabase no confirmó la eliminación del archivo.")
+    return resultado
+
+
 def registrar_rutas_documentos(app, login_required, registrar_movimiento):
     """Registra carga, eliminación y consulta móvil de documentos."""
 
@@ -46,30 +64,22 @@ def registrar_rutas_documentos(app, login_required, registrar_movimiento):
     def subir_documento(id_activo):
         if session.get("rol") != "Administrador":
             flash("No tiene permisos para subir documentos.", "danger")
-            return redirect(
-                url_for("expediente_maquinaria", id_activo=id_activo)
-            )
+            return redirect(_destino_documentos(id_activo))
 
         archivo = request.files.get("documento")
         tipo_documento = request.form.get("tipo_documento")
         if not archivo or archivo.filename == "":
             flash("Seleccione un archivo.", "warning")
-            return redirect(
-                url_for("expediente_maquinaria", id_activo=id_activo)
-            )
+            return redirect(_destino_documentos(id_activo))
 
         nombre_original = archivo.filename
         contenido = archivo.read()
         if not contenido:
             flash("El archivo está vacío.", "warning")
-            return redirect(
-                url_for("expediente_maquinaria", id_activo=id_activo)
-            )
+            return redirect(_destino_documentos(id_activo))
         if len(contenido) > TAMANO_MAXIMO_ARCHIVO:
             flash("El archivo supera el límite de 10 MB.", "warning")
-            return redirect(
-                url_for("expediente_maquinaria", id_activo=id_activo)
-            )
+            return redirect(_destino_documentos(id_activo))
 
         tipo_archivo = _tipo_archivo_valido(nombre_original, contenido)
         if not tipo_archivo:
@@ -77,9 +87,7 @@ def registrar_rutas_documentos(app, login_required, registrar_movimiento):
                 "El archivo no es válido. Seleccione un PDF, JPG, JPEG o PNG.",
                 "warning",
             )
-            return redirect(
-                url_for("expediente_maquinaria", id_activo=id_activo)
-            )
+            return redirect(_destino_documentos(id_activo))
         content_type, clasificacion = tipo_archivo
         nombre_seguro = secure_filename(nombre_original) or "archivo"
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -128,7 +136,7 @@ def registrar_rutas_documentos(app, login_required, registrar_movimiento):
                 "danger",
             )
 
-        return redirect(url_for("expediente_maquinaria", id_activo=id_activo))
+        return redirect(_destino_documentos(id_activo))
 
     @app.route("/documentos/<int:id_documento>/eliminar", methods=["POST"])
     @login_required
@@ -144,21 +152,18 @@ def registrar_rutas_documentos(app, login_required, registrar_movimiento):
 
         if supabase_privado is None:
             flash(
-                "Falta configurar el acceso privado de Supabase; el documento "
-                "no fue eliminado.",
+                "No se eliminó el documento porque el servidor publicado no "
+                "tiene configurada la llave privada de Supabase. Agrega "
+                "SUPABASE_SERVICE_ROLE_KEY en Render y vuelve a intentarlo.",
                 "danger",
             )
-            return redirect(
-                url_for(
-                    "expediente_maquinaria",
-                    id_activo=documento["id_activo"],
-                )
-            )
+            return redirect(_destino_documentos(documento["id_activo"]))
 
         try:
             if documento["public_id"]:
-                supabase_privado.storage.from_("documentos").remove(
-                    [documento["public_id"]]
+                _eliminar_archivo_supabase(
+                    supabase_privado,
+                    documento["public_id"],
                 )
             eliminar_documento(id_documento)
             registrar_movimiento(
@@ -175,15 +180,11 @@ def registrar_rutas_documentos(app, login_required, registrar_movimiento):
             traceback.print_exc()
             flash(
                 "No fue posible eliminar el archivo de Supabase. El registro "
-                "se conservó para que puedas intentarlo nuevamente.",
+                "se conservó para que puedas intentarlo nuevamente. Revisa la "
+                "configuración privada de Storage en Render.",
                 "danger",
             )
-        return redirect(
-            url_for(
-                "expediente_maquinaria",
-                id_activo=documento["id_activo"],
-            )
-        )
+        return redirect(_destino_documentos(documento["id_activo"]))
 
     @app.route("/qr/<id_activo>/documento/<tipo>")
     @login_required
