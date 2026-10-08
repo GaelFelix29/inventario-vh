@@ -318,11 +318,7 @@
                             </th>
 
                             <th class="maquinaria-mantenimiento-col">
-                                Datos de mantenimiento
-                            </th>
-
-                            <th width="86">
-                                Acciones
+                                Mantenimiento
                             </th>
 
                         </tr>
@@ -337,15 +333,33 @@
 
                             <td>
 
-                                <a class="maquinaria-id" href="{{ url_for('expediente_maquinaria', id_activo=maquina.id_activo) }}">
-                                    {{ maquina.id_activo }}
-                                </a>
+                                <div class="maquinaria-identidad">
+                                    <div class="maquinaria-fila-acciones" aria-label="Acciones de {{ maquina.id_activo }}">
+                                        <a href="{{ url_for('expediente_maquinaria', id_activo=maquina.id_activo) }}"
+                                            class="maquinaria-accion maquinaria-accion--ver" title="Ver expediente"
+                                            aria-label="Ver expediente de {{ maquina.id_activo }}">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                        {% if session["rol"] == "Administrador" %}
+                                        <a href="{{ url_for('editar_maquinaria', id_activo=maquina.id_activo) }}"
+                                            class="maquinaria-accion maquinaria-accion--editar" title="Editar activo"
+                                            aria-label="Editar {{ maquina.id_activo }}">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+
+                                    <a class="maquinaria-id" href="{{ url_for('expediente_maquinaria', id_activo=maquina.id_activo) }}">
+                                        {{ maquina.id_activo }}
+                                    </a>
+                                </div>
 
                             </td>
 
-                            <td style="max-width:350px;">
+                            <td>
 
-                                <span class="text-truncate d-inline-block" style="max-width:350px;"
+                                <span class="maquinaria-descripcion"
                                     title="{{ maquina.descripcion }}">
 
                                     {{ maquina.descripcion or "-" }}
@@ -419,20 +433,12 @@
                                 <a href="{{ url_for(
                 'expediente_maquinaria',
                 id_activo=maquina.id_activo
-            ) }}" class="badge rounded-pill text-decoration-none" style="
-                color:#087847;
-                background:#dff4e8;
-                border:1px solid #bfe5d0;
-            " title="Consultar accesorios asignados">
+            ) }}" class="maquinaria-accesorios"
+                                    title="Consultar {{ cantidad_accesorios }} {{ 'accesorio' if cantidad_accesorios == 1 else 'accesorios' }} asignados"
+                                    aria-label="Consultar accesorios asignados">
                                     <i class="bi bi-puzzle-fill"></i>
 
                                     {{ cantidad_accesorios }}
-
-                                    {% if cantidad_accesorios == 1 %}
-                                    accesorio
-                                    {% else %}
-                                    accesorios
-                                    {% endif %}
                                 </a>
 
                                 {% else %}
@@ -460,28 +466,6 @@
                                 {% else %}
                                 <span class="maquinaria-mantenimiento-vacio" title="Faltan datos de mantenimiento">—</span>
                                 {% endif %}
-                            </td>
-
-                            <td>
-
-                                <a href="{{ url_for('expediente_maquinaria', id_activo=maquina.id_activo) }}"
-                                    class="maquinaria-accion maquinaria-accion--ver" title="Ver expediente" aria-label="Ver expediente de {{ maquina.id_activo }}">
-
-                                    <i class="bi bi-eye"></i>
-
-                                </a>
-
-                                {% if session["rol"] == "Administrador" %}
-
-                                <a href="{{ url_for('editar_maquinaria', id_activo=maquina.id_activo) }}"
-                                    class="maquinaria-accion maquinaria-accion--editar" title="Editar activo" aria-label="Editar {{ maquina.id_activo }}">
-
-                                    <i class="bi bi-pencil"></i>
-
-                                </a>
-
-                                {% endif %}
-
                             </td>
 
                         </tr>
@@ -516,7 +500,9 @@
 
             order: [[0, "desc"]],
 
-            responsive: true,
+            responsive: false,
+
+            autoWidth: false,
 
             dom:
                 "<'row align-items-center mb-4'<'col-md-6'l><'col-md-6'f>>" +

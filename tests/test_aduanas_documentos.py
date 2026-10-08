@@ -23,7 +23,8 @@ class DocumentosAduanasTest(unittest.TestCase):
                 CREATE TABLE documentos_maquinaria (
                     id INTEGER PRIMARY KEY,
                     id_activo TEXT,
-                    nombre_archivo TEXT
+                    nombre_archivo TEXT,
+                    tipo_archivo TEXT
                 )
             """))
             conn.execute(text("""
@@ -50,11 +51,13 @@ class DocumentosAduanasTest(unittest.TestCase):
             """))
             conn.execute(text("""
                 INSERT INTO documentos_maquinaria
-                    (id, id_activo, nombre_archivo)
+                    (id, id_activo, nombre_archivo, tipo_archivo)
                 VALUES
-                    (630, 'ACT-0312', 'factura.pdf'),
-                    (631, 'ACT-0312', 'pedimento.pdf'),
-                    (632, 'ACT-0312', 'packing-list.pdf')
+                    (630, 'ACT-0312', 'factura.pdf', 'DOCUMENTO'),
+                    (631, 'ACT-0312', 'pedimento.pdf', 'DOCUMENTO'),
+                    (632, 'ACT-0312', 'packing-list.pdf', 'DOCUMENTO'),
+                    (633, 'ACT-0312', 'frente.jpg', 'IMAGEN'),
+                    (634, 'ACT-0312', 'placa.png', 'IMAGEN')
             """))
 
     def tearDown(self):
@@ -65,7 +68,11 @@ class DocumentosAduanasTest(unittest.TestCase):
             registros = modulo_aduanas.obtener_aduanas().set_index("id_activo")
 
         self.assertEqual(int(registros.loc["ACT-0312", "total_documentos"]), 3)
+        self.assertEqual(int(registros.loc["ACT-0312", "total_imagenes"]), 2)
+        self.assertEqual(int(registros.loc["ACT-0312", "total_archivos"]), 5)
         self.assertEqual(int(registros.loc["ACT-0313", "total_documentos"]), 0)
+        self.assertEqual(int(registros.loc["ACT-0313", "total_imagenes"]), 0)
+        self.assertEqual(int(registros.loc["ACT-0313", "total_archivos"]), 0)
 
     def test_api_mobile_incluye_el_mismo_total(self):
         with patch.object(modulo_aduanas, "engine", self.engine):
@@ -75,7 +82,11 @@ class DocumentosAduanasTest(unittest.TestCase):
             ).set_index("id_activo")
 
         self.assertEqual(int(registros.loc["ACT-0312", "total_documentos"]), 3)
+        self.assertEqual(int(registros.loc["ACT-0312", "total_imagenes"]), 2)
+        self.assertEqual(int(registros.loc["ACT-0312", "total_archivos"]), 5)
         self.assertEqual(int(registros.loc["ACT-0313", "total_documentos"]), 0)
+        self.assertEqual(int(registros.loc["ACT-0313", "total_imagenes"]), 0)
+        self.assertEqual(int(registros.loc["ACT-0313", "total_archivos"]), 0)
 
 
 if __name__ == "__main__":

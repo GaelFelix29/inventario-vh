@@ -1,12 +1,12 @@
-{% extends "base.html" %}
+{% extends layout_template %}
 {% block titulo %}Mantenimiento · {{ registro.codigo }} · Semana {{ registro.semana }}{% endblock %}
 {% block estilos %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/registro_mantenimiento.css', v='20261001-3') }}">{%
+<link rel="stylesheet" href="{{ url_for('static', filename='css/registro_mantenimiento.css', v='20261008-4') }}">{%
 endblock %}
 {% block contenido %}
 <main class="mr-page">
-  <a class="mr-back" href="{{ url_for('mantenimiento_preventivo', anio=registro.anio) }}"><i
-      class="bi bi-arrow-left"></i> Regresar al plan</a>
+  <a class="mr-back" href="{% if origen == 'web' %}{{ url_for('mantenimiento_preventivo', anio=registro.anio) }}{% else %}{{ url_for('mantenimiento_maquinaria', id_activo=registro.id_activo, anio=registro.anio, origen=origen) }}{% endif %}"><i
+      class="bi bi-arrow-left"></i> {% if origen == 'web' %}Regresar al plan{% else %}Regresar a mantenimientos{% endif %}</a>
   <header class="mr-hero">
     <div><small>MANTENIMIENTO PREVENTIVO · SEMANA {{ registro.semana }}</small>
       <h1>{{ registro.codigo }} · {{ registro.equipo }}</h1>
@@ -44,6 +44,7 @@ endblock %}
     <summary><i class="bi bi-pencil-square"></i> Editar datos del registro histórico</summary>
     <form method="post"
       action="{{ url_for('editar_registro_historico_mantenimiento', mantenimiento_id=registro.mantenimiento_id) }}">
+      <input type="hidden" name="origen" value="{{ origen }}">
       <label><span>Responsable del mantenimiento</span><input name="tecnico" maxlength="150"
           value="{{ registro.tecnico or '' }}" required></label>
       <label><span>Fecha de realización</span><input type="date" name="fecha_realizada"
@@ -84,7 +85,7 @@ endblock %}
           utilizada.</p>
       </div>
       <div class="mr-actions"><a
-          href="{{ url_for('formato_mantenimiento', ejecucion_id=registro.ejecucion_id, origen='web') }}"><i
+          href="{{ url_for('formato_mantenimiento', ejecucion_id=registro.ejecucion_id, origen=origen) }}"><i
             class="bi bi-eye"></i> Consultar formulario</a>{% if puede_exportar %}<a class="pdf"
           href="{{ url_for('exportar_registro_mantenimiento_pdf', mantenimiento_id=registro.mantenimiento_id) }}"><i
             class="bi bi-file-earmark-pdf"></i> Exportar PDF Vital Health</a>{% endif %}</div>
@@ -103,6 +104,7 @@ endblock %}
       <form class="mr-upload" method="post" enctype="multipart/form-data"
         action="{{ url_for('adjuntar_documento_mantenimiento', mantenimiento_id=registro.mantenimiento_id) }}"
         data-document-upload>
+        <input type="hidden" name="origen" value="{{ origen }}">
         <label class="mr-dropzone" data-dropzone>
           <input type="file" name="archivo" accept=".pdf,.png,.jpg,.jpeg" required data-file-input>
           <span class="mr-upload-icon"><i class="bi bi-cloud-arrow-up"></i></span>

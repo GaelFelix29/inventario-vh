@@ -657,6 +657,18 @@ body {
 
 }
 
+.search-item .search-item-maintenance {
+    display: block;
+    margin-top: 7px;
+    padding: 7px 9px;
+    border-radius: 9px;
+    color: #08784b;
+    background: #e9f7f0;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
 
 .hero-dashboard {
 

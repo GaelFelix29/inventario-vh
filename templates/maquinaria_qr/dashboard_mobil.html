@@ -11,7 +11,7 @@ Dashboard
     href="{{ url_for(
         'static',
         filename='css/dashboard_mobil.css',
-        v='20260924-1'
+        v='20261008-1'
     ) }}">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
@@ -1109,6 +1109,18 @@ document.addEventListener("DOMContentLoaded", function () {
                         codigo,
                         informacion
                     );
+
+                    if (activo.datos_mantenimiento_completos) {
+                        const mantenimiento = document.createElement("small");
+                        mantenimiento.className = "search-item-maintenance";
+                        mantenimiento.textContent = [
+                            activo.codigo_mantenimiento,
+                            activo.nombre_mantenimiento,
+                            activo.departamento,
+                            activo.voltaje
+                        ].join(" · ");
+                        elemento.appendChild(mantenimiento);
+                    }
 
                     elemento.addEventListener(
                         "click",

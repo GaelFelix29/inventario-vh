@@ -1,6 +1,6 @@
 from pathlib import Path
 from uuid import uuid4
-from datetime import datetime
+from datetime import date, datetime
 
 from flask import abort, flash, jsonify, redirect, render_template, request, send_file, session, url_for
 from sqlalchemy.exc import SQLAlchemyError
@@ -45,10 +45,78 @@ from database.mantenimiento import (
 )
 
 
+ORIGENES_MANTENIMIENTO = {"web", "qr", "mobile"}
+
+
+def _layout_mantenimiento(origen):
+    if origen == "qr":
+        return "maquinaria_qr/base_qr.html"
+    if origen == "mobile":
+        return "maquinaria_qr/base_mobile.html"
+    return "base.html"
+
+
+def _resumir_equipo_mobile(equipo, semana_actual):
+    """Prepara una tarjeta de consulta sin exponer la cuadrícula del plan."""
+    resultado = dict(equipo)
+    semanas = [
+        {"semana": int(numero), **datos}
+        for numero, datos in equipo.get("semanas", {}).items()
+        if datos.get("estado") != "SIN_REQUERIMIENTO"
+    ]
+    en_proceso = [
+        item for item in semanas
+        if item.get("estado_ejecucion") == "BORRADOR"
+    ]
+    pendientes = [
+        item for item in semanas
+        if item.get("estado") in {"PROGRAMADO", "REPROGRAMADO"}
+        and item.get("estado_ejecucion") != "COMPLETO"
+    ]
+    no_realizados = [item for item in semanas if item.get("estado") == "NO_REALIZADO"]
+    realizados = [item for item in semanas if item.get("estado") == "REALIZADO"]
+
+    if en_proceso:
+        destacado = min(en_proceso, key=lambda item: item["semana"])
+        clave, etiqueta = "EN_PROCESO", "En proceso"
+        detalle = f"Semana {destacado['semana']} · formulario iniciado"
+    elif pendientes:
+        futuros = [item for item in pendientes if item["semana"] >= semana_actual]
+        destacado = (min(futuros, key=lambda item: item["semana"])
+                     if futuros else max(pendientes, key=lambda item: item["semana"]))
+        clave = destacado.get("estado") or "PROGRAMADO"
+        etiqueta = "Reprogramado" if clave == "REPROGRAMADO" else "Programado"
+        sufijo = "" if destacado["semana"] >= semana_actual else " · pendiente"
+        detalle = f"Semana {destacado['semana']}{sufijo}"
+    elif no_realizados:
+        destacado = max(no_realizados, key=lambda item: item["semana"])
+        clave, etiqueta = "NO_REALIZADO", "No realizado"
+        detalle = f"Semana {destacado['semana']}"
+    elif realizados:
+        destacado = max(realizados, key=lambda item: item["semana"])
+        clave, etiqueta = "REALIZADO", "Realizado"
+        detalle = f"Último registro: semana {destacado['semana']}"
+    else:
+        destacado = None
+        clave, etiqueta = "SIN_PROGRAMACION", "Sin programación"
+        detalle = "Sin semanas activas en este plan"
+
+    resultado.update({
+        "estado_consulta": clave,
+        "estado_etiqueta": etiqueta,
+        "estado_detalle": detalle,
+        "semana_destacada": destacado,
+    })
+    return resultado
+
+
 def registrar_rutas_mantenimiento(app, login_required):
     @app.get("/mantenimiento/registros/<int:mantenimiento_id>")
     @login_required
     def detalle_registro_mantenimiento(mantenimiento_id):
+        origen = request.args.get("origen", "web")
+        if origen not in ORIGENES_MANTENIMIENTO:
+            origen = "web"
         registro, documentos = obtener_registro_mantenimiento(mantenimiento_id)
         if not registro:
             abort(404)
@@ -56,6 +124,9 @@ def registrar_rutas_mantenimiento(app, login_required):
         return render_template(
             "mantenimiento/registro.html", registro=registro,
             documentos=documentos,
+            origen=origen,
+            layout_template=_layout_mantenimiento(origen),
+            id_activo=registro["id_activo"], pagina="mantenimiento",
             puede_adjuntar=session.get("rol") in {"Administrador", "Mantenimiento"},
             puede_editar_historico=(session.get("rol") == "Administrador" and
                                     not registro.get("ejecucion_id")),
@@ -67,9 +138,12 @@ def registrar_rutas_mantenimiento(app, login_required):
     @app.post("/mantenimiento/registros/<int:mantenimiento_id>/historico")
     @login_required
     def editar_registro_historico_mantenimiento(mantenimiento_id):
+        origen = request.form.get("origen", "web")
+        if origen not in ORIGENES_MANTENIMIENTO:
+            origen = "web"
         if session.get("rol") != "Administrador":
             flash("Sólo el administrador puede editar registros históricos.", "danger")
-            return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id))
+            return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id, origen=origen))
         tecnico = " ".join(request.form.get("tecnico", "").split())
         fecha_texto = request.form.get("fecha_realizada", "").strip()
         inicio_texto = request.form.get("inicio", "").strip()
@@ -88,30 +162,33 @@ def registrar_rutas_mantenimiento(app, login_required):
             flash(str(error), "warning")
         except SQLAlchemyError:
             flash("No fue posible actualizar el registro histórico.", "danger")
-        return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id))
+        return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id, origen=origen))
 
     @app.post("/mantenimiento/registros/<int:mantenimiento_id>/documentos")
     @login_required
     def adjuntar_documento_mantenimiento(mantenimiento_id):
+        origen = request.form.get("origen", "web")
+        if origen not in ORIGENES_MANTENIMIENTO:
+            origen = "web"
         if session.get("rol") not in {"Administrador", "Mantenimiento"}:
             flash("Tu perfil no puede adjuntar documentos.", "danger")
-            return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id))
+            return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id, origen=origen))
         if supabase_finanzas is None:
             flash("Falta configurar el acceso privado de Supabase.", "danger")
-            return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id))
+            return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id, origen=origen))
         archivo = request.files.get("archivo")
         if not archivo or not archivo.filename:
             flash("Selecciona un documento.", "warning")
-            return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id))
+            return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id, origen=origen))
         nombre = secure_filename(archivo.filename)
         extension = nombre.rsplit(".", 1)[-1].lower() if "." in nombre else ""
         if not nombre or extension not in {"pdf", "png", "jpg", "jpeg"}:
             flash("Usa un archivo PDF, PNG o JPG.", "warning")
-            return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id))
+            return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id, origen=origen))
         contenido = archivo.read()
         if not contenido or len(contenido) > 10 * 1024 * 1024:
             flash("El archivo está vacío o supera 10 MB.", "warning")
-            return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id))
+            return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id, origen=origen))
         ruta = f"mantenimiento/{mantenimiento_id}/{uuid4().hex}_{nombre}"
         try:
             supabase_finanzas.storage.from_("finanzas").upload(
@@ -130,7 +207,7 @@ def registrar_rutas_mantenimiento(app, login_required):
             except Exception:
                 pass
             flash("No fue posible guardar el documento.", "danger")
-        return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id))
+        return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id, origen=origen))
 
     @app.get("/mantenimiento/documentos/<int:documento_id>")
     @login_required
@@ -263,7 +340,7 @@ def registrar_rutas_mantenimiento(app, login_required):
         from datetime import date
         anio = request.args.get("anio", date.today().year, type=int)
         origen = request.args.get("origen", "web")
-        if origen not in {"web", "qr"}:
+        if origen not in ORIGENES_MANTENIMIENTO:
             origen = "web"
         equipo, agenda = obtener_agenda_activo(id_activo, anio)
         if not equipo:
@@ -282,8 +359,7 @@ def registrar_rutas_mantenimiento(app, login_required):
             agenda=agenda_preparada["items"],
             anio=anio, semana_actual=date.today().isocalendar().week,
             origen=origen,
-            layout_template=("maquinaria_qr/base_qr.html"
-                             if origen == "qr" else "base.html"),
+            layout_template=_layout_mantenimiento(origen),
             id_activo=id_activo, pagina="mantenimiento",
             puede_iniciar=session.get("rol") in {"Administrador", "Mantenimiento"},
             formato_asignado=formato_asignado,
@@ -310,7 +386,7 @@ def registrar_rutas_mantenimiento(app, login_required):
     @login_required
     def iniciar_mantenimiento_programado(id_activo, mantenimiento_id):
         origen = request.form.get("origen", "web")
-        if origen not in {"web", "qr"}:
+        if origen not in ORIGENES_MANTENIMIENTO:
             origen = "web"
         if session.get("rol") not in {"Administrador", "Mantenimiento"}:
             flash("Tu perfil no puede iniciar mantenimientos.", "danger")
@@ -348,7 +424,7 @@ def registrar_rutas_mantenimiento(app, login_required):
     @login_required
     def formato_mantenimiento(ejecucion_id):
         origen = request.args.get("origen", request.form.get("origen", "web"))
-        if origen not in {"web", "qr"}:
+        if origen not in ORIGENES_MANTENIMIENTO:
             origen = "web"
         ejecucion = obtener_ejecucion(ejecucion_id)
         if not ejecucion:
@@ -388,8 +464,16 @@ def registrar_rutas_mantenimiento(app, login_required):
                     codigo_formato,
                 )
                 flash("Formato finalizado correctamente." if finalizar else "Borrador guardado.", "success")
-            except (ValueError, SQLAlchemyError) as error:
-                flash(str(error) if isinstance(error, ValueError) else "No fue posible guardar el formato.", "danger")
+            except ValueError as error:
+                flash(str(error), "warning")
+            except SQLAlchemyError:
+                app.logger.exception(
+                    "Error guardando el formato digital %s", ejecucion_id
+                )
+                flash(
+                    "No fue posible guardar el formato. Revisa la conexión e inténtalo nuevamente.",
+                    "danger",
+                )
             return redirect(url_for("formato_mantenimiento", ejecucion_id=ejecucion_id, origen=origen))
         secciones, materiales = datos_plantilla_para_vista(plantilla)
         procedimientos_seleccionados = normalizar_procedimientos(
@@ -402,10 +486,90 @@ def registrar_rutas_mantenimiento(app, login_required):
             origen=origen,
             plantilla=plantilla,
             procedimientos_seleccionados=procedimientos_seleccionados,
-            layout_template=("maquinaria_qr/base_qr.html"
-                             if origen == "qr" else "base.html"),
+            layout_template=_layout_mantenimiento(origen),
             id_activo=ejecucion["id_activo"], pagina="mantenimiento",
             puede_editar=puede_editar and ejecucion["estado"] != "COMPLETO",
+        )
+
+    @app.get("/m/mantenimiento")
+    @login_required
+    def mantenimiento_mobile():
+        anios = obtener_anios_planes()
+        predeterminado = (date.today().year if date.today().year in anios
+                          else (anios[0] if anios else date.today().year))
+        anio = request.args.get("anio", predeterminado, type=int)
+        buscar = " ".join(request.args.get("buscar", "").split())
+        departamento = " ".join(request.args.get("departamento", "").split())
+        estado = (request.args.get("estado") or "").strip().upper()
+        pagina_actual = max(1, request.args.get("pagina", 1, type=int))
+        semana_actual = date.today().isocalendar().week
+
+        try:
+            plan, equipos_plan = obtener_plan_naranjo(anio)
+        except SQLAlchemyError:
+            plan, equipos_plan = None, []
+
+        equipos = [
+            _resumir_equipo_mobile(equipo, semana_actual)
+            for equipo in equipos_plan
+            if equipo.get("datos_mantenimiento_completos")
+        ]
+        departamentos = sorted({equipo["departamento"] for equipo in equipos})
+        resumen = {
+            "equipos": len(equipos),
+            "pendientes": sum(
+                equipo["estado_consulta"] in {"PROGRAMADO", "REPROGRAMADO"}
+                for equipo in equipos
+            ),
+            "en_proceso": sum(
+                equipo["estado_consulta"] == "EN_PROCESO" for equipo in equipos
+            ),
+            "realizados": sum(
+                equipo["estado_consulta"] == "REALIZADO" for equipo in equipos
+            ),
+        }
+
+        if buscar:
+            termino = buscar.casefold()
+            equipos = [
+                equipo for equipo in equipos
+                if termino in " ".join(str(equipo.get(campo) or "") for campo in (
+                    "id_activo", "codigo", "equipo", "departamento",
+                    "voltaje", "codigo_documento", "formato_nombre",
+                )).casefold()
+            ]
+        if departamento:
+            equipos = [
+                equipo for equipo in equipos
+                if equipo["departamento"] == departamento
+            ]
+        estados_validos = {
+            "PROGRAMADO", "REPROGRAMADO", "EN_PROCESO", "REALIZADO",
+            "NO_REALIZADO", "SIN_PROGRAMACION",
+        }
+        if estado not in estados_validos:
+            estado = ""
+        if estado:
+            equipos = [
+                equipo for equipo in equipos
+                if equipo["estado_consulta"] == estado
+            ]
+
+        por_pagina = 12
+        total = len(equipos)
+        paginas = max(1, (total + por_pagina - 1) // por_pagina)
+        pagina_actual = min(pagina_actual, paginas)
+        inicio = (pagina_actual - 1) * por_pagina
+        equipos = equipos[inicio:inicio + por_pagina]
+
+        return render_template(
+            "maquinaria_qr/mantenimiento_mobile.html",
+            plan=plan, equipos=equipos, resumen=resumen,
+            anio=anio, anios=anios, semana_actual=semana_actual,
+            buscar=buscar, departamento=departamento,
+            departamentos=departamentos, estado=estado,
+            pagina=pagina_actual, paginas=paginas, total=total,
+            pagina_seccion="mantenimiento", pagina_actual="mantenimiento",
         )
 
     @app.route("/mantenimiento")

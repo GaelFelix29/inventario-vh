@@ -6,8 +6,8 @@ endblock %}
 {% block contenido %}
 <main class="mtq-page">
   <a class="mtq-back"
-    href="{% if origen == 'qr' %}{{ url_for('maquinaria_qr', id_activo=equipo.id_activo) }}{% else %}{{ url_for('expediente_maquinaria', id_activo=equipo.id_activo) }}{% endif %}"><i
-      class="bi bi-arrow-left"></i> Regresar a la maquinaria</a>
+    href="{% if origen == 'mobile' %}{{ url_for('mantenimiento_mobile', anio=anio) }}{% elif origen == 'qr' %}{{ url_for('maquinaria_qr', id_activo=equipo.id_activo) }}{% else %}{{ url_for('expediente_maquinaria', id_activo=equipo.id_activo) }}{% endif %}"><i
+      class="bi bi-arrow-left"></i> {% if origen == 'mobile' %}Regresar a la consulta{% else %}Regresar a la maquinaria{% endif %}</a>
   <header class="mtq-hero">
     <div><small>MANTENIMIENTO PREVENTIVO · {{ anio }}</small>
       <h1>{{ equipo.codigo }}</h1>
@@ -87,7 +87,7 @@ endblock %}
         href="{{ url_for('formato_mantenimiento', ejecucion_id=item.ejecucion_id, origen=origen) }}"><i
           class="bi bi-pencil-square"></i> Continuar formato</a>
       {% elif item.estado_vista == 'REALIZADO' %}<a class="mtq-button complete"
-        href="{{ url_for('detalle_registro_mantenimiento', mantenimiento_id=item.mantenimiento_id) }}"><i
+        href="{{ url_for('detalle_registro_mantenimiento', mantenimiento_id=item.mantenimiento_id, origen=origen) }}"><i
           class="bi bi-check-circle"></i> Ver registro</a>
       {% elif puede_iniciar and formato_asignado and formato_asignado.digitalizado %}<form method="post"
         action="{{ url_for('iniciar_mantenimiento_programado', id_activo=equipo.id_activo, mantenimiento_id=item.mantenimiento_id) }}">

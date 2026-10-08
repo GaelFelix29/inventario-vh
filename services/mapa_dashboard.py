@@ -22,7 +22,7 @@ def resumir_mapa(registros, coordenadas):
         if nombre not in grupos:
             indice = int(hashlib.sha256(nombre.encode()).hexdigest()[:8], 16) % len(colores)
             grupos[nombre] = {"nombre": nombre, "total": 0, "activos": 0, "bajas": 0,
-                              "otros": 0, "color": colores[indice], "coordenadas": None}
+                            "otros": 0, "color": colores[indice], "coordenadas": None}
         grupo = grupos[nombre]
         grupo["total"] += 1
         estado = str(fila.get("estado") or "").strip().upper()

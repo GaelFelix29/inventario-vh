@@ -121,6 +121,21 @@ with engine.begin() as conn:
             conn.execute(text(
                 f"ALTER TABLE mantenimiento_ejecuciones ADD COLUMN {nombre} {definicion}"
             ))
+    tipo_procedimiento = next(
+        (
+            fila["Type"]
+            for fila in conn.execute(
+                text("SHOW COLUMNS FROM mantenimiento_ejecuciones")
+            ).mappings()
+            if fila["Field"] == "procedimiento"
+        ),
+        "",
+    ).lower()
+    if not tipo_procedimiento.startswith("varchar(100)"):
+        conn.execute(text("""
+            ALTER TABLE mantenimiento_ejecuciones
+            MODIFY COLUMN procedimiento VARCHAR(100) NULL
+        """))
     columnas_programado = {
         fila["Field"] for fila in conn.execute(
             text("SHOW COLUMNS FROM mantenimientos_programados")

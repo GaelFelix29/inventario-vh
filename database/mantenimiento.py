@@ -433,6 +433,15 @@ def guardar_formato_digital(ejecucion_id, datos, usuario, finalizar=False,
                             codigo_formato=""):
     respuestas = datos.get("respuestas", {})
     materiales = datos.get("materiales", [])
+    error_validacion = None
+    if finalizar:
+        if not datos.get("fecha_realizacion") or not datos.get("procedimiento"):
+            error_validacion = "Indica la fecha y selecciona al menos un procedimiento."
+        elif any(not respuestas.get(clave) for clave in datos.get("claves", [])):
+            error_validacion = "Responde todas las actividades antes de finalizar."
+        elif not datos.get("firma_tecnico") or not datos.get("firma_supervisor"):
+            error_validacion = "Se requieren las firmas del técnico y del supervisor."
+    completar = finalizar and not error_validacion
     with engine.begin() as conn:
         fila = conn.execute(text("""
             SELECT me.id, me.mantenimiento_id, me.estado, mp.semana,
@@ -447,13 +456,6 @@ def guardar_formato_digital(ejecucion_id, datos, usuario, finalizar=False,
             raise ValueError("El formato ya no existe.")
         if fila["estado"] == "COMPLETO":
             raise ValueError("Este formato ya fue finalizado.")
-        if finalizar:
-            if not datos.get("fecha_realizacion") or not datos.get("procedimiento"):
-                raise ValueError("Indica la fecha y selecciona al menos un procedimiento.")
-            if any(not respuestas.get(clave) for clave in datos.get("claves", [])):
-                raise ValueError("Responde todas las actividades antes de finalizar.")
-            if not datos.get("firma_tecnico") or not datos.get("firma_supervisor"):
-                raise ValueError("Se requieren las firmas del técnico y del supervisor.")
         conn.execute(text("""
             UPDATE mantenimiento_ejecuciones SET
                 formato = :formato, fecha_realizacion = :fecha,
@@ -475,10 +477,10 @@ def guardar_formato_digital(ejecucion_id, datos, usuario, finalizar=False,
             "observaciones": datos.get("observaciones", "").strip(),
             "firma_tecnico": datos.get("firma_tecnico", ""),
             "firma_supervisor": datos.get("firma_supervisor", ""),
-            "estado": "COMPLETO" if finalizar else "BORRADOR",
+            "estado": "COMPLETO" if completar else "BORRADOR",
             "id": ejecucion_id,
         })
-        if finalizar:
+        if completar:
             conn.execute(text("""
                 UPDATE mantenimientos_programados
                 SET estado = 'REALIZADO', fecha_realizada = :fecha,
@@ -488,11 +490,15 @@ def guardar_formato_digital(ejecucion_id, datos, usuario, finalizar=False,
                      "id": fila["mantenimiento_id"]})
         registrar_movimiento(
             usuario=usuario,
-            accion="Finalizó formato de mantenimiento" if finalizar else
+            accion="Finalizó formato de mantenimiento" if completar else
                    "Guardó borrador de mantenimiento",
             modulo="Mantenimiento",
             referencia=f"{fila['id_activo']} · Semana {fila['semana']} · {fila['anio']}",
             conn=conn,
+        )
+    if error_validacion:
+        raise ValueError(
+            f"{error_validacion} Tus respuestas quedaron guardadas como borrador."
         )
 
 
@@ -527,9 +533,22 @@ def obtener_plan_naranjo(anio=2026):
                 COALESCE(NULLIF(TRIM(m.codigo_mantenimiento), ''), m.id_activo) AS codigo,
                 COALESCE(NULLIF(TRIM(m.nombre_mantenimiento), ''), m.descripcion) AS equipo,
                 COALESCE(NULLIF(TRIM(m.departamento), ''), 'Sin asignar') AS departamento,
-                COALESCE(NULLIF(TRIM(m.voltaje), ''), 'Sin registrar') AS voltaje
+                COALESCE(NULLIF(TRIM(m.voltaje), ''), 'Sin registrar') AS voltaje,
+                CASE WHEN NULLIF(TRIM(m.codigo_mantenimiento), '') IS NOT NULL
+                       AND NULLIF(TRIM(m.nombre_mantenimiento), '') IS NOT NULL
+                       AND NULLIF(TRIM(m.departamento), '') IS NOT NULL
+                       AND NULLIF(TRIM(m.voltaje), '') IS NOT NULL
+                     THEN 1 ELSE 0 END AS datos_mantenimiento_completos,
+                fm.id AS formato_id,
+                fm.codigo_documento,
+                fm.nombre AS formato_nombre,
+                fm.version AS formato_version,
+                COALESCE(fm.digitalizado, 0) AS formato_digitalizado
             FROM plan_mantenimiento_equipos pe
             INNER JOIN maquinarias m ON m.id_activo = pe.id_activo
+            LEFT JOIN maquinaria_formatos mf ON mf.id_activo = m.id_activo
+            LEFT JOIN formatos_mantenimiento fm
+                ON fm.id = mf.formato_id AND fm.activo = 1
             WHERE pe.plan_id = :plan_id AND pe.activo = 1
             ORDER BY departamento, codigo
         """), {"plan_id": plan["id"]}).mappings().all()

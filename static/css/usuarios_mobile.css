@@ -39,16 +39,12 @@
     border-radius: 20px;
     color: #ffffff;
     background:
-        radial-gradient(
-            circle at 85% 5%,
+        radial-gradient(circle at 85% 5%,
             rgba(255, 255, 255, 0.1) 0 68px,
-            transparent 69px
-        ),
-        linear-gradient(
-            135deg,
+            transparent 69px),
+        linear-gradient(135deg,
             #19aa69,
-            #087f4a
-        );
+            #087f4a);
     box-shadow:
         0 11px 28px rgba(8, 127, 74, 0.18);
 }
@@ -98,7 +94,7 @@
     min-width: 0;
 }
 
-.usuarios-portada-texto > span {
+.usuarios-portada-texto>span {
     display: block;
     margin-bottom: 2px;
     font-size: 0.62rem;
@@ -208,7 +204,7 @@
     position: relative;
 }
 
-.usuarios-buscador > i {
+.usuarios-buscador>i {
     position: absolute;
     top: 50%;
     left: 13px;
@@ -284,7 +280,7 @@
     font-weight: 850;
 }
 
-.usuarios-resultados-header > strong {
+.usuarios-resultados-header>strong {
     display: grid;
     place-items: center;
     min-width: 35px;
@@ -340,67 +336,51 @@
 }
 
 .usuario-avatar--usuario {
-    background: linear-gradient(
-        145deg,
-        #24ad70,
-        #087d49
-    );
+    background: linear-gradient(145deg,
+            #24ad70,
+            #087d49);
 }
 
 .usuario-avatar--finanzas {
-    background: linear-gradient(
-        145deg,
-        #4b92ff,
-        #285bd7
-    );
+    background: linear-gradient(145deg,
+            #4b92ff,
+            #285bd7);
 }
 
 .usuario-avatar--mantenimiento {
-    background: linear-gradient(
-        145deg,
-        #ff9a41,
-        #e55d17
-    );
+    background: linear-gradient(145deg,
+            #ff9a41,
+            #e55d17);
 }
 
 .usuario-avatar--administracion {
-    background: linear-gradient(
-        145deg,
-        #ad65ed,
-        #7036c4
-    );
+    background: linear-gradient(145deg,
+            #ad65ed,
+            #7036c4);
 }
 
 .usuario-avatar--seguridad {
-    background: linear-gradient(
-        145deg,
-        #fb6267,
-        #d63b45
-    );
+    background: linear-gradient(145deg,
+            #fb6267,
+            #d63b45);
 }
 
 .usuario-avatar--inventario {
-    background: linear-gradient(
-        145deg,
-        #22b7af,
-        #078b87
-    );
+    background: linear-gradient(145deg,
+            #22b7af,
+            #078b87);
 }
 
 .usuario-avatar--logistica {
-    background: linear-gradient(
-        145deg,
-        #ffc247,
-        #e4940b
-    );
+    background: linear-gradient(145deg,
+            #ffc247,
+            #e4940b);
 }
 
 .usuario-avatar--ejecutivo {
-    background: linear-gradient(
-        145deg,
-        #526b60,
-        #293d34
-    );
+    background: linear-gradient(145deg,
+            #526b60,
+            #293d34);
 }
 
 .usuario-estado-punto {
@@ -425,7 +405,7 @@
     min-width: 0;
 }
 
-.usuario-identidad > span {
+.usuario-identidad>span {
     display: block;
     margin-bottom: 2px;
     color: #129158;
@@ -542,11 +522,9 @@
 
 .usuario-accion--editar {
     color: #ffffff;
-    background: linear-gradient(
-        135deg,
-        #19a866,
-        #09824c
-    );
+    background: linear-gradient(135deg,
+            #19a866,
+            #09824c);
     box-shadow:
         0 6px 14px rgba(9, 130, 76, 0.15);
 }
@@ -587,7 +565,7 @@
     background: #ffffff;
 }
 
-.usuarios-vacio > span {
+.usuarios-vacio>span {
     display: grid;
     place-items: center;
     width: 48px;
@@ -635,7 +613,7 @@
     margin-top: 3px;
 }
 
-.usuarios-paginacion > button {
+.usuarios-paginacion>button {
     min-height: 41px;
     padding: 8px 11px;
     border: 1px solid #dce7e1;
@@ -646,13 +624,13 @@
     font-weight: 800;
 }
 
-.usuarios-paginacion > button:disabled {
+.usuarios-paginacion>button:disabled {
     color: #a8b2ac;
     background: #f0f4f2;
     cursor: not-allowed;
 }
 
-.usuarios-paginacion > div {
+.usuarios-paginacion>div {
     display: flex;
     align-items: center;
     gap: 5px;
@@ -660,7 +638,7 @@
     font-size: 0.65rem;
 }
 
-.usuarios-paginacion > div > span {
+.usuarios-paginacion>div>span {
     display: grid;
     place-items: center;
     width: 29px;

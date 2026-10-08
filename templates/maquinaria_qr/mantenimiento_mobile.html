@@ -1,0 +1,71 @@
+{% extends "maquinaria_qr/base_mobile.html" %}
+{% block titulo %}Consulta de mantenimiento{% endblock %}
+{% block estilos %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mantenimiento_mobile.css', v='20261008-1') }}">
+{% endblock %}
+{% block contenido %}
+<main class="mm-page">
+  <header class="mm-hero">
+    <span class="mm-hero__icon"><i class="bi bi-tools"></i></span>
+    <div><small>CONSULTA MÓVIL</small><h1>Mantenimiento preventivo</h1>
+      <p>Consulta equipos, semanas y formatos sin abrir el calendario anual.</p></div>
+  </header>
+
+  <section class="mm-context">
+    <div><small>PLAN CONSULTADO</small><strong>{{ anio }}</strong></div>
+    <div><small>SEMANA ACTUAL</small><strong>{{ semana_actual }}</strong></div>
+  </section>
+
+  <section class="mm-summary" aria-label="Resumen del mantenimiento">
+    <article><i class="bi bi-pc-display"></i><span><strong>{{ resumen.equipos }}</strong><small>Equipos</small></span></article>
+    <article><i class="bi bi-calendar-check"></i><span><strong>{{ resumen.pendientes }}</strong><small>Programados</small></span></article>
+    <article><i class="bi bi-pencil-square"></i><span><strong>{{ resumen.en_proceso }}</strong><small>En proceso</small></span></article>
+    <article><i class="bi bi-check2-circle"></i><span><strong>{{ resumen.realizados }}</strong><small>Realizados</small></span></article>
+  </section>
+
+  <form class="mm-filters" method="get">
+    <label class="mm-search"><span>Buscar equipo o formato</span><div><i class="bi bi-search"></i><input name="buscar" value="{{ buscar }}" placeholder="Código, nombre, formato..."></div></label>
+    <div class="mm-filter-grid">
+      <label><span>Año</span><select name="anio">{% for opcion in anios %}<option value="{{ opcion }}" {% if opcion == anio %}selected{% endif %}>{{ opcion }}</option>{% endfor %}</select></label>
+      <label><span>Departamento</span><select name="departamento"><option value="">Todos</option>{% for opcion in departamentos %}<option value="{{ opcion }}" {% if opcion == departamento %}selected{% endif %}>{{ opcion }}</option>{% endfor %}</select></label>
+      <label><span>Estado</span><select name="estado">
+        <option value="">Todos</option>
+        <option value="PROGRAMADO" {% if estado == 'PROGRAMADO' %}selected{% endif %}>Programado</option>
+        <option value="REPROGRAMADO" {% if estado == 'REPROGRAMADO' %}selected{% endif %}>Reprogramado</option>
+        <option value="EN_PROCESO" {% if estado == 'EN_PROCESO' %}selected{% endif %}>En proceso</option>
+        <option value="REALIZADO" {% if estado == 'REALIZADO' %}selected{% endif %}>Realizado</option>
+        <option value="NO_REALIZADO" {% if estado == 'NO_REALIZADO' %}selected{% endif %}>No realizado</option>
+        <option value="SIN_PROGRAMACION" {% if estado == 'SIN_PROGRAMACION' %}selected{% endif %}>Sin programación</option>
+      </select></label>
+    </div>
+    <div class="mm-filter-actions"><button type="submit"><i class="bi bi-funnel"></i> Aplicar filtros</button>{% if buscar or departamento or estado %}<a href="{{ url_for('mantenimiento_mobile', anio=anio) }}">Limpiar</a>{% endif %}</div>
+  </form>
+
+  <div class="mm-results"><strong>{{ total }}</strong> {% if total == 1 %}equipo encontrado{% else %}equipos encontrados{% endif %}</div>
+  <section class="mm-list">
+    {% for equipo in equipos %}
+    <article class="mm-card">
+      <header><div><small>{{ equipo.id_activo }}</small><h2>{{ equipo.codigo }} · {{ equipo.equipo }}</h2></div><span class="mm-state {{ equipo.estado_consulta|lower }}">{{ equipo.estado_etiqueta }}</span></header>
+      <dl class="mm-data">
+        <div><dt><i class="bi bi-diagram-3"></i> Departamento</dt><dd>{{ equipo.departamento }}</dd></div>
+        <div><dt><i class="bi bi-lightning-charge"></i> Voltaje</dt><dd>{{ equipo.voltaje }}</dd></div>
+        <div><dt><i class="bi bi-upc-scan"></i> ID mantenimiento</dt><dd>{{ equipo.codigo }}</dd></div>
+        <div><dt><i class="bi bi-calendar-week"></i> Estado del plan</dt><dd>{{ equipo.estado_detalle }}</dd></div>
+      </dl>
+      <div class="mm-format {% if not equipo.formato_id %}pending{% endif %}">
+        <i class="bi bi-file-earmark-check"></i><span><small>FORMATO ASIGNADO</small>{% if equipo.formato_id %}<strong>{{ equipo.codigo_documento }} · {{ equipo.formato_nombre }}</strong><em>{{ equipo.formato_version }}{% if equipo.formato_digitalizado %} · Digital disponible{% else %} · Digitalización pendiente{% endif %}</em>{% else %}<strong>Pendiente de asociar</strong><em>El equipo aún no tiene formato confirmado.</em>{% endif %}</span>
+      </div>
+      <a class="mm-open" href="{{ url_for('mantenimiento_maquinaria', id_activo=equipo.id_activo, anio=anio, origen='mobile') }}"><span><i class="bi bi-journal-check"></i> Consultar agenda y formularios</span><i class="bi bi-chevron-right"></i></a>
+    </article>
+    {% else %}
+    <div class="mm-empty"><i class="bi bi-search"></i><h2>Sin coincidencias</h2><p>No hay equipos con datos completos que coincidan con estos filtros.</p></div>
+    {% endfor %}
+  </section>
+
+  {% if paginas > 1 %}<nav class="mm-pagination" aria-label="Páginas de equipos">
+    {% if pagina > 1 %}<a href="{{ url_for('mantenimiento_mobile', anio=anio, buscar=buscar or None, departamento=departamento or None, estado=estado or None, pagina=pagina-1) }}"><i class="bi bi-chevron-left"></i> Anterior</a>{% else %}<span>Anterior</span>{% endif %}
+    <strong>{{ pagina }} / {{ paginas }}</strong>
+    {% if pagina < paginas %}<a href="{{ url_for('mantenimiento_mobile', anio=anio, buscar=buscar or None, departamento=departamento or None, estado=estado or None, pagina=pagina+1) }}">Siguiente <i class="bi bi-chevron-right"></i></a>{% else %}<span>Siguiente</span>{% endif %}
+  </nav>{% endif %}
+</main>
+{% endblock %}

@@ -7,7 +7,7 @@ Inicio
 {% block contenido %}
 
 {% block estilos %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_mobil.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_mobil.css', v='20261008-1') }}">
 {% endblock %}
 
 {% set avatares = {
@@ -250,6 +250,12 @@ avatares.get(avatar_seleccionado, avatares["usuario"])
 
             activos.forEach(activo => {
 
+                const mantenimiento = activo.datos_mantenimiento_completos ? `
+                    <div class="mt-2 p-2 rounded-3 bg-success-subtle text-success-emphasis small">
+                        <div class="fw-bold"><i class="bi bi-tools"></i> ${activo.codigo_mantenimiento} · ${activo.nombre_mantenimiento}</div>
+                        <div>${activo.departamento} · <i class="bi bi-lightning-charge"></i> ${activo.voltaje}</div>
+                    </div>` : "";
+
                 resultados.innerHTML += `
                 <div class="card shadow-sm border-0 rounded-4 mb-2 resultado-activo"
                     data-id="${activo.id}">
@@ -269,6 +275,8 @@ avatares.get(avatar_seleccionado, avatares["usuario"])
                             <i class="bi bi-geo-alt"></i>
                             ${activo.ubicacion || "Sin ubicación"}
                         </div>
+
+                        ${mantenimiento}
 
                     </div>
 

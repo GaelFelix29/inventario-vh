@@ -238,21 +238,24 @@ FILTROS RESPONSIVE
 .maquinaria-page .form-select { min-height: 46px; border-radius: 12px; border-color: var(--mq-borde); box-shadow: none; }
 .maquinaria-page .form-select:focus { border-color: var(--mq-verde); box-shadow: 0 0 0 3px rgba(11,143,85,.11); }
 
-.maquinaria-tabla { width: 100% !important; min-width: 1320px; table-layout: fixed; margin-top: 8px !important; }
+.maquinaria-tabla { width: 100% !important; min-width: 1005px; table-layout: fixed; margin-top: 8px !important; }
 .maquinaria-tabla thead th { width: auto; padding: 12px 9px !important; border: 0; background: #0b874f !important; color: #fff !important; font-size: .68rem; letter-spacing: .035em; text-transform: uppercase; white-space: nowrap; }
-.maquinaria-tabla tbody td { min-width: 0; padding: 13px 9px !important; border-color: #edf2ef; color: #34443b; font-size: .82rem; background: #fff; overflow: hidden; text-overflow: ellipsis; }
-.maquinaria-tabla th:nth-child(1) { width: 94px !important; }
-.maquinaria-tabla th:nth-child(2) { width: 17% !important; }
-.maquinaria-tabla th:nth-child(3) { width: 9% !important; }
-.maquinaria-tabla th:nth-child(4) { width: 8% !important; }
-.maquinaria-tabla th:nth-child(5) { width: 9% !important; }
-.maquinaria-tabla th:nth-child(6) { width: 9% !important; }
-.maquinaria-tabla th:nth-child(7) { width: 7% !important; }
-.maquinaria-tabla th:nth-child(8) { width: 8% !important; }
-.maquinaria-tabla th:nth-child(9) { width: 250px !important; }
-.maquinaria-tabla th:nth-child(10) { width: 86px !important; }
+.maquinaria-tabla tbody td { min-width: 0; padding: 12px 8px !important; border-color: #edf2ef; color: #34443b; font-size: .79rem; line-height: 1.3; background: #fff; overflow-wrap: anywhere; }
+.maquinaria-tabla th:nth-child(1) { width: 158px !important; }
+.maquinaria-tabla th:nth-child(2) { width: 155px !important; }
+.maquinaria-tabla th:nth-child(3) { width: 80px !important; }
+.maquinaria-tabla th:nth-child(4) { width: 82px !important; }
+.maquinaria-tabla th:nth-child(5) { width: 88px !important; }
+.maquinaria-tabla th:nth-child(6) { width: 98px !important; }
+.maquinaria-tabla th:nth-child(7) { width: 78px !important; }
+.maquinaria-tabla th:nth-child(8) { width: 76px !important; }
+.maquinaria-tabla th:nth-child(9) { width: 190px !important; }
 .maquinaria-tabla td:nth-child(2) span { max-width: 100% !important; }
 .maquinaria-tabla tbody tr:hover td { background: #f4fbf7; }
+
+.maquinaria-descripcion { display: -webkit-box; overflow: hidden; line-height: 1.35; white-space: normal; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.maquinaria-accesorios { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-width: 48px; padding: 6px 9px; border: 1px solid #bfe5d0; border-radius: 999px; color: #087847; background: #dff4e8; font-weight: 800; text-decoration: none; white-space: nowrap; }
+.maquinaria-accesorios:hover { color: #fff; background: #087f4c; border-color: #087f4c; }
 
 .maquinaria-mantenimiento-col { white-space: normal !important; }
 .maquinaria-mantenimiento {
@@ -270,26 +273,28 @@ FILTROS RESPONSIVE
     gap: 6px;
     color: #087847;
 }
-.maquinaria-mantenimiento__titulo strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.maquinaria-mantenimiento__titulo strong { overflow-wrap: anywhere; }
 .maquinaria-mantenimiento > span {
-    overflow: hidden;
     color: #263a30;
     font-weight: 650;
     line-height: 1.25;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
 }
 .maquinaria-mantenimiento small {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 4px;
-    overflow: hidden;
     color: #6a7d72;
     font-size: .69rem;
-    white-space: nowrap;
 }
 .maquinaria-mantenimiento small b { color: #b3c4ba; }
 .maquinaria-mantenimiento-vacio { display: block; color: #a5b2ab; text-align: center; }
+.maquinaria-identidad { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.maquinaria-fila-acciones { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 4px; padding-right: 8px; border-right: 1px solid #dce8e1; }
+.maquinaria-fila-acciones .maquinaria-accion { width: 28px; height: 28px; margin: 0; border-radius: 9px; font-size: .72rem; box-shadow: none; }
+.maquinaria-fila-acciones .maquinaria-accion--ver { background: #0b8f55; }
+.maquinaria-fila-acciones .maquinaria-accion--editar { background: #fff0c7; }
 .maquinaria-id { color: var(--mq-verde-oscuro); font-weight: 800; text-decoration: none; white-space: nowrap; }
 .maquinaria-id:hover { color: #064f31; text-decoration: underline; }
 .maquinaria-chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 999px; font-size: .73rem; font-weight: 800; white-space: nowrap; }

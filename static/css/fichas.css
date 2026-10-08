@@ -202,7 +202,10 @@ body {
 }
 
 @media print {
-    body { background: #fff; }
+    body {
+        background: #fff;
+    }
+
     .pagina {
         width: 100%;
         min-height: auto;
@@ -210,5 +213,8 @@ body {
         padding: 0;
         gap: 6mm;
     }
-    .ficha { box-shadow: none; }
+
+    .ficha {
+        box-shadow: none;
+    }
 }

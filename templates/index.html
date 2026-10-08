@@ -2,7 +2,7 @@
 {% block titulo %}Inventario Vital Health{% endblock %}
 
 {% block contenido %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/inicio_escritorio.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/inicio_escritorio.css', v='20261008-1') }}">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/mapa_dashboard.css', v='20260915-2') }}">
 
@@ -45,6 +45,15 @@
                         <span><i class="bi bi-tag-fill"></i><b>Marca</b><em id="pMarca"></em></span>
                         <span><i class="bi bi-grid"></i><b>Categoría</b><em id="pCategoria"></em></span>
                     </div>
+                    <div id="pMantenimiento" class="preview-mantenimiento" hidden>
+                        <small><i class="bi bi-tools"></i> DATOS DE MANTENIMIENTO</small>
+                        <div>
+                            <span><b>Departamento</b><em id="pDepartamento"></em></span>
+                            <span><b>ID mantenimiento</b><em id="pCodigoMantenimiento"></em></span>
+                            <span><b>Nombre</b><em id="pNombreMantenimiento"></em></span>
+                            <span><b>Voltaje</b><em id="pVoltaje"></em></span>
+                        </div>
+                    </div>
                 </div>
                 <button id="btnImagenActivo" class="preview-foto" type="button" style="display:none;" aria-label="Ampliar fotografía del activo">
                     <img id="pImagen" alt="Fotografía del activo" loading="lazy">
@@ -82,7 +91,7 @@
 function formatoActivo(activo){if(!activo.id)return activo.text;return $(`<div class="resultado-activo"><span><i class="bi bi-box-seam"></i></span><div><strong>${activo.id}</strong><p>${activo.descripcion||''}</p><small><i class="bi bi-geo-alt"></i> ${activo.ubicacion||'Sin ubicación'}</small></div></div>`)}
 $(function(){
  $('#buscarActivo').select2({theme:'bootstrap-5',width:'100%',placeholder:'Buscar por código, serie, marca o ubicación...',minimumInputLength:2,templateResult:formatoActivo,templateSelection:a=>a.id||a.text,ajax:{url:"{{ url_for('buscar_activos_ajax') }}",dataType:'json',delay:250,data:p=>({q:p.term}),processResults:data=>({results:data})}});
- $('#buscarActivo').on('select2:select',function(e){const a=e.params.data;const foto=$('#btnImagenActivo'),imagen=$('#pImagen');$('#pActivo').text(a.id);$('#pDescripcion').text(a.descripcion||'Sin descripción');$('#pUbicacion').text(a.ubicacion||'Sin ubicación');$('#pMarca').text(a.marca||'-');$('#pCategoria').text(a.categoria||'-');if(a.imagen_url){imagen.attr('src',a.imagen_url).attr('alt','Fotografía de '+a.id);foto.show()}else{imagen.attr('src','');foto.hide()}$('#previewActivo').stop(true,true).slideDown(220);$('#btnAbrir').off('click').on('click',()=>window.location='/maquinarias/'+encodeURIComponent(a.id));foto.off('click').on('click',function(){$('#tituloImagenActivo').text(a.id+' · '+(a.descripcion||'Activo'));$('#imagenAmpliada').attr('src',a.imagen_url).attr('alt','Fotografía ampliada de '+a.id);bootstrap.Modal.getOrCreateInstance(document.getElementById('modalImagenActivo')).show()})});
+ $('#buscarActivo').on('select2:select',function(e){const a=e.params.data;const foto=$('#btnImagenActivo'),imagen=$('#pImagen'),mantenimiento=$('#pMantenimiento');$('#pActivo').text(a.id);$('#pDescripcion').text(a.descripcion||'Sin descripción');$('#pUbicacion').text(a.ubicacion||'Sin ubicación');$('#pMarca').text(a.marca||'-');$('#pCategoria').text(a.categoria||'-');if(a.datos_mantenimiento_completos){$('#pDepartamento').text(a.departamento);$('#pCodigoMantenimiento').text(a.codigo_mantenimiento);$('#pNombreMantenimiento').text(a.nombre_mantenimiento);$('#pVoltaje').text(a.voltaje);mantenimiento.prop('hidden',false)}else{mantenimiento.prop('hidden',true)}if(a.imagen_url){imagen.attr('src',a.imagen_url).attr('alt','Fotografía de '+a.id);foto.show()}else{imagen.attr('src','');foto.hide()}$('#previewActivo').stop(true,true).slideDown(220);$('#btnAbrir').off('click').on('click',()=>window.location='/maquinarias/'+encodeURIComponent(a.id));foto.off('click').on('click',function(){$('#tituloImagenActivo').text(a.id+' · '+(a.descripcion||'Activo'));$('#imagenAmpliada').attr('src',a.imagen_url).attr('alt','Fotografía ampliada de '+a.id);bootstrap.Modal.getOrCreateInstance(document.getElementById('modalImagenActivo')).show()})});
  $('#pImagen').on('error',function(){$('#btnImagenActivo').hide();$(this).attr('src','')});
 });
 </script>

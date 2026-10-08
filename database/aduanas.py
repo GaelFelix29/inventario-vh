@@ -10,14 +10,30 @@ def obtener_aduanas():
 
         SELECT
             a.*,
-            COALESCE(documentos.total_documentos, 0) AS total_documentos
+            COALESCE(documentos.total_documentos, 0) AS total_documentos,
+            COALESCE(documentos.total_imagenes, 0) AS total_imagenes,
+            COALESCE(documentos.total_archivos, 0) AS total_archivos
 
         FROM aduanas a
 
         LEFT JOIN (
             SELECT
                 id_activo,
-                COUNT(*) AS total_documentos
+                SUM(
+                    CASE
+                        WHEN UPPER(COALESCE(tipo_archivo, 'DOCUMENTO')) = 'IMAGEN'
+                            THEN 0
+                        ELSE 1
+                    END
+                ) AS total_documentos,
+                SUM(
+                    CASE
+                        WHEN UPPER(COALESCE(tipo_archivo, 'DOCUMENTO')) = 'IMAGEN'
+                            THEN 1
+                        ELSE 0
+                    END
+                ) AS total_imagenes,
+                COUNT(*) AS total_archivos
             FROM documentos_maquinaria
             GROUP BY id_activo
         ) documentos
@@ -275,14 +291,30 @@ def obtener_aduanas_mobile_filtrado(
         a.*,
         m.descripcion,
         m.estado,
-        COALESCE(documentos.total_documentos, 0) AS total_documentos
+        COALESCE(documentos.total_documentos, 0) AS total_documentos,
+        COALESCE(documentos.total_imagenes, 0) AS total_imagenes,
+        COALESCE(documentos.total_archivos, 0) AS total_archivos
     FROM aduanas a
     LEFT JOIN maquinarias m
         ON a.id_activo = m.id_activo
     LEFT JOIN (
         SELECT
             id_activo,
-            COUNT(*) AS total_documentos
+            SUM(
+                CASE
+                    WHEN UPPER(COALESCE(tipo_archivo, 'DOCUMENTO')) = 'IMAGEN'
+                        THEN 0
+                    ELSE 1
+                END
+            ) AS total_documentos,
+            SUM(
+                CASE
+                    WHEN UPPER(COALESCE(tipo_archivo, 'DOCUMENTO')) = 'IMAGEN'
+                        THEN 1
+                    ELSE 0
+                END
+            ) AS total_imagenes,
+            COUNT(*) AS total_archivos
         FROM documentos_maquinaria
         GROUP BY id_activo
     ) documentos

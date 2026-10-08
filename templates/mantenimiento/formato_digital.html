@@ -1,10 +1,13 @@
 {% extends layout_template %}
 {% block titulo %}Formato {{ plantilla.codigo_documento }} · Semana {{ ejecucion.semana }}{% endblock %}
 {% block estilos %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/formato_mantenimiento.css', v='20261008-3') }}">{%
+<link rel="stylesheet" href="{{ url_for('static', filename='css/formato_mantenimiento.css', v='20261008-5') }}">{%
 endblock %}
 {% block contenido %}
 <main class="fm-page" data-format-page>
+  {% for categoria, mensaje in get_flashed_messages(with_categories=true) %}
+  <div class="fm-alert {{ categoria }}" role="alert"><i class="bi bi-info-circle-fill"></i><span>{{ mensaje }}</span></div>
+  {% endfor %}
   <a class="fm-back"
     href="{{ url_for('mantenimiento_maquinaria', id_activo=ejecucion.id_activo, anio=ejecucion.anio, origen=origen) }}"><i
       class="bi bi-arrow-left"></i> Regresar a mantenimientos</a>
@@ -26,7 +29,9 @@ endblock %}
 
   {% if ejecucion.estado == 'COMPLETO' %}<div class="fm-complete"><i class="bi bi-check-circle-fill"></i> Formato
     completo y firmado. Esta copia corresponde a la versión {{ plantilla.version }}.</div>{% endif %}
-  <form method="post" id="formatoDigital" data-digital-form><input type="hidden" name="origen" value="{{ origen }}">
+  <form method="post" id="formatoDigital" data-digital-form>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="origen" value="{{ origen }}">
     <section class="fm-card fm-general">
       <h2>Datos del mantenimiento</h2>
       <div class="fm-fields">
@@ -98,4 +103,4 @@ endblock %}
 </main>
 {% endblock %}
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/formato_mantenimiento.js', v='20261008-3') }}"></script>{% endblock %}
+<script src="{{ url_for('static', filename='js/formato_mantenimiento.js', v='20261008-5') }}"></script>{% endblock %}

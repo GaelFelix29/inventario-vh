@@ -6,7 +6,7 @@ Aduanas
 
 {% block contenido %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/aduanas_escritorio.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/aduanas_escritorio.css', v='20261008-4') }}">
 
 <div class="container-fluid aduanas-page">
 
@@ -82,7 +82,7 @@ Aduanas
 
                         <th>Fecha</th>
 
-                        <th>Documento</th>
+                        <th class="text-center">Archivos</th>
 
                         <th width="140">
                             Acciones
@@ -128,25 +128,37 @@ Aduanas
 
                         </td>
 
-                        <td>
+                        <td class="text-center">
 
-                            {% if a.total_documentos %}
+                            {% if a.total_archivos %}
 
-                            <a href="{{ url_for('expediente_maquinaria', id_activo=a.id_activo) }}#documentacion-activo"
-                                class="aduanas-documento"
-                                title="Ver documentos de {{ a.id_activo }}">
+                            <div class="aduanas-evidencias">
+                                {% if a.total_documentos %}
+                                <a href="{{ url_for('expediente_maquinaria', id_activo=a.id_activo) }}#documentacion-activo"
+                                    class="aduanas-evidencia aduanas-evidencia--documento"
+                                    title="Ver {{ a.total_documentos }} {{ 'documento' if a.total_documentos == 1 else 'documentos' }} de {{ a.id_activo }}">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                    <span>Docs</span>
+                                    <strong>{{ a.total_documentos }}</strong>
+                                </a>
+                                {% endif %}
 
-                                <i class="bi bi-file-earmark-pdf"></i>
-
-                                <span>{{ a.total_documentos }} {{ "documento" if a.total_documentos == 1 else "documentos" }}</span>
-
-                            </a>
+                                {% if a.total_imagenes %}
+                                <a href="{{ url_for('expediente_maquinaria', id_activo=a.id_activo) }}#documentacion-activo"
+                                    class="aduanas-evidencia aduanas-evidencia--imagen"
+                                    title="Ver {{ a.total_imagenes }} {{ 'imagen' if a.total_imagenes == 1 else 'imágenes' }} de {{ a.id_activo }}">
+                                    <i class="bi bi-images"></i>
+                                    <span>Img</span>
+                                    <strong>{{ a.total_imagenes }}</strong>
+                                </a>
+                                {% endif %}
+                            </div>
 
                             {% else %}
 
                             <span class="aduanas-sin-documento">
 
-                                Sin documentos
+                                Ninguno
 
                             </span>
 

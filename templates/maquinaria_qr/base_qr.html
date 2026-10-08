@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
 
     <link rel="preload"
-          href="{{ url_for('static', filename='css/dashboard_mobil.css', v='20260924-1') }}"
+          href="{{ url_for('static', filename='css/dashboard_mobil.css', v='20261008-1') }}"
           as="style">
     <link rel="preload"
           href="{{ url_for('static', filename='css/mapa_dashboard.css', v='20260915-1') }}"
@@ -82,6 +82,11 @@
         <a href="{{ url_for('maquinarias_mobile') }}">
             <i class="bi bi-pc-display"></i>
             Maquinaria
+        </a>
+
+        <a href="{{ url_for('mantenimiento_mobile') }}">
+            <i class="bi bi-tools"></i>
+            Mantenimiento
         </a>
 
         <a href="{{ url_for('aduanas_mobile') }}">

@@ -122,6 +122,19 @@ def registrar_rutas_contenido(
                     "categoria": activo["categoria"],
                     "marca": activo["marca"],
                     "ubicacion": activo["ubicacion"],
+                    "departamento": activo.get("departamento"),
+                    "codigo_mantenimiento": activo.get("codigo_mantenimiento"),
+                    "nombre_mantenimiento": activo.get("nombre_mantenimiento"),
+                    "voltaje": activo.get("voltaje"),
+                    "datos_mantenimiento_completos": all(
+                        str(activo.get(campo) or "").strip()
+                        for campo in (
+                            "departamento",
+                            "codigo_mantenimiento",
+                            "nombre_mantenimiento",
+                            "voltaje",
+                        )
+                    ),
                     "imagen_url": activo.get("imagen_url"),
                 }
                 for activo in buscar_activos(texto)
