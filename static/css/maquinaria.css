@@ -238,20 +238,58 @@ FILTROS RESPONSIVE
 .maquinaria-page .form-select { min-height: 46px; border-radius: 12px; border-color: var(--mq-borde); box-shadow: none; }
 .maquinaria-page .form-select:focus { border-color: var(--mq-verde); box-shadow: 0 0 0 3px rgba(11,143,85,.11); }
 
-.maquinaria-tabla { width: 100% !important; table-layout: fixed; margin-top: 8px !important; }
+.maquinaria-tabla { width: 100% !important; min-width: 1320px; table-layout: fixed; margin-top: 8px !important; }
 .maquinaria-tabla thead th { width: auto; padding: 12px 9px !important; border: 0; background: #0b874f !important; color: #fff !important; font-size: .68rem; letter-spacing: .035em; text-transform: uppercase; white-space: nowrap; }
 .maquinaria-tabla tbody td { min-width: 0; padding: 13px 9px !important; border-color: #edf2ef; color: #34443b; font-size: .82rem; background: #fff; overflow: hidden; text-overflow: ellipsis; }
 .maquinaria-tabla th:nth-child(1) { width: 94px !important; }
-.maquinaria-tabla th:nth-child(2) { width: 22% !important; }
-.maquinaria-tabla th:nth-child(3) { width: 12% !important; }
+.maquinaria-tabla th:nth-child(2) { width: 17% !important; }
+.maquinaria-tabla th:nth-child(3) { width: 9% !important; }
 .maquinaria-tabla th:nth-child(4) { width: 8% !important; }
 .maquinaria-tabla th:nth-child(5) { width: 9% !important; }
 .maquinaria-tabla th:nth-child(6) { width: 9% !important; }
 .maquinaria-tabla th:nth-child(7) { width: 7% !important; }
 .maquinaria-tabla th:nth-child(8) { width: 8% !important; }
-.maquinaria-tabla th:nth-child(9) { width: 86px !important; }
+.maquinaria-tabla th:nth-child(9) { width: 250px !important; }
+.maquinaria-tabla th:nth-child(10) { width: 86px !important; }
 .maquinaria-tabla td:nth-child(2) span { max-width: 100% !important; }
 .maquinaria-tabla tbody tr:hover td { background: #f4fbf7; }
+
+.maquinaria-mantenimiento-col { white-space: normal !important; }
+.maquinaria-mantenimiento {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid #d7ede1;
+    border-radius: 12px;
+    background: #f4fbf7;
+}
+.maquinaria-mantenimiento__titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #087847;
+}
+.maquinaria-mantenimiento__titulo strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.maquinaria-mantenimiento > span {
+    overflow: hidden;
+    color: #263a30;
+    font-weight: 650;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.maquinaria-mantenimiento small {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow: hidden;
+    color: #6a7d72;
+    font-size: .69rem;
+    white-space: nowrap;
+}
+.maquinaria-mantenimiento small b { color: #b3c4ba; }
+.maquinaria-mantenimiento-vacio { display: block; color: #a5b2ab; text-align: center; }
 .maquinaria-id { color: var(--mq-verde-oscuro); font-weight: 800; text-decoration: none; white-space: nowrap; }
 .maquinaria-id:hover { color: #064f31; text-decoration: underline; }
 .maquinaria-chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 999px; font-size: .73rem; font-weight: 800; white-space: nowrap; }
@@ -264,8 +302,54 @@ FILTROS RESPONSIVE
 .maquinaria-accion--editar { color: #9a6400; background: #fff2cc; border: 1px solid #f6dda0; }
 .maquinaria-page .dataTables_filter input { min-height: 44px; border: 1px solid var(--mq-borde) !important; border-radius: 12px !important; }
 .maquinaria-page .dataTables_length select { border-radius: 9px; border-color: var(--mq-borde); }
-.maquinaria-page .page-link { color: var(--mq-verde); border: 0; border-radius: 9px !important; margin: 0 2px; }
-.maquinaria-page .page-item.active .page-link { background: var(--mq-verde); }
+.maquinaria-page .dataTables_info {
+    padding-top: 12px !important;
+    color: #53665c;
+    font-size: .88rem;
+}
+.maquinaria-page .dataTables_paginate { padding-top: 6px !important; }
+.maquinaria-page .pagination {
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    margin: 0;
+}
+.maquinaria-page .page-item .page-link {
+    display: grid;
+    place-items: center;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid transparent !important;
+    border-radius: 10px !important;
+    margin: 0;
+    color: var(--mq-verde-oscuro) !important;
+    background: transparent;
+    font-weight: 650;
+    line-height: 1;
+    box-shadow: none !important;
+}
+.maquinaria-page .page-item.previous .page-link,
+.maquinaria-page .page-item.next .page-link {
+    min-width: auto;
+    padding-inline: 14px;
+    background: #f2f7f4;
+}
+.maquinaria-page .page-item:not(.disabled):not(.active) .page-link:hover {
+    border-color: #d6e9df !important;
+    color: #065f38 !important;
+    background: #eaf7f0;
+}
+.maquinaria-page .page-item.active .page-link {
+    border-color: var(--mq-verde) !important;
+    color: #fff !important;
+    background: var(--mq-verde) !important;
+    box-shadow: 0 5px 12px rgba(11, 143, 85, .2) !important;
+}
+.maquinaria-page .page-item.disabled .page-link {
+    color: #a5b2ab !important;
+    background: #f6f8f7;
+}
 
 @media (max-width: 991px) {
     .contenido { max-width: 100vw; }
@@ -285,4 +369,6 @@ FILTROS RESPONSIVE
     .maquinaria-filtros__titulo { flex-wrap: wrap; }
     .maquinaria-reportes { width: 100%; margin-left: 0; }
     .maquinaria-reporte { flex: 1; }
+    .maquinaria-page .dataTables_info { text-align: center; }
+    .maquinaria-page .pagination { justify-content: center; margin-top: 8px; }
 }

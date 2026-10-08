@@ -13,6 +13,31 @@ from database.documentos import (
 from supabase_config import supabase, supabase_privado
 
 
+TIPOS_ARCHIVO_PERMITIDOS = {
+    "pdf": ("application/pdf", "DOCUMENTO"),
+    "jpg": ("image/jpeg", "IMAGEN"),
+    "jpeg": ("image/jpeg", "IMAGEN"),
+    "png": ("image/png", "IMAGEN"),
+}
+TAMANO_MAXIMO_ARCHIVO = 10 * 1024 * 1024
+
+
+def _tipo_archivo_valido(nombre, contenido):
+    """Valida extensión y firma básica; devuelve MIME y clasificación."""
+    extension = nombre.rsplit(".", 1)[-1].lower() if "." in nombre else ""
+    configuracion = TIPOS_ARCHIVO_PERMITIDOS.get(extension)
+    if not configuracion:
+        return None
+
+    firmas_validas = {
+        "pdf": contenido.startswith(b"%PDF-"),
+        "jpg": contenido.startswith(b"\xff\xd8\xff"),
+        "jpeg": contenido.startswith(b"\xff\xd8\xff"),
+        "png": contenido.startswith(b"\x89PNG\r\n\x1a\n"),
+    }
+    return configuracion if firmas_validas[extension] else None
+
+
 def registrar_rutas_documentos(app, login_required, registrar_movimiento):
     """Registra carga, eliminación y consulta móvil de documentos."""
 
@@ -34,7 +59,29 @@ def registrar_rutas_documentos(app, login_required, registrar_movimiento):
             )
 
         nombre_original = archivo.filename
-        nombre_seguro = secure_filename(nombre_original)
+        contenido = archivo.read()
+        if not contenido:
+            flash("El archivo está vacío.", "warning")
+            return redirect(
+                url_for("expediente_maquinaria", id_activo=id_activo)
+            )
+        if len(contenido) > TAMANO_MAXIMO_ARCHIVO:
+            flash("El archivo supera el límite de 10 MB.", "warning")
+            return redirect(
+                url_for("expediente_maquinaria", id_activo=id_activo)
+            )
+
+        tipo_archivo = _tipo_archivo_valido(nombre_original, contenido)
+        if not tipo_archivo:
+            flash(
+                "El archivo no es válido. Seleccione un PDF, JPG, JPEG o PNG.",
+                "warning",
+            )
+            return redirect(
+                url_for("expediente_maquinaria", id_activo=id_activo)
+            )
+        content_type, clasificacion = tipo_archivo
+        nombre_seguro = secure_filename(nombre_original) or "archivo"
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         nombre_archivo = f"{id_activo}_{timestamp}_{nombre_seguro}"
         ruta = f"{id_activo}/{nombre_archivo}"
@@ -42,9 +89,9 @@ def registrar_rutas_documentos(app, login_required, registrar_movimiento):
         try:
             supabase.storage.from_("documentos").upload(
                 path=ruta,
-                file=archivo.read(),
+                file=contenido,
                 file_options={
-                    "content-type": archivo.content_type,
+                    "content-type": content_type,
                     "upsert": False,
                 },
             )
@@ -61,7 +108,7 @@ def registrar_rutas_documentos(app, login_required, registrar_movimiento):
                 nombre_original=nombre_original,
                 nombre_archivo=nombre_archivo,
                 tipo=tipo_documento,
-                tipo_archivo="DOCUMENTO",
+                tipo_archivo=clasificacion,
                 descripcion=request.form.get("descripcion"),
                 url=url_guardar,
                 public_id=ruta,

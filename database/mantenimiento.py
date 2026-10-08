@@ -5,6 +5,10 @@ from sqlalchemy import text
 
 from database.conexion import engine
 from models.auditoria_model import registrar_movimiento
+from services.proteccion_historial_mantenimiento import (
+    mantenimiento_protegido,
+    validar_cambio_mantenimiento,
+)
 
 
 FORMATOS_DIR = Path(__file__).resolve().parent.parent / "private" / "formatos_mantenimiento"
@@ -66,6 +70,8 @@ def obtener_registro_mantenimiento(mantenimiento_id):
                    COALESCE(me.iniciado_en, mp.iniciado_manual_en) iniciado_en,
                    COALESCE(me.finalizado_en, mp.finalizado_manual_en) finalizado_en,
                    me.fecha_realizacion, me.formato, me.procedimiento,
+                   me.formato_catalogo_id, me.codigo_documento,
+                   me.version_documento, me.plantilla_json,
                    me.respuestas_json, me.materiales_json, me.observaciones,
                    me.firma_tecnico, me.firma_supervisor
             FROM mantenimientos_programados mp
@@ -85,7 +91,8 @@ def obtener_registro_mantenimiento(mantenimiento_id):
             WHERE md.mantenimiento_id = :id ORDER BY md.subido_en DESC
         """), {"id": mantenimiento_id}).mappings().all()
     resultado = dict(registro)
-    for campo, defecto in (("respuestas_json", {}), ("materiales_json", [])):
+    for campo, defecto in (("respuestas_json", {}), ("materiales_json", []),
+                           ("plantilla_json", None)):
         valor = resultado.get(campo)
         if isinstance(valor, str):
             try:
@@ -182,6 +189,79 @@ def listar_asignacion_formatos():
     return [dict(f) for f in maquinas], [dict(f) for f in formatos]
 
 
+def actualizar_formato_mantenimiento(formato_id, codigo_documento, nombre,
+                                      version, archivo, usuario):
+    """Actualiza los datos controlados del catálogo y conserva su trazabilidad."""
+    codigo_documento = " ".join((codigo_documento or "").upper().split())
+    nombre = " ".join((nombre or "").split())
+    version = " ".join((version or "").upper().split())
+    if not codigo_documento or not nombre or not version:
+        raise ValueError("Completa el código, el nombre y la versión del formato.")
+    if len(codigo_documento) > 50 or len(nombre) > 180 or len(version) > 30:
+        raise ValueError("Uno de los datos supera la longitud permitida.")
+
+    with engine.begin() as conn:
+        actual = conn.execute(text("""
+            SELECT id, codigo_documento, nombre, version, archivo, digitalizado
+            FROM formatos_mantenimiento
+            WHERE id = :id AND activo = 1
+            LIMIT 1 FOR UPDATE
+        """), {"id": formato_id}).mappings().first()
+        if not actual:
+            raise ValueError("El formato seleccionado no existe.")
+        repetido = conn.execute(text("""
+            SELECT id FROM formatos_mantenimiento
+            WHERE codigo_documento = :codigo AND id <> :id AND activo = 1
+            LIMIT 1
+        """), {"codigo": codigo_documento, "id": formato_id}).scalar()
+        if repetido:
+            raise ValueError("Ya existe otro formato con ese código.")
+
+        cambio_version = (actual["version"] or "") != version
+        cambio_archivo = bool(archivo and archivo != actual["archivo"])
+        conn.execute(text("""
+            UPDATE formatos_mantenimiento
+            SET codigo_documento = :codigo,
+                nombre = :nombre,
+                version = :version,
+                archivo = COALESCE(:archivo, archivo),
+                digitalizado = CASE
+                    WHEN :requiere_revision = 1 THEN 0
+                    ELSE digitalizado
+                END
+            WHERE id = :id
+        """), {
+            "codigo": codigo_documento,
+            "nombre": nombre,
+            "version": version,
+            "archivo": archivo,
+            "requiere_revision": int(cambio_version or cambio_archivo),
+            "id": formato_id,
+        })
+
+        cambios = []
+        if actual["codigo_documento"] != codigo_documento:
+            cambios.append(f"código {actual['codigo_documento']} → {codigo_documento}")
+        if actual["nombre"] != nombre:
+            cambios.append("nombre")
+        if cambio_version:
+            cambios.append(f"versión {actual['version'] or 'sin versión'} → {version}")
+        if cambio_archivo:
+            cambios.append("PDF oficial")
+        if cambios:
+            registrar_movimiento(
+                usuario,
+                f"Actualizó el formato {codigo_documento}: {', '.join(cambios)}",
+                "Mantenimiento", codigo_documento, conn=conn,
+            )
+        return {
+            "codigo_documento": codigo_documento,
+            "archivo_anterior": actual["archivo"],
+            "requiere_revision": cambio_version or cambio_archivo,
+            "hubo_cambios": bool(cambios),
+        }
+
+
 def asignar_formato_activo(id_activo, formato_id, usuario):
     """Asigna, reemplaza o retira un formato con trazabilidad."""
     with engine.begin() as conn:
@@ -257,7 +337,8 @@ def obtener_agenda_activo(id_activo, anio):
     return dict(equipo), [dict(fila) for fila in agenda]
 
 
-def iniciar_ejecucion(mantenimiento_id, id_activo, usuario_id, usuario):
+def iniciar_ejecucion(mantenimiento_id, id_activo, usuario_id, usuario,
+                      formato, plantilla):
     """Abre una sola ejecución por mantenimiento programado y registra su autor."""
     if not mantenimiento_id:
         raise ValueError("Selecciona un mantenimiento programado.")
@@ -276,11 +357,32 @@ def iniciar_ejecucion(mantenimiento_id, id_activo, usuario_id, usuario):
             raise ValueError("Este mantenimiento ya fue realizado. Consulta su registro y evidencia.")
         conn.execute(text("""
             INSERT INTO mantenimiento_ejecuciones
-                (mantenimiento_id, tecnico_id, tecnico_nombre)
-            VALUES (:id, :usuario_id, :usuario)
-            ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)
-        """), {"id": mantenimiento_id, "usuario_id": usuario_id,
-                 "usuario": usuario})
+                (mantenimiento_id, tecnico_id, tecnico_nombre, formato,
+                 formato_catalogo_id, codigo_documento, version_documento,
+                 plantilla_json)
+            VALUES (:id, :usuario_id, :usuario, :formato,
+                    :formato_catalogo_id, :codigo_documento,
+                    :version_documento, :plantilla_json)
+            ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id),
+                formato = COALESCE(formato, VALUES(formato)),
+                formato_catalogo_id = COALESCE(formato_catalogo_id,
+                                                VALUES(formato_catalogo_id)),
+                codigo_documento = COALESCE(codigo_documento,
+                                            VALUES(codigo_documento)),
+                version_documento = COALESCE(version_documento,
+                                             VALUES(version_documento)),
+                plantilla_json = COALESCE(plantilla_json,
+                                          VALUES(plantilla_json))
+        """), {
+            "id": mantenimiento_id,
+            "usuario_id": usuario_id,
+            "usuario": usuario,
+            "formato": plantilla.get("codigo_mantenimiento"),
+            "formato_catalogo_id": formato.get("id"),
+            "codigo_documento": formato.get("codigo_documento"),
+            "version_documento": plantilla.get("version") or formato.get("version"),
+            "plantilla_json": json.dumps(plantilla, ensure_ascii=False),
+        })
         ejecucion_id = conn.execute(text("SELECT LAST_INSERT_ID()" )).scalar()
         conn.execute(text("""
             UPDATE mantenimientos_programados SET tecnico = :usuario
@@ -313,20 +415,22 @@ def obtener_ejecucion(ejecucion_id):
     if not fila:
         return None
     resultado = dict(fila)
-    for campo in ("respuestas_json", "materiales_json"):
+    for campo in ("respuestas_json", "materiales_json", "plantilla_json"):
         valor = resultado.get(campo)
         if isinstance(valor, str):
             try:
                 resultado[campo] = json.loads(valor)
             except (TypeError, ValueError):
-                resultado[campo] = {} if campo == "respuestas_json" else []
+                resultado[campo] = ({} if campo == "respuestas_json" else
+                                    [] if campo == "materiales_json" else None)
         elif valor is None:
-            resultado[campo] = {} if campo == "respuestas_json" else []
+            resultado[campo] = ({} if campo == "respuestas_json" else
+                                [] if campo == "materiales_json" else None)
     return resultado
 
 
-def guardar_formato_eco1(ejecucion_id, datos, usuario, finalizar=False,
-                         codigo_formato="ECO-1"):
+def guardar_formato_digital(ejecucion_id, datos, usuario, finalizar=False,
+                            codigo_formato=""):
     respuestas = datos.get("respuestas", {})
     materiales = datos.get("materiales", [])
     with engine.begin() as conn:
@@ -345,7 +449,7 @@ def guardar_formato_eco1(ejecucion_id, datos, usuario, finalizar=False,
             raise ValueError("Este formato ya fue finalizado.")
         if finalizar:
             if not datos.get("fecha_realizacion") or not datos.get("procedimiento"):
-                raise ValueError("Indica la fecha y el tipo de procedimiento.")
+                raise ValueError("Indica la fecha y selecciona al menos un procedimiento.")
             if any(not respuestas.get(clave) for clave in datos.get("claves", [])):
                 raise ValueError("Responde todas las actividades antes de finalizar.")
             if not datos.get("firma_tecnico") or not datos.get("firma_supervisor"):
@@ -433,7 +537,11 @@ def obtener_plan_naranjo(anio=2026):
         estados = conn.execute(text("""
             SELECT mp.id mantenimiento_id, mp.plan_equipo_id, mp.semana, mp.estado,
                    mp.color_excel, mp.estado_excel,
-                   me.id ejecucion_id, me.estado estado_ejecucion
+                   me.id ejecucion_id, me.estado estado_ejecucion,
+                   EXISTS(
+                       SELECT 1 FROM mantenimiento_documentos md
+                       WHERE md.mantenimiento_id = mp.id
+                   ) tiene_documentos
             FROM mantenimientos_programados mp
             INNER JOIN plan_mantenimiento_equipos pe
                 ON pe.id = mp.plan_equipo_id
@@ -453,6 +561,11 @@ def obtener_plan_naranjo(anio=2026):
             "ejecucion_id": estado["ejecucion_id"],
             "estado_ejecucion": estado["estado_ejecucion"],
             "mantenimiento_id": estado["mantenimiento_id"],
+            "protegido": bool(
+                estado["ejecucion_id"]
+                or estado["tiene_documentos"]
+                or estado["estado"] == "REALIZADO"
+            ),
         }
 
     equipos = []
@@ -507,7 +620,22 @@ def guardar_semana_manual(plan_equipo_id, semana, opcion, usuario):
         """), {"id": plan_equipo_id}).mappings().first()
         if not existe:
             raise ValueError("La maquinaria no pertenece al plan de Naranjo.")
+        registro_actual = conn.execute(text("""
+            SELECT mp.id, mp.estado, mp.color_excel, mp.estado_excel,
+                   EXISTS(
+                       SELECT 1 FROM mantenimiento_ejecuciones me
+                       WHERE me.mantenimiento_id = mp.id
+                   ) tiene_ejecucion,
+                   EXISTS(
+                       SELECT 1 FROM mantenimiento_documentos md
+                       WHERE md.mantenimiento_id = mp.id
+                   ) tiene_documentos
+            FROM mantenimientos_programados mp
+            WHERE mp.plan_equipo_id = :id AND mp.semana = :semana
+            FOR UPDATE
+        """), {"id": plan_equipo_id, "semana": semana}).mappings().first()
         if opcion == "LIMPIAR":
+            validar_cambio_mantenimiento(registro_actual, None)
             conn.execute(text("""
                 DELETE FROM mantenimientos_programados
                 WHERE plan_equipo_id = :id AND semana = :semana
@@ -522,6 +650,15 @@ def guardar_semana_manual(plan_equipo_id, semana, opcion, usuario):
         if opcion not in OPCIONES_PLAN:
             raise ValueError("Selecciona un estado válido.")
         estado, etiqueta, color = OPCIONES_PLAN[opcion]
+        validar_cambio_mantenimiento(registro_actual, estado)
+        if mantenimiento_protegido(registro_actual):
+            return {
+                "estado": registro_actual["estado"],
+                "etiqueta": registro_actual["estado_excel"] or registro_actual["estado"],
+                "color": registro_actual["color_excel"],
+                "mantenimiento_id": registro_actual["id"],
+                "protegido": True,
+            }
         conn.execute(text("""
             INSERT INTO mantenimientos_programados
                 (plan_equipo_id, semana, estado, color_excel, estado_excel)
@@ -542,7 +679,8 @@ def guardar_semana_manual(plan_equipo_id, semana, opcion, usuario):
             "Mantenimiento", existe["codigo"], conn=conn,
         )
         return {"estado": estado, "etiqueta": etiqueta, "color": color,
-                "mantenimiento_id": mantenimiento_id}
+                "mantenimiento_id": mantenimiento_id,
+                "protegido": estado == "REALIZADO"}
 
 
 def crear_plan_siguiente(anio_origen, usuario):
@@ -594,15 +732,43 @@ def vaciar_programacion(anio, usuario):
         """), {"anio": anio}).scalar()
         if not plan:
             raise ValueError("El plan no existe.")
+        protegidos = conn.execute(text("""
+            SELECT COUNT(*)
+            FROM mantenimientos_programados mp
+            INNER JOIN plan_mantenimiento_equipos pe
+                ON pe.id = mp.plan_equipo_id
+            WHERE pe.plan_id = :plan
+              AND (
+                  mp.estado = 'REALIZADO'
+                  OR EXISTS(
+                      SELECT 1 FROM mantenimiento_ejecuciones me
+                      WHERE me.mantenimiento_id = mp.id
+                  )
+                  OR EXISTS(
+                      SELECT 1 FROM mantenimiento_documentos md
+                      WHERE md.mantenimiento_id = mp.id
+                  )
+              )
+        """), {"plan": plan}).scalar_one()
         resultado = conn.execute(text("""
             DELETE mp FROM mantenimientos_programados mp
             INNER JOIN plan_mantenimiento_equipos pe
                 ON pe.id = mp.plan_equipo_id
             WHERE pe.plan_id = :plan
+              AND mp.estado <> 'REALIZADO'
+              AND NOT EXISTS(
+                  SELECT 1 FROM mantenimiento_ejecuciones me
+                  WHERE me.mantenimiento_id = mp.id
+              )
+              AND NOT EXISTS(
+                  SELECT 1 FROM mantenimiento_documentos md
+                  WHERE md.mantenimiento_id = mp.id
+              )
         """), {"plan": plan})
         registrar_movimiento(
             usuario,
-            f"Reinició en cero el plan {anio} ({resultado.rowcount} semanas eliminadas)",
+            f"Reinició la programación del plan {anio}: {resultado.rowcount} "
+            f"semanas sin historial eliminadas y {protegidos} registros protegidos",
             "Mantenimiento", str(anio), conn=conn,
         )
-    return resultado.rowcount
+    return {"eliminados": resultado.rowcount, "protegidos": protegidos}

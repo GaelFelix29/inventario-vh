@@ -14,3 +14,6 @@ __pycache__/
 
 # Respaldos locales de la base de datos
 backups/
+
+# Archivos temporales de extracción y pruebas locales
+tmp/

@@ -317,6 +317,10 @@
                                 Accesorios
                             </th>
 
+                            <th class="maquinaria-mantenimiento-col">
+                                Datos de mantenimiento
+                            </th>
+
                             <th width="86">
                                 Acciones
                             </th>
@@ -437,6 +441,25 @@
 
                                 {% endif %}
 
+                            </td>
+
+                            <td class="maquinaria-mantenimiento-col">
+                                {% if maquina.datos_mantenimiento_completos %}
+                                <div class="maquinaria-mantenimiento" title="Datos completos de mantenimiento">
+                                    <div class="maquinaria-mantenimiento__titulo">
+                                        <i class="bi bi-tools"></i>
+                                        <strong>{{ maquina.codigo_mantenimiento }}</strong>
+                                    </div>
+                                    <span>{{ maquina.nombre_mantenimiento }}</span>
+                                    <small>
+                                        <i class="bi bi-diagram-3"></i> {{ maquina.departamento }}
+                                        <b aria-hidden="true">·</b>
+                                        <i class="bi bi-lightning-charge"></i> {{ maquina.voltaje }}
+                                    </small>
+                                </div>
+                                {% else %}
+                                <span class="maquinaria-mantenimiento-vacio" title="Faltan datos de mantenimiento">—</span>
+                                {% endif %}
                             </td>
 
                             <td>

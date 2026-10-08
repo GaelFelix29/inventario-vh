@@ -7,6 +7,18 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.utils import secure_filename
 
 from services.reportes_mantenimiento import crear_pdf_formato_mantenimiento
+from services.agenda_mantenimiento import (
+    ESTADOS_AGENDA,
+    preparar_agenda,
+)
+from services.formatos_digitales import (
+    claves_plantilla,
+    datos_plantilla_para_vista,
+    normalizar_procedimientos,
+    obtener_plantilla_documento,
+    obtener_plantilla_ejecucion,
+    serializar_procedimientos,
+)
 from supabase_config import supabase_finanzas
 
 from database.mantenimiento import (
@@ -19,10 +31,11 @@ from database.mantenimiento import (
     iniciar_ejecucion,
     obtener_agenda_activo,
     obtener_ejecucion,
-    guardar_formato_eco1,
+    guardar_formato_digital,
     obtener_archivo_formato,
     obtener_formato_activo,
     asignar_formato_activo,
+    actualizar_formato_mantenimiento,
     actualizar_datos_historicos_mantenimiento,
     usuario_puede_editar_plan,
     listar_asignacion_formatos,
@@ -32,63 +45,6 @@ from database.mantenimiento import (
 )
 
 
-FORMATO_ECO1 = [
-    ("Encapsuladora automática #1", [
-        ("enc_01", "Limpieza general de partes mecánicas"),
-        ("enc_02", "Revisión y engrasado de rodamientos del plato giratorio y mecanismo de cápsulas"),
-        ("enc_03", "Revisión y engrasado de levas del sistema mecánico general"),
-        ("enc_04", "Revisión y engrasado de bielas del sistema mecánico general"),
-        ("enc_05", "Revisión y engrasado de cojinetes del sistema mecánico general"),
-        ("enc_06", "Revisión y engrasado de cadenas del sistema mecánico general"),
-        ("enc_07", "Revisión o cambio de aceite en motor reductor"),
-        ("enc_08", "Revisión del panel de control, botones, pantalla táctil y paro de emergencia"),
-        ("enc_09", "Limpieza de panel eléctrico"),
-        ("enc_10", "Revisión de conexión eléctrica: cable, clavija y contacto"),
-        ("enc_11", "Revisión de conexiones neumáticas"),
-        ("enc_12", "Revisión de tornillería faltante y ajuste general"),
-        ("enc_13", "Revisión de tornillo sin fin de la tolva de polvo"),
-        ("enc_14", "Verificar la posición correcta de la base de la tolva de polvo"),
-    ]),
-    ("Aspiradora de polvo", [
-        ("asp_01", "Revisión y limpieza de filtros: tubo de escape y filtro de tela"),
-        ("asp_02", "Revisión de conexiones eléctricas: cable y conectores"),
-        ("asp_03", "Revisión general de funcionamiento"),
-    ]),
-    ("Bomba de vacío", [
-        ("bom_01", "Limpieza de filtros: prefiltro principal y prefiltro secundario"),
-        ("bom_02", "Revisión de conexiones eléctricas"),
-        ("bom_03", "Revisión general de funcionamiento"),
-        ("bom_04", "Revisión de conexiones neumáticas"),
-        ("bom_05", "Verificar presión dentro de parámetros (80–60 kPa)"),
-    ]),
-]
-
-FORMATO_CC8 = [
-    ("Contadora de cápsulas #8", [
-        ("cc8_01", "Revisión de accesorios completos: tuerca, guasas y discos contadores"),
-        ("cc8_02", "Correcto funcionamiento de gatillo accionador"),
-        ("cc8_03", "Correcto funcionamiento de botón encendido y apagado"),
-        ("cc8_04", "Correcto funcionamiento de perilla de velocidad de giro"),
-        ("cc8_05", "Correcto funcionamiento del sistema de vibración"),
-        ("cc8_06", "Correcto funcionamiento del sensor de giro interior"),
-        ("cc8_07", "Limpieza general interior y exterior"),
-        ("cc8_08", "Revisión del cableado eléctrico interior en buen estado"),
-        ("cc8_09", "Revisión del cable de alimentación"),
-    ]),
-]
-
-MATERIALES_ECO1 = [
-    "Herramienta kosherizada/Halal", "Herramienta convencional",
-    "Grasa grado alimenticio Repsol", "Grasa grado alimenticio Super Lube",
-    "Grasa grado alimenticio FML-2",
-]
-
-FORMATOS_DIGITALES = {
-    "ECO-1": (FORMATO_ECO1, MATERIALES_ECO1),
-    "CC-8": (FORMATO_CC8, MATERIALES_ECO1),
-}
-
-
 def registrar_rutas_mantenimiento(app, login_required):
     @app.get("/mantenimiento/registros/<int:mantenimiento_id>")
     @login_required
@@ -96,6 +52,7 @@ def registrar_rutas_mantenimiento(app, login_required):
         registro, documentos = obtener_registro_mantenimiento(mantenimiento_id)
         if not registro:
             abort(404)
+        plantilla = obtener_plantilla_ejecucion(registro)
         return render_template(
             "mantenimiento/registro.html", registro=registro,
             documentos=documentos,
@@ -104,7 +61,7 @@ def registrar_rutas_mantenimiento(app, login_required):
                                     not registro.get("ejecucion_id")),
             puede_exportar=bool(registro.get("ejecucion_id") and
                                 registro.get("estado_ejecucion") == "COMPLETO" and
-                                registro.get("formato") in FORMATOS_DIGITALES),
+                                plantilla),
         )
 
     @app.post("/mantenimiento/registros/<int:mantenimiento_id>/historico")
@@ -198,12 +155,13 @@ def registrar_rutas_mantenimiento(app, login_required):
         registro, _ = obtener_registro_mantenimiento(mantenimiento_id)
         if not registro:
             abort(404)
+        plantilla = obtener_plantilla_ejecucion(registro)
         if not (registro.get("ejecucion_id") and
                 registro.get("estado_ejecucion") == "COMPLETO" and
-                registro.get("formato") in FORMATOS_DIGITALES):
+                plantilla):
             flash("Este mantenimiento todavía no tiene un formulario digital completo para exportar.", "warning")
             return redirect(url_for("detalle_registro_mantenimiento", mantenimiento_id=mantenimiento_id))
-        secciones, materiales = FORMATOS_DIGITALES[registro["formato"]]
+        secciones, materiales = datos_plantilla_para_vista(plantilla)
         archivo = crear_pdf_formato_mantenimiento(
             registro, secciones, materiales,
             Path(app.root_path) / "static" / "img" / "logo.png",
@@ -242,6 +200,63 @@ def registrar_rutas_mantenimiento(app, login_required):
             buscar=buscar, es_administrador=session.get("rol") == "Administrador",
         )
 
+    @app.post("/mantenimiento/formatos/<int:formato_id>/editar")
+    @login_required
+    def editar_formato_mantenimiento(formato_id):
+        buscar = " ".join(request.form.get("buscar", "").split())
+        destino = url_for("administrar_formatos_mantenimiento", buscar=buscar)
+        if session.get("rol") != "Administrador":
+            flash("Solo el administrador puede editar formatos.", "danger")
+            return redirect(destino)
+
+        codigo = request.form.get("codigo_documento", "")
+        nombre = request.form.get("nombre", "")
+        version = request.form.get("version", "")
+        archivo = request.files.get("archivo")
+        nombre_nuevo = None
+        ruta_nueva = None
+        if archivo and archivo.filename:
+            nombre_seguro = secure_filename(archivo.filename)
+            extension = nombre_seguro.rsplit(".", 1)[-1].lower() if "." in nombre_seguro else ""
+            contenido = archivo.read()
+            if extension != "pdf" or not contenido.startswith(b"%PDF-"):
+                flash("El documento oficial debe ser un archivo PDF válido.", "warning")
+                return redirect(destino)
+            if len(contenido) > 10 * 1024 * 1024:
+                flash("El PDF supera el límite de 10 MB.", "warning")
+                return redirect(destino)
+            carpeta = Path(app.root_path) / "private" / "formatos_mantenimiento"
+            carpeta.mkdir(parents=True, exist_ok=True)
+            base = secure_filename(codigo) or f"formato_{formato_id}"
+            nombre_nuevo = f"{base}_{uuid4().hex[:10]}.pdf"
+            ruta_nueva = carpeta / nombre_nuevo
+            try:
+                ruta_nueva.write_bytes(contenido)
+            except OSError:
+                flash("No fue posible guardar el nuevo PDF.", "danger")
+                return redirect(destino)
+
+        try:
+            resultado = actualizar_formato_mantenimiento(
+                formato_id, codigo, nombre, version, nombre_nuevo,
+                session["nombre"],
+            )
+            if not resultado["hubo_cambios"]:
+                flash("El formato no tenía cambios por guardar.", "info")
+            elif resultado["requiere_revision"]:
+                flash("Formato actualizado. Su digitalización quedó pendiente de revisión.", "success")
+            else:
+                flash("Formato actualizado correctamente.", "success")
+        except ValueError as error:
+            if ruta_nueva and ruta_nueva.exists():
+                ruta_nueva.unlink()
+            flash(str(error), "warning")
+        except (SQLAlchemyError, OSError):
+            if ruta_nueva and ruta_nueva.exists():
+                ruta_nueva.unlink()
+            flash("No fue posible actualizar el formato.", "danger")
+        return redirect(destino)
+
     @app.get("/mantenimiento/maquinaria/<id_activo>")
     @login_required
     def mantenimiento_maquinaria(id_activo):
@@ -254,13 +269,32 @@ def registrar_rutas_mantenimiento(app, login_required):
         if not equipo:
             flash("La maquinaria no existe.", "warning")
             return redirect(url_for("mantenimiento_preventivo"))
+        agenda_preparada = preparar_agenda(
+            agenda,
+            semana=request.args.get("semana", type=int),
+            estado=(request.args.get("estado") or "").strip().upper(),
+            pagina=request.args.get("pagina_agenda", 1, type=int),
+            por_pagina=request.args.get("por_pagina", 8, type=int),
+        )
         formato_asignado = obtener_formato_activo(id_activo)
         return render_template(
-            "mantenimiento/maquinaria.html", equipo=equipo, agenda=agenda,
+            "mantenimiento/maquinaria.html", equipo=equipo,
+            agenda=agenda_preparada["items"],
             anio=anio, semana_actual=date.today().isocalendar().week,
             origen=origen,
+            layout_template=("maquinaria_qr/base_qr.html"
+                             if origen == "qr" else "base.html"),
+            id_activo=id_activo, pagina="mantenimiento",
             puede_iniciar=session.get("rol") in {"Administrador", "Mantenimiento"},
             formato_asignado=formato_asignado,
+            semana_filtro=agenda_preparada["semana"],
+            estado_filtro=agenda_preparada["estado"],
+            estados_agenda=ESTADOS_AGENDA,
+            pagina_agenda=agenda_preparada["pagina"],
+            paginas_agenda=agenda_preparada["paginas"],
+            por_pagina=agenda_preparada["por_pagina"],
+            total_agenda=agenda_preparada["total"],
+            total_agenda_sin_filtro=agenda_preparada["total_sin_filtro"],
         )
 
     @app.get("/mantenimiento/formatos/<int:formato_id>/archivo")
@@ -288,10 +322,21 @@ def registrar_rutas_mantenimiento(app, login_required):
         if not formato["digitalizado"]:
             flash("El formato oficial está asociado, pero su versión digital todavía está pendiente.", "warning")
             return redirect(url_for("mantenimiento_maquinaria", id_activo=id_activo, origen=origen))
+        plantilla = obtener_plantilla_documento(
+            formato["codigo_documento"], incluir_bloqueados=True
+        )
+        if not plantilla:
+            flash("La plantilla digital de este documento todavía no está configurada.", "warning")
+            return redirect(url_for("mantenimiento_maquinaria", id_activo=id_activo, origen=origen))
+        if not plantilla.get("habilitado"):
+            flash(plantilla.get("motivo_bloqueo") or
+                  "La plantilla digital requiere revisión antes de utilizarse.", "warning")
+            return redirect(url_for("mantenimiento_maquinaria", id_activo=id_activo, origen=origen))
         try:
             ejecucion_id = iniciar_ejecucion(
                 mantenimiento_id, id_activo,
-                session.get("usuario_id"), session["nombre"]
+                session.get("usuario_id"), session["nombre"],
+                formato, plantilla,
             )
             flash("Mantenimiento iniciado. El formato quedó guardado como borrador.", "success")
             return redirect(url_for("formato_mantenimiento", ejecucion_id=ejecucion_id, origen=origen))
@@ -310,8 +355,8 @@ def registrar_rutas_mantenimiento(app, login_required):
             flash("El formato no existe.", "warning")
             return redirect(url_for("mantenimiento_preventivo"))
         codigo_formato = ejecucion["codigo"].strip().upper()
-        configuracion = FORMATOS_DIGITALES.get(codigo_formato)
-        if not configuracion:
+        plantilla = obtener_plantilla_ejecucion(ejecucion)
+        if not plantilla:
             flash("La plantilla digital de esta maquinaria aún no está configurada.", "warning")
             return redirect(url_for("mantenimiento_maquinaria", id_activo=ejecucion["id_activo"], anio=ejecucion["anio"], origen=origen))
         puede_editar = session.get("rol") in {"Administrador", "Mantenimiento"}
@@ -319,11 +364,16 @@ def registrar_rutas_mantenimiento(app, login_required):
             if not puede_editar:
                 flash("Tu perfil no puede modificar este formato.", "danger")
                 return redirect(url_for("formato_mantenimiento", ejecucion_id=ejecucion_id, origen=origen))
-            secciones, materiales = configuracion
-            claves = [clave for _, actividades in secciones for clave, _ in actividades]
+            claves = claves_plantilla(plantilla)
+            procedimientos = normalizar_procedimientos(
+                request.form.getlist("procedimiento"),
+                plantilla.get("procedimientos", []),
+            )
             datos = {
                 "fecha_realizacion": request.form.get("fecha_realizacion", ""),
-                "procedimiento": request.form.get("procedimiento", ""),
+                "procedimiento": serializar_procedimientos(
+                    procedimientos, plantilla.get("procedimientos", [])
+                ),
                 "respuestas": {clave: request.form.get(f"actividad_{clave}", "") for clave in claves},
                 "materiales": request.form.getlist("materiales"),
                 "observaciones": request.form.get("observaciones", ""),
@@ -333,7 +383,7 @@ def registrar_rutas_mantenimiento(app, login_required):
             }
             finalizar = request.form.get("accion") == "finalizar"
             try:
-                guardar_formato_eco1(
+                guardar_formato_digital(
                     ejecucion_id, datos, session["nombre"], finalizar,
                     codigo_formato,
                 )
@@ -341,12 +391,20 @@ def registrar_rutas_mantenimiento(app, login_required):
             except (ValueError, SQLAlchemyError) as error:
                 flash(str(error) if isinstance(error, ValueError) else "No fue posible guardar el formato.", "danger")
             return redirect(url_for("formato_mantenimiento", ejecucion_id=ejecucion_id, origen=origen))
-        secciones, materiales = configuracion
+        secciones, materiales = datos_plantilla_para_vista(plantilla)
+        procedimientos_seleccionados = normalizar_procedimientos(
+            ejecucion.get("procedimiento"), plantilla.get("procedimientos", [])
+        )
         return render_template(
-            "mantenimiento/formato_eco1.html", ejecucion=ejecucion,
+            "mantenimiento/formato_digital.html", ejecucion=ejecucion,
             secciones=secciones, materiales=materiales,
             codigo_formato=codigo_formato,
             origen=origen,
+            plantilla=plantilla,
+            procedimientos_seleccionados=procedimientos_seleccionados,
+            layout_template=("maquinaria_qr/base_qr.html"
+                             if origen == "qr" else "base.html"),
+            id_activo=ejecucion["id_activo"], pagina="mantenimiento",
             puede_editar=puede_editar and ejecucion["estado"] != "COMPLETO",
         )
 
@@ -479,8 +537,12 @@ def registrar_rutas_mantenimiento(app, login_required):
             flash("Solo el administrador puede reiniciar un plan.", "danger")
             return redirect(url_for("mantenimiento_preventivo", anio=anio))
         try:
-            eliminados = vaciar_programacion(anio, session["nombre"])
-            flash(f"Plan {anio} reiniciado: {eliminados} semanas eliminadas.", "success")
+            resultado = vaciar_programacion(anio, session["nombre"])
+            flash(
+                f"Plan {anio} reiniciado: {resultado['eliminados']} semanas sin historial "
+                f"eliminadas y {resultado['protegidos']} registros históricos conservados.",
+                "success",
+            )
         except (TypeError, ValueError) as error:
             flash(str(error), "warning")
         except SQLAlchemyError:

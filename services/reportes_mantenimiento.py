@@ -11,6 +11,8 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import Image, KeepTogether, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
+from services.formatos_digitales import presentar_procedimientos
+
 
 VERDE = colors.HexColor("#078F58")
 VERDE_OSCURO = colors.HexColor("#075C3B")
@@ -54,7 +56,8 @@ def crear_pdf_formato_mantenimiento(ejecucion, secciones, materiales, logo_path)
         return f"{valor:%d/%m/%Y %H:%M}" if hasattr(valor, "hour") else str(valor)
 
     datos = [
-        ["Fecha de realización", str(ejecucion.get("fecha_realizacion") or "-"), "Procedimiento", str(ejecucion.get("procedimiento") or "-")],
+        ["Documento oficial", str(ejecucion.get("codigo_documento") or ejecucion.get("formato") or "-"), "Versión", str(ejecucion.get("version_documento") or "-")],
+        ["Fecha de realización", str(ejecucion.get("fecha_realizacion") or "-"), "Procedimiento", presentar_procedimientos(ejecucion.get("procedimiento"))],
         ["Técnico", str(ejecucion.get("tecnico_nombre") or ejecucion.get("tecnico") or "-"), "Estado", "Completo y firmado"],
         ["Inicio", fecha_hora(ejecucion.get("iniciado_en")), "Finalización", fecha_hora(ejecucion.get("finalizado_en"))],
     ]

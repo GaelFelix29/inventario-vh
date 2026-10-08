@@ -95,6 +95,19 @@ FROM maquinarias m
 
             maquina["tipo"] = obtener_tipo_expediente(maquina.get("origen"))
 
+            # El bloque de mantenimiento del listado solo se muestra cuando
+            # los cuatro datos de identificación están realmente capturados.
+            campos_mantenimiento = (
+                "departamento",
+                "codigo_mantenimiento",
+                "nombre_mantenimiento",
+                "voltaje",
+            )
+            maquina["datos_mantenimiento_completos"] = all(
+                str(maquina.get(campo) or "").strip()
+                for campo in campos_mantenimiento
+            )
+
             resultado.append(maquina)
 
     return resultado

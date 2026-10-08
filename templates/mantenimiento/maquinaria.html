@@ -1,33 +1,124 @@
-{% extends "base.html" %}
+{% extends layout_template %}
 {% block titulo %}Mantenimiento · {{ equipo.codigo }}{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{{ url_for('static', filename='css/mantenimiento_maquinaria.css', v='20261001-1') }}">{% endblock %}
+{% block estilos %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mantenimiento_maquinaria.css', v='20261008-2') }}">{%
+endblock %}
 {% block contenido %}
 <main class="mtq-page">
-  <a class="mtq-back" href="{% if origen == 'qr' %}{{ url_for('maquinaria_qr', id_activo=equipo.id_activo) }}{% else %}{{ url_for('expediente_maquinaria', id_activo=equipo.id_activo) }}{% endif %}"><i class="bi bi-arrow-left"></i> Regresar a la maquinaria</a>
-  <header class="mtq-hero"><div><small>MANTENIMIENTO PREVENTIVO · {{ anio }}</small><h1>{{ equipo.codigo }}</h1><p>{{ equipo.equipo }}</p></div><span><i class="bi bi-tools"></i></span></header>
-  <section class="mtq-data"><article><small>Activo</small><strong>{{ equipo.id_activo }}</strong></article><article><small>Departamento</small><strong>{{ equipo.departamento }}</strong></article><article><small>Voltaje</small><strong>{{ equipo.voltaje }}</strong></article></section>
+  <a class="mtq-back"
+    href="{% if origen == 'qr' %}{{ url_for('maquinaria_qr', id_activo=equipo.id_activo) }}{% else %}{{ url_for('expediente_maquinaria', id_activo=equipo.id_activo) }}{% endif %}"><i
+      class="bi bi-arrow-left"></i> Regresar a la maquinaria</a>
+  <header class="mtq-hero">
+    <div><small>MANTENIMIENTO PREVENTIVO · {{ anio }}</small>
+      <h1>{{ equipo.codigo }}</h1>
+      <p>{{ equipo.equipo }}</p>
+    </div><span><i class="bi bi-tools"></i></span>
+  </header>
+  <section class="mtq-data">
+    <article><small>Activo</small><strong>{{ equipo.id_activo }}</strong></article>
+    <article><small>Departamento</small><strong>{{ equipo.departamento }}</strong></article>
+    <article><small>Voltaje</small><strong>{{ equipo.voltaje }}</strong></article>
+  </section>
   {% if formato_asignado %}
   <section class="mtq-format">
-    <div><small>FORMATO PREVENTIVO ASIGNADO</small><strong>{{ formato_asignado.codigo_documento }} · {{ formato_asignado.nombre }}</strong><span>{{ formato_asignado.version }}{% if formato_asignado.digitalizado %} · Formulario digital disponible{% else %} · Digitalización pendiente{% endif %}</span></div>
-    <a href="{{ url_for('archivo_formato_mantenimiento', formato_id=formato_asignado.id) }}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> Ver formato oficial</a>
+    <div><small>FORMATO PREVENTIVO ASIGNADO</small><strong>{{ formato_asignado.codigo_documento }} · {{
+        formato_asignado.nombre }}</strong><span>{{ formato_asignado.version }}{% if formato_asignado.digitalizado %} ·
+        Formulario digital disponible{% else %} · Digitalización pendiente{% endif %}</span></div>
+    <a href="{{ url_for('archivo_formato_mantenimiento', formato_id=formato_asignado.id) }}" target="_blank"
+      rel="noopener"><i class="bi bi-file-earmark-pdf"></i> Ver formato oficial</a>
   </section>
   {% else %}
-  <section class="mtq-format pending"><div><small>FORMATO PREVENTIVO</small><strong>Pendiente de asociar</strong><span>El formato correcto debe confirmarse antes de iniciar.</span></div></section>
+  <section class="mtq-format pending">
+    <div><small>FORMATO PREVENTIVO</small><strong>Pendiente de asociar</strong><span>El formato correcto debe
+        confirmarse antes de iniciar.</span></div>
+  </section>
   {% endif %}
-  <div class="mtq-title"><div><small>AGENDA DEL EQUIPO</small><h2>Mantenimientos programados</h2></div><span>Semana actual: {{ semana_actual }}</span></div>
+  <div class="mtq-title">
+    <div><small>AGENDA DEL EQUIPO</small>
+      <h2>Mantenimientos programados</h2>
+    </div><span>Semana actual: {{ semana_actual }}</span>
+  </div>
+  <form class="mtq-filters" method="get">
+    <input type="hidden" name="anio" value="{{ anio }}">
+    <input type="hidden" name="origen" value="{{ origen }}">
+    <label class="mtq-filter-field">
+      <span>Buscar por semana</span>
+      <div class="mtq-input-icon"><i class="bi bi-calendar-week"></i><input type="number" name="semana" min="1"
+          max="52" inputmode="numeric" placeholder="Ej. 17" value="{{ semana_filtro or '' }}"></div>
+    </label>
+    <label class="mtq-filter-field">
+      <span>Estado</span>
+      <select name="estado">
+        <option value="">Todos los estados</option>
+        {% for clave, etiqueta in estados_agenda %}<option value="{{ clave }}" {% if estado_filtro==clave %}selected{% endif
+          %}>{{ etiqueta }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="mtq-filter-field compact">
+      <span>Mostrar</span>
+      <select name="por_pagina">
+        {% for cantidad in (8, 12, 20) %}<option value="{{ cantidad }}" {% if por_pagina==cantidad %}selected{% endif %}>{{
+          cantidad }} semanas</option>{% endfor %}
+      </select>
+    </label>
+    <div class="mtq-filter-actions">
+      <button type="submit"><i class="bi bi-funnel"></i> Aplicar</button>
+      {% if semana_filtro or estado_filtro %}<a
+        href="{{ url_for('mantenimiento_maquinaria', id_activo=equipo.id_activo, anio=anio, origen=origen, por_pagina=por_pagina) }}"><i
+          class="bi bi-x-lg"></i> Limpiar</a>{% endif %}
+    </div>
+  </form>
+  <div class="mtq-results">
+    <span><strong>{{ total_agenda }}</strong> {% if total_agenda == 1 %}semana encontrada{% else %}semanas encontradas{% endif
+      %}</span>
+    {% if total_agenda %}<span>Página {{ pagina_agenda }} de {{ paginas_agenda }}</span>{% endif %}
+  </div>
   <section class="mtq-list">
     {% for item in agenda %}
     <article class="mtq-item {% if item.semana == semana_actual %}actual{% endif %}">
       <div class="mtq-week"><small>SEMANA</small><strong>{{ item.semana }}</strong></div>
-      <div class="mtq-status"><strong>{% if item.estado_ejecucion == 'BORRADOR' %}Formato en proceso{% elif item.estado == 'REALIZADO' %}Realizado{% else %}Programado{% endif %}</strong><span>{% if item.tecnico_nombre %}Técnico: {{ item.tecnico_nombre }}{% elif item.tecnico %}Técnico: {{ item.tecnico }}{% elif item.estado == 'REALIZADO' %}Registro histórico con evidencia{% else %}Pendiente de iniciar{% endif %}</span></div>
-      {% if item.estado_ejecucion == 'BORRADOR' %}<a class="mtq-button secondary" href="{{ url_for('formato_mantenimiento', ejecucion_id=item.ejecucion_id, origen=origen) }}"><i class="bi bi-pencil-square"></i> Continuar formato</a>
-      {% elif item.estado == 'REALIZADO' %}<a class="mtq-button complete" href="{{ url_for('detalle_registro_mantenimiento', mantenimiento_id=item.mantenimiento_id) }}"><i class="bi bi-check-circle"></i> Ver registro</a>
-      {% elif puede_iniciar and formato_asignado and formato_asignado.digitalizado %}<form method="post" action="{{ url_for('iniciar_mantenimiento_programado', id_activo=equipo.id_activo, mantenimiento_id=item.mantenimiento_id) }}"><input type="hidden" name="origen" value="{{ origen }}"><button class="mtq-button" type="submit"><i class="bi bi-play-fill"></i> Iniciar formato</button></form>
+      <div class="mtq-status"><strong>{% if item.estado_vista == 'EN_PROCESO' %}Formato en proceso{% elif
+          item.estado_vista == 'REALIZADO' %}Realizado{% elif item.estado_vista == 'NO_REALIZADO' %}No realizado{% elif
+          item.estado_vista == 'REPROGRAMADO' %}Reprogramado{% else %}Programado{% endif %}</strong><span>{% if
+          item.tecnico_nombre %}Técnico:
+          {{ item.tecnico_nombre }}{% elif item.tecnico %}Técnico: {{ item.tecnico }}{% elif item.estado_vista == 'REALIZADO'
+          %}Registro histórico con evidencia{% else %}Pendiente de iniciar{% endif %}</span></div>
+      {% if item.estado_ejecucion == 'BORRADOR' %}<a class="mtq-button secondary"
+        href="{{ url_for('formato_mantenimiento', ejecucion_id=item.ejecucion_id, origen=origen) }}"><i
+          class="bi bi-pencil-square"></i> Continuar formato</a>
+      {% elif item.estado_vista == 'REALIZADO' %}<a class="mtq-button complete"
+        href="{{ url_for('detalle_registro_mantenimiento', mantenimiento_id=item.mantenimiento_id) }}"><i
+          class="bi bi-check-circle"></i> Ver registro</a>
+      {% elif puede_iniciar and formato_asignado and formato_asignado.digitalizado %}<form method="post"
+        action="{{ url_for('iniciar_mantenimiento_programado', id_activo=equipo.id_activo, mantenimiento_id=item.mantenimiento_id) }}">
+        <input type="hidden" name="origen" value="{{ origen }}"><button class="mtq-button" type="submit"><i
+            class="bi bi-play-fill"></i> Iniciar formato</button></form>
       {% elif formato_asignado %}<span class="mtq-readonly">Digitalización pendiente</span>
       {% else %}<span class="mtq-readonly">Solo consulta</span>{% endif %}
     </article>
-    {% else %}<div class="mtq-empty"><i class="bi bi-calendar2-check"></i><h2>Sin mantenimientos programados</h2><p>Esta maquinaria todavía no tiene semanas capturadas en el plan {{ anio }}.</p></div>{% endfor %}
+    {% else %}<div class="mtq-empty"><i class="bi bi-calendar2-check"></i>
+      {% if total_agenda_sin_filtro %}<h2>Sin coincidencias</h2>
+      <p>No encontramos mantenimientos con esos filtros. Prueba otra semana o estado.</p>
+      {% else %}<h2>Sin mantenimientos programados</h2>
+      <p>Esta maquinaria todavía no tiene semanas capturadas en el plan {{ anio }}.</p>{% endif %}
+    </div>{% endfor %}
   </section>
+  {% if paginas_agenda > 1 %}
+  <nav class="mtq-pagination" aria-label="Páginas de mantenimientos">
+    {% if pagina_agenda > 1 %}<a
+      href="{{ url_for('mantenimiento_maquinaria', id_activo=equipo.id_activo, anio=anio, origen=origen, semana=semana_filtro or None, estado=estado_filtro or None, por_pagina=por_pagina, pagina_agenda=pagina_agenda-1) }}"><i
+        class="bi bi-chevron-left"></i> Anterior</a>{% else %}<span class="disabled"><i
+        class="bi bi-chevron-left"></i> Anterior</span>{% endif %}
+    <div>
+      {% for numero in range(1, paginas_agenda + 1) %}<a class="{% if numero == pagina_agenda %}active{% endif %}"
+        href="{{ url_for('mantenimiento_maquinaria', id_activo=equipo.id_activo, anio=anio, origen=origen, semana=semana_filtro or None, estado=estado_filtro or None, por_pagina=por_pagina, pagina_agenda=numero) }}"
+        {% if numero==pagina_agenda %}aria-current="page" {% endif %}>{{ numero }}</a>{% endfor %}
+    </div>
+    {% if pagina_agenda < paginas_agenda %}<a
+      href="{{ url_for('mantenimiento_maquinaria', id_activo=equipo.id_activo, anio=anio, origen=origen, semana=semana_filtro or None, estado=estado_filtro or None, por_pagina=por_pagina, pagina_agenda=pagina_agenda+1) }}">Siguiente
+      <i class="bi bi-chevron-right"></i></a>{% else %}<span class="disabled">Siguiente <i
+        class="bi bi-chevron-right"></i></span>{% endif %}
+  </nav>
+  {% endif %}
 </main>
 {% endblock %}
-

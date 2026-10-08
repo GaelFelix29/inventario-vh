@@ -4,6 +4,7 @@ from sqlalchemy import text
 
 from database.conexion import engine
 from catalogo_formatos_preventivos import CATALOGO_FORMATOS
+from services.formatos_digitales import cargar_catalogo_digital
 
 
 FORMATOS = [
@@ -89,5 +90,25 @@ with engine.begin() as conn:
             ON DUPLICATE KEY UPDATE formato_id = VALUES(formato_id), confirmado = 1,
                 confirmado_en = CURRENT_TIMESTAMP
         """), {"id": id_activo, "formato": formato_id})
+
+    # El catálogo digital es la fuente vigente para los formatos ya revisados.
+    # También corrige relaciones antiguas cuando el PDF no correspondía al equipo.
+    for plantilla in cargar_catalogo_digital().values():
+        codigo = plantilla["codigo_documento"]
+        conn.execute(text("""
+            UPDATE formatos_mantenimiento
+            SET version = :version, digitalizado = 1, activo = 1
+            WHERE codigo_documento = :codigo
+        """), {"codigo": codigo, "version": plantilla["version"]})
+        formato_id = conn.execute(text("""
+            SELECT id FROM formatos_mantenimiento
+            WHERE codigo_documento = :codigo LIMIT 1
+        """), {"codigo": codigo}).scalar_one()
+        conn.execute(text("""
+            INSERT INTO maquinaria_formatos (id_activo, formato_id, confirmado)
+            VALUES (:id, :formato, 1)
+            ON DUPLICATE KEY UPDATE formato_id = VALUES(formato_id), confirmado = 1,
+                confirmado_en = CURRENT_TIMESTAMP
+        """), {"id": plantilla["id_activo"], "formato": formato_id})
 
 print(f"Formatos preventivos asociados: {len(FORMATOS)}")

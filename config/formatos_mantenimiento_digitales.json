@@ -1,0 +1,2769 @@
+{
+  "schema_version": 1,
+  "formatos": {
+    "02-FOR-MTO-02": {
+      "codigo_documento": "02-FOR-MTO-02",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "ECO-1",
+      "id_activo": "ACT-0258",
+      "nombre": "Encapsuladora automática #1",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "ENCAPSULADORA AUTOMÁTICA #1",
+          "actividades": [
+            {
+              "clave": "enc_01",
+              "texto": "LIMPIEZA GENERAL DE PARTES MECÁNICAS."
+            },
+            {
+              "clave": "enc_02",
+              "texto": "REVISIÓN / ENGRASADO DE RODAMIENTOS (INTERIOR DEL PLATO GIRATORIO Y MECANISMO DE CAPSULAS)."
+            },
+            {
+              "clave": "enc_03",
+              "texto": "REVISIÓN / ENGRASADO DE LEVAS (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "enc_04",
+              "texto": "REVISIÓN / ENGRASADO DE BIELAS (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "enc_05",
+              "texto": "REVISIÓN / ENGRASADO DE COJINETES (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "enc_06",
+              "texto": "REVISIÓN / ENGRASADO DE CADENAS (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "enc_07",
+              "texto": "REVISIÓN / CAMBIO DE ACEITE EN MOTOR REDUCTOR (ACEITE PARA MOTOR #90, VISCOCIDAD 680-460)"
+            },
+            {
+              "clave": "enc_08",
+              "texto": "REVISIÓN DE PANEL DE CONTROL (BOTONES, PANTALLA TACTIL, PARO DE EMERGENCIA)"
+            },
+            {
+              "clave": "enc_09",
+              "texto": "LIMPIEZA DE PANEL ELECTRICO"
+            },
+            {
+              "clave": "enc_10",
+              "texto": "REVISIÓN DE CONEXIÓN ELECTRICA (CABLE, CLAVIJA, CONTACTO)"
+            },
+            {
+              "clave": "enc_11",
+              "texto": "REVISIÓN DE CONEXIONES NEUMATICAS."
+            },
+            {
+              "clave": "enc_12",
+              "texto": "REVISÓN DE TORNILLERIA FALTANTE Y AJUSTE (GENERAL)"
+            },
+            {
+              "clave": "enc_13",
+              "texto": "REVISIÓN DE TORNILLO SIN FIN (TOLVA DE POLVO)"
+            },
+            {
+              "clave": "enc_14",
+              "texto": "CHEQUEO DE CORRECTA POSICIÓN DE BASE (TOLVA DE POLVO)"
+            }
+          ]
+        },
+        {
+          "titulo": "ASPIRADORA DE POLVO",
+          "actividades": [
+            {
+              "clave": "asp_01",
+              "texto": "REVISIÓN Y LIMPIEZA DE FILTROS (TUBO DE ESCAPE, FILTRO DE TELA)"
+            },
+            {
+              "clave": "asp_02",
+              "texto": "REVISIÓN DE CONEXIONES ELECTRICAS (CABLE, CONECTORES)"
+            },
+            {
+              "clave": "asp_03",
+              "texto": "REVISIÓN GENERAL DE FUNCIONAMIENTO"
+            }
+          ]
+        },
+        {
+          "titulo": "BOMBA DE VACIO",
+          "actividades": [
+            {
+              "clave": "bom_01",
+              "texto": "LIMPIEZA DE FILTROS (PREFILTRO PRINCIPAL, PREFILTRO SECUNDARIO)"
+            },
+            {
+              "clave": "bom_02",
+              "texto": "REVISIÓN DE CONEXIONES ELECTRICAS"
+            },
+            {
+              "clave": "bom_03",
+              "texto": "REVISIÓN GENERAL DE FUNCIONAMIENTO"
+            },
+            {
+              "clave": "bom_04",
+              "texto": "REVISIÓN DE CONEXIONES NEUMATICAS"
+            },
+            {
+              "clave": "bom_05",
+              "texto": "VERIFICAR PRESION DENTRO DE PARAMETROS (80-60 kPa)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-02.pdf"
+    },
+    "02-FOR-MTO-05": {
+      "codigo_documento": "02-FOR-MTO-05",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "ECO-5",
+      "id_activo": "ACT-0260",
+      "nombre": "Encapsuladora automática #5",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "ENCAPSULADORA AUTOMÁTICA #5",
+          "actividades": [
+            {
+              "clave": "eco5_01",
+              "texto": "LIMPIEZA GENERAL DE PARTES MECÁNICAS."
+            },
+            {
+              "clave": "eco5_02",
+              "texto": "REVISIÓN / ENGRASADO DE RODAMIENTOS (INTERIOR DEL PLATO GIRATORIO Y MECANISMO DE CAPSULAS)."
+            },
+            {
+              "clave": "eco5_03",
+              "texto": "REVISIÓN / ENGRASADO DE LEVAS (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "eco5_04",
+              "texto": "REVISIÓN / ENGRASADO DE BIELAS (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "eco5_05",
+              "texto": "REVISIÓN / ENGRASADO DE COJINETES (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "eco5_06",
+              "texto": "REVISIÓN / ENGRASADO DE CADENAS (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "eco5_07",
+              "texto": "REVISIÓN / CAMBIO DE ACEITE EN MOTOR REDUCTOR (ACEITE PARA MOTOR #90, VISCOCIDAD 680-460)"
+            },
+            {
+              "clave": "eco5_08",
+              "texto": "REVISIÓN DE PANEL DE CONTROL (BOTONES, PANTALLA TACTIL, PARO DE EMERGENCIA)"
+            },
+            {
+              "clave": "eco5_09",
+              "texto": "LIMPIEZA DE PANEL ELECTRICO"
+            },
+            {
+              "clave": "eco5_10",
+              "texto": "REVISIÓN DE CONEXIÓN ELECTRICA (CABLE, CLAVIJA, CONTACTO)"
+            },
+            {
+              "clave": "eco5_11",
+              "texto": "REVISIÓN DE CONEXIONES NEUMATICAS."
+            },
+            {
+              "clave": "eco5_12",
+              "texto": "REVISÓN DE TORNILLERIA FALTANTE Y AJUSTE (GENERAL)"
+            },
+            {
+              "clave": "eco5_13",
+              "texto": "REVISIÓN DE TORNILLO SIN FIN (TOLVA DE POLVO)"
+            },
+            {
+              "clave": "eco5_14",
+              "texto": "CHEQUEO DE CORRECTA POSICIÓN DE BASE (TOLVA DE POLVO)"
+            }
+          ]
+        },
+        {
+          "titulo": "ASPIRADORA DE POLVO",
+          "actividades": [
+            {
+              "clave": "eco5_15",
+              "texto": "REVISIÓN Y LIMPIEZA DE FILTROS (TUBO DE ESCAPE, FILTRO DE TELA)"
+            },
+            {
+              "clave": "eco5_16",
+              "texto": "REVISIÓN DE CONEXIONES ELECTRICAS (CABLE, CONECTORES)"
+            },
+            {
+              "clave": "eco5_17",
+              "texto": "REVISIÓN GENERAL DE FUNCIONAMIENTO"
+            }
+          ]
+        },
+        {
+          "titulo": "BOMBA DE VACIO",
+          "actividades": [
+            {
+              "clave": "eco5_18",
+              "texto": "LIMPIEZA DE FILTROS (PREFILTRO PRINCIPAL, PREFILTRO SECUNDARIO)"
+            },
+            {
+              "clave": "eco5_19",
+              "texto": "REVISIÓN DE CONEXIONES ELECTRICAS"
+            },
+            {
+              "clave": "eco5_20",
+              "texto": "REVISIÓN GENERAL DE FUNCIONAMIENTO"
+            },
+            {
+              "clave": "eco5_21",
+              "texto": "REVISIÓN DE CONEXIONES NEUMATICAS"
+            },
+            {
+              "clave": "eco5_22",
+              "texto": "VERIFICAR PRESION DENTRO DE PARAMETROS (80-60 kPa)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-05.pdf"
+    },
+    "02-FOR-MTO-06": {
+      "codigo_documento": "02-FOR-MTO-06",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "ECO-6",
+      "id_activo": "ACT-0259",
+      "nombre": "Encapsuladora automática #6",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "ENCAPSULADORA AUTOMÁTICA #6",
+          "actividades": [
+            {
+              "clave": "eco6_01",
+              "texto": "LIMPIEZA GENERAL DE PARTES MECÁNICAS."
+            },
+            {
+              "clave": "eco6_02",
+              "texto": "REVISIÓN / ENGRASADO DE RODAMIENTOS (INTERIOR DEL PLATO GIRATORIO Y MECANISMO DE CAPSULAS)."
+            },
+            {
+              "clave": "eco6_03",
+              "texto": "REVISIÓN / ENGRASADO DE LEVAS (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "eco6_04",
+              "texto": "REVISIÓN / ENGRASADO DE BIELAS (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "eco6_05",
+              "texto": "REVISIÓN / ENGRASADO DE COJINETES (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "eco6_06",
+              "texto": "REVISIÓN / ENGRASADO DE CADENAS (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "eco6_07",
+              "texto": "REVISIÓN / CAMBIO DE ACEITE EN MOTOR REDUCTOR (ACEITE PARA MOTOR #90, VISCOCIDAD 680-460)"
+            },
+            {
+              "clave": "eco6_08",
+              "texto": "REVISIÓN DE PANEL DE CONTROL (BOTONES, PANTALLA TACTIL, PARO DE EMERGENCIA)"
+            },
+            {
+              "clave": "eco6_09",
+              "texto": "LIMPIEZA DE PANEL ELECTRICO"
+            },
+            {
+              "clave": "eco6_10",
+              "texto": "REVISIÓN DE CONEXIÓN ELECTRICA (CABLE, CLAVIJA, CONTACTO)"
+            },
+            {
+              "clave": "eco6_11",
+              "texto": "REVISIÓN DE CONEXIONES NEUMATICAS."
+            },
+            {
+              "clave": "eco6_12",
+              "texto": "REVISÓN DE TORNILLERIA FALTANTE Y AJUSTE (GENERAL)"
+            },
+            {
+              "clave": "eco6_13",
+              "texto": "REVISIÓN DE TORNILLO SIN FIN (TOLVA DE POLVO)"
+            },
+            {
+              "clave": "eco6_14",
+              "texto": "CHEQUEO DE CORRECTA POSICIÓN DE BASE (TOLVA DE POLVO)"
+            }
+          ]
+        },
+        {
+          "titulo": "ASPIRADORA DE POLVO",
+          "actividades": [
+            {
+              "clave": "eco6_15",
+              "texto": "REVISIÓN Y LIMPIEZA DE FILTROS (TUBO DE ESCAPE, FILTRO DE TELA)"
+            },
+            {
+              "clave": "eco6_16",
+              "texto": "REVISIÓN DE CONEXIONES ELECTRICAS (CABLE, CONECTORES)"
+            },
+            {
+              "clave": "eco6_17",
+              "texto": "REVISIÓN GENERAL DE FUNCIONAMIENTO"
+            }
+          ]
+        },
+        {
+          "titulo": "BOMBA DE VACIO",
+          "actividades": [
+            {
+              "clave": "eco6_18",
+              "texto": "LIMPIEZA DE FILTROS (PREFILTRO PRINCIPAL, PREFILTRO SECUNDARIO)"
+            },
+            {
+              "clave": "eco6_19",
+              "texto": "REVISIÓN DE CONEXIONES ELECTRICAS"
+            },
+            {
+              "clave": "eco6_20",
+              "texto": "REVISIÓN GENERAL DE FUNCIONAMIENTO"
+            },
+            {
+              "clave": "eco6_21",
+              "texto": "REVISIÓN DE CONEXIONES NEUMATICAS"
+            },
+            {
+              "clave": "eco6_22",
+              "texto": "VERIFICAR PRESION DENTRO DE PARAMETROS (80-60 kPa)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-06.pdf"
+    },
+    "02-FOR-MTO-10": {
+      "codigo_documento": "02-FOR-MTO-10",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "M300-1",
+      "id_activo": "ACT-0244",
+      "nombre": "Mezclador tipo V 300 kg #1",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "MEZCLADOR TIPO V DE 300 kg #1",
+          "actividades": [
+            {
+              "clave": "m3001_01",
+              "texto": "REVISIÓN DE UNIONES DE SOLDADURA (EJES, CONTENEDOR, TAPA DE MOTOR, BISAGRAS)"
+            },
+            {
+              "clave": "m3001_02",
+              "texto": "REVISIÓN / ENGRASADO DE CHUMACERAS (EXTREMOS DEL EJE CENTRAL)"
+            },
+            {
+              "clave": "m3001_03",
+              "texto": "REVISIÓN DE TORNILLOS SUJETADORES (TAPAS DE CONTENEDOR)"
+            },
+            {
+              "clave": "m3001_04",
+              "texto": "REVISIÓN DE EMPAQUES (TAPAS DE CONTENEDOR)"
+            },
+            {
+              "clave": "m3001_05",
+              "texto": "CORRECTO FUNCIONAMIENTO DE VÁLVULA DISPENSADORA (BOQUILLA DE MEZCLADOR)"
+            },
+            {
+              "clave": "m3001_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTONES (ENCENDIDO, APAGADO)"
+            },
+            {
+              "clave": "m3001_07",
+              "texto": "LIMPIEZA GENERAL INTERNA (INTERIOR DE GUARDA PARA MOTOR)"
+            },
+            {
+              "clave": "m3001_08",
+              "texto": "REVISIÓN / ENGRASADO DE CADENA (INTERIOR DE GUARDA PARA MOTOR)"
+            },
+            {
+              "clave": "m3001_09",
+              "texto": "REVISIÓN / ENGRASADO DE CATARINAS (INTERIOR DE GUARDA PARA MOTOR)"
+            },
+            {
+              "clave": "m3001_10",
+              "texto": "REVISIÓN DE CUÑA (ENTRE EJE CENTRAL Y CATARINA GRANDE)"
+            },
+            {
+              "clave": "m3001_11",
+              "texto": "REVISIÓN DE CABLEADO ELÉCTRICO"
+            },
+            {
+              "clave": "m3001_12",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            },
+            {
+              "clave": "m3001_13",
+              "texto": "CORRECTO FUNCIONAMIENTO GENERAL"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-10.pdf"
+    },
+    "02-FOR-MTO-100": {
+      "codigo_documento": "02-FOR-MTO-100",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "CC-13",
+      "id_activo": "ACT-0208",
+      "nombre": "Contadora de cápsulas #13",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "CONTADORA DE CÁPSULAS #13",
+          "actividades": [
+            {
+              "clave": "cc13_01",
+              "texto": "REVISIÓN DE ACCESORIOS COMPLETOS (TUERCA, GUASAS, DISCOS CONTADORES)"
+            },
+            {
+              "clave": "cc13_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE GATILLO ACCIONADOR"
+            },
+            {
+              "clave": "cc13_03",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTÓN ENCENDIDO / APAGADO"
+            },
+            {
+              "clave": "cc13_04",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PERILLA (VELOCIDAD DE GIRO)"
+            },
+            {
+              "clave": "cc13_05",
+              "texto": "CORRECTO FUNCIONAMIENTO DE SISTEMA DE VIBRACIÓN"
+            },
+            {
+              "clave": "cc13_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE SENSOR DE GIRO (INTERIOR)"
+            },
+            {
+              "clave": "cc13_07",
+              "texto": "LIMPIEZA GENERAL (INTERIOR Y EXTERIOR)"
+            },
+            {
+              "clave": "cc13_08",
+              "texto": "REVISIÓN DE CABLEADO ELÉCTRICO EN BUEN ESTADO (INTERIOR)"
+            },
+            {
+              "clave": "cc13_09",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-100.pdf"
+    },
+    "02-FOR-MTO-101": {
+      "codigo_documento": "02-FOR-MTO-101",
+      "version": "SEP/26 VER.02",
+      "codigo_mantenimiento": "TRM-22",
+      "id_activo": "ACT-0269",
+      "nombre": "Termoselladora #22",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "TERMOSELLADORA #22",
+          "actividades": [
+            {
+              "clave": "trm22_01",
+              "texto": "REVISIÓN DE BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "trm22_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "trm22_03",
+              "texto": "REVISIÓN / CAMBIO DE BANDAS TÉRMICAS"
+            },
+            {
+              "clave": "trm22_04",
+              "texto": "REVISIÓN / CAMBIO DE BANDAS DENTADAS"
+            },
+            {
+              "clave": "trm22_05",
+              "texto": "REVISIÓN / CAMBIO DE POLEAS Y RODILLOS"
+            },
+            {
+              "clave": "trm22_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO GENERAL"
+            },
+            {
+              "clave": "trm22_07",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO DE RESISTENCIAS"
+            },
+            {
+              "clave": "trm22_08",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO DE VENTILADOR"
+            },
+            {
+              "clave": "trm22_09",
+              "texto": "REVISIÓN DE CIRCUITOS ELÉCTRICOS (INTERIOR PANEL DE CONTROL)"
+            },
+            {
+              "clave": "trm22_10",
+              "texto": "REVISIÓN / ENGRASADO DE ENGRANES (INTERIOR PANEL DE CONTROL)"
+            },
+            {
+              "clave": "trm22_11",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            },
+            {
+              "clave": "trm22_12",
+              "texto": "LIMPIEZA GENERAL"
+            },
+            {
+              "clave": "trm22_13",
+              "texto": "CORRECTO FUNCIONAMIENTO GENERAL"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-101.pdf"
+    },
+    "02-FOR-MTO-102": {
+      "codigo_documento": "02-FOR-MTO-102",
+      "version": "SEP/26 VER.02",
+      "codigo_mantenimiento": "ECO-8",
+      "id_activo": "ACT-0066",
+      "nombre": "Encapsuladora automática #8",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "ENCAPSULADORA AUTOMÁTICA #8",
+          "actividades": [
+            {
+              "clave": "eco8_01",
+              "texto": "LIMPIEZA GENERAL DE PARTES MECÁNICAS."
+            },
+            {
+              "clave": "eco8_02",
+              "texto": "REVISIÓN / ENGRASADO DE RODAMIENTOS (INTERIOR DEL PLATO GIRATORIO Y MECANISMO DE CAPSULAS)."
+            },
+            {
+              "clave": "eco8_03",
+              "texto": "REVISIÓN / ENGRASADO DE LEVAS (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "eco8_04",
+              "texto": "REVISIÓN / ENGRASADO DE BIELAS (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "eco8_05",
+              "texto": "REVISIÓN / ENGRASADO DE COJINETES (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "eco8_06",
+              "texto": "REVISIÓN / ENGRASADO DE CADENAS (PARTE INFERIOR, SISTEMA MECANICO GENERAL)"
+            },
+            {
+              "clave": "eco8_07",
+              "texto": "REVISIÓN / CAMBIO DE ACEITE EN MOTOR REDUCTOR (ACEITE PARA MOTOR #90, VISCOCIDAD 680-460)"
+            },
+            {
+              "clave": "eco8_08",
+              "texto": "REVISIÓN DE PANEL DE CONTROL (BOTONES, PANTALLA TACTIL, PARO DE EMERGENCIA)"
+            },
+            {
+              "clave": "eco8_09",
+              "texto": "LIMPIEZA DE PANEL ELECTRICO"
+            },
+            {
+              "clave": "eco8_10",
+              "texto": "REVISIÓN DE CONEXIÓN ELECTRICA (CABLE, CLAVIJA, CONTACTO)"
+            },
+            {
+              "clave": "eco8_11",
+              "texto": "REVISIÓN DE CONEXIONES NEUMATICAS."
+            },
+            {
+              "clave": "eco8_12",
+              "texto": "REVISÓN DE TORNILLERIA FALTANTE Y AJUSTE (GENERAL)"
+            },
+            {
+              "clave": "eco8_13",
+              "texto": "REVISIÓN DE TORNILLO SIN FIN (TOLVA DE POLVO)"
+            },
+            {
+              "clave": "eco8_14",
+              "texto": "CHEQUEO DE CORRECTA POSICIÓN DE BASE (TOLVA DE POLVO)"
+            }
+          ]
+        },
+        {
+          "titulo": "ASPIRADORA DE POLVO",
+          "actividades": [
+            {
+              "clave": "eco8_15",
+              "texto": "REVISIÓN Y LIMPIEZA DE FILTROS (TUBO DE ESCAPE, FILTRO DE TELA)"
+            },
+            {
+              "clave": "eco8_16",
+              "texto": "REVISIÓN DE CONEXIONES ELECTRICAS (CABLE, CONECTORES)"
+            },
+            {
+              "clave": "eco8_17",
+              "texto": "REVISIÓN GENERAL DE FUNCIONAMIENTO"
+            }
+          ]
+        },
+        {
+          "titulo": "BOMBA DE VACIO",
+          "actividades": [
+            {
+              "clave": "eco8_18",
+              "texto": "LIMPIEZA DE FILTROS (PREFILTRO PRINCIPAL, PREFILTRO SECUNDARIO)"
+            },
+            {
+              "clave": "eco8_19",
+              "texto": "REVISIÓN DE CONEXIONES ELECTRICAS"
+            },
+            {
+              "clave": "eco8_20",
+              "texto": "REVISIÓN GENERAL DE FUNCIONAMIENTO"
+            },
+            {
+              "clave": "eco8_21",
+              "texto": "REVISIÓN DE CONEXIONES NEUMATICAS"
+            },
+            {
+              "clave": "eco8_22",
+              "texto": "VERIFICAR PRESION DENTRO DE PARAMETROS (80-60 kPa)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-102.pdf"
+    },
+    "02-FOR-MTO-104": {
+      "codigo_documento": "02-FOR-MTO-104",
+      "version": "SEP/26 VER.02",
+      "codigo_mantenimiento": "EPS-7",
+      "id_activo": "ACT-0249",
+      "nombre": "Envasadora de polvos semiautomática #7",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "ENVASADORA DE POLVOS SEMIAUTOMÁTICA #7",
+          "actividades": [
+            {
+              "clave": "eps7_01",
+              "texto": "LIMPIEZA GENERAL EXTERIOR E INTERIOR"
+            },
+            {
+              "clave": "eps7_02",
+              "texto": "RETIRAR GUARDA METÁLICA PARA REVISIÓN / ENGRASADO DE CADENA"
+            },
+            {
+              "clave": "eps7_03",
+              "texto": "VERIFICAR RODAMIENTOS DE MOTORES SE ENCUENTREN EN BUEN ESTADO (INTERIOR DE GUARDA)"
+            },
+            {
+              "clave": "eps7_04",
+              "texto": "VERIFICAR QUE SE ENCUENTREN COMPLETAS VARILLAS SUJETADORAS (ESTAS AJUSTAN LA TOLVA A LA BASE DE LA TOLVA)"
+            },
+            {
+              "clave": "eps7_05",
+              "texto": "CORRECTO FUNCIONAMIENTO DE MOTORES (TORNILLO SIN FIN Y AGITADOR)"
+            },
+            {
+              "clave": "eps7_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PANTALLA TÁCTIL"
+            },
+            {
+              "clave": "eps7_07",
+              "texto": "REVISAR QUE LOS EMPAQUES SE ENCUENTREN EN BUEN ESTADO (SELLO ENTRE TOLVA Y ACRÍLICO, SELLO ENTRE BOQUILLA Y TOLVA)"
+            },
+            {
+              "clave": "eps7_08",
+              "texto": "VERIFICAR CORRECTO FUNCIONAMIENTO DE BOTONERA (PERILLA DE ENCENDIDO/APAGADO, DETENER Y AGITAR)"
+            },
+            {
+              "clave": "eps7_09",
+              "texto": "VERIFICAR CORRECTO FUNCIONAMIENTO DE PEDAL DE DESCARGA DE POLVO"
+            },
+            {
+              "clave": "eps7_10",
+              "texto": "CHEQUEO/CAMBIO GENERAL DE TORNILLERÍA (TORNILLOS COMPLETOS, EN BUEN ESTADO)"
+            },
+            {
+              "clave": "eps7_11",
+              "texto": "INSPECCIÓN VISUAL DE CONEXIONES ELÉCTRICAS (CABLES DE ALIMENTACIÓN GENERAL Y DE MOTOR, CABLEADO DE PEDAL)"
+            },
+            {
+              "clave": "eps7_12",
+              "texto": "INSPECCIÓN VISUAL DE CONEXIONES ELECTRÓNICAS (RETIRAR GUARDA DE PANEL DE CONTROL PARA INSPECCIÓN)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-104.pdf"
+    },
+    "02-FOR-MTO-19": {
+      "codigo_documento": "02-FOR-MTO-19",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "TRM-2",
+      "id_activo": "ACT-0271",
+      "nombre": "Termoselladora #2",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "TERMOSELLADORA #2",
+          "actividades": [
+            {
+              "clave": "trm2_01",
+              "texto": "REVISIÓN DE BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "trm2_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "trm2_03",
+              "texto": "REVISIÓN / CAMBIO DE BANDAS TÉRMICAS"
+            },
+            {
+              "clave": "trm2_04",
+              "texto": "REVISIÓN / CAMBIO DE BANDAS DENTADAS"
+            },
+            {
+              "clave": "trm2_05",
+              "texto": "REVISIÓN / CAMBIO DE POLEAS Y RODILLOS"
+            },
+            {
+              "clave": "trm2_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO GENERAL"
+            },
+            {
+              "clave": "trm2_07",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO DE RESISTENCIAS"
+            },
+            {
+              "clave": "trm2_08",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO DE VENTILADOR"
+            },
+            {
+              "clave": "trm2_09",
+              "texto": "REVISIÓN DE CIRCUITOS ELÉCTRICOS (INTERIOR PANEL DE CONTROL)"
+            },
+            {
+              "clave": "trm2_10",
+              "texto": "REVISIÓN / ENGRASADO DE ENGRANES (INTERIOR PANEL DE CONTROL)"
+            },
+            {
+              "clave": "trm2_11",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            },
+            {
+              "clave": "trm2_12",
+              "texto": "LIMPIEZA GENERAL"
+            },
+            {
+              "clave": "trm2_13",
+              "texto": "CORRECTO FUNCIONAMIENTO GENERAL"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-19.pdf"
+    },
+    "02-FOR-MTO-31": {
+      "codigo_documento": "02-FOR-MTO-31",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "MM-2",
+      "id_activo": "ACT-0241",
+      "nombre": "Marmita mezcladora #2",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "MARMITA MEZCLADORA #2",
+          "actividades": [
+            {
+              "clave": "mm2_01",
+              "texto": "LIMPIEZA GENERAL DE INTERIOR Y EXTERIOR"
+            },
+            {
+              "clave": "mm2_02",
+              "texto": "VERIFICAR QUE NO HAYA RESIDUOS EN LAS VÁLVULAS DE DESCARGA"
+            },
+            {
+              "clave": "mm2_03",
+              "texto": "CONFIRMAR QUE EL AGITADOR FUNCIONE SIN RUIDOS NI VIBRACIONES"
+            },
+            {
+              "clave": "mm2_04",
+              "texto": "CONFIRMAR QUE EL NIVEL DE ACEITE TÉRMICO SE ENCUENTRE DENTRO DEL TIEMPO DE USO RECOMENDADO (6 MECES)"
+            },
+            {
+              "clave": "mm2_05",
+              "texto": "INSPECCIONAR EL ESTADO DE LAS ASPAS DEL AGITADOR (SIN GRIETAS, REBABAS, TORCEDURAS O UNIONES DESOLDADAS)"
+            },
+            {
+              "clave": "mm2_06",
+              "texto": "VALIDAR FUNCIONAMIENTO DE SENSORES (NIVEL, TEMPERATURA, PRESIÓN)"
+            },
+            {
+              "clave": "mm2_07",
+              "texto": "COMPROBAR QUE LA TAPA CIERRE CORRECTAMENTE (BUEN SELLADO DE EMPAQUES)"
+            },
+            {
+              "clave": "mm2_08",
+              "texto": "VERIFICAR CORRECTO FUNCIONAMIENTO DE RESISTENCIAS"
+            },
+            {
+              "clave": "mm2_09",
+              "texto": "VERIFICAR SISTEMA DE CONTROL (PANTALLA TÁCTIL, BOTONERA)"
+            },
+            {
+              "clave": "mm2_10",
+              "texto": "REVISAR CONEXIONES ELÉCTRICAS (LIMPIAR SI HAY PRESENCIA DE HUMEDAD O POLVO)"
+            },
+            {
+              "clave": "mm2_11",
+              "texto": "INSPECCIÓN INTERNA DEL TANQUE PARA DETECCIÓN DE CORROSIÓN O REBABAS"
+            },
+            {
+              "clave": "mm2_12",
+              "texto": "COMPROBAR CORRECTO FUNCIONAMIENTO DE VÁLVULA DE ALIVIO"
+            },
+            {
+              "clave": "mm2_13",
+              "texto": "COMPROBAR CORRECTO FUNCIONAMIENTO DE PARO DE EMERGENCIA"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-31.pdf"
+    },
+    "02-FOR-MTO-34": {
+      "codigo_documento": "02-FOR-MTO-34",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "ETA-2",
+      "id_activo": "ACT-0253",
+      "nombre": "Etiquetadora automática #2",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "ETIQUETADORA AUTOMÁTICA #2",
+          "actividades": [
+            {
+              "clave": "eta2_01",
+              "texto": "LIMPIEZA GENERAL INTERNA Y EXTERNA"
+            },
+            {
+              "clave": "eta2_02",
+              "texto": "COMPROBAR QUE EL PARO DE EMERGENCIA FUNCIONE CORRECTAMENTE"
+            },
+            {
+              "clave": "eta2_03",
+              "texto": "COMPROBAR LA TENSIÓN Y DESGASTE DE LA BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "eta2_04",
+              "texto": "VERIFICAR EL RODILLO DE REBOBINADO: SIN TRABAS, NI RESIDUOS DE ADHESIVO"
+            },
+            {
+              "clave": "eta2_05",
+              "texto": "INSPECCIONAR SENSORES DE PASO DE BOTELLA (FIBRA ÓPTICA)"
+            },
+            {
+              "clave": "eta2_06",
+              "texto": "REVISAR LOS MOTORES PASO A PASO, Y OBSERVAR SI GENERAN RUIDO O CALOR EXCESIVO"
+            },
+            {
+              "clave": "eta2_07",
+              "texto": "CHECAR CONEXIONES DE CABLES ELÉCTRICOS Y CONECTORES"
+            },
+            {
+              "clave": "eta2_08",
+              "texto": "VERIFICAR CORRECTO FUNCIONAMIENTO DE PANTALLA TÁCTIL"
+            },
+            {
+              "clave": "eta2_09",
+              "texto": "VERIFICAR CORRECTO FUNCIONAMIENTO DE PERILLAS DE VELOCIDAD DE BANDA TRANSPORTADORA Y GIRO DE"
+            },
+            {
+              "clave": "eta2_10",
+              "texto": "INSPECCIONAR SENSORES DE PASO DE ETIQUETA (SENSOR INFRARROJO)"
+            },
+            {
+              "clave": "eta2_11",
+              "texto": "COMPROBAR CORRECTO FUNCIONAMIENTO DE MANIVELAS (AJUSTE DE ALTURA DE ETIQUETA, AJUSTE DE SUJECIÓN DE BOTELLA)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-34.pdf"
+    },
+    "02-FOR-MTO-35": {
+      "codigo_documento": "02-FOR-MTO-35",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "TC-1",
+      "id_activo": "ACT-0252",
+      "nombre": "Túnel de calor #1",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "TÚNEL DE CALOR #1",
+          "actividades": [
+            {
+              "clave": "tc1_01",
+              "texto": "APAGAR Y DEJAR ENFRIAR EL EQUIPO ANTES DE CUALQUIER LIMPIEZA"
+            },
+            {
+              "clave": "tc1_02",
+              "texto": "REVISAR QUE NO HAYA OBJETOS EXTRAÑOS FUNDIDOS EN LAS RESISTENCIAS O VENTILADORES"
+            },
+            {
+              "clave": "tc1_03",
+              "texto": "INSPECCIONAR VISUALMENTE LOS VENTILADORES DE CIRCULACIÓN INTERNA"
+            },
+            {
+              "clave": "tc1_04",
+              "texto": "VERIFICAR QUE LA BANDA TRANSPORTADORA ESTE ALINEADA, SIN FRICCIÓN EXCESIVA, SALTOS O EN MAL ESTADO."
+            },
+            {
+              "clave": "tc1_05",
+              "texto": "REVISAR TORNILLOS DE SUJECIÓN DEL CUERPO Y TAPAS DE TÚNEL"
+            },
+            {
+              "clave": "tc1_06",
+              "texto": "VERIFICAR CONTINUIDAD ELÉCTRICA DE LAS RESISTENCIAS CALEFACTORAS CON MULTÍMETRO"
+            },
+            {
+              "clave": "tc1_07",
+              "texto": "CONFIRMAR FUNCIONAMIENTO DE TERMOSTATO DIGITAL DE TEMPERATURA"
+            },
+            {
+              "clave": "tc1_08",
+              "texto": "REVISAR RODAMIENTOS DE RODILLOS GUÍA"
+            },
+            {
+              "clave": "tc1_09",
+              "texto": "EXAMINAR EL CABLEADO DE POTENCIA (RESISTENCIAS, VENTILADORES, RELÉS)"
+            },
+            {
+              "clave": "tc1_10",
+              "texto": "CHECAR QUE NO HAYA JUEGO AXIAL O RUIDO ANORMAL"
+            },
+            {
+              "clave": "tc1_11",
+              "texto": "CONFIRMAR CORRECTO FUNCIONAMIENTO DE PANEL DE CONTROL (PARO DE EMERGENCIA, ENCENDIDO GENERAL, RESISTENCIAS, VENTILADORES, VELOCIDAD DE BANDA, TEMPERATURA)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-35.pdf"
+    },
+    "02-FOR-MTO-57": {
+      "codigo_documento": "02-FOR-MTO-57",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "LBA-3",
+      "id_activo": "ACT-0254",
+      "nombre": "Loteadora de banda automática #3",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "LOTEADORA DE BANDA AUTOMÁTICA #3",
+          "actividades": [
+            {
+              "clave": "lba3_01",
+              "texto": "LIMPIEZA GENERAL EXTERIOR E INTERIOR"
+            },
+            {
+              "clave": "lba3_02",
+              "texto": "VERIFICAR QUE LOS CABEZALES NO PRESENTEN RESIDUOS DE TINTA NI OBSTRUCCIONES VISIBLES (PORTA TINTAS)"
+            },
+            {
+              "clave": "lba3_03",
+              "texto": "REVISAR QUE LA BANDA TRANSPORTADORA NO PRESENTE RASGADURAS, CORTES, ETC."
+            },
+            {
+              "clave": "lba3_04",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PANTALLA TÁCTIL"
+            },
+            {
+              "clave": "lba3_05",
+              "texto": "EXAMINAR CABLES DE ALIMENTACIÓN PARA CONFIRMAR CONTINUIDAD Y AUSENCIA DE DESGASTE"
+            },
+            {
+              "clave": "lba3_06",
+              "texto": "VERIFICAR ALINEACIÓN MECÁNICA (ALTURA DE CABEZAL DE 12 A 25 MM) Y ESTABILIDAD DE LA BASE"
+            },
+            {
+              "clave": "lba3_07",
+              "texto": "INSPECCIONAR SENSOR DE MOVIMIENTO (LIMPIAR POLVO O RESIDUOS QUE PUEDAN ALTERAR LA LECTURA)"
+            },
+            {
+              "clave": "lba3_08",
+              "texto": "CORRECTO FUNCIONAMIENTO DE CONTROL DE VELOCIDAD DE BANDA (POTENCIÓMETRO)"
+            },
+            {
+              "clave": "lba3_09",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTÓN (ENCENDIDO / APAGADO)"
+            },
+            {
+              "clave": "lba3_10",
+              "texto": "REVISIÓN/LUBRICACIÓN DE CADENA (RETIRAR CARCASA FRONTAL PARA ACCEDER A CADENA)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-57.pdf"
+    },
+    "02-FOR-MTO-68": {
+      "codigo_documento": "02-FOR-MTO-68",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "MP-1",
+      "id_activo": "ACT-0247",
+      "nombre": "Mezclador de polvo #1",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "MEZCLADOR DE POLVO #1",
+          "actividades": [
+            {
+              "clave": "mp1_01",
+              "texto": "REVISIÓN DE UNIONES DE SOLDADURA (EJES, CONTENEDOR, ASPAS)"
+            },
+            {
+              "clave": "mp1_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE VÁLVULA DISPENSADORA (BOQUILLA DE MEZCLADOR)"
+            },
+            {
+              "clave": "mp1_03",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTONES (ENCENDIDO, APAGADO, ABIERTO Y CERRADO)"
+            },
+            {
+              "clave": "mp1_04",
+              "texto": "LIMPIEZA GENERAL INTERNA (INTERIOR DE PANEL DE CONTROL)"
+            },
+            {
+              "clave": "mp1_05",
+              "texto": "REVISIÓN DE MOTOR GENERAL"
+            },
+            {
+              "clave": "mp1_06",
+              "texto": "REVISIÓN DE EJE (RUIDO, ESTADO O VIBRACIONES)"
+            },
+            {
+              "clave": "mp1_07",
+              "texto": "REVISIÓN DE PISTONES NEUMÁTICOS"
+            },
+            {
+              "clave": "mp1_08",
+              "texto": "REVISIÓN DE CONEXIONES NEUMÁTICAS"
+            },
+            {
+              "clave": "mp1_09",
+              "texto": "REVISIÓN DE EMPAQUES Y RETENES"
+            },
+            {
+              "clave": "mp1_10",
+              "texto": "REVISIÓN DE CABLEADO ELÉCTRICO"
+            },
+            {
+              "clave": "mp1_11",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            },
+            {
+              "clave": "mp1_12",
+              "texto": "CORRECTO FUNCIONAMIENTO GENERAL"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-68.pdf"
+    },
+    "02-FOR-MTO-69": {
+      "codigo_documento": "02-FOR-MTO-69",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "MP-2",
+      "id_activo": "ACT-0245",
+      "nombre": "Mezclador de polvo #2",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "MEZCLADOR DE POLVO #2",
+          "actividades": [
+            {
+              "clave": "mp2_01",
+              "texto": "REVISIÓN DE UNIONES DE SOLDADURA (EJES, CONTENEDOR, ASPAS)"
+            },
+            {
+              "clave": "mp2_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE VÁLVULA DISPENSADORA (BOQUILLA DE MEZCLADOR)"
+            },
+            {
+              "clave": "mp2_03",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTONES (ENCENDIDO, APAGADO, ABIERTO Y CERRADO)"
+            },
+            {
+              "clave": "mp2_04",
+              "texto": "LIMPIEZA GENERAL INTERNA (INTERIOR DE PANEL DE CONTROL)"
+            },
+            {
+              "clave": "mp2_05",
+              "texto": "REVISIÓN DE MOTOR GENERAL"
+            },
+            {
+              "clave": "mp2_06",
+              "texto": "REVISIÓN DE EJE (RUIDO, ESTADO O VIBRACIONES)"
+            },
+            {
+              "clave": "mp2_07",
+              "texto": "REVISIÓN DE PISTONES NEUMÁTICOS"
+            },
+            {
+              "clave": "mp2_08",
+              "texto": "REVISIÓN DE CONEXIONES NEUMÁTICAS"
+            },
+            {
+              "clave": "mp2_09",
+              "texto": "REVISIÓN DE EMPAQUES Y RETENES"
+            },
+            {
+              "clave": "mp2_10",
+              "texto": "REVISIÓN DE CABLEADO ELÉCTRICO"
+            },
+            {
+              "clave": "mp2_11",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            },
+            {
+              "clave": "mp2_12",
+              "texto": "CORRECTO FUNCIONAMIENTO GENERAL"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-69.pdf"
+    },
+    "02-FOR-MTO-70": {
+      "codigo_documento": "02-FOR-MTO-70",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "MP-3",
+      "id_activo": "ACT-0246",
+      "nombre": "Mezclador de polvo #3",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "MEZCLADOR DE POLVO #3",
+          "actividades": [
+            {
+              "clave": "mp3_01",
+              "texto": "REVISIÓN DE UNIONES DE SOLDADURA (EJES, CONTENEDOR, ASPAS)"
+            },
+            {
+              "clave": "mp3_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE VÁLVULA DISPENSADORA (BOQUILLA DE MEZCLADOR)"
+            },
+            {
+              "clave": "mp3_03",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTONES (ENCENDIDO, APAGADO, ABIERTO Y CERRADO)"
+            },
+            {
+              "clave": "mp3_04",
+              "texto": "LIMPIEZA GENERAL INTERNA (INTERIOR DE PANEL DE CONTROL)"
+            },
+            {
+              "clave": "mp3_05",
+              "texto": "REVISIÓN DE MOTOR GENERAL"
+            },
+            {
+              "clave": "mp3_06",
+              "texto": "REVISIÓN DE EJE (RUIDO, ESTADO O VIBRACIONES)"
+            },
+            {
+              "clave": "mp3_07",
+              "texto": "REVISIÓN DE PISTONES NEUMÁTICOS"
+            },
+            {
+              "clave": "mp3_08",
+              "texto": "REVISIÓN DE CONEXIONES NEUMÁTICAS"
+            },
+            {
+              "clave": "mp3_09",
+              "texto": "REVISIÓN DE EMPAQUES Y RETENES"
+            },
+            {
+              "clave": "mp3_10",
+              "texto": "REVISIÓN DE CABLEADO ELÉCTRICO"
+            },
+            {
+              "clave": "mp3_11",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            },
+            {
+              "clave": "mp3_12",
+              "texto": "CORRECTO FUNCIONAMIENTO GENERAL"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-70.pdf"
+    },
+    "02-FOR-MTO-71": {
+      "codigo_documento": "02-FOR-MTO-71",
+      "version": "SEP/25 VER.03",
+      "codigo_mantenimiento": "EPS-10",
+      "id_activo": "ACT-0250",
+      "nombre": "Envasadora de polvos semiautomática #10",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "ENVASADORA DE POLVOS SEMIAUTOMÁTICA #10",
+          "actividades": [
+            {
+              "clave": "eps10_01",
+              "texto": "LIMPIEZA GENERAL EXTERIOR E INTERIOR"
+            },
+            {
+              "clave": "eps10_02",
+              "texto": "RETIRAR GUARDA METÁLICA PARA REVISIÓN / ENGRASADO DE CADENA"
+            },
+            {
+              "clave": "eps10_03",
+              "texto": "VERIFICAR RODAMIENTOS DE MOTORES SE ENCUENTREN EN BUEN ESTADO (INTERIOR DE GUARDA)"
+            },
+            {
+              "clave": "eps10_04",
+              "texto": "VERIFICAR QUE SE ENCUENTREN COMPLETAS VARILLAS SUJETADORAS (ESTAS AJUSTAN LA TOLVA A LA BASE DE LA TOLVA)"
+            },
+            {
+              "clave": "eps10_05",
+              "texto": "CORRECTO FUNCIONAMIENTO DE MOTORES (TORNILLO SIN FIN Y AGITADOR)"
+            },
+            {
+              "clave": "eps10_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PANTALLA TÁCTIL"
+            },
+            {
+              "clave": "eps10_07",
+              "texto": "REVISAR QUE LOS EMPAQUES SE ENCUENTREN EN BUEN ESTADO (SELLO ENTRE TOLVA Y ACRÍLICO, SELLO ENTRE BOQUILLA Y TOLVA)"
+            },
+            {
+              "clave": "eps10_08",
+              "texto": "VERIFICAR CORRECTO FUNCIONAMIENTO DE BOTONERA (PERILLA DE ENCENDIDO/APAGADO, DETENER Y AGITAR)"
+            },
+            {
+              "clave": "eps10_09",
+              "texto": "VERIFICAR CORRECTO FUNCIONAMIENTO DE PEDAL DE DESCARGA DE POLVO"
+            },
+            {
+              "clave": "eps10_10",
+              "texto": "CHEQUEO/CAMBIO GENERAL DE TORNILLERÍA (TORNILLOS COMPLETOS, EN BUEN ESTADO)"
+            },
+            {
+              "clave": "eps10_11",
+              "texto": "INSPECCIÓN VISUAL DE CONEXIONES ELÉCTRICAS (CABLES DE ALIMENTACIÓN GENERAL Y DE MOTOR, CABLEADO DE PEDAL)"
+            },
+            {
+              "clave": "eps10_12",
+              "texto": "INSPECCIÓN VISUAL DE CONEXIONES ELECTRÓNICAS (RETIRAR GUARDA DE PANEL DE CONTROL PARA INSPECCIÓN)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-71.pdf"
+    },
+    "02-FOR-MTO-72": {
+      "codigo_documento": "02-FOR-MTO-72",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "EPS-11",
+      "id_activo": "ACT-0248",
+      "nombre": "Envasadora de polvos semiautomática #11",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "ENVASADORA DE POLVOS SEMIAUTOMÁTICA #11",
+          "actividades": [
+            {
+              "clave": "eps11_01",
+              "texto": "LIMPIEZA GENERAL EXTERIOR E INTERIOR"
+            },
+            {
+              "clave": "eps11_02",
+              "texto": "RETIRAR GUARDA METÁLICA PARA REVISIÓN / ENGRASADO DE CADENA"
+            },
+            {
+              "clave": "eps11_03",
+              "texto": "VERIFICAR RODAMIENTOS DE MOTORES SE ENCUENTREN EN BUEN ESTADO (INTERIOR DE GUARDA)"
+            },
+            {
+              "clave": "eps11_04",
+              "texto": "VERIFICAR QUE SE ENCUENTREN COMPLETAS VARILLAS SUJETADORAS (ESTAS AJUSTAN LA TOLVA A LA BASE DE LA TOLVA)"
+            },
+            {
+              "clave": "eps11_05",
+              "texto": "CORRECTO FUNCIONAMIENTO DE MOTORES (TORNILLO SIN FIN Y AGITADOR)"
+            },
+            {
+              "clave": "eps11_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PANTALLA TÁCTIL"
+            },
+            {
+              "clave": "eps11_07",
+              "texto": "REVISAR QUE LOS EMPAQUES SE ENCUENTREN EN BUEN ESTADO (SELLO ENTRE TOLVA Y ACRÍLICO, SELLO ENTRE BOQUILLA Y TOLVA)"
+            },
+            {
+              "clave": "eps11_08",
+              "texto": "VERIFICAR CORRECTO FUNCIONAMIENTO DE BOTONERA (PERILLA DE ENCENDIDO/APAGADO, DETENER Y AGITAR)"
+            },
+            {
+              "clave": "eps11_09",
+              "texto": "VERIFICAR CORRECTO FUNCIONAMIENTO DE PEDAL DE DESCARGA DE POLVO"
+            },
+            {
+              "clave": "eps11_10",
+              "texto": "CHEQUEO/CAMBIO GENERAL DE TORNILLERÍA (TORNILLOS COMPLETOS, EN BUEN ESTADO)"
+            },
+            {
+              "clave": "eps11_11",
+              "texto": "INSPECCIÓN VISUAL DE CONEXIONES ELÉCTRICAS (CABLES DE ALIMENTACIÓN GENERAL Y DE MOTOR, CABLEADO DE PEDAL)"
+            },
+            {
+              "clave": "eps11_12",
+              "texto": "INSPECCIÓN VISUAL DE CONEXIONES ELECTRÓNICAS (RETIRAR GUARDA DE PANEL DE CONTROL PARA INSPECCIÓN)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-72.pdf"
+    },
+    "02-FOR-MTO-73": {
+      "codigo_documento": "02-FOR-MTO-73",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "TC-2",
+      "id_activo": "ACT-0261",
+      "nombre": "Túnel de calor #2",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "TÚNEL DE CALOR #2",
+          "actividades": [
+            {
+              "clave": "tc2_01",
+              "texto": "APAGAR Y DEJAR ENFRIAR EL EQUIPO ANTES DE CUALQUIER LIMPIEZA"
+            },
+            {
+              "clave": "tc2_02",
+              "texto": "REVISAR QUE NO HAYA OBJETOS EXTRAÑOS FUNDIDOS EN LAS RESISTENCIAS O VENTILADORES"
+            },
+            {
+              "clave": "tc2_03",
+              "texto": "INSPECCIONAR VISUALMENTE LOS VENTILADORES DE CIRCULACIÓN INTERNA"
+            },
+            {
+              "clave": "tc2_04",
+              "texto": "VERIFICAR QUE LA BANDA TRANSPORTADORA ESTE ALINEADA, SIN FRICCIÓN EXCESIVA, SALTOS O EN MAL ESTADO."
+            },
+            {
+              "clave": "tc2_05",
+              "texto": "REVISAR TORNILLOS DE SUJECIÓN DEL CUERPO Y TAPAS DE TÚNEL"
+            },
+            {
+              "clave": "tc2_06",
+              "texto": "VERIFICAR CONTINUIDAD ELÉCTRICA DE LAS RESISTENCIAS CALEFACTORAS CON MULTÍMETRO"
+            },
+            {
+              "clave": "tc2_07",
+              "texto": "CONFIRMAR FUNCIONAMIENTO DE TERMOSTATO DIGITAL DE TEMPERATURA"
+            },
+            {
+              "clave": "tc2_08",
+              "texto": "REVISAR RODAMIENTOS DE RODILLOS GUÍA"
+            },
+            {
+              "clave": "tc2_09",
+              "texto": "EXAMINAR EL CABLEADO DE POTENCIA (RESISTENCIAS, VENTILADORES, RELÉS)"
+            },
+            {
+              "clave": "tc2_10",
+              "texto": "CHECAR QUE NO HAYA JUEGO AXIAL O RUIDO ANORMAL"
+            },
+            {
+              "clave": "tc2_11",
+              "texto": "CONFIRMAR CORRECTO FUNCIONAMIENTO DE PANEL DE CONTROL (PARO DE EMERGENCIA, ENCENDIDO GENERAL, RESISTENCIAS, VENTILADORES, VELOCIDAD DE BANDA, TEMPERATURA)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-73.pdf"
+    },
+    "02-FOR-MTO-79": {
+      "codigo_documento": "02-FOR-MTO-79",
+      "version": "SEP/26 VER.04",
+      "codigo_mantenimiento": "L4B-2",
+      "id_activo": "ACT-0242",
+      "nombre": "Llenadora de líquidos de 4 bocas #2",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "LLENADORA DE LÍQUIDOS 4 BOCAS #2",
+          "actividades": [
+            {
+              "clave": "l4b2_01",
+              "texto": "LIMPIEZA GENERAL INTERNA Y EXTERNA"
+            },
+            {
+              "clave": "l4b2_02",
+              "texto": "LIMPIAR CONEXIONES DE ALIMENTACIÓN (MANGUERAS, VÁLVULAS CHECK)"
+            },
+            {
+              "clave": "l4b2_03",
+              "texto": "PURGAR AIRE RESIDUAL DEL SISTEMA NEUMÁTICO"
+            },
+            {
+              "clave": "l4b2_04",
+              "texto": "REVISAR QUE NO HAYA FUGAS EN LAS CONEXIONES NEUMÁTICAS E HIDRÁULICAS"
+            },
+            {
+              "clave": "l4b2_05",
+              "texto": "COMPROBAR QUE EL REGULADOR DE PRESIÓN DE AIRE FUNCIONE CORRECTAMENTE"
+            },
+            {
+              "clave": "l4b2_06",
+              "texto": "REVISAR ALINEACIÓN DE LAS BOQUILLAS SOBRE LOS ENVASES"
+            },
+            {
+              "clave": "l4b2_07",
+              "texto": "CONFIRMAR QUE LAS PERILLAS DE LAS BOMBAS FUNCIONEN CORRECTAMENTE"
+            },
+            {
+              "clave": "l4b2_08",
+              "texto": "REVISAR LOS SENSORES DE POSICIONAMIENTO (FIBRA ÓPTICA)"
+            },
+            {
+              "clave": "l4b2_09",
+              "texto": "REVISAR LOS ACTUADORES NEUMÁTICOS (CILINDROS) POR FUGAS O PERDIDA DE FUERZA"
+            },
+            {
+              "clave": "l4b2_10",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PANTALLA TÁCTIL"
+            },
+            {
+              "clave": "l4b2_11",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "l4b2_12",
+              "texto": "CONFIRMAR CORRECTO FUNCIONAMIENTO DE BOMBAS DE ACCIONAMIENTO MAGNÉTICO"
+            },
+            {
+              "clave": "l4b2_13",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PISTONES NEUMÁTICOS"
+            },
+            {
+              "clave": "l4b2_14",
+              "texto": "INSPECCIONAR CONEXIONES ELÉCTRICAS Y COMPONENTES ELECTRÓNICOS (CABLEADO GENERAL, PLC, RELÉS, CONTACTOS ELÉCTRICOS)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-79.pdf"
+    },
+    "02-FOR-MTO-81": {
+      "codigo_documento": "02-FOR-MTO-81",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "TRM-17",
+      "id_activo": "ACT-0272",
+      "nombre": "Termoselladora #17",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "TERMOSELLADORA #17",
+          "actividades": [
+            {
+              "clave": "trm17_01",
+              "texto": "REVISIÓN DE BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "trm17_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "trm17_03",
+              "texto": "REVISIÓN / CAMBIO DE BANDAS TÉRMICAS"
+            },
+            {
+              "clave": "trm17_04",
+              "texto": "REVISIÓN / CAMBIO DE BANDAS DENTADAS"
+            },
+            {
+              "clave": "trm17_05",
+              "texto": "REVISIÓN / CAMBIO DE POLEAS Y RODILLOS"
+            },
+            {
+              "clave": "trm17_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO GENERAL"
+            },
+            {
+              "clave": "trm17_07",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO DE RESISTENCIAS"
+            },
+            {
+              "clave": "trm17_08",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO DE VENTILADOR"
+            },
+            {
+              "clave": "trm17_09",
+              "texto": "REVISIÓN DE CIRCUITOS ELÉCTRICOS (INTERIOR PANEL DE CONTROL)"
+            },
+            {
+              "clave": "trm17_10",
+              "texto": "REVISIÓN / ENGRASADO DE ENGRANES (INTERIOR PANEL DE CONTROL)"
+            },
+            {
+              "clave": "trm17_11",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            },
+            {
+              "clave": "trm17_12",
+              "texto": "LIMPIEZA GENERAL"
+            },
+            {
+              "clave": "trm17_13",
+              "texto": "CORRECTO FUNCIONAMIENTO GENERAL"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-81.pdf"
+    },
+    "02-FOR-MTO-82": {
+      "codigo_documento": "02-FOR-MTO-82",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "TRM-18",
+      "id_activo": "ACT-0274",
+      "nombre": "Termoselladora #18",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "TERMOSELLADORA #18",
+          "actividades": [
+            {
+              "clave": "trm18_01",
+              "texto": "REVISIÓN DE BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "trm18_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "trm18_03",
+              "texto": "REVISIÓN / CAMBIO DE BANDAS TÉRMICAS"
+            },
+            {
+              "clave": "trm18_04",
+              "texto": "REVISIÓN / CAMBIO DE BANDAS DENTADAS"
+            },
+            {
+              "clave": "trm18_05",
+              "texto": "REVISIÓN / CAMBIO DE POLEAS Y RODILLOS"
+            },
+            {
+              "clave": "trm18_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO GENERAL"
+            },
+            {
+              "clave": "trm18_07",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO DE RESISTENCIAS"
+            },
+            {
+              "clave": "trm18_08",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO DE VENTILADOR"
+            },
+            {
+              "clave": "trm18_09",
+              "texto": "REVISIÓN DE CIRCUITOS ELÉCTRICOS (INTERIOR PANEL DE CONTROL)"
+            },
+            {
+              "clave": "trm18_10",
+              "texto": "REVISIÓN / ENGRASADO DE ENGRANES (INTERIOR PANEL DE CONTROL)"
+            },
+            {
+              "clave": "trm18_11",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            },
+            {
+              "clave": "trm18_12",
+              "texto": "LIMPIEZA GENERAL"
+            },
+            {
+              "clave": "trm18_13",
+              "texto": "CORRECTO FUNCIONAMIENTO GENERAL"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-82.pdf"
+    },
+    "02-FOR-MTO-84": {
+      "codigo_documento": "02-FOR-MTO-84",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "SEI-2",
+      "id_activo": "ACT-0268",
+      "nombre": "Selladora de inducción #2",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "SELLADORA DE INDUCCIÓN #2",
+          "actividades": [
+            {
+              "clave": "sei2_01",
+              "texto": "LIMPIEZA GENERAL INTERIOR Y EXTERIOR."
+            },
+            {
+              "clave": "sei2_02",
+              "texto": "VERIFICAR QUE NO HAYA OBSTRUCCIONES EN LA BANDA TRANSPORTADORA Y SE ENCUENTREN EN BUEN ESTADO."
+            },
+            {
+              "clave": "sei2_03",
+              "texto": "REVISAR QUE LOS VENTILADORES INTERNOS FUNCIONEN CORRECTAMENTE AL ENCENDER EL EQUIPO."
+            },
+            {
+              "clave": "sei2_04",
+              "texto": "CONFIRMAR QUE LA TEMPERATURA Y POTENCIA ESTÁN DENTRO DE LOS PARÁMETROS DEFINIDOS."
+            },
+            {
+              "clave": "sei2_05",
+              "texto": "VERIFICAR BUEN ESTADO DE CONEXIONES ELÉCTRICAS Y DE SEÑAL DE CAJA DE CONTROL."
+            },
+            {
+              "clave": "sei2_06",
+              "texto": "INSPECCIONAR EL AJUSTE DE ALTURA DEL CABEZAL SOBRE LAS BOTELLAS."
+            },
+            {
+              "clave": "sei2_07",
+              "texto": "PROBAR QUE LA BANDA TRANSPORTADORA FUNCIONE CORRECTAMENTE, MANTENGA VELOCIDAD CONSTANTE Y NO SE TRABE."
+            },
+            {
+              "clave": "sei2_08",
+              "texto": "REVISAR FUSIBLE INTERNO SIGA FUNCIONAL."
+            },
+            {
+              "clave": "sei2_09",
+              "texto": "COMPROBAR PANEL DE CONTROL FUNCIONE CORRECTAMENTE."
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-84.pdf"
+    },
+    "02-FOR-MTO-87": {
+      "codigo_documento": "02-FOR-MTO-87",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "CC-7",
+      "id_activo": "ACT-0215",
+      "nombre": "Contadora de cápsulas #7",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "CONTADORA DE CÁPSULAS #7",
+          "actividades": [
+            {
+              "clave": "cc7_01",
+              "texto": "REVISIÓN DE ACCESORIOS COMPLETOS (TUERCA, GUASAS, DISCOS CONTADORES)"
+            },
+            {
+              "clave": "cc7_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE GATILLO ACCIONADOR"
+            },
+            {
+              "clave": "cc7_03",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTÓN ENCENDIDO / APAGADO"
+            },
+            {
+              "clave": "cc7_04",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PERILLA (VELOCIDAD DE GIRO)"
+            },
+            {
+              "clave": "cc7_05",
+              "texto": "CORRECTO FUNCIONAMIENTO DE SISTEMA DE VIBRACIÓN"
+            },
+            {
+              "clave": "cc7_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE SENSOR DE GIRO (INTERIOR)"
+            },
+            {
+              "clave": "cc7_07",
+              "texto": "LIMPIEZA GENERAL (INTERIOR Y EXTERIOR)"
+            },
+            {
+              "clave": "cc7_08",
+              "texto": "REVISIÓN DE CABLEADO ELÉCTRICO EN BUEN ESTADO (INTERIOR)"
+            },
+            {
+              "clave": "cc7_09",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-87.pdf"
+    },
+    "02-FOR-MTO-88": {
+      "codigo_documento": "02-FOR-MTO-88",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "EPS-12",
+      "id_activo": "ACT-0251",
+      "nombre": "Envasadora de polvos semiautomática #12",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "ENVASADORA DE POLVOS SEMIAUTOMÁTICA #12",
+          "actividades": [
+            {
+              "clave": "eps12_01",
+              "texto": "LIMPIEZA GENERAL EXTERIOR E INTERIOR"
+            },
+            {
+              "clave": "eps12_02",
+              "texto": "RETIRAR GUARDA METÁLICA PARA REVISIÓN / ENGRASADO DE CADENA"
+            },
+            {
+              "clave": "eps12_03",
+              "texto": "VERIFICAR RODAMIENTOS DE MOTORES SE ENCUENTREN EN BUEN ESTADO (INTERIOR DE GUARDA)"
+            },
+            {
+              "clave": "eps12_04",
+              "texto": "VERIFICAR QUE SE ENCUENTREN COMPLETAS VARILLAS SUJETADORAS (ESTAS AJUSTAN LA TOLVA A LA BASE DE LA TOLVA)"
+            },
+            {
+              "clave": "eps12_05",
+              "texto": "CORRECTO FUNCIONAMIENTO DE MOTORES (TORNILLO SIN FIN Y AGITADOR)"
+            },
+            {
+              "clave": "eps12_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PANTALLA TÁCTIL"
+            },
+            {
+              "clave": "eps12_07",
+              "texto": "REVISAR QUE LOS EMPAQUES SE ENCUENTREN EN BUEN ESTADO (SELLO ENTRE TOLVA Y ACRÍLICO, SELLO ENTRE BOQUILLA Y TOLVA)"
+            },
+            {
+              "clave": "eps12_08",
+              "texto": "VERIFICAR CORRECTO FUNCIONAMIENTO DE BOTONERA (PERILLA DE ENCENDIDO/APAGADO, DETENER Y AGITAR)"
+            },
+            {
+              "clave": "eps12_09",
+              "texto": "VERIFICAR CORRECTO FUNCIONAMIENTO DE PEDAL DE DESCARGA DE POLVO"
+            },
+            {
+              "clave": "eps12_10",
+              "texto": "CHEQUEO/CAMBIO GENERAL DE TORNILLERÍA (TORNILLOS COMPLETOS, EN BUEN ESTADO)"
+            },
+            {
+              "clave": "eps12_11",
+              "texto": "INSPECCIÓN VISUAL DE CONEXIONES ELÉCTRICAS (CABLES DE ALIMENTACIÓN GENERAL Y DE MOTOR, CABLEADO DE PEDAL)"
+            },
+            {
+              "clave": "eps12_12",
+              "texto": "INSPECCIÓN VISUAL DE CONEXIONES ELECTRÓNICAS (RETIRAR GUARDA DE PANEL DE CONTROL PARA INSPECCIÓN)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-88.pdf"
+    },
+    "02-FOR-MTO-89": {
+      "codigo_documento": "02-FOR-MTO-89",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "CC-8",
+      "id_activo": "ACT-0056",
+      "nombre": "Contadora de cápsulas #8",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "CONTADORA DE CÁPSULAS #8",
+          "actividades": [
+            {
+              "clave": "cc8_01",
+              "texto": "REVISIÓN DE ACCESORIOS COMPLETOS (TUERCA, GUASAS, DISCOS CONTADORES)"
+            },
+            {
+              "clave": "cc8_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE GATILLO ACCIONADOR"
+            },
+            {
+              "clave": "cc8_03",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTÓN ENCENDIDO / APAGADO"
+            },
+            {
+              "clave": "cc8_04",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PERILLA (VELOCIDAD DE GIRO)"
+            },
+            {
+              "clave": "cc8_05",
+              "texto": "CORRECTO FUNCIONAMIENTO DE SISTEMA DE VIBRACIÓN"
+            },
+            {
+              "clave": "cc8_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE SENSOR DE GIRO (INTERIOR)"
+            },
+            {
+              "clave": "cc8_07",
+              "texto": "LIMPIEZA GENERAL (INTERIOR Y EXTERIOR)"
+            },
+            {
+              "clave": "cc8_08",
+              "texto": "REVISIÓN DE CABLEADO ELÉCTRICO EN BUEN ESTADO (INTERIOR)"
+            },
+            {
+              "clave": "cc8_09",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-89.pdf"
+    },
+    "02-FOR-MTO-90": {
+      "codigo_documento": "02-FOR-MTO-90",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "CC-9",
+      "id_activo": "ACT-0216",
+      "nombre": "Contadora de cápsulas #9",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "CONTADORA DE CÁPSULAS #9",
+          "actividades": [
+            {
+              "clave": "cc9_01",
+              "texto": "REVISIÓN DE ACCESORIOS COMPLETOS (TUERCA, GUASAS, DISCOS CONTADORES)"
+            },
+            {
+              "clave": "cc9_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE GATILLO ACCIONADOR"
+            },
+            {
+              "clave": "cc9_03",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTÓN ENCENDIDO / APAGADO"
+            },
+            {
+              "clave": "cc9_04",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PERILLA (VELOCIDAD DE GIRO)"
+            },
+            {
+              "clave": "cc9_05",
+              "texto": "CORRECTO FUNCIONAMIENTO DE SISTEMA DE VIBRACIÓN"
+            },
+            {
+              "clave": "cc9_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE SENSOR DE GIRO (INTERIOR)"
+            },
+            {
+              "clave": "cc9_07",
+              "texto": "LIMPIEZA GENERAL (INTERIOR Y EXTERIOR)"
+            },
+            {
+              "clave": "cc9_08",
+              "texto": "REVISIÓN DE CABLEADO ELÉCTRICO EN BUEN ESTADO (INTERIOR)"
+            },
+            {
+              "clave": "cc9_09",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-90.pdf"
+    },
+    "02-FOR-MTO-92": {
+      "codigo_documento": "02-FOR-MTO-92",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "TRM-19",
+      "id_activo": "ACT-0270",
+      "nombre": "Termoselladora #19",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "TERMOSELLADORA #19",
+          "actividades": [
+            {
+              "clave": "trm19_01",
+              "texto": "REVISIÓN DE BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "trm19_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "trm19_03",
+              "texto": "REVISIÓN / CAMBIO DE BANDAS TÉRMICAS"
+            },
+            {
+              "clave": "trm19_04",
+              "texto": "REVISIÓN / CAMBIO DE BANDAS DENTADAS"
+            },
+            {
+              "clave": "trm19_05",
+              "texto": "REVISIÓN / CAMBIO DE POLEAS Y RODILLOS"
+            },
+            {
+              "clave": "trm19_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO GENERAL"
+            },
+            {
+              "clave": "trm19_07",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO DE RESISTENCIAS"
+            },
+            {
+              "clave": "trm19_08",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO DE VENTILADOR"
+            },
+            {
+              "clave": "trm19_09",
+              "texto": "REVISIÓN DE CIRCUITOS ELÉCTRICOS (INTERIOR PANEL DE CONTROL)"
+            },
+            {
+              "clave": "trm19_10",
+              "texto": "REVISIÓN / ENGRASADO DE ENGRANES (INTERIOR PANEL DE CONTROL)"
+            },
+            {
+              "clave": "trm19_11",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            },
+            {
+              "clave": "trm19_12",
+              "texto": "LIMPIEZA GENERAL"
+            },
+            {
+              "clave": "trm19_13",
+              "texto": "CORRECTO FUNCIONAMIENTO GENERAL"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-92.pdf"
+    },
+    "02-FOR-MTO-93": {
+      "codigo_documento": "02-FOR-MTO-93",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "TRM-20",
+      "id_activo": "ACT-0273",
+      "nombre": "Termoselladora #20",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "TERMOSELLADORA #20",
+          "actividades": [
+            {
+              "clave": "trm20_01",
+              "texto": "REVISIÓN DE BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "trm20_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BANDA TRANSPORTADORA"
+            },
+            {
+              "clave": "trm20_03",
+              "texto": "REVISIÓN / CAMBIO DE BANDAS TÉRMICAS"
+            },
+            {
+              "clave": "trm20_04",
+              "texto": "REVISIÓN / CAMBIO DE BANDAS DENTADAS"
+            },
+            {
+              "clave": "trm20_05",
+              "texto": "REVISIÓN / CAMBIO DE POLEAS Y RODILLOS"
+            },
+            {
+              "clave": "trm20_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO GENERAL"
+            },
+            {
+              "clave": "trm20_07",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO DE RESISTENCIAS"
+            },
+            {
+              "clave": "trm20_08",
+              "texto": "CORRECTO FUNCIONAMIENTO DE INTERRUPTOR DE ENCENDIDO / APAGADO DE VENTILADOR"
+            },
+            {
+              "clave": "trm20_09",
+              "texto": "REVISIÓN DE CIRCUITOS ELÉCTRICOS (INTERIOR PANEL DE CONTROL)"
+            },
+            {
+              "clave": "trm20_10",
+              "texto": "REVISIÓN / ENGRASADO DE ENGRANES (INTERIOR PANEL DE CONTROL)"
+            },
+            {
+              "clave": "trm20_11",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            },
+            {
+              "clave": "trm20_12",
+              "texto": "LIMPIEZA GENERAL"
+            },
+            {
+              "clave": "trm20_13",
+              "texto": "CORRECTO FUNCIONAMIENTO GENERAL"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-93.pdf"
+    },
+    "02-FOR-MTO-95": {
+      "codigo_documento": "02-FOR-MTO-95",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "LBA-5",
+      "id_activo": "ACT-0255",
+      "nombre": "Loteadora de banda automática #5",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "LOTEADORA DE BANDA AUTOMÁTICA #5",
+          "actividades": [
+            {
+              "clave": "lba5_01",
+              "texto": "LIMPIEZA GENERAL EXTERIOR E INTERIOR"
+            },
+            {
+              "clave": "lba5_02",
+              "texto": "VERIFICAR QUE LOS CABEZALES NO PRESENTEN RESIDUOS DE TINTA NI OBSTRUCCIONES VISIBLES (PORTA TINTAS)"
+            },
+            {
+              "clave": "lba5_03",
+              "texto": "REVISAR QUE LA BANDA TRANSPORTADORA NO PRESENTE RASGADURAS, CORTES, ETC."
+            },
+            {
+              "clave": "lba5_04",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PANTALLA TÁCTIL"
+            },
+            {
+              "clave": "lba5_05",
+              "texto": "EXAMINAR CABLES DE ALIMENTACIÓN PARA CONFIRMAR CONTINUIDAD Y AUSENCIA DE DESGASTE"
+            },
+            {
+              "clave": "lba5_06",
+              "texto": "VERIFICAR ALINEACIÓN MECÁNICA (ALTURA DE CABEZAL DE 12 A 25 MM) Y ESTABILIDAD DE LA BASE"
+            },
+            {
+              "clave": "lba5_07",
+              "texto": "INSPECCIONAR SENSOR DE MOVIMIENTO (LIMPIAR POLVO O RESIDUOS QUE PUEDAN ALTERAR LA LECTURA)"
+            },
+            {
+              "clave": "lba5_08",
+              "texto": "CORRECTO FUNCIONAMIENTO DE CONTROL DE VELOCIDAD DE BANDA (POTENCIÓMETRO)"
+            },
+            {
+              "clave": "lba5_09",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTÓN (ENCENDIDO / APAGADO)"
+            },
+            {
+              "clave": "lba5_10",
+              "texto": "REVISIÓN/LUBRICACIÓN DE CADENA (RETIRAR CARCASA FRONTAL PARA ACCEDER A CADENA)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-95.pdf"
+    },
+    "02-FOR-MTO-96": {
+      "codigo_documento": "02-FOR-MTO-96",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "LBA-6",
+      "id_activo": "ACT-0256",
+      "nombre": "Loteadora de banda automática #6",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "LOTEADORA DE BANDA AUTOMÁTICA #6",
+          "actividades": [
+            {
+              "clave": "lba6_01",
+              "texto": "LIMPIEZA GENERAL EXTERIOR E INTERIOR"
+            },
+            {
+              "clave": "lba6_02",
+              "texto": "VERIFICAR QUE LOS CABEZALES NO PRESENTEN RESIDUOS DE TINTA NI OBSTRUCCIONES VISIBLES (PORTA TINTAS)"
+            },
+            {
+              "clave": "lba6_03",
+              "texto": "REVISAR QUE LA BANDA TRANSPORTADORA NO PRESENTE RASGADURAS, CORTES, ETC."
+            },
+            {
+              "clave": "lba6_04",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PANTALLA TÁCTIL"
+            },
+            {
+              "clave": "lba6_05",
+              "texto": "EXAMINAR CABLES DE ALIMENTACIÓN PARA CONFIRMAR CONTINUIDAD Y AUSENCIA DE DESGASTE"
+            },
+            {
+              "clave": "lba6_06",
+              "texto": "VERIFICAR ALINEACIÓN MECÁNICA (ALTURA DE CABEZAL DE 12 A 25 MM) Y ESTABILIDAD DE LA BASE"
+            },
+            {
+              "clave": "lba6_07",
+              "texto": "INSPECCIONAR SENSOR DE MOVIMIENTO (LIMPIAR POLVO O RESIDUOS QUE PUEDAN ALTERAR LA LECTURA)"
+            },
+            {
+              "clave": "lba6_08",
+              "texto": "CORRECTO FUNCIONAMIENTO DE CONTROL DE VELOCIDAD DE BANDA (POTENCIÓMETRO)"
+            },
+            {
+              "clave": "lba6_09",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTÓN (ENCENDIDO / APAGADO)"
+            },
+            {
+              "clave": "lba6_10",
+              "texto": "REVISIÓN/LUBRICACIÓN DE CADENA (RETIRAR CARCASA FRONTAL PARA ACCEDER A CADENA)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-96.pdf"
+    },
+    "02-FOR-MTO-97": {
+      "codigo_documento": "02-FOR-MTO-97",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "LBA-7",
+      "id_activo": "ACT-0311",
+      "nombre": "Loteadora de banda automática #7",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "LOTEADORA DE BANDA AUTOMÁTICA #7",
+          "actividades": [
+            {
+              "clave": "lba7_01",
+              "texto": "LIMPIEZA GENERAL EXTERIOR E INTERIOR"
+            },
+            {
+              "clave": "lba7_02",
+              "texto": "VERIFICAR QUE LOS CABEZALES NO PRESENTEN RESIDUOS DE TINTA NI OBSTRUCCIONES VISIBLES (PORTA TINTAS)"
+            },
+            {
+              "clave": "lba7_03",
+              "texto": "REVISAR QUE LA BANDA TRANSPORTADORA NO PRESENTE RASGADURAS, CORTES, ETC."
+            },
+            {
+              "clave": "lba7_04",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PANTALLA TÁCTIL"
+            },
+            {
+              "clave": "lba7_05",
+              "texto": "EXAMINAR CABLES DE ALIMENTACIÓN PARA CONFIRMAR CONTINUIDAD Y AUSENCIA DE DESGASTE"
+            },
+            {
+              "clave": "lba7_06",
+              "texto": "VERIFICAR ALINEACIÓN MECÁNICA (ALTURA DE CABEZAL DE 12 A 25 MM) Y ESTABILIDAD DE LA BASE"
+            },
+            {
+              "clave": "lba7_07",
+              "texto": "INSPECCIONAR SENSOR DE MOVIMIENTO (LIMPIAR POLVO O RESIDUOS QUE PUEDAN ALTERAR LA LECTURA)"
+            },
+            {
+              "clave": "lba7_08",
+              "texto": "CORRECTO FUNCIONAMIENTO DE CONTROL DE VELOCIDAD DE BANDA (POTENCIÓMETRO)"
+            },
+            {
+              "clave": "lba7_09",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTÓN (ENCENDIDO / APAGADO)"
+            },
+            {
+              "clave": "lba7_10",
+              "texto": "REVISIÓN/LUBRICACIÓN DE CADENA (RETIRAR CARCASA FRONTAL PARA ACCEDER A CADENA)"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-97.pdf"
+    },
+    "02-FOR-MTO-98": {
+      "codigo_documento": "02-FOR-MTO-98",
+      "version": "SEP/26 VER.03",
+      "codigo_mantenimiento": "CC-11",
+      "id_activo": "ACT-0217",
+      "nombre": "Contadora de cápsulas #11",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "CONTADORA DE CÁPSULAS #11",
+          "actividades": [
+            {
+              "clave": "cc11_01",
+              "texto": "REVISIÓN DE ACCESORIOS COMPLETOS (TUERCA, GUASAS, DISCOS CONTADORES)"
+            },
+            {
+              "clave": "cc11_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE GATILLO ACCIONADOR"
+            },
+            {
+              "clave": "cc11_03",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTÓN ENCENDIDO / APAGADO"
+            },
+            {
+              "clave": "cc11_04",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PERILLA (VELOCIDAD DE GIRO)"
+            },
+            {
+              "clave": "cc11_05",
+              "texto": "CORRECTO FUNCIONAMIENTO DE SISTEMA DE VIBRACIÓN"
+            },
+            {
+              "clave": "cc11_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE SENSOR DE GIRO (INTERIOR)"
+            },
+            {
+              "clave": "cc11_07",
+              "texto": "LIMPIEZA GENERAL (INTERIOR Y EXTERIOR)"
+            },
+            {
+              "clave": "cc11_08",
+              "texto": "REVISIÓN DE CABLEADO ELÉCTRICO EN BUEN ESTADO (INTERIOR)"
+            },
+            {
+              "clave": "cc11_09",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA/HALAL",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-98.pdf"
+    },
+    "02-FOR-MTO-99": {
+      "codigo_documento": "02-FOR-MTO-99",
+      "version": "AGO/26 VER.03",
+      "codigo_mantenimiento": "CC-12",
+      "id_activo": "ACT-0207",
+      "nombre": "Contadora de cápsulas #12",
+      "procedimientos": [
+        "CONVENCIONAL",
+        "KOSHER",
+        "HALAL"
+      ],
+      "secciones": [
+        {
+          "titulo": "CONTADORA DE CÁPSULAS #12",
+          "actividades": [
+            {
+              "clave": "cc12_01",
+              "texto": "REVISIÓN DE ACCESORIOS COMPLETOS (TUERCA, GUASAS, DISCOS CONTADORES)"
+            },
+            {
+              "clave": "cc12_02",
+              "texto": "CORRECTO FUNCIONAMIENTO DE GATILLO ACCIONADOR"
+            },
+            {
+              "clave": "cc12_03",
+              "texto": "CORRECTO FUNCIONAMIENTO DE BOTÓN ENCENDIDO / APAGADO"
+            },
+            {
+              "clave": "cc12_04",
+              "texto": "CORRECTO FUNCIONAMIENTO DE PERILLA (VELOCIDAD DE GIRO)"
+            },
+            {
+              "clave": "cc12_05",
+              "texto": "CORRECTO FUNCIONAMIENTO DE SISTEMA DE VIBRACIÓN"
+            },
+            {
+              "clave": "cc12_06",
+              "texto": "CORRECTO FUNCIONAMIENTO DE SENSOR DE GIRO (INTERIOR)"
+            },
+            {
+              "clave": "cc12_07",
+              "texto": "LIMPIEZA GENERAL (INTERIOR Y EXTERIOR)"
+            },
+            {
+              "clave": "cc12_08",
+              "texto": "REVISIÓN DE CABLEADO ELÉCTRICO EN BUEN ESTADO (INTERIOR)"
+            },
+            {
+              "clave": "cc12_09",
+              "texto": "REVISIÓN DE CABLE DE ALIMENTACIÓN"
+            }
+          ]
+        }
+      ],
+      "materiales": [
+        "HERRAMIENTA KOSHERIZADA",
+        "HERRAMIENTA CONVENCIONAL",
+        "GRASA GRADO ALIMENTICIO REPSOL",
+        "GRASA GRADO ALIMENTICIO SUPER LUBE",
+        "GRASA GRADO ALIMENTICIO FML-2"
+      ],
+      "permite_no_aplica": true,
+      "habilitado": true,
+      "motivo_bloqueo": "",
+      "archivo_fuente": "02-FOR-MTO-99.pdf"
+    }
+  }
+}

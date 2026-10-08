@@ -32,7 +32,7 @@ CATALOGO_FORMATOS = [
     ('02-FOR-MTO-81', 'Termoselladora #17', 'Termoselladora', 'VER.02', '02-FOR-MTO-81.pdf'),
     ('02-FOR-MTO-82', 'Termoselladora #18', 'Termoselladora', 'VER.02', '02-FOR-MTO-82.pdf'),
     ('02-FOR-MTO-83', 'Secador de manos', 'Secador de manos', 'VER.02', '02-FOR-MTO-83.pdf'),
-    ('02-FOR-MTO-84', 'Selladora de inducción #2', 'Selladora de inducción', 'VER.02', '02-FOR-MTO-84.pdf'),
+    ('02-FOR-MTO-84', 'Selladora de inducción #2', 'Selladora de inducción', 'SEP/26 VER.03', '02-FOR-MTO-84.pdf'),
     ('02-FOR-MTO-87', 'Contadora de cápsulas #7', 'Contadora de cápsulas', 'VER.02', '02-FOR-MTO-87.pdf'),
     ('02-FOR-MTO-88', 'Envasadora de polvos semiautomática #12', 'Envasadora de polvos', 'VER.02', '02-FOR-MTO-88.pdf'),
     ('02-FOR-MTO-89', 'Contadora de cápsulas #8', 'Contadora de cápsulas', 'VER.02', '02-FOR-MTO-89.pdf'),

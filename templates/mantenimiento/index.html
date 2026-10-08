@@ -1,32 +1,137 @@
 {% extends "base.html" %}
 {% block titulo %}Mantenimiento preventivo{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{{ url_for('static', filename='css/mantenimiento.css', v='20261001-2') }}">{% endblock %}
+{% block estilos %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mantenimiento.css', v='20261001-2') }}">{% endblock %}
 {% block contenido %}
 <main class="mto-page">
-  <header class="mto-hero"><div><small>MANTENIMIENTO PREVENTIVO · NARANJO</small><h1>Plan {{ anio }}</h1><p>Selecciona una semana para consultar o llenar el formato de la maquinaria.</p></div><span><i class="bi bi-tools"></i></span></header>
-  {% if not plan %}<section class="mto-empty"><h2>Falta preparar la base del módulo</h2><p>Ejecuta <strong>python migrar_mantenimiento_preventivo.py</strong> una sola vez.</p></section>{% else %}
-  <section class="mto-summary"><article><span>Equipos Naranjo</span><strong>{{ resumen.equipos }}</strong></article><article><span>Programados</span><strong>{{ resumen.programados }}</strong></article><article><span>Realizados</span><strong>{{ resumen.realizados }}</strong></article><article><span>Por conciliar</span><strong>{{ resumen.por_definir }}</strong></article></section>
+  <header class="mto-hero">
+    <div><small>MANTENIMIENTO PREVENTIVO · NARANJO</small>
+      <h1>Plan {{ anio }}</h1>
+      <p>Selecciona una semana para consultar o llenar el formato de la maquinaria.</p>
+    </div><span><i class="bi bi-tools"></i></span>
+  </header>
+  {% if not plan %}<section class="mto-empty">
+    <h2>Falta preparar la base del módulo</h2>
+    <p>Ejecuta <strong>python migrar_mantenimiento_preventivo.py</strong> una sola vez.</p>
+  </section>{% else %}
+  <section class="mto-summary">
+    <article><span>Equipos Naranjo</span><strong>{{ resumen.equipos }}</strong></article>
+    <article><span>Programados</span><strong>{{ resumen.programados }}</strong></article>
+    <article><span>Realizados</span><strong>{{ resumen.realizados }}</strong></article>
+    <article><span>Por conciliar</span><strong>{{ resumen.por_definir }}</strong></article>
+  </section>
   <section class="mto-plan-actions">
-    <a href="{{ url_for('administrar_formatos_mantenimiento') }}" class="mto-create-plan"><i class="bi bi-ui-checks-grid"></i><span>Formatos por maquinaria<small>Asignar, cambiar o consultar</small></span></a>
-    <div class="mto-years"><small>PLAN CONSULTADO</small>{% for numero in anios if numero <= anio_actual %}<a href="{{ url_for('mantenimiento_preventivo', anio=numero) }}" class="{% if numero==anio %}active{% endif %}">{{ numero }}</a>{% endfor %}</div>
-    {% if puede_editar and plan_siguiente_existe %}<a href="{{ url_for('mantenimiento_preventivo', anio=anio_actual + 1) }}" class="mto-create-plan"><i class="bi bi-calendar-check"></i><span>Abrir plan {{ anio_actual + 1 }}<small>Preparación del próximo año</small></span></a>
-    {% elif puede_editar and anio == anio_actual %}<form method="POST" action="{{ url_for('crear_plan_mantenimiento_siguiente') }}"><input type="hidden" name="anio" value="{{ anio_actual }}"><button class="mto-create-plan"><i class="bi bi-calendar-plus"></i><span>Crear plan {{ anio_actual + 1 }}<small>Vacío para captura gradual</small></span></button></form>{% endif %}
-    {% if es_administrador %}<form method="POST" action="{{ url_for('vaciar_plan_mantenimiento') }}" onsubmit="return confirm('¿Reiniciar completamente el plan {{ anio }}? Se eliminarán todos los colores y semanas capturadas.');"><input type="hidden" name="anio" value="{{ anio }}"><button class="mto-reset-plan"><i class="bi bi-arrow-counterclockwise"></i> Dejar plan en 0</button></form>{% endif %}
+    <a href="{{ url_for('administrar_formatos_mantenimiento') }}" class="mto-create-plan"><i
+        class="bi bi-ui-checks-grid"></i><span>Formatos por maquinaria<small>Asignar, cambiar o
+          consultar</small></span></a>
+    <div class="mto-years"><small>PLAN CONSULTADO</small>{% for numero in anios if numero <= anio_actual %}<a
+        href="{{ url_for('mantenimiento_preventivo', anio=numero) }}" class="{% if numero==anio %}active{% endif %}">{{
+        numero }}</a>{% endfor %}</div>
+    {% if puede_editar and plan_siguiente_existe %}<a
+      href="{{ url_for('mantenimiento_preventivo', anio=anio_actual + 1) }}" class="mto-create-plan"><i
+        class="bi bi-calendar-check"></i><span>Abrir plan {{ anio_actual + 1 }}<small>Preparación del próximo
+          año</small></span></a>
+    {% elif puede_editar and anio == anio_actual %}<form method="POST"
+      action="{{ url_for('crear_plan_mantenimiento_siguiente') }}"><input type="hidden" name="anio"
+        value="{{ anio_actual }}"><button class="mto-create-plan"><i class="bi bi-calendar-plus"></i><span>Crear plan {{
+          anio_actual + 1 }}<small>Vacío para captura gradual</small></span></button></form>{% endif %}
+    {% if es_administrador %}<form method="POST" action="{{ url_for('vaciar_plan_mantenimiento') }}"
+      onsubmit="return confirm('¿Quitar la programación pendiente del plan {{ anio }}? Los mantenimientos iniciados, realizados o con documentos se conservarán protegidos.');">
+      <input type="hidden" name="anio" value="{{ anio }}"><button class="mto-reset-plan"><i
+          class="bi bi-arrow-counterclockwise"></i> Dejar plan en 0</button></form>{% endif %}
   </section>
-  <section class="mto-controls mto-controls--annual">    <form class="mto-filters"><input type="hidden" name="anio" value="{{ anio }}"><label><i class="bi bi-search"></i><input name="buscar" value="{{ buscar }}" placeholder="Buscar código o maquinaria"></label><select name="departamento"><option value="">Todos los departamentos</option>{% for dep in departamentos %}<option value="{{ dep }}" {% if dep==departamento %}selected{% endif %}>{{ dep }}</option>{% endfor %}</select><select name="por_pagina"><option {% if por_pagina==20 %}selected{% endif %}>20</option><option {% if por_pagina==50 %}selected{% endif %}>50</option></select><button><i class="bi bi-funnel"></i> Aplicar</button></form>
+  <section class="mto-controls mto-controls--annual">
+    <form class="mto-filters"><input type="hidden" name="anio" value="{{ anio }}"><label><i
+          class="bi bi-search"></i><input name="buscar" value="{{ buscar }}"
+          placeholder="Buscar código o maquinaria"></label><select name="departamento">
+        <option value="">Todos los departamentos</option>{% for dep in departamentos %}<option value="{{ dep }}" {% if
+          dep==departamento %}selected{% endif %}>{{ dep }}</option>{% endfor %}
+      </select><select name="por_pagina">
+        <option {% if por_pagina==20 %}selected{% endif %}>20</option>
+        <option {% if por_pagina==50 %}selected{% endif %}>50</option>
+      </select><button><i class="bi bi-funnel"></i> Aplicar</button></form>
   </section>
-  <section class="mto-board-head"><div><small>PLAN ANUAL</small><h2>Semanas 1–52</h2><span>{{ total_filtrado }} maquinarias</span></div><div class="mto-legend" aria-label="Índice de colores"><strong>Índice:</strong><span><i class="sin-requerimiento"></i>Sin requerimiento</span><span><i class="programado"></i>Programado</span><span><i class="realizado"></i>Realizado</span><span><i class="reprogramado"></i>Reprogramado</span><span><i class="no-programado"></i>No programado</span><span><i class="no-realizado"></i>No realizado</span><span><i class="dado-baja"></i>Dado de baja</span></div></section>
-  {% if puede_editar %}<section class="mto-paint" data-paint-panel><button class="mto-edit-toggle" type="button" data-edit-toggle><i class="bi bi-pencil-square"></i><span>Modo edición</span></button><div class="mto-palette" data-palette hidden><strong>Selecciona un color y haz clic en las semanas:</strong><button type="button" data-paint="SIN_REQUERIMIENTO" style="--swatch:#FFFF00"><i></i>Sin requerimiento</button><button type="button" data-paint="PROGRAMADO" style="--swatch:#A9DCC1"><i></i>Programado</button><button type="button" data-paint="REALIZADO" style="--swatch:#375623"><i></i>Realizado</button><button type="button" data-paint="REPROGRAMADO" style="--swatch:#70AD47"><i></i>Reprogramado</button><button type="button" data-paint="NO_PROGRAMADO" style="--swatch:#EDF1EF"><i></i>No programado</button><button type="button" data-paint="NO_REALIZADO" style="--swatch:#FF0000"><i></i>No realizado</button><button type="button" data-paint="DADO_BAJA" style="--swatch:#F69E00"><i></i>Dado de baja</button><button type="button" data-paint="LIMPIAR" class="erase"><i class="bi bi-eraser"></i>Borrar</button></div><span class="mto-save-state" data-save-state></span></section>{% endif %}
-  <section class="mto-grid-card"><div class="mto-grid-wrap"><table class="mto-grid"><thead><tr><th class="machine-col">Maquinaria</th><th class="period-col">Periodo</th>{% for numero in semanas %}<th><span>SEM</span><strong>{{ numero }}</strong></th>{% endfor %}</tr></thead><tbody>{% for item in equipos %}<tr><td class="machine-col"><a href="{{ url_for('expediente_maquinaria', id_activo=item.id_activo) }}">{{ item.codigo }}</a><strong>{{ item.equipo }}</strong><small>{{ item.departamento }} · {{ item.voltaje }}</small></td><td class="period-col"><span>{{ item.periodicidad }}</span></td>{% for numero in semanas %}{% set dato=item.semanas.get(numero) %}{% set estado=dato.estado if dato else 'PENDIENTE' %}<td class="week-cell"><button type="button" data-week-button{% if puede_editar %} data-programar data-equipo-id="{{ item.plan_equipo_id }}" data-codigo="{{ item.codigo }}" data-semana="{{ numero }}" data-estado="{{ dato.etiqueta if dato else '' }}"{% endif %}{% if dato and dato.estado=='REALIZADO' and dato.mantenimiento_id %} data-registro-url="{{ url_for('detalle_registro_mantenimiento', mantenimiento_id=dato.mantenimiento_id) }}"{% endif %}{% if not puede_editar and not (dato and dato.estado=='REALIZADO' and dato.mantenimiento_id) %} disabled{% endif %} class="estado-{{ estado|lower|replace('_','-') }}{% if dato and dato.color %} color-excel{% endif %}"{% if dato and dato.color %} style="--color-excel:#{{ dato.color }}"{% endif %} title="{{ item.codigo }} · Semana {{ numero }} · {{ dato.etiqueta|title if dato else 'Sin programar' }}"><span aria-hidden="true">{% if estado=='REALIZADO' %}✓{% elif estado=='NO_REALIZADO' %}×{% elif estado=='REPROGRAMADO' %}↻{% elif estado=='PROGRAMADO' %}•{% else %}−{% endif %}</span></button></td>{% endfor %}</tr>{% else %}<tr><td colspan="54" class="mto-no-data"><h2>No encontramos maquinarias</h2><p>Cambia los filtros para consultar otros equipos.</p></td></tr>{% endfor %}</tbody></table></div></section>
-  <p class="mto-help"><i class="bi bi-info-circle"></i> Selecciona un cuadro para asignar o cambiar su estado. La captura del formato se habilitará cuando corresponda.</p>
-  {% if paginas>1 %}<nav class="mto-pages"><a class="{% if pagina==1 %}disabled{% endif %}" href="?anio={{ anio }}&buscar={{ buscar|urlencode }}&departamento={{ departamento|urlencode }}&por_pagina={{ por_pagina }}&pagina={{ pagina-1 }}">Anterior</a><span>Página {{ pagina }} de {{ paginas }}</span><a class="{% if pagina==paginas %}disabled{% endif %}" href="?anio={{ anio }}&buscar={{ buscar|urlencode }}&departamento={{ departamento|urlencode }}&por_pagina={{ por_pagina }}&pagina={{ pagina+1 }}">Siguiente</a></nav>{% endif %}
+  <section class="mto-board-head">
+    <div><small>PLAN ANUAL</small>
+      <h2>Semanas 1–52</h2><span>{{ total_filtrado }} maquinarias</span>
+    </div>
+    <div class="mto-legend" aria-label="Índice de colores"><strong>Índice:</strong><span><i
+          class="sin-requerimiento"></i>Sin requerimiento</span><span><i
+          class="programado"></i>Programado</span><span><i class="realizado"></i>Realizado</span><span><i
+          class="reprogramado"></i>Reprogramado</span><span><i class="no-programado"></i>No programado</span><span><i
+          class="no-realizado"></i>No realizado</span><span><i class="dado-baja"></i>Dado de baja</span></div>
+  </section>
+  {% if puede_editar %}<section class="mto-paint" data-paint-panel><button class="mto-edit-toggle" type="button"
+      data-edit-toggle><i class="bi bi-pencil-square"></i><span>Modo edición</span></button>
+    <div class="mto-palette" data-palette hidden><strong>Selecciona un color y haz clic en las semanas:</strong><button
+        type="button" data-paint="SIN_REQUERIMIENTO" style="--swatch:#FFFF00"><i></i>Sin requerimiento</button><button
+        type="button" data-paint="PROGRAMADO" style="--swatch:#A9DCC1"><i></i>Programado</button><button type="button"
+        data-paint="REALIZADO" style="--swatch:#375623"><i></i>Realizado</button><button type="button"
+        data-paint="REPROGRAMADO" style="--swatch:#70AD47"><i></i>Reprogramado</button><button type="button"
+        data-paint="NO_PROGRAMADO" style="--swatch:#EDF1EF"><i></i>No programado</button><button type="button"
+        data-paint="NO_REALIZADO" style="--swatch:#FF0000"><i></i>No realizado</button><button type="button"
+        data-paint="DADO_BAJA" style="--swatch:#F69E00"><i></i>Dado de baja</button><button type="button"
+        data-paint="LIMPIAR" class="erase"><i class="bi bi-eraser"></i>Quitar del plan</button></div><span class="mto-save-state"
+      data-save-state></span>
+  </section>{% endif %}
+  <section class="mto-grid-card">
+    <div class="mto-grid-wrap">
+      <table class="mto-grid">
+        <thead>
+          <tr>
+            <th class="machine-col">Maquinaria</th>
+            <th class="period-col">Periodo</th>{% for numero in semanas %}<th><span>SEM</span><strong>{{ numero
+                }}</strong></th>{% endfor %}
+          </tr>
+        </thead>
+        <tbody>{% for item in equipos %}<tr>
+            <td class="machine-col"><a href="{{ url_for('expediente_maquinaria', id_activo=item.id_activo) }}">{{
+                item.codigo }}</a><strong>{{ item.equipo }}</strong><small>{{ item.departamento }} · {{ item.voltaje
+                }}</small></td>
+            <td class="period-col"><span>{{ item.periodicidad }}</span></td>{% for numero in semanas %}{% set
+            dato=item.semanas.get(numero) %}{% set estado=dato.estado if dato else 'PENDIENTE' %}<td class="week-cell">
+              <button type="button" data-week-button{% if puede_editar %} data-programar
+                data-equipo-id="{{ item.plan_equipo_id }}" data-codigo="{{ item.codigo }}" data-semana="{{ numero }}"
+                data-estado="{{ dato.etiqueta if dato else '' }}" {% if dato and dato.protegido %}data-protegido="1"{%
+                endif %} {% endif %}{% if dato and dato.estado=='REALIZADO' and
+                dato.mantenimiento_id %}
+                data-registro-url="{{ url_for('detalle_registro_mantenimiento', mantenimiento_id=dato.mantenimiento_id) }}"
+                {% endif %}{% if not puede_editar and not (dato and dato.estado=='REALIZADO' and dato.mantenimiento_id)
+                %} disabled{% endif %}
+                class="estado-{{ estado|lower|replace('_','-') }}{% if dato and dato.color %} color-excel{% endif %}" {%
+                if dato and dato.color %} style="--color-excel:#{{ dato.color }}" {% endif %}
+                title="{{ item.codigo }} · Semana {{ numero }} · {{ dato.etiqueta|title if dato else 'Sin programar' }}"><span
+                  aria-hidden="true">{% if estado=='REALIZADO' %}✓{% elif estado=='NO_REALIZADO' %}×{% elif
+                  estado=='REPROGRAMADO' %}↻{% elif estado=='PROGRAMADO' %}•{% else %}−{% endif %}</span></button></td>
+            {% endfor %}
+          </tr>{% else %}<tr>
+            <td colspan="54" class="mto-no-data">
+              <h2>No encontramos maquinarias</h2>
+              <p>Cambia los filtros para consultar otros equipos.</p>
+            </td>
+          </tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </section>
+  <p class="mto-help"><i class="bi bi-info-circle"></i> Selecciona un cuadro para asignar o cambiar su estado. La
+    captura del formato se habilitará cuando corresponda.</p>
+  {% if paginas>1 %}<nav class="mto-pages"><a class="{% if pagina==1 %}disabled{% endif %}"
+      href="?anio={{ anio }}&buscar={{ buscar|urlencode }}&departamento={{ departamento|urlencode }}&por_pagina={{ por_pagina }}&pagina={{ pagina-1 }}">Anterior</a><span>Página
+      {{ pagina }} de {{ paginas }}</span><a class="{% if pagina==paginas %}disabled{% endif %}"
+      href="?anio={{ anio }}&buscar={{ buscar|urlencode }}&departamento={{ departamento|urlencode }}&por_pagina={{ por_pagina }}&pagina={{ pagina+1 }}">Siguiente</a>
+  </nav>{% endif %}
   {% if puede_editar %}
   <dialog class="mto-editor" id="editor-semana">
     <form method="POST" action="{{ url_for('guardar_programacion_mantenimiento') }}">
       <input type="hidden" name="plan_equipo_id" id="editor-equipo">
       <input type="hidden" name="semana" id="editor-numero">
       <input type="hidden" name="regresar" value="{{ request.full_path }}">
-      <header><div><small>PROGRAMAR MANTENIMIENTO</small><h2 id="editor-titulo">Semana</h2><p id="editor-actual"></p></div><button type="button" data-cerrar aria-label="Cerrar"><i class="bi bi-x-lg"></i></button></header>
+      <header>
+        <div><small>PROGRAMAR MANTENIMIENTO</small>
+          <h2 id="editor-titulo">Semana</h2>
+          <p id="editor-actual"></p>
+        </div><button type="button" data-cerrar aria-label="Cerrar"><i class="bi bi-x-lg"></i></button>
+      </header>
       <div class="mto-status-options">
         <button name="opcion" value="SIN_REQUERIMIENTO"><i style="--mto-color:#FFFF00"></i>Sin requerimiento</button>
         <button name="opcion" value="PROGRAMADO"><i style="--mto-color:#A9DCC1"></i>Programado</button>
@@ -36,7 +141,9 @@
         <button name="opcion" value="NO_REALIZADO"><i style="--mto-color:#FF0000"></i>No realizado</button>
         <button name="opcion" value="DADO_BAJA"><i style="--mto-color:#F69E00"></i>Dado de baja</button>
       </div>
-      <button class="mto-clear-week" name="opcion" value="LIMPIAR"><i class="bi bi-eraser"></i> Limpiar cuadro</button>
+      <button class="mto-clear-week" name="opcion" value="LIMPIAR"
+        onclick="return confirm('¿Quitar esta semana del plan? Solo se eliminará si todavía no tiene formulario, documentos ni historial realizado.');"><i
+          class="bi bi-eraser"></i> Quitar programación</button>
     </form>
   </dialog>
   {% endif %}
@@ -46,109 +153,123 @@
 
 {% block scripts %}
 <script>
-(() => {
-  const dialog = document.getElementById('editor-semana');
-  const editToggle = document.querySelector('[data-edit-toggle]');
-  const palette = document.querySelector('[data-palette]');
-  const saveState = document.querySelector('[data-save-state]');
-  let editMode = false;
-  let selectedPaint = '';
-  const symbols = {REALIZADO: '✓', NO_REALIZADO: '×', REPROGRAMADO: '↻', PROGRAMADO: '•'};
+  (() => {
+    const dialog = document.getElementById('editor-semana');
+    const editToggle = document.querySelector('[data-edit-toggle]');
+    const palette = document.querySelector('[data-palette]');
+    const saveState = document.querySelector('[data-save-state]');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    let editMode = false;
+    let selectedPaint = '';
+    const symbols = { REALIZADO: '✓', NO_REALIZADO: '×', REPROGRAMADO: '↻', PROGRAMADO: '•' };
 
-  if (editToggle && palette) {
-    editToggle.addEventListener('click', () => {
-      editMode = !editMode;
-      editToggle.classList.toggle('active', editMode);
-      editToggle.querySelector('span').textContent = editMode ? 'Terminar edición' : 'Modo edición';
-      palette.hidden = !editMode;
-      document.querySelector('.mto-grid-card').classList.toggle('paint-mode', editMode);
-      if (!editMode) {
-        selectedPaint = '';
-        palette.querySelectorAll('[data-paint]').forEach(button => button.classList.remove('active'));
-      }
-    });
-    palette.querySelectorAll('[data-paint]').forEach(button => {
-      button.addEventListener('click', () => {
-        selectedPaint = button.dataset.paint;
-        palette.querySelectorAll('[data-paint]').forEach(item => item.classList.toggle('active', item === button));
+    if (editToggle && palette) {
+      editToggle.addEventListener('click', () => {
+        editMode = !editMode;
+        editToggle.classList.toggle('active', editMode);
+        editToggle.querySelector('span').textContent = editMode ? 'Terminar edición' : 'Modo edición';
+        palette.hidden = !editMode;
+        document.querySelector('.mto-grid-card').classList.toggle('paint-mode', editMode);
+        if (!editMode) {
+          selectedPaint = '';
+          palette.querySelectorAll('[data-paint]').forEach(button => button.classList.remove('active'));
+        }
       });
-    });
-  }
-
-  async function paintWeek(button) {
-    if (!selectedPaint || button.dataset.saving === '1') return;
-    button.dataset.saving = '1';
-    button.classList.add('saving');
-    if (saveState) saveState.textContent = 'Guardando…';
-    try {
-      const response = await fetch('{{ url_for("guardar_programacion_mantenimiento_rapida") }}', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({plan_equipo_id: Number(button.dataset.equipoId), semana: Number(button.dataset.semana), opcion: selectedPaint})
+      palette.querySelectorAll('[data-paint]').forEach(button => {
+        button.addEventListener('click', () => {
+          selectedPaint = button.dataset.paint;
+          palette.querySelectorAll('[data-paint]').forEach(item => item.classList.toggle('active', item === button));
+        });
       });
-      const result = await response.json();
-      if (!response.ok || !result.ok) throw new Error(result.error || 'No fue posible guardar.');
-      button.className = '';
-      button.classList.add('estado-' + result.estado.toLowerCase().replaceAll('_', '-'));
-      if (result.color) {
-        button.classList.add('color-excel');
-        button.style.setProperty('--color-excel', '#' + result.color);
-      } else {
-        button.style.removeProperty('--color-excel');
-      }
-      button.querySelector('span').textContent = symbols[result.estado] || '−';
-      button.dataset.estado = result.etiqueta;
-      button.title = button.dataset.codigo + ' · Semana ' + button.dataset.semana + ' · ' + result.etiqueta;
-      if (result.estado === 'REALIZADO') {
-        button.dataset.registroUrl = '/mantenimiento/registros/' + result.mantenimiento_id;
-      } else {
-        delete button.dataset.registroUrl;
-      }
-      if (saveState) saveState.textContent = 'Guardado';
-    } catch (error) {
-      if (saveState) saveState.textContent = error.message;
-    } finally {
-      button.classList.remove('saving');
-      delete button.dataset.saving;
-      window.setTimeout(() => { if (saveState && saveState.textContent === 'Guardado') saveState.textContent = ''; }, 1200);
     }
-  }
 
-  document.querySelectorAll('[data-week-button]').forEach((button) => {
-    button.addEventListener('click', () => {
-      if (editMode) {
-        if (!selectedPaint) {
-          if (saveState) saveState.textContent = 'Selecciona primero un color.';
+    async function paintWeek(button) {
+      if (!selectedPaint || button.dataset.saving === '1') return;
+      if (button.dataset.protegido === '1') {
+        if (saveState) saveState.textContent = 'Historial protegido: esta semana ya tiene un registro de mantenimiento.';
+        return;
+      }
+      if (selectedPaint === 'LIMPIAR' && !window.confirm(
+        '¿Quitar esta semana del plan? Solo se eliminará si aún no tiene formulario, documentos ni historial realizado.'
+      )) return;
+      button.dataset.saving = '1';
+      button.classList.add('saving');
+      if (saveState) saveState.textContent = 'Guardando…';
+      try {
+        const response = await fetch('{{ url_for("guardar_programacion_mantenimiento_rapida") }}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRFToken': csrfToken
+          },
+          body: JSON.stringify({ plan_equipo_id: Number(button.dataset.equipoId), semana: Number(button.dataset.semana), opcion: selectedPaint })
+        });
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          throw new Error(response.redirected
+            ? 'Tu sesión venció. Recarga la página para continuar.'
+            : 'El servidor no pudo guardar el cambio. Recarga e inténtalo nuevamente.');
+        }
+        const result = await response.json();
+        if (!response.ok || !result.ok) throw new Error(result.error || 'No fue posible guardar.');
+        button.className = '';
+        button.classList.add('estado-' + result.estado.toLowerCase().replaceAll('_', '-'));
+        if (result.color) {
+          button.classList.add('color-excel');
+          button.style.setProperty('--color-excel', '#' + result.color);
+        } else {
+          button.style.removeProperty('--color-excel');
+        }
+        button.querySelector('span').textContent = symbols[result.estado] || '−';
+        button.dataset.estado = result.etiqueta;
+        button.title = button.dataset.codigo + ' · Semana ' + button.dataset.semana + ' · ' + result.etiqueta;
+        if (result.estado === 'REALIZADO') {
+          button.dataset.registroUrl = '/mantenimiento/registros/' + result.mantenimiento_id;
+        } else {
+          delete button.dataset.registroUrl;
+        }
+        if (result.protegido) button.dataset.protegido = '1';
+        else delete button.dataset.protegido;
+        if (saveState) saveState.textContent = 'Guardado';
+      } catch (error) {
+        if (saveState) saveState.textContent = error.message;
+      } finally {
+        button.classList.remove('saving');
+        delete button.dataset.saving;
+        window.setTimeout(() => { if (saveState && saveState.textContent === 'Guardado') saveState.textContent = ''; }, 1200);
+      }
+    }
+
+    document.querySelectorAll('[data-week-button]').forEach((button) => {
+      button.addEventListener('click', () => {
+        if (editMode) {
+          if (!selectedPaint) {
+            if (saveState) saveState.textContent = 'Selecciona primero un color.';
+            return;
+          }
+          paintWeek(button);
           return;
         }
-        paintWeek(button);
-        return;
-      }
-      if (button.dataset.registroUrl) {
-        window.location.href = button.dataset.registroUrl;
-        return;
-      }
-      if (!dialog) return;
-      document.getElementById('editor-equipo').value = button.dataset.equipoId;
-      document.getElementById('editor-numero').value = button.dataset.semana;
-      document.getElementById('editor-titulo').textContent =
-        button.dataset.codigo + ' · Semana ' + button.dataset.semana;
-      document.getElementById('editor-actual').textContent =
-        button.dataset.estado ? 'Estado actual: ' + button.dataset.estado : 'Sin programación';
-      dialog.showModal();
+        if (button.dataset.registroUrl) {
+          window.location.href = button.dataset.registroUrl;
+          return;
+        }
+        if (!dialog) return;
+        document.getElementById('editor-equipo').value = button.dataset.equipoId;
+        document.getElementById('editor-numero').value = button.dataset.semana;
+        document.getElementById('editor-titulo').textContent =
+          button.dataset.codigo + ' · Semana ' + button.dataset.semana;
+        document.getElementById('editor-actual').textContent =
+          button.dataset.estado ? 'Estado actual: ' + button.dataset.estado : 'Sin programación';
+        dialog.showModal();
+      });
     });
-  });
-  if (!dialog) return;
-  dialog.querySelector('[data-cerrar]').addEventListener('click', () => dialog.close());
-  dialog.addEventListener('click', (event) => {
-    if (event.target === dialog) dialog.close();
-  });
-})();
+    if (!dialog) return;
+    dialog.querySelector('[data-cerrar]').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  })();
 </script>
 {% endblock %}
-
-
-
-
-
-
-

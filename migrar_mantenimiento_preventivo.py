@@ -61,7 +61,7 @@ DDL = [
         subido_por INT NULL,
         subido_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT fk_documento_mantenimiento FOREIGN KEY (mantenimiento_id)
-            REFERENCES mantenimientos_programados(id) ON DELETE CASCADE
+            REFERENCES mantenimientos_programados(id) ON DELETE RESTRICT
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4""",
     """CREATE TABLE IF NOT EXISTS mantenimiento_ejecuciones (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -75,7 +75,7 @@ DDL = [
         actualizado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         UNIQUE KEY uq_ejecucion_mantenimiento (mantenimiento_id),
         CONSTRAINT fk_ejecucion_mantenimiento FOREIGN KEY (mantenimiento_id)
-            REFERENCES mantenimientos_programados(id) ON DELETE CASCADE
+            REFERENCES mantenimientos_programados(id) ON DELETE RESTRICT
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4""",
 ]
 
@@ -105,6 +105,10 @@ with engine.begin() as conn:
     }
     columnas_digitales = {
         "formato": "VARCHAR(50) NULL",
+        "formato_catalogo_id": "INT NULL",
+        "codigo_documento": "VARCHAR(50) NULL",
+        "version_documento": "VARCHAR(30) NULL",
+        "plantilla_json": "JSON NULL",
         "fecha_realizacion": "DATE NULL",
         "procedimiento": "VARCHAR(30) NULL",
         "respuestas_json": "JSON NULL",

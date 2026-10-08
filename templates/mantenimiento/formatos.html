@@ -1,33 +1,111 @@
 {% extends "base.html" %}
 {% block titulo %}Formatos de mantenimiento{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{{ url_for('static', filename='css/mantenimiento_formatos.css', v='20261001-1') }}">{% endblock %}
+{% block estilos %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mantenimiento_formatos.css', v='20261008-1') }}">{%
+endblock %}
 {% block contenido %}
 <main class="fm-page">
-  <a class="fm-back" href="{{ url_for('mantenimiento_preventivo') }}"><i class="bi bi-arrow-left"></i> Regresar al plan</a>
+  <a class="fm-back" href="{{ url_for('mantenimiento_preventivo') }}"><i class="bi bi-arrow-left"></i> Regresar al
+    plan</a>
   <header class="fm-hero">
-    <div><small>CONFIGURACIÓN · NARANJO</small><h1>Formatos por maquinaria</h1><p>Consulta, asigna o cambia el formato preventivo de cada equipo.</p></div>
+    <div><small>CONFIGURACIÓN · NARANJO</small>
+      <h1>Formatos por maquinaria</h1>
+      <p>Consulta, asigna o cambia el formato preventivo de cada equipo.</p>
+    </div>
     <span><strong>{{ maquinas|length }}</strong> equipos</span>
   </header>
-  <form class="fm-search" method="get"><label><i class="bi bi-search"></i><input name="buscar" value="{{ buscar }}" placeholder="Buscar código, equipo o departamento"></label><button><i class="bi bi-funnel"></i> Buscar</button>{% if buscar %}<a href="{{ url_for('administrar_formatos_mantenimiento') }}">Limpiar</a>{% endif %}</form>
-  <section class="fm-note"><i class="bi bi-info-circle"></i><span>Un formato solo puede pertenecer a una maquinaria. Los cambios quedan registrados en Actividad.</span></section>
+  <form class="fm-search" method="get"><label><i class="bi bi-search"></i><input name="buscar" value="{{ buscar }}"
+        placeholder="Buscar código, equipo o departamento"></label><button><i class="bi bi-funnel"></i>
+      Buscar</button>{% if buscar %}<a href="{{ url_for('administrar_formatos_mantenimiento') }}">Limpiar</a>{% endif %}
+  </form>
+  <section class="fm-note"><i class="bi bi-info-circle"></i><span>Un formato solo puede pertenecer a una maquinaria. Los
+      cambios quedan registrados en Actividad.</span></section>
   <section class="fm-list">
     {% for maquina in maquinas %}
     <article class="fm-row {% if maquina.formato_id %}assigned{% else %}pending{% endif %}">
-      <div class="fm-machine"><small>{{ maquina.id_activo }}</small><strong>{{ maquina.codigo }} · {{ maquina.equipo }}</strong><span>{{ maquina.departamento }}</span></div>
-      <div class="fm-current"><small>FORMATO ACTUAL</small>{% if maquina.formato_id %}<strong>{{ maquina.codigo_documento }}</strong><span>{{ maquina.formato_nombre }} · {{ maquina.version }}</span>{% else %}<strong>Sin formato asignado</strong><span>Pendiente de definir</span>{% endif %}</div>
+      <div class="fm-machine"><small>{{ maquina.id_activo }}</small><strong>{{ maquina.codigo }} · {{ maquina.equipo
+          }}</strong><span>{{ maquina.departamento }}</span></div>
+      <div class="fm-current"><small>FORMATO ACTUAL</small>{% if maquina.formato_id %}<strong>{{
+          maquina.codigo_documento }}</strong><span>{{ maquina.formato_nombre }} · {{ maquina.version }}</span>{% else
+        %}<strong>Sin formato asignado</strong><span>Pendiente de definir</span>{% endif %}</div>
       {% if es_administrador %}
       <form class="fm-assign" method="post">
-        <input type="hidden" name="id_activo" value="{{ maquina.id_activo }}"><input type="hidden" name="buscar" value="{{ buscar }}">
+        <input type="hidden" name="id_activo" value="{{ maquina.id_activo }}"><input type="hidden" name="buscar"
+          value="{{ buscar }}">
         <select name="formato_id" aria-label="Formato para {{ maquina.codigo }}">
           <option value="">Sin formato</option>
-          {% for formato in formatos %}<option value="{{ formato.id }}" {% if formato.id==maquina.formato_id %}selected{% elif formato.asignado_a %}disabled{% endif %}>{{ formato.codigo_documento }} · {{ formato.nombre }}{% if formato.asignado_a and formato.id!=maquina.formato_id %} · Asignado a {{ formato.asignado_a }}{% endif %}</option>{% endfor %}
+          {% for formato in formatos %}<option value="{{ formato.id }}" {% if formato.id==maquina.formato_id
+            %}selected{% elif formato.asignado_a %}disabled{% endif %}>{{ formato.codigo_documento }} · {{
+            formato.nombre }}{% if formato.asignado_a and formato.id!=maquina.formato_id %} · Asignado a {{
+            formato.asignado_a }}{% endif %}</option>{% endfor %}
         </select>
         <button type="submit"><i class="bi bi-check2"></i> Guardar</button>
       </form>
       {% else %}<span class="fm-readonly">Solo consulta</span>{% endif %}
-      {% if maquina.formato_id %}<a class="fm-pdf" target="_blank" rel="noopener" href="{{ url_for('archivo_formato_mantenimiento', formato_id=maquina.formato_id) }}" title="Ver PDF"><i class="bi bi-file-earmark-pdf"></i></a>{% endif %}
+      {% if maquina.formato_id %}
+      <div class="fm-actions">
+        {% if es_administrador %}<button class="fm-edit-toggle" type="button" aria-expanded="false"
+          aria-controls="editar-formato-{{ maquina.formato_id }}" title="Editar formato"><i
+            class="bi bi-pencil"></i></button>{% endif %}
+        <a class="fm-pdf" target="_blank" rel="noopener"
+          href="{{ url_for('archivo_formato_mantenimiento', formato_id=maquina.formato_id) }}" title="Ver PDF"><i
+            class="bi bi-file-earmark-pdf"></i></a>
+      </div>
+      {% endif %}
+      {% if es_administrador and maquina.formato_id %}
+      <form id="editar-formato-{{ maquina.formato_id }}" class="fm-edit-form" method="post"
+        enctype="multipart/form-data"
+        action="{{ url_for('editar_formato_mantenimiento', formato_id=maquina.formato_id) }}" hidden>
+        <input type="hidden" name="buscar" value="{{ buscar }}">
+        <div class="fm-edit-heading">
+          <div><small>EDITAR FORMATO OFICIAL</small><strong>{{ maquina.codigo_documento }}</strong></div><button
+            class="fm-edit-close" type="button" aria-label="Cerrar"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <label><span>Código del formato</span><input name="codigo_documento" maxlength="50" required
+            value="{{ maquina.codigo_documento }}"></label>
+        <label class="fm-edit-name"><span>Nombre</span><input name="nombre" maxlength="180" required
+            value="{{ maquina.formato_nombre }}"></label>
+        <label><span>Versión</span><input name="version" maxlength="30" required value="{{ maquina.version or '' }}"
+            placeholder="Ej. SEP/26 VER.03"></label>
+        <label class="fm-edit-file"><span>Reemplazar PDF <small>Opcional · máximo 10 MB</small></span><input type="file"
+            name="archivo" accept="application/pdf,.pdf"><em>Si no eliges un archivo, se conservará el PDF
+            actual.</em></label>
+        <div class="fm-edit-submit"><button type="submit"><i class="bi bi-check2-circle"></i> Guardar cambios</button>
+        </div>
+      </form>
+      {% endif %}
     </article>
-    {% else %}<div class="fm-empty"><i class="bi bi-search"></i><h2>No encontramos maquinarias</h2><p>Cambia el texto de búsqueda.</p></div>{% endfor %}
+    {% else %}<div class="fm-empty"><i class="bi bi-search"></i>
+      <h2>No encontramos maquinarias</h2>
+      <p>Cambia el texto de búsqueda.</p>
+    </div>{% endfor %}
   </section>
 </main>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script>
+  document.querySelectorAll('.fm-edit-toggle').forEach((button) => {
+    button.addEventListener('click', () => {
+      const form = document.getElementById(button.getAttribute('aria-controls'));
+      const willOpen = form.hidden;
+      document.querySelectorAll('.fm-edit-form:not([hidden])').forEach((openForm) => {
+        openForm.hidden = true;
+        const control = document.querySelector(`[aria-controls="${openForm.id}"]`);
+        if (control) control.setAttribute('aria-expanded', 'false');
+      });
+      form.hidden = !willOpen;
+      button.setAttribute('aria-expanded', String(willOpen));
+      if (willOpen) form.querySelector('input[name="version"]').focus();
+    });
+  });
+  document.querySelectorAll('.fm-edit-close').forEach((button) => {
+    button.addEventListener('click', () => {
+      const form = button.closest('.fm-edit-form');
+      form.hidden = true;
+      const control = document.querySelector(`[aria-controls="${form.id}"]`);
+      if (control) control.setAttribute('aria-expanded', 'false');
+    });
+  });
+</script>
 {% endblock %}

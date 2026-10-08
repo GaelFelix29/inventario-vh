@@ -46,7 +46,7 @@ def cargar_departamentos():
                 UPDATE maquinarias
                 SET departamento = :departamento
                 WHERE id_activo = :id_activo
-                  AND departamento IS NULL
+                AND departamento IS NULL
             """), {
                 "id_activo": id_activo,
                 "departamento": departamento,

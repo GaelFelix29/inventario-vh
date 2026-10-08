@@ -5,7 +5,7 @@
 {% block estilos %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/conjunto_accesorios.css', v='1') }}">
 <script src="{{ url_for('static', filename='js/conjunto_accesorios.js', v='2') }}" defer></script>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/expediente_moderno.css', v='20260915-3') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/expediente_moderno.css', v='20261008-1') }}">
 {% endblock %}
 
 {% block contenido %}
@@ -1646,7 +1646,7 @@
                 <div class="documento-carga">
                     <div class="documento-carga__encabezado">
                         <span><i class="bi bi-cloud-arrow-up-fill"></i></span>
-                        <div><small>NUEVO ARCHIVO</small><h3>Agregar documentación</h3><p>Seleccione el tipo y adjunte un documento PDF al expediente.</p></div>
+                        <div><small>NUEVO ARCHIVO</small><h3>Agregar documentación</h3><p>Adjunte un PDF o una imagen desde su computadora.</p></div>
                     </div>
                     <form action="{{ url_for('subir_documento', id_activo=maquina.id_activo) }}" method="POST"
                         enctype="multipart/form-data" class="documento-carga__formulario">
@@ -1670,16 +1670,17 @@
                             </div>
                         </fieldset>
                         <div class="documento-adjunto">
-                            <label>Documento PDF</label>
+                            <label>Archivo o imagen</label>
                             <label for="archivoDocumentoActivo" class="documento-archivo" id="zonaDocumentoActivo">
-                                <span class="documento-archivo__icono"><i class="bi bi-file-earmark-pdf"></i></span>
+                                <span class="documento-archivo__icono"><i id="iconoDocumentoActivo" class="bi bi-cloud-arrow-up"></i></span>
                                 <span class="documento-archivo__texto">
                                     <strong id="nombreDocumentoActivo">Seleccione o arrastre su archivo</strong>
-                                    <small>Seleccione un documento en formato PDF</small>
+                                    <small id="tipoDocumentoActivo">PDF, JPG, JPEG o PNG · máximo 10 MB</small>
                                 </span>
                                 <em>Explorar</em>
                             </label>
-                            <input id="archivoDocumentoActivo" type="file" name="documento" accept="application/pdf,.pdf" required hidden>
+                            <input id="archivoDocumentoActivo" type="file" name="documento"
+                                accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" required hidden>
                         </div>
                         <button type="submit"><i class="bi bi-cloud-arrow-up"></i> Subir documento</button>
                     </form>
@@ -2222,15 +2223,39 @@
         const entradaArchivo = document.getElementById("archivoDocumentoActivo");
         const nombreArchivo = document.getElementById("nombreDocumentoActivo");
         const zonaArchivo = document.getElementById("zonaDocumentoActivo");
+        const tipoArchivo = document.getElementById("tipoDocumentoActivo");
+        const iconoArchivo = document.getElementById("iconoDocumentoActivo");
+        const archivoPermitido = function (archivo) {
+            if (!archivo) return false;
+            return /\.(pdf|jpe?g|png)$/i.test(archivo.name) && archivo.size <= 10 * 1024 * 1024;
+        };
         const actualizarNombreArchivo = function () {
             if (!entradaArchivo || !nombreArchivo) return;
-            nombreArchivo.textContent = entradaArchivo.files.length
-                ? entradaArchivo.files[0].name
+            const archivo = entradaArchivo.files[0];
+            nombreArchivo.textContent = archivo
+                ? archivo.name
                 : "Seleccione o arrastre su archivo";
-            zonaArchivo?.classList.toggle("tiene-archivo", entradaArchivo.files.length > 0);
+            zonaArchivo?.classList.toggle("tiene-archivo", Boolean(archivo));
+            if (tipoArchivo) {
+                tipoArchivo.textContent = archivo
+                    ? ((archivo.size / (1024 * 1024)).toFixed(2) + " MB · " + archivo.name.split(".").pop().toUpperCase())
+                    : "PDF, JPG, JPEG o PNG · máximo 10 MB";
+            }
+            if (iconoArchivo) {
+                iconoArchivo.className = archivo && /\.(jpe?g|png)$/i.test(archivo.name)
+                    ? "bi bi-file-earmark-image"
+                    : (archivo ? "bi bi-file-earmark-pdf" : "bi bi-cloud-arrow-up");
+            }
         };
         if (entradaArchivo && nombreArchivo) {
-            entradaArchivo.addEventListener("change", actualizarNombreArchivo);
+            entradaArchivo.addEventListener("change", function () {
+                const archivo = entradaArchivo.files[0];
+                if (archivo && !archivoPermitido(archivo)) {
+                    entradaArchivo.value = "";
+                    window.alert("Seleccione un archivo PDF, JPG, JPEG o PNG de máximo 10 MB.");
+                }
+                actualizarNombreArchivo();
+            });
         }
         if (entradaArchivo && zonaArchivo) {
             ["dragenter", "dragover"].forEach(function (evento) {
@@ -2248,8 +2273,8 @@
             zonaArchivo.addEventListener("drop", function (e) {
                 const archivo = e.dataTransfer.files[0];
                 if (!archivo) return;
-                if (archivo.type !== "application/pdf" && !archivo.name.toLowerCase().endsWith(".pdf")) {
-                    window.alert("Seleccione un archivo en formato PDF.");
+                if (!archivoPermitido(archivo)) {
+                    window.alert("Seleccione un archivo PDF, JPG, JPEG o PNG de máximo 10 MB.");
                     return;
                 }
                 entradaArchivo.files = e.dataTransfer.files;
