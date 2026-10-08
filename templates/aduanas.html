@@ -130,11 +130,15 @@ Aduanas
 
                         <td>
 
-                            {% if a.documento %}
+                            {% if a.total_documentos %}
 
-                            <a href="#" class="aduanas-documento" title="Ver documento">
+                            <a href="{{ url_for('expediente_maquinaria', id_activo=a.id_activo) }}#documentacion-activo"
+                                class="aduanas-documento"
+                                title="Ver documentos de {{ a.id_activo }}">
 
                                 <i class="bi bi-file-earmark-pdf"></i>
+
+                                <span>{{ a.total_documentos }} {{ "documento" if a.total_documentos == 1 else "documentos" }}</span>
 
                             </a>
 
@@ -142,7 +146,7 @@ Aduanas
 
                             <span class="aduanas-sin-documento">
 
-                                Sin documento
+                                Sin documentos
 
                             </span>
 

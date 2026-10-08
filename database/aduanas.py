@@ -8,9 +8,20 @@ def obtener_aduanas():
 
     sql = """
 
-        SELECT *
+        SELECT
+            a.*,
+            COALESCE(documentos.total_documentos, 0) AS total_documentos
 
-        FROM aduanas
+        FROM aduanas a
+
+        LEFT JOIN (
+            SELECT
+                id_activo,
+                COUNT(*) AS total_documentos
+            FROM documentos_maquinaria
+            GROUP BY id_activo
+        ) documentos
+            ON documentos.id_activo = a.id_activo
 
     """
 
@@ -263,10 +274,19 @@ def obtener_aduanas_mobile_filtrado(
     SELECT
         a.*,
         m.descripcion,
-        m.estado
+        m.estado,
+        COALESCE(documentos.total_documentos, 0) AS total_documentos
     FROM aduanas a
     LEFT JOIN maquinarias m
         ON a.id_activo = m.id_activo
+    LEFT JOIN (
+        SELECT
+            id_activo,
+            COUNT(*) AS total_documentos
+        FROM documentos_maquinaria
+        GROUP BY id_activo
+    ) documentos
+        ON documentos.id_activo = a.id_activo
     WHERE 1=1
     """
 
