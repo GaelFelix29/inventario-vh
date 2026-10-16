@@ -141,7 +141,7 @@
                 Usuarios
             </a>
 
-            <a href="{{ url_for('vista_respaldos') }}">
+            <a href="{{ url_for('acceso_respaldos', nuevo=1) }}">
                 <i class="bi bi-database-fill-lock"></i>
                 Respaldos
             </a>
@@ -311,7 +311,7 @@
 
                     </a>
 
-                    <a href="{{ url_for('vista_respaldos') }}"
+                    <a href="{{ url_for('acceso_respaldos', nuevo=1) }}"
                         class="list-group-item list-group-item-action py-3 {% if request.path.startswith('/respaldos') %}menu-active{% endif %}">
 
                         <i class="bi bi-database-fill-lock me-2 text-success"></i>

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block titulo %}Acceso protegido · Respaldos{% endblock %}
+
+{% block contenido %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/acceso_respaldos.css', v='20261016-1') }}">
+
+<main class="backup-access-page">
+    <section class="backup-access-card">
+        <div class="backup-access-icon"><i class="bi bi-shield-lock-fill"></i></div>
+        <span class="backup-access-eyebrow">ÁREA PROTEGIDA</span>
+        <h1>Acceso a Respaldos</h1>
+        <p>Ingresa la contraseña adicional para consultar, generar o descargar copias de seguridad.</p>
+
+        {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% if mensajes %}
+        <div class="backup-access-alerts">
+            {% for categoria, mensaje in mensajes %}
+            <div class="backup-access-alert {{ categoria }}" role="alert">
+                <i class="bi bi-info-circle-fill"></i><span>{{ mensaje }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% if configurado %}
+        <form method="post" class="backup-access-form" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="backupPassword">Contraseña de Respaldos</label>
+            <div class="backup-password-field">
+                <i class="bi bi-key-fill"></i>
+                <input id="backupPassword" name="password" type="password" required maxlength="256"
+                    autocomplete="new-password" autofocus {% if segundos_bloqueo %}disabled{% endif %}>
+                <button type="button" data-toggle-password aria-label="Mostrar contraseña">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+            <button type="submit" class="backup-access-submit" {% if segundos_bloqueo %}disabled{% endif %}>
+                <i class="bi bi-unlock-fill"></i> Verificar y acceder
+            </button>
+        </form>
+        {% else %}
+        <div class="backup-access-unconfigured">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div><strong>Protección pendiente de configurar</strong>
+                <span>Agrega RESPALDOS_PASSWORD_HASH en las variables secretas del servidor.</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="backup-access-notice">
+            <i class="bi bi-clock-history"></i>
+            <span>La autorización vence automáticamente después de 10 minutos.</span>
+        </div>
+    </section>
+</main>
+
+<script>
+document.querySelector('[data-toggle-password]')?.addEventListener('click', function () {
+    const input = document.getElementById('backupPassword');
+    const visible = input.type === 'text';
+    input.type = visible ? 'password' : 'text';
+    this.setAttribute('aria-label', visible ? 'Mostrar contraseña' : 'Ocultar contraseña');
+    this.querySelector('i').className = visible ? 'bi bi-eye' : 'bi bi-eye-slash';
+});
+</script>
+{% endblock %}

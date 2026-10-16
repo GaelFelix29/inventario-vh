@@ -1,0 +1,185 @@
+.backup-access-page {
+    min-height: calc(100vh - 80px);
+    display: grid;
+    place-items: center;
+    padding: 30px 16px;
+    background: radial-gradient(circle at top, #e7f7ee 0, transparent 45%);
+}
+
+.backup-access-card {
+    width: min(100%, 520px);
+    padding: 38px;
+    border: 1px solid #dbe9e1;
+    border-radius: 26px;
+    background: #fff;
+    box-shadow: 0 22px 55px rgba(16, 75, 46, .13);
+}
+
+.backup-access-icon {
+    display: grid;
+    width: 66px;
+    height: 66px;
+    margin-bottom: 18px;
+    place-items: center;
+    border-radius: 20px;
+    color: #fff;
+    background: linear-gradient(145deg, #0baa65, #067444);
+    box-shadow: 0 12px 24px rgba(8, 143, 84, .25);
+    font-size: 1.65rem;
+}
+
+.backup-access-eyebrow {
+    color: #07814d;
+    font-size: .7rem;
+    font-weight: 900;
+    letter-spacing: .14em;
+}
+
+.backup-access-card h1 {
+    margin: 6px 0 8px;
+    color: #17251e;
+    font-size: clamp(1.65rem, 5vw, 2.1rem);
+    font-weight: 850;
+}
+
+.backup-access-card>p {
+    margin: 0 0 24px;
+    color: #687a70;
+    line-height: 1.55;
+}
+
+.backup-access-alerts {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.backup-access-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 11px 12px;
+    border-radius: 11px;
+    color: #087047;
+    background: #eaf8f1;
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.backup-access-alert.danger {
+    color: #a22e3a;
+    background: #fff0f2;
+}
+
+.backup-access-alert.warning {
+    color: #785709;
+    background: #fff7dc;
+}
+
+.backup-access-form label {
+    display: block;
+    margin-bottom: 8px;
+    color: #273b31;
+    font-size: .8rem;
+    font-weight: 800;
+}
+
+.backup-password-field {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    min-height: 54px;
+    padding: 0 14px;
+    border: 1px solid #cfe0d7;
+    border-radius: 13px;
+    background: #fbfdfc;
+}
+
+.backup-password-field:focus-within {
+    border-color: #0a9659;
+    box-shadow: 0 0 0 4px rgba(10, 150, 89, .11);
+}
+
+.backup-password-field>i {
+    color: #098652;
+}
+
+.backup-password-field input {
+    min-width: 0;
+    height: 52px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+}
+
+.backup-password-field button {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 9px;
+    color: #557066;
+    background: #edf5f1;
+}
+
+.backup-access-submit {
+    width: 100%;
+    min-height: 52px;
+    margin-top: 14px;
+    border: 0;
+    border-radius: 13px;
+    color: #fff;
+    background: #078f55;
+    font-weight: 850;
+    box-shadow: 0 10px 20px rgba(7, 143, 85, .2);
+}
+
+.backup-access-submit:disabled,
+.backup-password-field input:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.backup-access-unconfigured {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px;
+    border: 1px solid #edcf87;
+    border-radius: 13px;
+    color: #765408;
+    background: #fff7de;
+}
+
+.backup-access-unconfigured strong,
+.backup-access-unconfigured span {
+    display: block;
+}
+
+.backup-access-unconfigured span {
+    margin-top: 3px;
+    font-size: .8rem;
+}
+
+.backup-access-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding-top: 17px;
+    border-top: 1px solid #e5ede9;
+    color: #73847b;
+    font-size: .76rem;
+}
+
+@media (max-width: 576px) {
+    .backup-access-page {
+        min-height: auto;
+        padding: 18px 4px 100px;
+    }
+
+    .backup-access-card {
+        padding: 25px 19px;
+        border-radius: 20px;
+    }
+}
